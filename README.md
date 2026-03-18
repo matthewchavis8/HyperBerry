@@ -46,6 +46,9 @@ HyperBerry occupies EL2 (hypervisor exception level). Guest operating systems ru
 - `clang++` with `--target=aarch64-none-elf`
 - `ld.lld` (LLVM linker)
 - `llvm-objcopy` for image conversion
+- `aarch64-none-elf-toolchain` for cross compilation for the ARM board
+- `qemu-aarch64` for running unit test
+- `qemu-user` unit test need a virtual libc
 
 **Build flags**
 
