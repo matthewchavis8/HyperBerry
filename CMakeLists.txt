@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Export compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
 
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX)
 
@@ -19,5 +21,5 @@ if(BUILD_TESTING)
   )
   FetchContent_MakeAvailable(googletest)
 
-  add_subdirectory(Test)
+  add_subdirectory(tests)
 endif()
