@@ -43,6 +43,14 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 - [ ] Device passthrough via Stage-2 identity mapping
 - [ ] Virtio-mmio transport for virtual block / network devices (stretch goal)
 
-## Design Notes
+## Quesitons to ask
 
-<!-- Record decisions, open questions, and links to relevant ARM specs here -->
+### Bootstrap Questions
+ #### Toolchain requirements to cross compile for ARM? [ x ]
+    **Results:** so settled on using aarch64-unknown-elf for cross compilations for baremetal
+      then for unit testing I will just cross compile for ARM aarch64-gcc then run it in a       QEMU.
+ #### How can I flash the SD card? [ ]
+   ##### How does the boot sequence work for a Raspberry PI5? [ ]
+ #### How do you get from the firmware to EL2 for booting the hypervisor [ ]
+ #### Do I need to have a linker script to layout the Hypervisor code specefically in memory? [ ]
+ #### Do I need to create a device tree blob hardware descriptor? [ ]
