@@ -1,0 +1,59 @@
+HeaderFilterRegex: '.*'
+
+Checks: >
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  portability-*,
+  misc-redundant-expression,
+  misc-unused-alias-decls,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-loop-convert,
+  modernize-use-emplace,
+  modernize-make-unique,
+  modernize-make-shared,
+  -bugprone-easily-swappable-parameters,
+  -readability-magic-numbers,
+  -readability-avoid-const-params-in-decls,
+  -readability-identifier-length,
+  -performance-avoid-endl,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  -misc-no-recursion
+
+WarningsAsErrors: ""
+FormatStyle: file
+
+CheckOptions:
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
+  - key: readability-identifier-naming.MemberPrefix
+    value: m_
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.IgnoreMainLikeFunctions
+    value: 1
+
+  - key: readability-function-cognitive-complexity.Threshold
+    value: "30"
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: modernize-use-nullptr.NullMacros
+    value: "NULL"

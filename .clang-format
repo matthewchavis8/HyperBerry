@@ -1,0 +1,14 @@
+BasedOnStyle: LLVM
+IndentWidth: 2
+ColumnLimit: 0
+PointerAlignment: Left
+SpaceBeforeParens: ControlStatements
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+IndentCaseLabels: true
+SortIncludes: true
+SpacesInAngularBrackets: false
+SpaceAfterCStyleCast: false
+AlignTrailingComments: true
