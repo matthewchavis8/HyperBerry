@@ -1,6 +1,6 @@
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76.
 
-.section .text.boot
+.section .text.start
 .global _start
 
 _start:
@@ -53,7 +53,7 @@ _start:
     b     .Lbss_loop
 .Lbss_done:
     // Set up EL2 stack and enter hypervisor.
-    ldr   x0, =_hyp_stack_top
+    ldr   x0, =__stack_end
     mov   sp, x0
     bl    hmain
 .Lblock:
