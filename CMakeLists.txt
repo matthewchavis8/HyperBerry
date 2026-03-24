@@ -26,7 +26,7 @@ endif()
 
 # add modules
 add_subdirectory(core)
-add_executable(hyperberry.elf ${BOOT_S})
+add_executable(${ELF} ${BOOT_S})
 
 # link libs
 target_link_libraries(${ELF}

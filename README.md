@@ -39,26 +39,70 @@ HyperBerry runs directly on the BCM2712 SoC with no host OS, entering EL2 at boo
 
 HyperBerry occupies EL2 (hypervisor exception level). Guest operating systems run at EL1 and are isolated from each other via Stage-2 address translation, with virtual interrupts and timers managed by the hypervisor.
 
+## Project Structure
+
+```
+HyperBerry/
+├── arch/       # AArch64 boot assembly and platform-specific startup
+├── cmake/      # Cross-compilation toolchain and CMake configuration
+├── core/       # Hypervisor core (scheduler, memory, exception handling)
+├── drivers/    # Software device drivers
+├── linker/     # Platform-specific linker scripts and memory layouts
+├── tests/      # Test infrastructure
+├── docs/       # extra docs like roadmap and such
+├── CMakeLists.txt
+└── justfile    # Quick command runner
+```
+
 ## Build & Toolchain
 
-**Requirements**
+### Requirements
 
-- `clang++` with `--target=aarch64-none-elf`
-- `ld.lld` (LLVM linker)
-- `llvm-objcopy` for image conversion
-- `aarch64-none-elf-toolchain` for cross compilation for the ARM board
-- `qemu-aarch64` for running unit test
-- `qemu-user` unit test need a virtual libc
+- `clang` / `clang++` with `--target=aarch64-none-elf`
+- `llvm` (LLVM)
+- `cmake` (>= 3.16)
+- `just` command runner
+- `qemu-system-aarch64` for virtualized hardware
 
-**Build flags**
+### Toolchain
+
+The cross-compilation toolchain is defined in `cmake/aarch64-toolchain.cmake` and targets `aarch64-none-elf` (bare-metal, no libc).
+
+### Build Flags
 
 ```
--ffreestanding -fno-exceptions -fno-rtti -std=c++14
+-ffreestanding -fno-exceptions -fno-rtti -std=c++14 -nostdlib -static
 ```
 
-**Deploy**
+### Build Outputs
 
-Copy the resulting `kernel8.img` to the boot partition of a Raspberry Pi 5 SD card.
+The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (raw binary) via `llvm-objcopy -O binary`.
+
+NOTE: the rpi5 firmware looks for kernel8.img in order to boot it
+
+## Quick Start
+
+### Build and run on QEMU
+
+```bash
+just qemu
+```
+
+This configures, builds, and launches the hypervisor on a virtualized Raspberry Pi 5 (4x Cortex-A76, 4 GB RAM, GICv2).
+
+### Build for physical RPi5
+
+```bash
+just rpi5
+```
+
+### Deploy to hardware
+
+Copy the resulting image to the boot partition of a Raspberry Pi 5 SD card:
+
+```bash
+cp build/rpi5/kernel8.img /path/to/sdcard/boot/
+```
 
 ## License
 
