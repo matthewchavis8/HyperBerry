@@ -1,4 +1,4 @@
-// EL2 hypervisor entry point for BCM2712 / Cortex-A76.
+// EL2 hypervisor entry point for BCM2712 / Cortex-A76. HARDWARE
 
 .section .text.start
 .global _start
