@@ -82,27 +82,11 @@ NOTE: the rpi5 firmware looks for kernel8.img in order to boot it
 
 ## Quick Start
 
-### Build and run on QEMU
-
-```bash
-just qemu
-```
-
-This configures, builds, and launches the hypervisor on a virtualized Raspberry Pi 5 (4x Cortex-A76, 4 GB RAM, GICv2).
-
-### Build for physical RPi5
-
-```bash
-just rpi5
-```
-
-### Deploy to hardware
-
-Copy the resulting image to the boot partition of a Raspberry Pi 5 SD card:
-
-```bash
-cp build/rpi5/kernel8.img /path/to/sdcard/boot/
-```
+| Command      | Description                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| `just qemu`  | Configure, build, and launch the hypervisor on a virtualized RPi5 (QEMU)    |
+| `just rpi5`  | Build and flash the hypervisor on physical Raspberry Pi 5 hardware(SOON)    |
+| `just clean` | Remove all build artifacts                                                  |
 
 ## License
 
