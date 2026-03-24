@@ -13,17 +13,18 @@ set(BOARD "rpi5" CACHE STRING "Target Board")
 
 if (BOARD STREQUAL "rpi5")
   message(STATUS "Building for target: Raspberry Pi 5")
+  set(LINKER_SCRIPT linker/rpi5/linker.ld)
+  set(BOOT_S        arch/aarch64/rpi5/boot.S)
 elseif (BOARD STREQUAL "qemu")
   message(STATUS "Building for target: Virtualized Raspberry Pi 5 in QEMU")
+  set(LINKER_SCRIPT linker/qemu/linker.ld)
+  set(BOOT_S        arch/aarch64/qemu/boot.S)
 else ()
   message(STATUS "[ERROR] unknown board detected={BOARD}")
 endif()
 
 # Does this compile
-add_executable(
-  TEST
-  test.cpp
-)
+add_subdirectory(core)
 
 # Pull in Google Test
 # COMMENT FOR NOW need to seperate debug and release later
