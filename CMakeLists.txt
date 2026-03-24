@@ -4,9 +4,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/aarch64-toolchain.cmake CACHE STRING "Toolchain file")
+
 set(CMAKE_OBJCOPY llvm-objcopy)
 set(ELF hyperberry.elf)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/aarch64-toolchain.cmake CACHE STRING "Toolchain file")
+
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX ASM C)
 
 # Build option for targets
