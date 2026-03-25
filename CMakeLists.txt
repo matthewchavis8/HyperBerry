@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
@@ -22,18 +22,22 @@ elseif (BOARD STREQUAL "qemu")
   message(STATUS "Building for target: Virtualized Raspberry Pi 5 in QEMU")
   set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/qemu/linker.ld)
   set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/qemu/boot.S)
+  add_compile_definitions(QEMU)
 else ()
   message(STATUS "[ERROR] unknown board detected={BOARD}")
 endif()
 
 # add modules
-add_subdirectory(core)
+add_subdirectory(core)    # subject to change once we get code into core/
+add_subdirectory(drivers)
+
 add_executable(${ELF} ${BOOT_S})
 
 # link libs
 target_link_libraries(${ELF}
   PRIVATE
   Core
+  Uart
 )
 
 target_link_options(${ELF}

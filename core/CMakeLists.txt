@@ -3,3 +3,8 @@ add_library(
   STATIC
   main.cpp
 )
+
+target_link_libraries(Core
+  PRIVATE
+  Uart
+)
