@@ -22,7 +22,9 @@ Checks: >
   -performance-avoid-endl,
   -misc-non-private-member-variables-in-classes,
   -misc-use-anonymous-namespace,
-  -misc-no-recursion
+  -misc-no-recursion,
+  -readability-identifier-naming,
+  -performance-no-int-to-ptr,
 
 WarningsAsErrors: ""
 FormatStyle: file
