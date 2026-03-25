@@ -1,4 +1,4 @@
-#include "../drivers/uart/uart.h"
+#include "uart.h"
 
 // Stub to see if we can boot and flash the QEMU virtual
 extern "C" void hmain() {

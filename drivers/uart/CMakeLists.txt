@@ -4,6 +4,6 @@ add_library(Uart
 )
 
 target_include_directories(Uart
-  PUBLIC 
-  ${CMAKE_SOURCE_DIR}
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
 )
