@@ -1,4 +1,5 @@
 build/
+docs/doxygen/
 *.json
 *.cache
 *.o

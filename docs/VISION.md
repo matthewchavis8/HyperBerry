@@ -13,8 +13,8 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 ## Roadmap
 
 ### Phase 0 — Bootstrap
-- [ ] Minimal boot: enter EL2, initialize BSS, set up stack
-- [ ] PL011 UART driver for early debug output
+- [x] Minimal boot: enter EL2, initialize BSS, set up stack
+- [x] PL011 UART driver for early debug output
 - [ ] Exception vector table and synchronous exception handling
 
 ### Phase 1 — Memory Management
@@ -43,7 +43,7 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 - [ ] Device passthrough via Stage-2 identity mapping
 - [ ] Virtio-mmio transport for virtual block / network devices (stretch goal)
 
-## Quesitons to ask
+## Questions to ask
 
 ### Bootstrap Questions
  #### Toolchain requirements to cross compile for ARM? [ x ]

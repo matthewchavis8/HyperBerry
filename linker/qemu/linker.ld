@@ -1,6 +1,11 @@
 /**
- * Linker Script for QEMU cortex-a76 / virt / 4GB
- **/
+ * @file linker.ld
+ * @brief Linker script for QEMU virt machine (Cortex-A76, 4 GB).
+ *
+ * Memory layout: RAM starts at 0x40000000 (QEMU virt load address).
+ * Defines text, rodata, data, bss, stack (4 MB), heap (64 MB),
+ * and uncached (1 MB) regions.
+ */
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
 

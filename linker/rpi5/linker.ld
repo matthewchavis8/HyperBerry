@@ -1,6 +1,11 @@
 /**
- * Linker Script for Raspberry Pi 5 / 8GB RAM
- **/
+ * @file linker.ld
+ * @brief Linker script for Raspberry Pi 5 hardware (8 GB).
+ *
+ * Memory layout: firmware loads kernel8.img to 0x00200000.
+ * Defines text, rodata, data, bss, stack (4 MB), heap (64 MB),
+ * and uncached (1 MB) regions. First 32 KB reserved.
+ */
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
 
