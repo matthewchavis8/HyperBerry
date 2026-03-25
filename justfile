@@ -22,6 +22,10 @@ rpi5:
   cmake --build {{ RPI_PATH }} --target run
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
 
+docs:
+  doxygen Doxyfile
+  @echo "[LOG] Doxygen docs generated at docs/doxygen/html/index.html"
+
 clean:
   rm -rf {{ QEMU_PATH }}
   rm -rf {{ RPI_PATH }}

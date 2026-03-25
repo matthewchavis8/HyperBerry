@@ -63,6 +63,7 @@ HyperBerry/
 - `cmake` (>= 3.16)
 - `just` command runner
 - `qemu-system-aarch64` for virtualized hardware
+- `doxygen` (optional, for generating API docs)
 
 ### Toolchain
 
@@ -71,7 +72,7 @@ The cross-compilation toolchain is defined in `cmake/aarch64-toolchain.cmake` an
 ### Build Flags
 
 ```
--ffreestanding -fno-exceptions -fno-rtti -std=c++14 -nostdlib -static
+-ffreestanding -fno-exceptions -fno-rtti -std=c++17 -nostdlib -static
 ```
 
 ### Build Outputs
@@ -86,6 +87,7 @@ NOTE: the rpi5 firmware looks for kernel8.img in order to boot it
 |--------------|-----------------------------------------------------------------------------|
 | `just qemu`  | Configure, build, and launch the hypervisor on a virtualized RPi5 (QEMU)    |
 | `just rpi5`  | Build and flash the hypervisor on physical Raspberry Pi 5 hardware(SOON)    |
+| `just docs`  | Generate Doxygen HTML documentation in `docs/doxygen/html/`                 |
 | `just clean` | Remove all build artifacts                                                  |
 
 ## License

@@ -1,0 +1,42 @@
+# Doxyfile for HyperBerry
+
+PROJECT_NAME           = "HyperBerry"
+PROJECT_BRIEF          = "Type-1 bare-metal hypervisor for Raspberry Pi 5"
+PROJECT_NUMBER         = 0.0.1
+
+OUTPUT_DIRECTORY       = docs/doxygen
+CREATE_SUBDIRS         = NO
+
+# Input
+INPUT                  = core/ drivers/ arch/
+FILE_PATTERNS          = *.cpp *.h *.S
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */build/*
+
+# Main page
+USE_MDFILE_AS_MAINPAGE = README.md
+INPUT                 += README.md
+
+# Extraction
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+JAVADOC_AUTOBRIEF      = YES
+
+# Output
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HTML_OUTPUT            = html
+
+# Source browsing
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+
+# Warnings
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+
+# Preprocessing
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+PREDEFINED             = QEMU

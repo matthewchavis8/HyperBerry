@@ -1,3 +1,12 @@
+/**
+ * @file boot.S
+ * @brief EL2 hypervisor bootstrap for QEMU virt (Cortex-A76).
+ *
+ * Entry point for the virtualized Raspberry Pi 5 target. Parks all
+ * non-zero cores, verifies EL2, configures HCR/SCTLR/CNTHCTL,
+ * zeroes BSS, sets up the stack, and branches to hmain().
+ */
+
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76. VIRTUAL
 
 .section .text.start
