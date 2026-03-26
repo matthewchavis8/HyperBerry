@@ -23,7 +23,7 @@
  */
 extern "C" void hmain() {
   for (;;) {
-    Uart::print("I have no mouth and I must scream:(\n");
+    Uart::print("I have no mouth and I must scream\n");
     asm volatile("wfe");
   }
 }
