@@ -63,7 +63,8 @@ HyperBerry/
 - `cmake` (>= 3.16)
 - `just` command runner
 - `qemu-system-aarch64` for virtualized hardware
-- `doxygen` (optional, for generating API docs)
+- `doxygen` (for generating XML used by Sphinx)
+- `python3` / `pip` (install doc deps with `pip install -r docs/requirements.txt`)
 
 ### Toolchain
 
@@ -87,7 +88,7 @@ NOTE: the rpi5 firmware looks for kernel8.img in order to boot it
 |--------------|-----------------------------------------------------------------------------|
 | `just qemu`  | Configure, build, and launch the hypervisor on a virtualized RPi5 (QEMU)    |
 | `just rpi5`  | Build and flash the hypervisor on physical Raspberry Pi 5 hardware(SOON)    |
-| `just docs`  | Generate Doxygen HTML documentation in `docs/doxygen/html/`                 |
+| `just docs`  | Generate Sphinx + Breathe API documentation in `docs/_build/html/`          |
 | `just clean` | Remove all build artifacts                                                  |
 
 ## License
