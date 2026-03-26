@@ -7,6 +7,11 @@
  * address is selected at compile time via the QEMU preprocessor define.
  */
 
+/**
+ * @defgroup drivers_uart UART Driver
+ * @brief PL011 UART driver for early debug output.
+ */
+
 #ifndef __UART_H__
 #define __UART_H__
 
