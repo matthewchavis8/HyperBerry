@@ -1,10 +1,34 @@
 /**
  * @file boot.S
  * @brief EL2 hypervisor bootstrap for Raspberry Pi 5 hardware (Cortex-A76).
+ * @ingroup core
  *
- * Entry point for the physical RPi5 target. Parks all non-zero cores,
- * verifies EL2, configures HCR/SCTLR/CNTHCTL, zeroes BSS, sets up
- * the stack, and branches to hmain().
+ * @par Boot Sequence
+ * 1. **Core parking** — MPIDR_EL1 is read and all non-zero cores are
+ *    sent to a `wfe` spin loop. Only core 0 proceeds.
+ * 2. **EL2 verification** — CurrentEL is checked. The RPi5 firmware
+ *    (TF-A / config.txt `arm_64bit=1`) enters at EL2 by default; if
+ *    not, core 0 is parked.
+ * 3. **HCR_EL2** — RW bit (31) is set, forcing all EL1 guests into
+ *    AArch64 mode. 32-bit guests are not supported.
+ * 4. **SCTLR_EL2** — MMU, D-cache, and I-cache are explicitly disabled
+ *    until Stage-2 page tables are installed.
+ * 5. **CNTHCTL_EL2** — EL1PCTEN and EL1PCEN are set, granting guest
+ *    OSes read access to the physical counter and timer. CNTVOFF_EL2
+ *    is zeroed so the virtual offset is neutral.
+ * 6. **VPIDR/VMPIDR** — Shadowed from the real MIDR/MPIDR so guests
+ *    report accurate CPU identity.
+ * 7. **BSS zeroing** — The .bss section is zeroed with 16-byte stores
+ *    using symbol addresses from the linker script.
+ * 8. **Stack** — SP_EL2 is set to `__stack_end` (top of the 4 MB EL2
+ *    stack defined in the linker script).
+ * 9. **Branch to hmain()** — Control is transferred to the C++ hypervisor
+ *    entry point. hmain() must never return.
+ *
+ * @note Target: physical BCM2712 SoC (Raspberry Pi 5).
+ *       UART base 0x7E201000 is used when @c QEMU is not defined.
+ * @warning Secondary cores (1–3) are parked in a `wfe` loop. Future
+ *          SMP support will require a spin-table or PSCI wake-up sequence.
  */
 
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76. HARDWARE

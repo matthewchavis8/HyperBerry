@@ -1,0 +1,33 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: sudo apt-get install -y doxygen
+
+      - name: Install Python deps
+        run: pip install sphinx breathe furo
+
+      - name: Generate Doxygen XML
+        run: doxygen docs/sphinx/Doxyfile
+
+      - name: Build Sphinx HTML
+        run: sphinx-build -b html docs/sphinx docs/_build/html
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
