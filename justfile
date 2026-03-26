@@ -9,17 +9,27 @@ default:
 qemu:
   cmake -B {{ QEMU_PATH }} -DBOARD=qemu
   @echo "[LOG] build directory created at {{QEMU_PATH}}"
+
   cmake --build {{ QEMU_PATH }}
   @echo "[LOG] HyperBerry Image has been created"
+
   @echo "[LOG] Virtual Raspberry PI5 has succesfully been built and flash"
   cmake --build {{ QEMU_PATH }} --target run
 
-rpi5:
-  cmake -B {{ RPI_PATH }} -DBOARD=rpi5
+rpi5 SD_DEV="/dev/sda1":
+  cmake -B {{ RPI_PATH }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
   @echo "[LOG] build directory created at {{QEMU_PATH}}"
+
   cmake --build {{ RPI_PATH }}
   @echo "[LOG] HyperBerry Image has been created"
+
+  sudo mkdir -p /mnt/sdcard
+  sudo mount -o uid=$(id -u),gid=$(id -g) {{ SD_DEV }} /mnt/sdcard
+  @echo "[LOG] Mounting SD Card for flashing"
+
   cmake --build {{ RPI_PATH }} --target run
+  sudo umount /mnt/sdcard
+  @echo "[LOG] SD card flashing is done unmounting SD card"
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
 
 docs:

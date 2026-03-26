@@ -74,6 +74,31 @@ if (BOARD STREQUAL "qemu")
   )
 endif()
 
+if (BOARD STREQUAL "rpi5")
+  set(SD_MOUNT "/mnt/sdcard" CACHE STRING "SD card mount point")
+
+  add_custom_target(run
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_BINARY_DIR}/kernel8.img
+      ${SD_MOUNT}/kernel8.img
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/boot/start4.elf
+      ${SD_MOUNT}/start4.elf
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/boot/bcm2712-rpi-5-b.dtb
+      ${SD_MOUNT}/bcm2712-rpi-5-b.dtb
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/boot/config.txt
+      ${SD_MOUNT}/config.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/boot/fixup4.dat
+      ${SD_MOUNT}/fixup4.dat
+
+    DEPENDS hyperberry.elf
+    COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
+  )
+endif()
+
 # Pull in Google Test
 # COMMENT FOR NOW need to seperate debug and release later
 # include(CTest)
