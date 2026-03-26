@@ -4,7 +4,7 @@ PROJECT_NAME           = "HyperBerry"
 PROJECT_BRIEF          = "Type-1 bare-metal hypervisor for Raspberry Pi 5"
 PROJECT_NUMBER         = 0.0.1
 
-OUTPUT_DIRECTORY       = docs/doxygen
+OUTPUT_DIRECTORY       = docs/_doxygen
 CREATE_SUBDIRS         = NO
 
 # Input
@@ -24,9 +24,10 @@ EXTRACT_STATIC         = YES
 JAVADOC_AUTOBRIEF      = YES
 
 # Output
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 GENERATE_LATEX         = NO
-HTML_OUTPUT            = html
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
 
 # Source browsing
 SOURCE_BROWSER         = YES

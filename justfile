@@ -23,8 +23,15 @@ rpi5:
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
 
 docs:
-  doxygen Doxyfile
-  @echo "[LOG] Doxygen docs generated at docs/doxygen/html/index.html"
+  doxygen docs/sphinx/Doxyfile
+  docs/.venv/bin/sphinx-build -b html docs/sphinx docs/_build/html
+  @echo "[LOG] Sphinx docs generated at docs/_build/html/index.html"
+  @echo "[LOG] Serving docs at http://localhost:8000 (Ctrl+C to stop)"
+  python3 -m http.server 8000 --directory docs/_build/html
+
+docs-clean:
+  rm -rf docs/_doxygen
+  rm -rf docs/_build
 
 clean:
   rm -rf {{ QEMU_PATH }}

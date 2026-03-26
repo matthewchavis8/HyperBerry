@@ -1,5 +1,7 @@
 build/
-docs/doxygen/
+docs/_doxygen/
+docs/_build/
+docs/.venv/
 *.json
 *.cache
 *.o
