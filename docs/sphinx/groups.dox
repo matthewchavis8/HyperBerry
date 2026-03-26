@@ -1,0 +1,29 @@
+/**
+ * @defgroup hypervisor HyperBerry Hypervisor
+ * @brief Type-1 bare-metal hypervisor for Raspberry Pi 5.
+ *
+ * HyperBerry runs at EL2 on the BCM2712 SoC, using Armv8-A
+ * hardware-assisted virtualization to host isolated guest OSes.
+ */
+
+/**
+ * @defgroup core Core
+ * @ingroup hypervisor
+ * @brief Hypervisor core — entry point, scheduler, and exception handling.
+ */
+
+/**
+ * @defgroup drivers Drivers
+ * @ingroup hypervisor
+ * @brief Hardware device drivers for bare-metal peripherals.
+ */
+
+/**
+ * @defgroup drivers_uart UART Driver
+ * @ingroup drivers
+ * @brief PL011 UART driver for early debug output.
+ *
+ * Supports both the QEMU virt machine (base 0x09000000) and
+ * physical Raspberry Pi 5 hardware (base 0x7E201000), selected
+ * at compile time via the @c QEMU preprocessor define.
+ */
