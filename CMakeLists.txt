@@ -40,11 +40,29 @@ target_link_libraries(${ELF}
   Uart
 )
 
+target_compile_options(${ELF}
+  PRIVATE
+  -ffreestanding
+  -fno-exceptions
+  -fno-rtti
+  -fno-threadsafe-statics
+  -fno-common
+  -fno-builtin
+  -fno-asynchronous-unwind-tables
+  -ffunction-sections
+  -fdata-sections
+  -Wall
+  -Wextra
+  $<$<CONFIG:Debug>:-O0 -g3 -gdwarf-4>
+  $<$<CONFIG:Release>:-Os -DNDEBUG>
+)
+
 target_link_options(${ELF}
   PRIVATE
   -T${LINKER_SCRIPT}
   -nostdlib
   -static
+  -Wl,
 )
 
 set_target_properties(${ELF}

@@ -2,7 +2,7 @@ build/
 docs/_doxygen/
 docs/_build/
 docs/.venv/
-*.json
+compile_commands.json
 *.cache
 *.o
 *.a

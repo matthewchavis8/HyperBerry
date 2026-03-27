@@ -1,33 +1,30 @@
 # Quick Commands
 
-QEMU_PATH := "build/qemu"
-RPI_PATH  := "build/rpi5"
-
 default:
   @just --list
 
-qemu:
-  cmake -B {{ QEMU_PATH }} -DBOARD=qemu
-  @echo "[LOG] build directory created at {{QEMU_PATH}}"
-
-  cmake --build {{ QEMU_PATH }}
+qemu MODE="debug":
+  cmake --preset {{ MODE }} -DBOARD=qemu
+  @echo "[LOG] build {{ MODE }} directory"
+  cmake --build --preset {{ MODE }}
   @echo "[LOG] HyperBerry Image has been created"
 
   @echo "[LOG] Virtual Raspberry PI5 has succesfully been built and flash"
-  cmake --build {{ QEMU_PATH }} --target run
+  cmake --build --preset {{ MODE }} --target run
 
-rpi5 SD_DEV="/dev/sda1":
-  cmake -B {{ RPI_PATH }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
-  @echo "[LOG] build directory created at {{QEMU_PATH}}"
+rpi5 MODE="release" SD_DEV="/dev/sda1":
+  cmake --preset {{ MODE }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
+  @echo "[LOG] build {{ MODE }} directory"
 
-  cmake --build {{ RPI_PATH }}
+  cmake --build --preset {{ MODE }}
   @echo "[LOG] HyperBerry Image has been created"
 
+  @echo "[LOG] Mounting SD Card for flashing"
   sudo mkdir -p /mnt/sdcard
   sudo mount -o uid=$(id -u),gid=$(id -g) {{ SD_DEV }} /mnt/sdcard
-  @echo "[LOG] Mounting SD Card for flashing"
+  @echo "[LOG] Succesfully mounted SD Card for flashing"
 
-  cmake --build {{ RPI_PATH }} --target run
+  cmake --build --preset {{ MODE }} --target run
   sudo umount /mnt/sdcard
   @echo "[LOG] SD card flashing is done unmounting SD card"
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
@@ -44,5 +41,4 @@ docs-clean:
   rm -rf docs/_build
 
 clean:
-  rm -rf {{ QEMU_PATH }}
-  rm -rf {{ RPI_PATH }}
+  rm -rf /build
