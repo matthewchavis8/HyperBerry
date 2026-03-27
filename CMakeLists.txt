@@ -98,20 +98,3 @@ if (BOARD STREQUAL "rpi5")
     COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
   )
 endif()
-
-# Pull in Google Test
-# COMMENT FOR NOW need to seperate debug and release later
-# include(CTest)
-# if (BUILD_TESTING)
-#   # For MSVC compilers avoid conflict
-#   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-#
-#   include(FetchContent)
-#   FetchContent_Declare(
-#     googletest
-#     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-#   )
-#   FetchContent_MakeAvailable(googletest)
-#
-#   add_subdirectory(tests)
-# endif()
