@@ -32,6 +32,10 @@ void Uart::putc(const char ch) {
 /** @brief Transmit a null-terminated string character by character. */
 void Uart::print(const char* str) {
   while (*str != '\0') {
+    if (*str == '\n') {
+      putc('\r');
+    }
+
     putc(*str);
     ++str;
   }
