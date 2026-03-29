@@ -63,6 +63,7 @@ HyperBerry/
 - `cmake` (>= 3.16)
 - `just` command runner
 - `qemu-system-aarch64` for virtualized hardware
+- `minicom` for UART serial console
 - `doxygen` (for generating XML used by Sphinx)
 - `python3` / `pip` (install doc deps with `pip install -r docs/requirements.txt`)
 
@@ -70,26 +71,104 @@ HyperBerry/
 
 The cross-compilation toolchain is defined in `cmake/aarch64-toolchain.cmake` and targets `aarch64-none-elf` (bare-metal, no libc).
 
-### Build Flags
-
-```
--ffreestanding -fno-exceptions -fno-rtti -std=c++17 -nostdlib -static
-```
-
 ### Build Outputs
 
 The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (raw binary) via `llvm-objcopy -O binary`.
 
-NOTE: the rpi5 firmware looks for kernel8.img in order to boot it
-
 ## Quick Start
 
-| Command      | Description                                                                 |
-|--------------|-----------------------------------------------------------------------------|
-| `just qemu`  | Configure, build, and launch the hypervisor on a virtualized RPi5 (QEMU)    |
-| `just rpi5`  | Build and flash the hypervisor on physical Raspberry Pi 5 hardware(SOON)    |
-| `just docs`  | Generate Sphinx + Breathe API documentation in `docs/_build/html/`          |
-| `just clean` | Remove all build artifacts                                                  |
+| Command                                  | Description                              |
+|------------------------------------------|------------------------------------------|
+| `just qemu (debug/release)`              | Build and run in QEMU                    |
+| `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5         |
+| `just docs`                              | Generate and serve Sphinx + Breathe docs |
+| `just clean`                             | Remove build artifacts                   |
+
+### QEMU
+
+**Quick start:**
+
+```sh
+just qemu          # debug build (default)
+just qemu release  # release build
+```
+
+**Manual steps (without `just`):**
+
+```sh
+# 1. Configure
+cmake --preset debug -DBOARD=qemu
+
+# 2. Build
+cmake --build --preset debug
+
+# 3. Spin up virtual RPI5 with hyperBerry image
+qemu-system-aarch64 \
+  -machine virt,virtualization=on,gic-version=2 \
+  -cpu cortex-a76 \
+  -m 4G \
+  -nographic \
+  -kernel build/debug/kernel8.img
+```
+
+UART output prints directly to the terminal. Exit QEMU with `Ctrl-A X`.
+
+### Raspberry Pi 5
+
+1. Format an SD card as FAT32.
+2. Plug the SD card into the host and identify the partition (e.g. `/dev/sda1`).
+
+**Quick start:**
+
+```sh
+just rpi5                          # release build, default /dev/sda1
+just rpi5 release /dev/sdX1        # specify a different partition
+```
+
+**Manual steps (without `just`):**
+
+```sh
+# 1. Configure
+cmake --preset release -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
+
+# 2. Build
+cmake --build --preset release
+
+# 3. Mount and flash
+sudo mkdir -p /mnt/sdcard
+sudo mount -o uid=$(id -u),gid=$(id -g) /dev/sda1 /mnt/sdcard
+
+cp build/release/kernel8.img       /mnt/sdcard/
+cp boot/start4.elf                 /mnt/sdcard/
+cp boot/bcm2712-rpi-5-b.dtb        /mnt/sdcard/
+cp boot/config.txt                 /mnt/sdcard/
+cp boot/fixup4.dat                 /mnt/sdcard/
+
+sudo umount /mnt/sdcard
+```
+
+3. Insert the SD card into the Pi 5 and power on.
+
+### UART Debugging
+
+Hardware: [Waveshare Pi UART Debugger](https://www.waveshare.com/wiki/Pi_UART_Debugger) with a 3-pin to 3-pin cable.
+
+<!-- TODO: replace with your uploaded GitHub image URL -->
+<!-- <img width="600" alt="3-pin to 3-pin cable" src="YOUR_GITHUB_IMAGE_URL_HERE" /> -->
+
+1. Connect the debugger's 3-pin header straight to the Pi 5's UART slot.
+2. Plug the debugger's USB side into the host machine.
+3. Find the serial device:
+
+```sh
+ls /dev/ttyUSB*
+```
+
+4. Open a serial console:
+
+```sh
+minicom -b 115200 -D /dev/ttyUSB*   # Make sure it is the correct USB
+```
 
 ## License
 
