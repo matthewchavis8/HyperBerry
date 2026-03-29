@@ -1,15 +1,15 @@
 /**
  * @file uart.h
- * @brief PL011 UART driver for serial output.
+ * @brief PL011 UART driver for serial I/O.
  *
- * Provides basic transmit functionality over the PL011 UART peripheral
+ * Provides transmit and receive functionality over the PL011 UART peripheral
  * for both QEMU virt and Raspberry Pi 5 hardware targets. The base
- * address is selected at compile time via the QEMU preprocessor define.
+ * address is selected at compile time via the macros
  */
 
 /**
  * @defgroup drivers_uart UART Driver
- * @brief PL011 UART driver for early debug output.
+ * @brief PL011 UART driver for early serial I/O.
  */
 
 #ifndef __UART_H__
@@ -39,19 +39,16 @@ enum class UART_REG : uint8_t {
 /**
  * @class Uart
  * @ingroup drivers_uart
- * @brief Static PL011 UART driver for early debug output.
+ * @brief Static PL011 UART driver for early serial I/O.
  *
- * All methods are static — this class is never instantiated.
- * It provides the minimum serial output needed before a full
- * memory allocator and exception model are in place.
  */
 class Uart {
   private:
     /**
      * @brief returns the register address for UART PL011
      *
-     * @param takes in the PL011 offsets
-     * @return returns the PL011 register address
+     * @param reg PL011 register offset.
+     * @return Pointer to the memory-mapped PL011 register.
      *
      * */
     static volatile uint32_t* reg(UART_REG reg);
