@@ -272,17 +272,27 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dl>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">UART</span> <span class="pre">Driver</span></span></dt>
-<dd><p>PL011 UART driver for early debug output. </p>
+<dd><p>PL011 UART driver for early serial I/O. </p>
+<p>PL011 UART driver for early debug output.</p>
 <p>Supports both the QEMU virt machine (base 0x09000000) and physical Raspberry Pi 5 hardware (base 0x7E201000), selected at compile time via the <code class="docutils literal notranslate"><span class="pre">QEMU</span></code> preprocessor define. </p>
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv44Uart">
 <span id="_CPPv34Uart"></span><span id="_CPPv24Uart"></span><span id="Uart"></span><span class="target" id="classUart"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Uart</span></span></span><a class="headerlink" href="#_CPPv44Uart" title="Link to this definition">¶</a><br /></dt>
 <dd><div class="docutils container">
 <em>#include &lt;uart.h&gt;</em></div>
-<p>Static PL011 UART driver for early debug output. </p>
-<p>All methods are static — this class is never instantiated. It provides the minimum serial output needed before a full memory allocator and exception model are in place. </p>
+<p>Static PL011 UART driver for early serial I/O. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Uart4initEv">
+<span id="_CPPv3N4Uart4initEv"></span><span id="_CPPv2N4Uart4initEv"></span><span id="Uart::init"></span><span class="target" id="classUart_1aa6f4296883e0453a718200adf6d009f2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4initEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialize the PL011 UART. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Must be called before <a class="reference internal" href="#classUart_1aa778f6e4345184ceb4efbdc93ebf6c7a"><span class="std std-ref">print()</span></a>. </p>
+</div>
+</dd></dl>
+
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N4Uart5printEPKc">
 <span id="_CPPv3N4Uart5printEPKc"></span><span id="_CPPv2N4Uart5printEPKc"></span><span id="Uart::print__cCP"></span><span class="target" id="classUart_1aa778f6e4345184ceb4efbdc93ebf6c7a"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">str</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart5printEPKc" title="Link to this definition">¶</a><br /></dt>
@@ -363,6 +373,7 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>
 <li><a class="reference internal" href="#uart-driver">UART Driver</a><ul>
 <li><a class="reference internal" href="#_CPPv44Uart"><code class="docutils literal notranslate"><span class="pre">Uart</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4Uart4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart5printEPKc"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></li>
 </ul>
 </li>
