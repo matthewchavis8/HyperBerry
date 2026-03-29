@@ -27,8 +27,11 @@
  *       infinite loop with vCPU scheduling and Stage-2 MMU setup.
  */
 extern "C" void hmain() {
+  Uart::init();
+
   for (;;) {
     Uart::print("I have no mouth and I must scream\n");
+    Uart::print("I am grateful to be alive hello world!\n");
     asm volatile("wfe");
   }
 }
