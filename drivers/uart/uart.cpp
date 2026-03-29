@@ -7,23 +7,26 @@
 #include "uart.h"
 #include <stdint.h>
 
-/**
- * @brief Transmit a single character via the UART Data Register.
- *
- * Polls the Flag Register (FR, offset 0x18) until bit 5 (TXFF) clears,
- * then writes the character to the Data Register (DR, offset 0x00).
- *
- * @note Busy-waits on FR_TXFF. This is safe during early boot when
- *       no scheduler or interrupt controller is active yet.
- */
+volatile uint32_t* Uart::reg(UART_REG reg) {
+  return reinterpret_cast<volatile uint32_t*>(UART_BASE + static_cast<uint64_t>(reg));
+}
+
+void Uart::init() {
+  // clear all stale interrupts
+  *reg(UART_REG::ICR) = 0x7FF;
+
+  // Enable UART, TXE, RXE
+  *reg(UART_REG::CR) = (1 << 0) | (1 << 8) | (1 << 9);
+}
+
 void Uart::putc(const char ch) {
-  volatile uint32_t* DR = reinterpret_cast<volatile uint32_t*>(UART_BASE + 0x00);
-  volatile uint32_t* FR = reinterpret_cast<volatile uint32_t*>(UART_BASE + 0x18);
+  // Flag Register bit mask
+  constexpr uint32_t FR_TXFF = (1 << 5);
 
-  // Spin while TX is full
-  while ((*FR & FR_TXFF) != 0U) {}
+  // Spin while TX FIFO is full
+  while ((*reg(UART_REG::FR) & FR_TXFF) != 0U) {}
 
-  *DR = static_cast<uint32_t>(static_cast<uint8_t>(ch));
+  *reg(UART_REG::DR) = static_cast<uint32_t>(static_cast<uint8_t>(ch));
 }
 
 /** @brief Transmit a null-terminated string character by character. */

@@ -17,6 +17,25 @@
 
 #include <stdint.h>
 
+// PL011 UART base address, selected per target board.
+#ifdef QEMU
+static constexpr uint64_t UART_BASE = 0x09000000;
+#else
+static constexpr uint64_t UART_BASE = 0x107D001000;
+#endif
+
+
+// UART PL011 register offsets
+enum class UART_REG : uint8_t {
+    DR   = 0x00,
+    FR   = 0x18,
+    IBRD = 0x24,
+    FBRD = 0x28,
+    LCRH = 0x2C,
+    CR   = 0x30,
+    ICR  = 0x44,
+};
+
 /**
  * @class Uart
  * @ingroup drivers_uart
@@ -28,15 +47,14 @@
  */
 class Uart {
   private:
-    // PL011 UART base address, selected per target board.
-    #ifdef QEMU
-    static constexpr uint64_t UART_BASE = 0x09000000;
-    #else
-    static constexpr uint64_t UART_BASE = 0x7E201000;
-    #endif
-
-    // Flag Register bit mask — TX FIFO full (bit 5).
-    static constexpr uint32_t FR_TXFF = (1 << 5);
+    /**
+     * @brief returns the register address for UART PL011
+     *
+     * @param takes in the PL011 offsets
+     * @return returns the PL011 register address
+     *
+     * */
+    static volatile uint32_t* reg(UART_REG reg);
 
     /**
      * @brief Transmit a single character via the UART Data Register.
@@ -47,6 +65,13 @@ class Uart {
     static void putc(const char ch);
 
   public:
+    /**
+     * @brief Initialize the PL011 UART.
+     *
+     * @note Must be called before print().
+     */
+    static void init();
+
     /**
      * @brief Transmit a null-terminated string.
      * @param str Pointer to the null-terminated string to send.
