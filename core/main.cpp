@@ -13,6 +13,7 @@
  */
 
 #include "uart.h"
+#include "stddef.h"
 
 /**
  * @brief Main hypervisor entry point (called from boot.S).
@@ -29,12 +30,7 @@
 extern "C" void hmain() {
   Uart::init();
 
-  for (;;) {
-    for (int i{}; i < 10; i++) {
-      Uart::print("I have no mouth and I must scream\n");
-      Uart::print("I am grateful to be alive hello world!\n");
-    }
+  Uart::print("[LOG] attempt to trigger el2_sync\n");
 
-    asm volatile("wfe");
-  }
+  asm volatile("brk #0");
 }
