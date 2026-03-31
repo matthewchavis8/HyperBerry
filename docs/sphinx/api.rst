@@ -32,11 +32,20 @@ physical Raspberry Pi 5 targets via a compile-time base address.
    :project: HyperBerry
    :members:
 
-Support Library
----------------
+HV Library
+----------
 
 Freestanding C++ utility headers with no standard library dependency.
 
 .. doxygengroup:: lib
    :project: HyperBerry
    :members:
+
+Header Files
+~~~~~~~~~~~~
+
+.. doxygenfile:: lib/array.h
+   :project: HyperBerry
+
+.. doxygenfile:: lib/registerDump.h
+   :project: HyperBerry
