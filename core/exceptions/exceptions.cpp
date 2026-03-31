@@ -1,4 +1,4 @@
 #include "exceptions.h"
 #include "uart.h"
 
-void extern "C" lower_el2_sync(ExceptionContext& ex);
+extern "C" void lower_el2_sync(ExceptionContext& ex);
