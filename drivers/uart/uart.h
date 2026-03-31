@@ -60,9 +60,8 @@ class Uart {
      * @warning Busy-waits until the TX FIFO has space. Do not call
      *          from an interrupt context or time-critical path.
      */
-    static void putc(const char ch);
-
   public:
+    static void putc(const char ch);
     /**
      * @brief Initialize the PL011 UART.
      *
