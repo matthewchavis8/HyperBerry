@@ -54,3 +54,10 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
  #### How do you get from the firmware to EL2 for booting the hypervisor [ ]
  #### Do I need to have a linker script to layout the Hypervisor code specefically in memory? [ ]
  #### Do I need to create a device tree blob hardware descriptor? [ ]
+
+## AI Use Declaration
+
+AI tools (primarily large language models) were used for **documentation only** —
+including Doxygen comments, README text, and design notes in this file.
+All hypervisor source code (assembly, C++, linker scripts, and build system
+configuration) was written by hand.

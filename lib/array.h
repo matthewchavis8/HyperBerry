@@ -1,3 +1,12 @@
+/**
+ * @file array.h
+ * @brief Freestanding fixed-size array container.
+ * @ingroup lib
+ *
+ * Provides @c hv::array<T,N>, a minimal replacement for @c std::array
+ * that compiles without a hosted C++ standard library.
+ */
+
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
@@ -8,9 +17,19 @@
 
 namespace hv {
 
+/**
+ * @brief Fixed-size aggregate array with STL-compatible interface.
+ * @ingroup lib
+ *
+ * @tparam T  Element type.
+ * @tparam N  Number of elements (compile-time constant).
+ *
+ * @note This is an aggregate -- it has no user-declared constructors,
+ *       so brace initialization and zero-initialization work as expected.
+ */
 template <typename T, size_t N>
 struct array {
-  T m_data[N];
+  T m_data[N];  /**< Raw storage for @p N elements of type @p T. */
 
   using value_type      = T;
   using size_type       = size_t;

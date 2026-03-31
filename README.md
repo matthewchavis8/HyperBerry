@@ -47,6 +47,7 @@ HyperBerry/
 ├── cmake/      # Cross-compilation toolchain and CMake configuration
 ├── core/       # Hypervisor core (scheduler, memory, exception handling)
 ├── drivers/    # Software device drivers
+├── lib/        # Freestanding C++ utility headers (hv::array, register dump)
 ├── linker/     # Platform-specific linker scripts and memory layouts
 ├── tests/      # Test infrastructure
 ├── docs/       # extra docs like roadmap and such
@@ -169,6 +170,13 @@ ls /dev/ttyUSB*
 ```sh
 minicom -b 115200 -D /dev/ttyUSB*   # Make sure it is the correct USB
 ```
+
+## AI Use Declaration
+
+AI tools (primarily large language models) were used for **documentation only** —
+including Doxygen comments, README text, and design notes in this file.
+All hypervisor source code (assembly, C++, linker scripts, and build system
+configuration) was written by hand.
 
 ## License
 

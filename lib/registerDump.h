@@ -1,3 +1,9 @@
+/**
+ * @file registerDump.h
+ * @brief Human-readable register dump for exception diagnostics.
+ * @ingroup exceptions
+ */
+
 #ifndef __REGISTERDUMP_H__
 #define __REGISTERDUMP_H__
 
@@ -8,6 +14,22 @@
 
 #ifdef __cplusplus
 
+/**
+ * @brief Print a full register dump to the UART console.
+ * @ingroup exceptions
+ *
+ * Reads ESR_EL2 and FAR_EL2, decodes the Exception Class (EC) and
+ * Instruction-Specific Syndrome (ISS) fields, then prints all 31
+ * general-purpose registers plus the saved ELR and SPSR from the
+ * exception context.
+ *
+ * @param ctx  Reference to the saved exception context populated by
+ *             the assembly @c save_context macro.
+ *
+ * @note Output goes directly to the PL011 UART via Uart::print()
+ *       and Uart::writeHex().  Intended for fatal-exception debugging
+ *       only -- not suitable for production logging.
+ */
 inline void registerDump(ExceptionContext& ctx) {
   uint64_t esr {};
   uint64_t far {};
