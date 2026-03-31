@@ -284,6 +284,21 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Uart4putcEKc">
+<span id="_CPPv3N4Uart4putcEKc"></span><span id="_CPPv2N4Uart4putcEKc"></span><span id="Uart::putc__cC"></span><span class="target" id="classUart_1a414f8b85eab21f16edfd38ebec0e2767"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">putc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ch</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4putcEKc" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Transmit a single character via the UART Data Register. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Busy-waits until the TX FIFO has space. Do not call from an interrupt context or time-critical path. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ch</strong> – Character to send. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N4Uart4initEv">
 <span id="_CPPv3N4Uart4initEv"></span><span id="_CPPv2N4Uart4initEv"></span><span id="Uart::init"></span><span class="target" id="classUart_1aa6f4296883e0453a718200adf6d009f2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4initEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Initialize the PL011 UART. </p>
@@ -297,14 +312,28 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dt class="sig sig-object cpp" id="_CPPv4N4Uart5printEPKc">
 <span id="_CPPv3N4Uart5printEPKc"></span><span id="_CPPv2N4Uart5printEPKc"></span><span id="Uart::print__cCP"></span><span class="target" id="classUart_1aa778f6e4345184ceb4efbdc93ebf6c7a"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">str</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart5printEPKc" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Transmit a null-terminated string. </p>
-<p>Transmit a null-terminated string character by character.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Each character is sent via putc(), which spins on the TX FIFO. For large strings this blocks proportionally. </p>
+<p>Each character is sent via <a class="reference internal" href="#classUart_1a414f8b85eab21f16edfd38ebec0e2767"><span class="std std-ref">putc()</span></a>, which spins on the TX FIFO. For large strings this blocks proportionally. </p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>str</strong> – Pointer to the null-terminated string to send. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Uart8writeHexE8uint64_t">
+<span id="_CPPv3N4Uart8writeHexE8uint64_t"></span><span id="_CPPv2N4Uart8writeHexE8uint64_t"></span><span id="Uart::writeHex__uint64_t"></span><span class="target" id="classUart_1a42a8dd6489ce1f483e2f747a2acd5105"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">writeHex</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">val</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart8writeHexE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Write a 64-bit value as a 16-digit hexadecimal string. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Always emits exactly 16 hex digits (zero-padded). Does not print a “0x” prefix &amp;#8212; callers must add it themselves. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>val</strong> – The value to print. </p>
 </dd>
 </dl>
 </dd></dl>
@@ -373,8 +402,10 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>
 <li><a class="reference internal" href="#uart-driver">UART Driver</a><ul>
 <li><a class="reference internal" href="#_CPPv44Uart"><code class="docutils literal notranslate"><span class="pre">Uart</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4Uart4putcEKc"><code class="docutils literal notranslate"><span class="pre">putc()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart5printEPKc"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Uart8writeHexE8uint64_t"><code class="docutils literal notranslate"><span class="pre">writeHex()</span></code></a></li>
 </ul>
 </li>
 </ul>
