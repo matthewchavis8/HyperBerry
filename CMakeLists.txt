@@ -28,10 +28,14 @@ else ()
 endif()
 
 # add modules
-add_subdirectory(core)    # subject to change once we get code into core/
+add_subdirectory(core)
 add_subdirectory(drivers)
 
-add_executable(${ELF} ${BOOT_S})
+add_executable(${ELF}
+  ${BOOT_S}
+  ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
+  ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
+)
 
 # link libs
 target_link_libraries(${ELF}
