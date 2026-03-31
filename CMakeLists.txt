@@ -27,6 +27,8 @@ else ()
   message(STATUS "[ERROR] unknown board detected={BOARD}")
 endif()
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 # add modules
 add_subdirectory(core)
 add_subdirectory(drivers)
