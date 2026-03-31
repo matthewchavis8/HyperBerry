@@ -41,30 +41,42 @@ struct array {
   using iterator        = T*;
   using const_iterator  = const T*;
 
+  /** @brief Access element at index @p i (no bounds checking). */
   constexpr reference operator[](size_type i) { return m_data[i]; }
   constexpr const_reference operator[](size_type i) const { return m_data[i]; }
 
+  /** @brief Return reference to the first element. */
   constexpr reference front() { return m_data[0]; }
   constexpr const_reference front() const { return m_data[0]; }
 
+  /** @brief Return reference to the last element. */
   constexpr reference back() { return m_data[N - 1]; }
   constexpr const_reference back() const { return m_data[N - 1]; }
 
+  /** @brief Return pointer to contiguous underlying storage. */
   constexpr pointer data() { return m_data; }
   constexpr const_pointer data() const { return m_data; }
 
+  /** @brief Return the number of elements. */
   constexpr size_type size() const { return N; }
+  /** @brief Return the maximum number of elements (same as @ref size). */
   constexpr size_type max_size() const { return N; }
+  /** @brief Return true when @p N is zero. */
   constexpr bool empty() const { return N == 0; }
 
+  /** @brief Return iterator to the first element. */
   constexpr iterator begin() { return m_data; }
   constexpr const_iterator begin() const { return m_data; }
+  /** @brief Return const iterator to the first element. */
   constexpr const_iterator cbegin() const { return m_data; }
 
+  /** @brief Return iterator one past the last element. */
   constexpr iterator end() { return m_data + N; }
   constexpr const_iterator end() const { return m_data + N; }
+  /** @brief Return const iterator one past the last element. */
   constexpr const_iterator cend() const { return m_data + N; }
 
+  /** @brief Assign @p value to every element in the array. */
   constexpr void fill(const T& value) {
     for (size_type i = 0; i < N; ++i) {
       m_data[i] = value;
