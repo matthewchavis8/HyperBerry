@@ -44,6 +44,7 @@ target_link_libraries(${ELF}
   PRIVATE
   Core
   Uart
+  Exceptions
 )
 
 target_compile_options(${ELF}
