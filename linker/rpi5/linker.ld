@@ -26,6 +26,7 @@ SECTIONS {
   .text : ALIGN(0x1000) {
     __text_start = .;
     KEEP(*(.text.start))
+    KEEP(*(.text.vectors))
     *(.text*)
     . = ALIGN(0x1000);
     __text_end = .;
