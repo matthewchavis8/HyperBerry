@@ -1,0 +1,44 @@
+#ifndef __REGISTERDUMP_H__
+#define __REGISTERDUMP_H__
+
+#include "core/exceptions/exceptions.h"
+#include "drivers/uart/uart.h"
+
+#include "stddef.h"
+
+#ifdef __cplusplus
+
+inline void registerDump(ExceptionContext& ctx) {
+  uint64_t esr {};
+  uint64_t far {};
+
+  asm volatile("mrs %0, esr_el2" : "=r"(esr));
+  asm volatile("mrs %0, far_el2" : "=r"(far));
+
+  uint32_t ec  = (esr >> 26) & 0x3F;
+  uint32_t iss = esr & 0xFFFFFF;
+
+  Uart::print("\n==========[EXCEPTION DUMP]============\n");
+  // ESR
+  Uart::print("ESR_EL2: 0x"); Uart::writeHex(esr); Uart::print("\n");
+  Uart::print(" EC=0x");
+  Uart::writeHex(ec);
+  Uart::print(" ISS=0x");
+  Uart::writeHex(iss);
+
+  // System Registers
+  Uart::print("ELR_EL2: 0x");
+  Uart::writeHex(ctx.elr);
+  Uart::print(" EC=0x");
+  Uart::writeHex(ec);
+  Uart::print(" ISS=0x");
+  Uart::writeHex(iss);
+
+  // General Purpose Registers
+  Uart::print("\n======================================\n");
+}
+
+#endif // __cplusplus
+#endif // !__REGISTERDUMP_H__
+
+

@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+
 namespace hv {
 
 template <typename T, size_t N>
@@ -53,4 +55,5 @@ struct array {
 
 }
 
+#endif // __cplusplus
 #endif // __ARRAY_H__

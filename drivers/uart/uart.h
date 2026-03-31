@@ -24,6 +24,7 @@ static constexpr uint64_t UART_BASE = 0x09000000;
 static constexpr uint64_t UART_BASE = 0x107D001000;
 #endif
 
+static constexpr char hex[] = "0123456789ABCDEF";
 
 // UART PL011 register offsets
 enum class UART_REG : uint8_t {
@@ -76,6 +77,8 @@ class Uart {
      *       TX FIFO. For large strings this blocks proportionally.
      */
     static void print(const char* str);
+
+    static void writeHex(uint64_t val);
 };
 
 #endif // !__UART_H__
