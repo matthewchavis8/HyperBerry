@@ -40,4 +40,4 @@ WARN_IF_DOC_ERROR      = YES
 # Preprocessing
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
-PREDEFINED             = QEMU
+PREDEFINED             = QEMU __cplusplus
