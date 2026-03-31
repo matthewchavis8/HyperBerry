@@ -8,7 +8,7 @@ OUTPUT_DIRECTORY       = docs/_doxygen
 CREATE_SUBDIRS         = NO
 
 # Input
-INPUT                  = core/ drivers/ arch/ docs/sphinx/
+INPUT                  = core/ drivers/ arch/ lib/ docs/sphinx/
 FILE_PATTERNS          = *.cpp *.h *.S *.dox
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */build/*
