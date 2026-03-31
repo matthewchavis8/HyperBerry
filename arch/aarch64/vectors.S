@@ -21,11 +21,11 @@ el2_vectors:
   .balign 0x80; b el2_fiq
   .balign 0x80; b el2_serror
   
-  // Group 3: Hypervisor context
-  .balign 0x80; b lower_el2_sync
-  .balign 0x80; b lower_el2_irq
-  .balign 0x80; b lower_el2_fiq
-  .balign 0x80; b lower_el2_serror
+  // Group 3: Lower EL using AArch64
+  .balign 0x80; b lower_el_sync
+  .balign 0x80; b lower_el_irq
+  .balign 0x80; b lower_el_fiq
+  .balign 0x80; b lower_el_serror
 
   
 
