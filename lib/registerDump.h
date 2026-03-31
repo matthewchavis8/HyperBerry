@@ -1,7 +1,7 @@
 /**
  * @file registerDump.h
  * @brief Human-readable register dump for exception diagnostics.
- * @ingroup exceptions
+ * @ingroup lib
  */
 
 #ifndef __REGISTERDUMP_H__
@@ -16,7 +16,7 @@
 
 /**
  * @brief Print a full register dump to the UART console.
- * @ingroup exceptions
+ * @ingroup lib
  *
  * Reads ESR_EL2 and FAR_EL2, decodes the Exception Class (EC) and
  * Instruction-Specific Syndrome (ISS) fields, then prints all 31
@@ -86,5 +86,4 @@ inline void registerDump(ExceptionContext& ctx) {
 
 #endif // __cplusplus
 #endif // !__REGISTERDUMP_H__
-
 
