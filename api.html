@@ -262,6 +262,52 @@
 </div>
 </dd></dl>
 
+<section id="exception-handling">
+<h3>Exception Handling<a class="headerlink" href="#exception-handling" title="Link to this heading">¶</a></h3>
+<p>EL2 exception vector table, context save/restore, and handler stubs.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__exceptions"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Exception</span> <span class="pre">Handling</span></span></dt>
+<dd><p>EL2 exception vector table, context save/restore, and handler stubs. </p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv416ExceptionContext">
+<span id="_CPPv316ExceptionContext"></span><span id="_CPPv216ExceptionContext"></span><span id="ExceptionContext"></span><span class="target" id="structExceptionContext"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ExceptionContext</span></span></span><a class="headerlink" href="#_CPPv416ExceptionContext" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;exceptions.h&gt;</em></div>
+<p>Saved CPU state at the moment an exception is taken. </p>
+<p>Populated by the <code class="docutils literal notranslate"><span class="pre">save_context</span></code> macro in exceptions.S. The layout must match the assembly stack frame exactly: gpr[0..29] at offsets 0-232, lr at 240, elr at 248, spsr at 256. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext3gprE">
+<span id="_CPPv3N16ExceptionContext3gprE"></span><span id="_CPPv2N16ExceptionContext3gprE"></span><span id="ExceptionContext::gpr__hv::array:uint64_t.30:"></span><span class="target" id="structExceptionContext_1a9702e76413cf450b64eebd8a95f946a0"></span><span class="n"><span class="pre">hv</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">30</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3gprE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>General-purpose registers x0-x29. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext2lrE">
+<span id="_CPPv3N16ExceptionContext2lrE"></span><span id="_CPPv2N16ExceptionContext2lrE"></span><span id="ExceptionContext::lr__uint64_t"></span><span class="target" id="structExceptionContext_1ab591c25ca28a7c00dc8e791f765c5f45"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">lr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext2lrE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Link register (x30). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext3elrE">
+<span id="_CPPv3N16ExceptionContext3elrE"></span><span id="_CPPv2N16ExceptionContext3elrE"></span><span id="ExceptionContext::elr__uint64_t"></span><span class="target" id="structExceptionContext_1a609696423ce7d193264df78f172e607d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3elrE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Exception Link Register (ELR_EL2). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext4spsrE">
+<span id="_CPPv3N16ExceptionContext4spsrE"></span><span id="_CPPv2N16ExceptionContext4spsrE"></span><span id="ExceptionContext::spsr__uint64_t"></span><span class="target" id="structExceptionContext_1af8fbd60b1d1decbdfb0d70c194b64432"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">spsr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext4spsrE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Saved Program Status Register (SPSR_EL2). </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 <section id="drivers">
 <h2>Drivers<a class="headerlink" href="#drivers" title="Link to this heading">¶</a></h2>
@@ -345,6 +391,121 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 
 </section>
 </section>
+<section id="hv-library">
+<h2>HV Library<a class="headerlink" href="#hv-library" title="Link to this heading">¶</a></h2>
+<p>Freestanding C++ utility headers with no standard library dependency.</p>
+<section id="array">
+<h3>Array<a class="headerlink" href="#array" title="Link to this heading">¶</a></h3>
+<p>Freestanding fixed-size container used in exception context state.</p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0_6size_tEN2hv5arrayE">
+<span id="_CPPv3I0_6size_tEN2hv5arrayE"></span><span id="_CPPv2I0_6size_tEN2hv5arrayE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structhv_1_1array"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">array</span></span></span><a class="headerlink" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Fixed-size aggregate array with STL-compatible interface. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is an aggregate &amp;#8212; it has no user-declared constructors, so brace initialization and zero-initialization work as expected. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> – Element type. </p></li>
+<li><p><strong>N</strong> – Number of elements (compile-time constant).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5arrayixE9size_type">
+<span id="_CPPv3N2hv5arrayixE9size_type"></span><span id="_CPPv2N2hv5arrayixE9size_type"></span><span id="hv::array::subscript-operator__size_typeCE"></span><span class="target" id="structhv_1_1array_1af854091e414f438ad665a03982050f84"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">reference</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">i</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5arrayixE9size_type" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Access element at index <code class="docutils literal notranslate"><span class="pre">i</span></code> (no bounds checking). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array5frontEv">
+<span id="_CPPv3N2hv5array5frontEv"></span><span id="_CPPv2N2hv5array5frontEv"></span><span id="hv::array::frontCE"></span><span class="target" id="structhv_1_1array_1a5dbb8d336edeefb0333659f2062defd4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">reference</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">front</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array5frontEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return reference to the first element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array4backEv">
+<span id="_CPPv3N2hv5array4backEv"></span><span id="_CPPv2N2hv5array4backEv"></span><span id="hv::array::backCE"></span><span class="target" id="structhv_1_1array_1aab4efa3c7316d79ccee6e7c926f5038b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">reference</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">back</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array4backEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return reference to the last element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array4dataEv">
+<span id="_CPPv3N2hv5array4dataEv"></span><span id="_CPPv2N2hv5array4dataEv"></span><span id="hv::array::dataCE"></span><span class="target" id="structhv_1_1array_1a48c96f5cab9d1c4359defed4b4e683ac"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">pointer</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array4dataEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return pointer to contiguous underlying storage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2hv5array4sizeEv">
+<span id="_CPPv3NK2hv5array4sizeEv"></span><span id="_CPPv2NK2hv5array4sizeEv"></span><span id="hv::array::sizeCCE"></span><span class="target" id="structhv_1_1array_1ad22539d094d5200eb3971af5a730a722"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2hv5array4sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the number of elements. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2hv5array8max_sizeEv">
+<span id="_CPPv3NK2hv5array8max_sizeEv"></span><span id="_CPPv2NK2hv5array8max_sizeEv"></span><span id="hv::array::max_sizeCCE"></span><span class="target" id="structhv_1_1array_1a498608671e4645c81e897a8546072836"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">size_type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2hv5array8max_sizeEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the maximum number of elements (same as <a class="reference internal" href="#structhv_1_1array_1ad22539d094d5200eb3971af5a730a722"><span class="std std-ref">size</span></a>). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2hv5array5emptyEv">
+<span id="_CPPv3NK2hv5array5emptyEv"></span><span id="_CPPv2NK2hv5array5emptyEv"></span><span id="hv::array::emptyCCE"></span><span class="target" id="structhv_1_1array_1afad30888c02f5f663dc34cb0a59a637b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">empty</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2hv5array5emptyEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return true when <code class="docutils literal notranslate"><span class="pre">N</span></code> is zero. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array5beginEv">
+<span id="_CPPv3N2hv5array5beginEv"></span><span id="_CPPv2N2hv5array5beginEv"></span><span id="hv::array::beginCE"></span><span class="target" id="structhv_1_1array_1a405af4ee4585d235135a7cf1841a4301"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return iterator to the first element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2hv5array6cbeginEv">
+<span id="_CPPv3NK2hv5array6cbeginEv"></span><span id="_CPPv2NK2hv5array6cbeginEv"></span><span id="hv::array::cbeginCCE"></span><span class="target" id="structhv_1_1array_1aeabb9fff67c094fe38cc51b8d47233c2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cbegin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2hv5array6cbeginEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return const iterator to the first element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array3endEv">
+<span id="_CPPv3N2hv5array3endEv"></span><span id="_CPPv2N2hv5array3endEv"></span><span id="hv::array::endCE"></span><span class="target" id="structhv_1_1array_1af416d9882267cd60b5a73a5d799ff7f2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array3endEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return iterator one past the last element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2hv5array4cendEv">
+<span id="_CPPv3NK2hv5array4cendEv"></span><span id="_CPPv2NK2hv5array4cendEv"></span><span id="hv::array::cendCCE"></span><span class="target" id="structhv_1_1array_1aa250f588fbb8d928f50e53805b6b1fbe"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">const_iterator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cend</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2hv5array4cendEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return const iterator one past the last element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array4fillERK1T">
+<span id="_CPPv3N2hv5array4fillERK1T"></span><span id="_CPPv2N2hv5array4fillERK1T"></span><span id="hv::array::fill__TCRCE"></span><span class="target" id="structhv_1_1array_1a10fc5c9a2874c48011cb587948d4196e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fill</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2hv5array4fillERK1T" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Assign <code class="docutils literal notranslate"><span class="pre">value</span></code> to every element in the array. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N2hv5array6m_dataE">
+<span id="_CPPv3N2hv5array6m_dataE"></span><span id="_CPPv2N2hv5array6m_dataE"></span><span id="hv::array::m_data__TA"></span><span class="target" id="structhv_1_1array_1a479c0ded1c9a7b76710bbe3c03e2e192"></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_data</span></span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array::N"><span class="n"><span class="pre">N</span></span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N2hv5array6m_dataE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Raw storage for <code class="docutils literal notranslate"><span class="pre">N</span></code> elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code>. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="registerdump">
+<h3>registerDump()<a class="headerlink" href="#registerdump" title="Link to this heading">¶</a></h3>
+<p>Prints a full exception-state register dump to UART for diagnostics.</p>
+<p>Human-readable register dump for exception diagnostics. </p>
+</section>
+</section>
 </section>
 
         </article>
@@ -397,6 +558,16 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#core">Core</a><ul>
 <li><a class="reference internal" href="#_CPPv45hmainv"><code class="docutils literal notranslate"><span class="pre">hmain()</span></code></a></li>
+<li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
+<li><a class="reference internal" href="#_CPPv416ExceptionContext"><code class="docutils literal notranslate"><span class="pre">ExceptionContext</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N16ExceptionContext3gprE"><code class="docutils literal notranslate"><span class="pre">gpr</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16ExceptionContext2lrE"><code class="docutils literal notranslate"><span class="pre">lr</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16ExceptionContext3elrE"><code class="docutils literal notranslate"><span class="pre">elr</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N16ExceptionContext4spsrE"><code class="docutils literal notranslate"><span class="pre">spsr</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>
@@ -410,6 +581,29 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hv-library">HV Library</a><ul>
+<li><a class="reference internal" href="#array">Array</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE"><code class="docutils literal notranslate"><span class="pre">hv::array</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N2hv5arrayixE9size_type"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array5frontEv"><code class="docutils literal notranslate"><span class="pre">front()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array4backEv"><code class="docutils literal notranslate"><span class="pre">back()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array4dataEv"><code class="docutils literal notranslate"><span class="pre">data()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2hv5array4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2hv5array8max_sizeEv"><code class="docutils literal notranslate"><span class="pre">max_size()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2hv5array5emptyEv"><code class="docutils literal notranslate"><span class="pre">empty()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2hv5array6cbeginEv"><code class="docutils literal notranslate"><span class="pre">cbegin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2hv5array4cendEv"><code class="docutils literal notranslate"><span class="pre">cend()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array4fillERK1T"><code class="docutils literal notranslate"><span class="pre">fill()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2hv5array6m_dataE"><code class="docutils literal notranslate"><span class="pre">m_data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#registerdump">registerDump()</a></li>
 </ul>
 </li>
 </ul>
