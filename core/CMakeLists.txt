@@ -1,5 +1,6 @@
-add_library(
-  Core
+add_subdirectory(exceptions)
+
+add_library(Core
   STATIC
   main.cpp
 )
@@ -7,4 +8,5 @@ add_library(
 target_link_libraries(Core
   PRIVATE
   Uart
+  Exceptions
 )

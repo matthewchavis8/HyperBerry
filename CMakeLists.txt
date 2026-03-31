@@ -33,8 +33,8 @@ add_subdirectory(drivers)
 
 add_executable(${ELF}
   ${BOOT_S}
-  ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
   ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
+  ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
 )
 
 # link libs
