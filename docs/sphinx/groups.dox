@@ -27,3 +27,15 @@
  * physical Raspberry Pi 5 hardware (base 0x7E201000), selected
  * at compile time via the @c QEMU preprocessor define.
  */
+
+/**
+ * @defgroup exceptions Exception Handling
+ * @ingroup core
+ * @brief EL2 exception vector table, context save/restore, and handler stubs.
+ */
+
+/**
+ * @defgroup lib Support Library
+ * @ingroup hypervisor
+ * @brief Freestanding C++ utility headers (no standard library dependency).
+ */

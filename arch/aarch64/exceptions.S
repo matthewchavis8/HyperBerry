@@ -1,3 +1,28 @@
+/**
+ * @file exceptions.S
+ * @brief Exception handler entry points and context save/restore macros.
+ * @ingroup exceptions
+ *
+ * Defines the low-level assembly glue between the EL2 vector table
+ * (vectors.S) and the C++ handler functions (exceptions.cpp).
+ * Each entry point saves the full CPU context to the stack using
+ * @c save_context, passes a pointer to the resulting ExceptionContext
+ * frame in x0, and branches to the corresponding C++ handler.
+ *
+ * @par Stack Frame Layout (272 bytes)
+ * | Offset   | Content            |
+ * |----------|--------------------|
+ * | 0-224    | x0-x29 (GPRs)      |
+ * | 240      | x30 (LR)           |
+ * | 248      | ELR_EL2            |
+ * | 256      | SPSR_EL2           |
+ *
+ * @note The @c restore_context macro ends with @c eret, returning
+ *       execution to the faulting address in ELR_EL2.
+ * @warning The @c el2_unhandled entry point spins forever after
+ *          calling handle_unhandled() -- it never erets.
+ */
+
 .section .text
 
 .macro save_context

@@ -77,6 +77,13 @@ class Uart {
      */
     static void print(const char* str);
 
+    /**
+     * @brief Write a 64-bit value as a 16-digit hexadecimal string.
+     * @param val  The value to print.
+     * @note Always emits exactly 16 hex digits (zero-padded).
+     *       Does not print a "0x" prefix -- callers must add it
+     *       themselves.
+     */
     static void writeHex(uint64_t val);
 };
 
