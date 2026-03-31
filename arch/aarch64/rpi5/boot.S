@@ -88,6 +88,12 @@ _start:
     // Set up EL2 stack and enter hypervisor.
     ldr   x0, =__stack_end
     mov   sp, x0
+    
+    // Set up exception vector table base address
+    adr   x0, el2_vectors
+    msr   vbar_el2, x0
+    isb
+
     bl    hmain
 .Lblock:
     wfe
