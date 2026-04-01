@@ -29,6 +29,12 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_compile_options(
+  -ffreestanding
+  -nostdinc++
+  -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
+)
+
 # add modules
 add_subdirectory(core)
 add_subdirectory(drivers)
@@ -66,10 +72,10 @@ target_compile_options(${ELF}
 
 target_link_options(${ELF}
   PRIVATE
+  -fuse-ld=lld
   -T${LINKER_SCRIPT}
   -nostdlib
   -static
-  -Wl,
 )
 
 set_target_properties(${ELF}
@@ -79,7 +85,7 @@ set_target_properties(${ELF}
 
 add_custom_command(
   TARGET ${ELF} POST_BUILD
-  COMMAND llvm-objcopy -O binary
+  COMMAND ${CMAKE_OBJCOPY} -O binary
     $<TARGET_FILE:${ELF}>
     ${CMAKE_BINARY_DIR}/kernel8.img
     COMMENT "[LOG] Generating Kernel Image"
