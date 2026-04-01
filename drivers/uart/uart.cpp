@@ -41,7 +41,6 @@ void Uart::print(const char* str) {
 }
 
 void Uart::writeHex(uint64_t val) {
-  static constexpr char hex[] = "0123456789ABCDEF";
   char buff[16];
 
   for (int i{15}; i >= 0; i--) {
