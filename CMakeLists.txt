@@ -4,12 +4,30 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/aarch64-toolchain.cmake CACHE STRING "Toolchain file")
-
 set(CMAKE_OBJCOPY llvm-objcopy)
 set(ELF hyperberry.elf)
 
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX ASM C)
+
+# Google Test (unit tests only — uses hosted aarch64-linux toolchain)
+option(BUILD_TESTING "Build unit tests" OFF)
+include(CTest)
+
+if(BUILD_TESTING)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+  )
+  FetchContent_MakeAvailable(googletest)
+
+  add_subdirectory(tests/unit)
+  return()
+endif()
+
+# --- Bare-metal build (everything below requires aarch64-none-elf toolchain) ---
 
 # Build option for targets
 set(BOARD "rpi5" CACHE STRING "Target Board [rpi5 | qemu]")

@@ -40,5 +40,10 @@ docs-clean:
   rm -rf docs/_doxygen
   rm -rf docs/_build
 
+test-unit:
+  cmake --preset unit-tests
+  cmake --build --preset unit-tests
+  ctest --preset unit-tests
+
 clean:
   rm -rf /build

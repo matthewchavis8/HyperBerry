@@ -1,0 +1,13 @@
+---
+# Bare-metal sources: use the debug build's compile_commands.json
+If:
+  PathExclude: tests/.*
+CompileFlags:
+  CompilationDatabase: build/debug
+
+---
+# Unit tests: use the aarch64-linux-gnu hosted build
+If:
+  PathMatch: tests/.*
+CompileFlags:
+  CompilationDatabase: build/unit-tests
