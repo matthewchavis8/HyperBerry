@@ -72,7 +72,6 @@ target_compile_options(${ELF}
 
 target_link_options(${ELF}
   PRIVATE
-  -fuse-ld=lld
   -T${LINKER_SCRIPT}
   -nostdlib
   -static
