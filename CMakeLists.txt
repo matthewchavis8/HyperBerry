@@ -53,6 +53,12 @@ add_compile_options(
   -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
 )
 
+option(INTEGRATION_TEST "Build with integration test suite linked in" OFF)
+
+if(INTEGRATION_TEST)
+  add_compile_definitions(INTEGRATION_TEST)
+endif()
+
 # add modules
 add_subdirectory(core)
 add_subdirectory(drivers)
@@ -62,6 +68,13 @@ add_executable(${ELF}
   ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
   ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
 )
+
+if(INTEGRATION_TEST)
+  target_sources(${ELF} PRIVATE
+    tests/integration/suite.cpp
+    tests/integration/uart_hw/test_uart_hw.cpp
+  )
+endif()
 
 # link libs
 target_link_libraries(${ELF}

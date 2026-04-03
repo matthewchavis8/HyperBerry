@@ -1,25 +1,28 @@
 # Testing
 
-This project currently has one working automated test path:
+This project has two automated test paths:
 
-- Unit tests under `tests/unit/`
+- **Unit tests** under `tests/unit/` — hosted GoogleTest suite, cross-compiled with the `aarch64-linux` toolchain and run through `ctest`.
+- **Integration tests** under `tests/integration/` — bare-metal tests that run on the actual target (QEMU virt or Raspberry Pi 5) and emit results over UART.
 
-The `tests/integration/` tree exists, but its source files are currently empty and it is not wired into the top-level CMake flow yet.
-
-## Current Test Layout
+## Test Layout
 
 ```text
 tests/
-├── integration/     # placeholder scaffold for target-level tests
-└── unit/            # GoogleTest-based hosted unit tests
+├── integration/
+│   ├── tap/
+│   │   └── tap.h              # freestanding UART test output emitter
+│   ├── suite.h                # TestCase / TestSuite types, REGISTER_SUITE macro
+│   ├── suite.cpp              # linker-section walker and test runner
+│   └── uart_hw/
+│       └── test_uart_hw.cpp   # UART TX / RX hardware tests
+└── unit/
     ├── CMakeLists.txt
-    └── unit_array/
+    └── array/
         └── test_array.cpp
 ```
 
 ## Running Unit Tests
-
-Use the `just` recipe:
 
 ```sh
 just test-unit
@@ -38,14 +41,101 @@ The `unit-tests` preset uses:
 - `build/unit-tests` as the build directory
 - `cmake/aarch64-linux-toolchain.cmake`
 - `BUILD_TESTING=ON`
+- `ctest --preset unit-tests` with `outputOnFailure` enabled
 
-## What Runs Today
+## Running Integration Tests
 
-At the moment, the active unit suite is:
+```sh
+just test-integration qemu          # run in QEMU
+just test-integration rpi5          # flash and run on Raspberry Pi 5
+just test-integration rpi5 /dev/sdX1  # specify SD card partition
+```
 
-- `tests/unit/unit_array/test_array.cpp`
+The `integration-test` CMake preset inherits from `debug` and sets `INTEGRATION_TEST=ON`. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::run_all()` instead of the normal hypervisor path.
 
-It is built into the `hyperberry_unit_tests` executable and discovered through `gtest_discover_tests(...)`.
+That recipe maps to:
+
+```sh
+cmake --preset integration-test -DBOARD=qemu
+cmake --build --preset integration-test
+cmake --build --preset integration-test --target run
+```
+
+For Raspberry Pi 5, `just` also mounts `/mnt/sdcard`, flashes the generated `kernel8.img` plus firmware files, then unmounts the card again.
+
+UART output looks like:
+
+```
+======== uart_hw (2 tests) ========
+  [1/2] PASS: uart_hw::tx doesnt hang
+  [2/2] PASS: uart_hw::rx loopback stub
+
+-------- Results --------
+2 passed, 0 failed, 2 total
+ALL TESTS PASSED
+```
+
+## How Integration Tests Work
+
+Integration tests use **linker-section auto-registration**:
+
+1. Each test file defines a `TestSuite` with an array of `TestCase` entries.
+2. `REGISTER_SUITE(suite)` places a pointer to that suite into the `.hyperberry_tests` linker section.
+3. At boot, `TestRunner::run_all()` walks from `__test_suites_start` to `__test_suites_end`, executing every registered suite.
+4. Results are emitted over UART via the `Tap` namespace (freestanding, no stdlib).
+5. After all suites finish the CPU spins — there is no OS to return to.
+
+## Doxygen Coverage
+
+The integration test harness is documented with file-level and symbol-level Doxygen comments:
+
+- `tests/integration/suite.h` documents the core test registration types and macro.
+- `tests/integration/suite.cpp` documents the linker-section runner entry point.
+- `tests/integration/tap/tap.h` documents the UART TAP-style output helpers.
+- `tests/integration/uart_hw/test_uart_hw.cpp` documents the current UART smoke tests.
+
+Keep that level of coverage when adding new test files: at minimum add an `@file` block and brief comments for any non-obvious test helpers or registration objects.
+
+## Adding a New Integration Test
+
+1. Create a new directory under `tests/integration/` (e.g. `tests/integration/gic/`).
+2. Write a test file:
+
+```cpp
+#include "tests/integration/suite.h"
+
+static bool test_something() {
+  // exercise hardware, return true on pass
+  return true;
+}
+
+static const TestCase my_cases[] = {
+    {"something works", test_something},
+};
+
+static const TestSuite my_suite = {
+    "gic",
+    my_cases,
+    1,
+};
+
+REGISTER_SUITE(my_suite);
+```
+
+3. Add the file to `CMakeLists.txt` inside the `INTEGRATION_TEST` block:
+
+```cmake
+if(INTEGRATION_TEST)
+  add_compile_definitions(INTEGRATION_TEST)
+  target_sources(${ELF} PRIVATE
+    tests/integration/suite.cpp
+    tests/integration/uart_hw/test_uart_hw.cpp
+    tests/integration/gic/test_gic.cpp      # new
+  )
+endif()
+```
+
+4. Run `just test-integration qemu` to verify.
 
 ## Adding a New Unit Test
 
@@ -73,43 +163,21 @@ Then register the file in `tests/unit/CMakeLists.txt`:
 
 ```cmake
 add_executable(hyperberry_unit_tests
-  unit_array/test_array.cpp
+  array/test_array.cpp
   your_module/test_your_module.cpp
 )
 ```
 
-## What Belongs in Unit Tests
+## What Belongs Where
 
-Unit tests are the right fit for code that can be validated without booting the hypervisor:
-
-- small utility types
-- pure logic
-- self-contained helpers
-- code with minimal hardware coupling
-
-If a module depends directly on EL2 state, boot flow, exception vectors, or real device behavior, it usually does not belong in this hosted unit-test target without first introducing a clean seam around that dependency.
-
-## Integration Tests
-
-`tests/integration/` is present for future target-level testing, but it is not active yet.
-
-Right now there is no command in the repo that:
-
-- builds integration tests
-- deploys them to Raspberry Pi 5
-- runs them as part of `ctest`
-
-If you want integration tests to exist only when explicitly building for Raspberry Pi 5, the clean approach is to keep them behind a dedicated CMake option such as `BUILD_INTEGRATION_TESTS=ON` and only enable that path in a separate preset or `just` recipe. That keeps normal unit-test work fast and avoids mixing hosted tests with bare-metal target tests.
-
-## Recommended Workflow
-
-- Use `just test-unit` for normal development.
-- Add unit coverage first for modules that do not need hardware.
-- Keep target or board-specific tests separate from the hosted unit-test pipeline.
-- Wire integration tests only when you are ready to define their boot, deploy, and pass/fail flow clearly.
+| Test type   | When to use                                         |
+|-------------|-----------------------------------------------------|
+| Unit        | Pure logic, utility types, anything without hardware |
+| Integration | UART, GIC, timers, MMU — anything that needs EL2    |
 
 ## Notes
 
-- `BUILD_TESTING` short-circuits the main bare-metal build in the current top-level `CMakeLists.txt`.
+- `BUILD_TESTING` short-circuits the main bare-metal build in the top-level `CMakeLists.txt`.
+- `INTEGRATION_TEST` compiles tests into the bare-metal binary and replaces the normal hypervisor entry path.
 - GoogleTest is fetched during the unit-test configure step.
-- As of April 2, 2026, `just test-unit` passes with 11 tests in this workspace.
+- `just test-integration qemu` streams UART output directly in the terminal because the QEMU target uses `-nographic`.

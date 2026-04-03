@@ -82,6 +82,8 @@ The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (r
 |------------------------------------------|------------------------------------------|
 | `just qemu (debug/release)`              | Build and run in QEMU                    |
 | `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5         |
+| `just test-unit`                         | Build and run hosted GoogleTest unit tests |
+| `just test-integration (qemu/rpi5)`      | Build and run bare-metal integration tests |
 | `just docs`                              | Generate and serve Sphinx + Breathe docs |
 | `just clean`                             | Remove build artifacts                   |
 
@@ -170,6 +172,23 @@ ls /dev/ttyUSB*
 ```sh
 minicom -b 115200 -D /dev/ttyUSB*   # Make sure it is the correct USB
 ```
+
+## Testing
+
+HyperBerry has two test paths:
+
+- Unit tests under `tests/unit/` use GoogleTest with the hosted `aarch64-linux` toolchain and run through `ctest`.
+- Integration tests under `tests/integration/` are linked into the bare-metal image and report results over UART.
+
+Run them with:
+
+```sh
+just test-unit
+just test-integration qemu
+just test-integration rpi5 /dev/sdX1
+```
+
+The integration test build uses the `integration-test` CMake preset, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
 
 ## AI Use Declaration
 

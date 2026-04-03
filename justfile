@@ -40,6 +40,15 @@ docs-clean:
   rm -rf docs/_doxygen
   rm -rf docs/_build
 
+test-integration BOARD="qemu" SD_DEV="/dev/sda1":
+  cmake --preset integration-test -DBOARD={{ BOARD }} {{ if BOARD == "rpi5" { "-DSD_MOUNT=/mnt/sdcard" } else { "" } }}
+  cmake --build --preset integration-test
+
+  {{ if BOARD == "rpi5" { "sudo mkdir -p /mnt/sdcard" } else { "" } }}
+  {{ if BOARD == "rpi5" { "sudo mount -o uid=$(id -u),gid=$(id -g) " + SD_DEV + " /mnt/sdcard" } else { "" } }}
+  cmake --build --preset integration-test --target run
+  {{ if BOARD == "rpi5" { "sudo umount /mnt/sdcard" } else { "" } }}
+
 test-unit:
   cmake --preset unit-tests
   cmake --build --preset unit-tests

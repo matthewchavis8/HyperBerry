@@ -12,10 +12,11 @@ ENTRY(_start)
 MEMORY
 {
   /*
-   * QEMU virt machine load address: 0x40000000
-   * Physical memory size: 4GB
+   * QEMU virt machine: RAM starts at 0x40000000 but the -kernel
+   * loader applies the arm64 TEXT_OFFSET (0x80000), so the image
+   * is placed at 0x40080000.  Physical memory size: 4 GB.
    */
-  RAM (xrw): ORIGIN = 0x40000000, LENGTH = 0xC0000000
+  RAM (xrw): ORIGIN = 0x40080000, LENGTH = (0xC0000000 - 0x80000)
 }
 
 SECTIONS {
@@ -40,6 +41,13 @@ SECTIONS {
     __rodata_end = .;
   } > RAM
   __rodata_size = __rodata_end - __rodata_start;
+
+  /* Integration test suite registration (linker auto-collect) */
+  .hyperberry_tests : ALIGN(0x1000) {
+    __test_suites_start = .;
+    KEEP(*(.hyperberry_tests))
+    __test_suites_end = .;
+  } > RAM
 
   /* data region for Hypervisor */
   .data : ALIGN(0x1000) {
