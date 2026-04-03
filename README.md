@@ -2,7 +2,7 @@
 
 # HyperBerry
 
-A Type-1 bare-metal hypervisor for the Raspberry Pi 5, written in freestanding C++ and AArch64 assembly.
+A Type-1 bare-metal hypervisor for the Raspberry Pi 5, written in C++ and a bit of AArch64 assembly.
 
 ## Overview
 
@@ -37,22 +37,23 @@ HyperBerry runs directly on the BCM2712 SoC with no host OS, entering EL2 at boo
 └──────────────────────────────────────────────────┘
 ```
 
-HyperBerry occupies EL2 (hypervisor exception level). Guest operating systems run at EL1 and are isolated from each other via Stage-2 address translation, with virtual interrupts and timers managed by the hypervisor.
+HyperBerry runs at EL2. Guest operating systems run at EL1, where they remain isolated from each other. The hypervisor’sjob is to make each guest OS believe it owns the underlying hardware, even thougheach one actually controls only a smallslice of it. In addition, the hypervisor is responsible for scheduling, VM isolation, and enforcing security between
+guests and firmware.
 
 ## Project Structure
 
 ```
 HyperBerry/
-├── arch/       # AArch64 boot assembly and platform-specific startup
-├── cmake/      # Cross-compilation toolchain and CMake configuration
-├── core/       # Hypervisor core (scheduler, memory, exception handling)
-├── drivers/    # Software device drivers
-├── lib/        # Freestanding C++ utility headers (hv::array, register dump)
-├── linker/     # Platform-specific linker scripts and memory layouts
-├── tests/      # Test infrastructure
-├── docs/       # extra docs like roadmap and such
+├── arch/           # AArch64 boot assembly and platform-specific startup
+├── cmake/          # Cross-compilation toolchain and CMake configuration
+├── core/           # Hypervisor core
+├── drivers/        # Software device drivers
+├── lib/            # C++ utility headers
+├── linker/         # Platform-specific linker scripts and memory layouts
+├── tests/          # Test infrastructure
+├── docs/           # extra docs
 ├── CMakeLists.txt
-└── justfile    # Quick command runner
+└── justfile        # Quick command runner
 ```
 
 ## Build & Toolchain
@@ -78,14 +79,14 @@ The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (r
 
 ## Quick Start
 
-| Command                                  | Description                              |
-|------------------------------------------|------------------------------------------|
-| `just qemu (debug/release)`              | Build and run in QEMU                    |
-| `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5         |
+| Command                                  | Description                                |
+|------------------------------------------|--------------------------------------------|
+| `just qemu (debug/release)`              | Build and run in QEMU                      |
+| `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5           |
 | `just test-unit`                         | Build and run hosted GoogleTest unit tests |
 | `just test-integration (qemu/rpi5)`      | Build and run bare-metal integration tests |
-| `just docs`                              | Generate and serve Sphinx + Breathe docs |
-| `just clean`                             | Remove build artifacts                   |
+| `just docs`                              | Generate and serve Sphinx + Breathe docs   |
+| `just clean`                             | Remove build artifacts                     |
 
 ### QEMU
 
@@ -165,12 +166,17 @@ Hardware: [Waveshare Pi UART Debugger](https://www.waveshare.com/wiki/Pi_UART_De
 
 ```sh
 ls /dev/ttyUSB*
+ls /dev/ttyACM*
 ```
+
+The board may appear as either a `/dev/ttyUSB*` or `/dev/ttyACM*` device, depending on the USB-to-UART adapter/driver.
 
 4. Open a serial console:
 
 ```sh
-minicom -b 115200 -D /dev/ttyUSB*   # Make sure it is the correct USB
+minicom -b 115200 -D /dev/ttyUSB0   # Example
+# or
+minicom -b 115200 -D /dev/ttyACM0   # Example
 ```
 
 ## Testing
@@ -192,10 +198,7 @@ The integration test build uses the `integration-test` CMake preset, enables `IN
 
 ## AI Use Declaration
 
-AI tools (primarily large language models) were used for **documentation only** —
-including Doxygen comments, README text, and design notes in this file.
-All hypervisor source code (assembly, C++, linker scripts, and build system
-configuration) was written by hand.
+AI tools (aka claude code) were used for **documentation** in this project, including Doxygen comments, README, content, and design notes in this file. All hypervisor implementation code, including assembly, C++, and linker scripts, was written by me. You will prolly see messy code and maybe not the best practice, but hey I am getting the job done and having fun. My view of AI use in college ist that it trades knowledge depth for speed. In industry, that tradeoff makes sense, because of fast paced environments prioritizes delivers, and engineers may be handling mutliple tasks at once. The downside is reduced cognitive engagement when too much if offloaded to AI. I do not see that a inherently negative, just a trade off like everything in software. That is why I choose not to rely heavily on AI here because I am not under strict timing so I can eat the speed cost
 
 ## License
 
