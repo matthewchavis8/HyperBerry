@@ -70,7 +70,7 @@ add_executable(${ELF}
 if(INTEGRATION_TEST)
   target_sources(${ELF} PRIVATE
     tests/integration/suite.cpp
-    tests/integration/uart_hw/test_uart_hw.cpp
+    tests/integration/uart/test_uart.cpp
   )
 endif()
 
