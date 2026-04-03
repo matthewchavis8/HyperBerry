@@ -23,12 +23,14 @@ namespace TestRunner {
  * each test case in registration order, and never returns.
  */
 void run_all() {
+  // Get the starting/ending address of the test_suite where the linker script laid it out in memory
   const TestSuite* const* begin = __test_suites_start;
   const TestSuite* const* end = __test_suites_end;
 
-  int total_passed = 0;
-  int total_failed = 0;
+  int total_passed {};
+  int total_failed {};
 
+  // Here we walk each individual test suite until we hit the end of the test address
   for (const TestSuite* const* it = begin; it != end; ++it) {
     const TestSuite* suite = *it;
 

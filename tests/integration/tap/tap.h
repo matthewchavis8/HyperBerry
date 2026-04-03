@@ -58,15 +58,14 @@ inline void suite_header(const char* name, int count) {
  * @param desc  Test case description.
  */
 inline void ok(int n, int total, const char* suite, const char* desc) {
-  Uart::print("  [");
+  Uart::print("\n[");
   print_int(n);
   Uart::print("/");
   print_int(total);
   Uart::print("] PASS: ");
   Uart::print(suite);
-  Uart::print("::");
+  Uart::print(": ");
   Uart::print(desc);
-  Uart::print("\n");
 }
 
 /**
@@ -79,7 +78,7 @@ inline void ok(int n, int total, const char* suite, const char* desc) {
  */
 inline void fail(int n, int total, const char* suite, const char* desc,
                  const char* reason) {
-  Uart::print("  [");
+  Uart::print("\n[");
   print_int(n);
   Uart::print("/");
   print_int(total);
@@ -90,7 +89,6 @@ inline void fail(int n, int total, const char* suite, const char* desc,
   Uart::print("\n");
   Uart::print("         reason: ");
   Uart::print(reason);
-  Uart::print("\n");
 }
 
 /**
@@ -108,11 +106,7 @@ inline void summary(int passed, int failed, int total) {
   print_int(total);
   Uart::print(" total\n");
 
-  if (failed == 0) {
-    Uart::print("ALL TESTS PASSED\n");
-  } else {
-    Uart::print("SOME TESTS FAILED\n");
-  }
+  failed == 0 ? Uart::print("TESTS PASSED\n") : Uart::print("TESTS FAILED\n");
 }
 
 } // namespace Tap

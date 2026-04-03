@@ -6,8 +6,15 @@ CompileFlags:
   CompilationDatabase: build/debug
 
 ---
+# Integration tests: use the integration-test build
+If:
+  PathMatch: tests/integration/.*
+CompileFlags:
+  CompilationDatabase: build/integration-test
+
+---
 # Unit tests: use the aarch64-linux-gnu hosted build
 If:
-  PathMatch: tests/.*
+  PathMatch: tests/unit/.*
 CompileFlags:
   CompilationDatabase: build/unit-tests
