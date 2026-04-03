@@ -9,7 +9,7 @@ set(ELF hyperberry.elf)
 
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX ASM C)
 
-# Google Test (unit tests only — uses hosted aarch64-linux toolchain)
+# Google Test
 option(BUILD_TESTING "Build unit tests" OFF)
 include(CTest)
 
@@ -26,8 +26,6 @@ if(BUILD_TESTING)
   add_subdirectory(tests/unit)
   return()
 endif()
-
-# --- Bare-metal build (everything below requires aarch64-none-elf toolchain) ---
 
 # Build option for targets
 set(BOARD "rpi5" CACHE STRING "Target Board [rpi5 | qemu]")

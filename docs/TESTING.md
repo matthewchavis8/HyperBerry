@@ -5,23 +5,6 @@ This project has two automated test paths:
 - **Unit tests** under `tests/unit/` — hosted GoogleTest suite, cross-compiled with the `aarch64-linux` toolchain and run through `ctest`.
 - **Integration tests** under `tests/integration/` — bare-metal tests that run on the actual target (QEMU virt or Raspberry Pi 5) and emit results over UART.
 
-## Test Layout
-
-```text
-tests/
-├── integration/
-│   ├── tap/
-│   │   └── tap.h              # freestanding UART test output emitter
-│   ├── suite.h                # TestCase / TestSuite types, REGISTER_SUITE macro
-│   ├── suite.cpp              # linker-section walker and test runner
-│   └── uart_hw/
-│       └── test_uart_hw.cpp   # UART TX / RX hardware tests
-└── unit/
-    ├── CMakeLists.txt
-    └── array/
-        └── test_array.cpp
-```
-
 ## Running Unit Tests
 
 ```sh
