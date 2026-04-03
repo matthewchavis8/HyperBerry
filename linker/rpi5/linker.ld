@@ -42,6 +42,13 @@ SECTIONS {
   } > RAM
   __rodata_size = __rodata_end - __rodata_start;
 
+  /* Integration test suite registration (linker auto-collect) */
+  .hyperberry_tests : ALIGN(0x1000) {
+    __test_suites_start = .;
+    KEEP(*(.hyperberry_tests))
+    __test_suites_end = .;
+  } > RAM
+
   /* data region for Hypervisor */
   .data : ALIGN(0x1000) {
     __data_start = .;

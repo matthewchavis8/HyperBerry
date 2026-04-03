@@ -29,6 +29,15 @@
       }
     },
     {
+      "name": "integration-test",
+      "displayName": "Integration Tests (bare-metal, TAP)",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/build/integration-test",
+      "cacheVariables": {
+        "INTEGRATION_TEST": "ON"
+      }
+    },
+    {
       "name": "unit-tests",
       "displayName": "Unit Tests (aarch64-linux, GTest)",
       "generator": "Unix Makefiles",
@@ -49,6 +58,10 @@
     {
       "name": "release",
       "configurePreset": "release"
+    },
+    {
+      "name": "integration-test",
+      "configurePreset": "integration-test"
     },
     {
       "name": "unit-tests",

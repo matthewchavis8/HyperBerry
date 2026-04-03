@@ -15,6 +15,10 @@
 #include "uart.h"
 #include "stddef.h"
 
+#ifdef INTEGRATION_TEST
+#include "tests/integration/suite.h"
+#endif
+
 /**
  * @brief Main hypervisor entry point (called from boot.S).
  * @ingroup core
@@ -30,7 +34,11 @@
 extern "C" void hmain() {
   Uart::init();
 
+#ifdef INTEGRATION_TEST
+  TestRunner::run_all();
+#else
   Uart::print("[LOG] attempt to trigger el2_sync\n");
 
   asm volatile("brk #0");
+#endif
 }
