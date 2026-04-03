@@ -36,9 +36,8 @@ test_vectors:
   .balign 0x80; b test_el2_unhandled
 
 test_el2_sync_entry:
-    sub  sp, sp, #272
- 
-    /* Save x0-x29 as pairs */
+    // Safe State
+    sub  sp, sp, #272 
     stp  x0,  x1,  [sp, #0]
     stp  x2,  x3,  [sp, #16]
     stp  x4,  x5,  [sp, #32]
@@ -64,7 +63,8 @@ test_el2_sync_entry:
     mov  x0, sp
     mrs  x1, esr_el2
     bl   handle_test_el2_sync
- 
+
+    // Restore State
     ldp  x0, x1, [sp, #248]
     msr  elr_el2, x0
     msr  spsr_el2, x1

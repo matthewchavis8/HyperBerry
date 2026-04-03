@@ -53,12 +53,15 @@ add_compile_options(
 
 option(INTEGRATION_TEST "Build with integration test suite linked in" OFF)
 
+if(INTEGRATION_TEST)
+  add_compile_definitions(INTEGRATION_TEST)
+endif()
+
 # add modules
 add_subdirectory(core)
 add_subdirectory(drivers)
 
 if(INTEGRATION_TEST)
-  add_compile_definitions(INTEGRATION_TEST)
   add_subdirectory(tests/integration/uart)
   add_subdirectory(tests/integration/exceptions)
 endif()
@@ -75,8 +78,10 @@ if(INTEGRATION_TEST)
   )
 
   target_link_libraries(${ELF} PRIVATE
+    -Wl,--whole-archive
     TestExceptions
     TestUart
+    -Wl,--no-whole-archive
   )
 endif()
 
