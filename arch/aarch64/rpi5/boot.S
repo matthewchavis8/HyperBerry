@@ -37,6 +37,9 @@
 .global _start
 
 _start:
+    // Save the DTB pointer in non-volatile register 19
+    mov x19, x0
+
     // Core 0 will handle the boot process. If it is not core 0 then we block those cores
     // until core 0 finishes setting up the hypervisor image
     mrs   x0, MPIDR_EL1  // Read AF1 into x0
@@ -94,6 +97,9 @@ _start:
     msr   vbar_el2, x0
     isb
 
+    // Pass the saved dtb pointer in from gpr 19 back to x0 as the first argument
+    // to hmain
+    mov x0, x19
     bl    hmain
 .Lblock:
     wfe
