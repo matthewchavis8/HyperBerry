@@ -31,7 +31,7 @@
  * @note Currently a Phase 0 boot stub. Future phases will replace the
  *       infinite loop with vCPU scheduling and Stage-2 MMU setup.
  */
-extern "C" void hmain() {
+extern "C" void hmain(uintptr_t dtb) {
   Uart::init();
 
 #ifdef INTEGRATION_TEST
