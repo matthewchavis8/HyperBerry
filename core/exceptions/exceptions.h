@@ -19,8 +19,7 @@
  * gpr[0..29] at offsets 0-232, lr at 240, elr at 248, spsr at 256.
  */
 struct ExceptionContext {
-  hv::array<uint64_t, 30> gpr;  /**< General-purpose registers x0-x29. */
-  uint64_t lr;                   /**< Link register (x30). */
+  hv::array<uint64_t, 30> gpr;  /**< General-purpose registers x0-x30. */
   uint64_t elr;                  /**< Exception Link Register (ELR_EL2). */
   uint64_t spsr;                 /**< Saved Program Status Register (SPSR_EL2). */
 };
