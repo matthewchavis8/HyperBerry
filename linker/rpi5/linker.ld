@@ -75,6 +75,7 @@ SECTIONS {
   __stack_size = __stack_end - __stack_start;
 
   /* 64MB heap region for Hypervisor */
+  /*TODO: This will need to be removed since the buddy allocator once it is set up will handle heap allocation*/
   .heap : ALIGN(0x1000) {
     __heap_start = .;
     . = . + (1024 * 1024) * 64;
