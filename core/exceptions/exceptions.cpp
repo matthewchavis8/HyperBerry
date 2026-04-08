@@ -13,6 +13,7 @@
  */
 
 #include "exceptions.h"
+#include "lib/panic/panic.h"
 #include "lib/registerDump/registerDump.h"
 #include "uart.h"
 
@@ -25,13 +26,8 @@
  *
  * @note Calls registerDump() to print full CPU state, then spins.
  */
-extern "C" void handle_el2_sync(ExceptionContext& ex) {
-  Uart::println("[handle_el2_sync] called");
-  registerDump(ex);
-
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_el2_sync(ExceptionContext& ctx) {
+  hv_panic("[EL2 Synchronous exception] was triggered", ctx);
 }
 
 /**

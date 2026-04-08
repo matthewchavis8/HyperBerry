@@ -60,6 +60,7 @@ endif()
 # add modules
 add_subdirectory(core)
 add_subdirectory(drivers)
+add_subdirectory(lib)
 
 if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/uart)
@@ -91,6 +92,9 @@ target_link_libraries(${ELF}
   Core
   Uart
   Exceptions
+  BuddyAlloc
+  Dtb
+  Panic
 )
 
 target_compile_options(${ELF}

@@ -37,8 +37,8 @@ extern "C" void hmain(uintptr_t dtb) {
 #ifdef INTEGRATION_TEST
   TestRunner::run_all();
 #else
-  Uart::println("[LOG] attempt to trigger el2_sync");
 
+  Uart::println("[LOG] attempt to trigger el2_sync");
   asm volatile("brk #0");
 #endif
 }
