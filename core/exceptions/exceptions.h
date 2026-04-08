@@ -8,7 +8,7 @@
 #define __EXCEPTIONS_H__
 
 #include <stdint.h>
-#include "lib/array.h"
+#include "lib/array/array.h"
 
 /**
  * @brief Saved CPU state at the moment an exception is taken.

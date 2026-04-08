@@ -13,7 +13,7 @@
  */
 
 #include "exceptions.h"
-#include "lib/registerDump.h"
+#include "lib/registerDump/registerDump.h"
 #include "uart.h"
 
 // Hypervisor (EL2) exception handlers
