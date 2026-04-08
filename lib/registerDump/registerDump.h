@@ -42,28 +42,28 @@ inline void registerDump(ExceptionContext& ctx) {
 
   Uart::println("==========[EXCEPTION DUMP]============");
   // ESR
-  Uart::print("ESR_EL2: 0x");
+  Uart::print("ESR_EL2(Syndrome): 0x");
   Uart::writeHex(esr);
   Uart::putc('\n');
 
-  Uart::print("EC:      0x");
+  Uart::print("EC(Class):         0x");
   Uart::writeHex(static_cast<uint64_t>(ec));
   Uart::putc('\n');
 
-  Uart::print("ISS:     0x");
+  Uart::print("ISS(Subclass):     0x");
   Uart::writeHex(static_cast<uint64_t>(iss));
   Uart::putc('\n');
 
   // System Registers
-  Uart::print("ELR_EL2: 0x");
+  Uart::print("ELR_EL2(Return):   0x");
   Uart::writeHex(ctx.elr);
   Uart::putc('\n');
 
-  Uart::print("SPSR:    0x");
+  Uart::print("SPSR(Status):      0x");
   Uart::writeHex(ctx.spsr);
   Uart::putc('\n');
 
-  Uart::print("FAR_EL2: 0x");
+  Uart::print("FAR_EL2(Fault):    0x");
   Uart::writeHex(far);
   Uart::putc('\n');
 

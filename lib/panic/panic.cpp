@@ -6,7 +6,7 @@
 [[noreturn]] void hv_panic(const char *msg, ExceptionContext& ctx) {
   Uart::putc('\n');
   Uart::println("=======================================");
-  Uart::println("=         HV PANIC                    =");
+  Uart::println("=             HV PANIC                =");
   Uart::println("=======================================");
   Uart::putc('\n');
 
