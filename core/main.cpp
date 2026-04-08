@@ -12,8 +12,10 @@
  * EL2 initialization, BSS zeroing, and stack setup.
  */
 
+#include "lib/panic/panic.h"
 #include "uart.h"
 #include "stddef.h"
+#include "dtb/dtb.h"
 
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
@@ -33,12 +35,18 @@
  */
 extern "C" void hmain(uintptr_t dtb) {
   Uart::init();
+  MemoryMap flatMap = parseDtb(dtb);
+
+  if (!flatMap.isValid) {
+    Uart::println("[ERROR] Failed to parse Tree Blob");
+    for (;;) asm volatile("wfe");
+  }
 
 #ifdef INTEGRATION_TEST
   TestRunner::run_all();
 #else
 
-  Uart::println("[LOG] attempt to trigger el2_sync");
+  Uart::println("[LOG] intentionally triggering the sync exception");
   asm volatile("brk #0");
 #endif
 }

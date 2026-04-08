@@ -95,6 +95,7 @@ target_link_libraries(${ELF}
   Buddy
   Dtb
   Panic
+  Strings
 )
 
 target_compile_options(${ELF}
