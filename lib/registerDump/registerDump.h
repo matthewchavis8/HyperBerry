@@ -40,32 +40,32 @@ inline void registerDump(ExceptionContext& ctx) {
   uint32_t ec  = (esr >> 26) & 0x3F;
   uint32_t iss = esr & 0xFFFFFF;
 
-  Uart::print("\n==========[EXCEPTION DUMP]============\n");
+  Uart::println("==========[EXCEPTION DUMP]============");
   // ESR
   Uart::print("ESR_EL2: 0x");
   Uart::writeHex(esr);
-  Uart::print("\n");
+  Uart::putc('\n');
 
   Uart::print("EC:      0x");
   Uart::writeHex(static_cast<uint64_t>(ec));
-  Uart::print("\n");
+  Uart::putc('\n');
 
   Uart::print("ISS:     0x");
   Uart::writeHex(static_cast<uint64_t>(iss));
-  Uart::print("\n");
+  Uart::putc('\n');
 
   // System Registers
   Uart::print("ELR_EL2: 0x");
   Uart::writeHex(ctx.elr);
-  Uart::print("\n");
+  Uart::putc('\n');
 
   Uart::print("SPSR:    0x");
   Uart::writeHex(ctx.spsr);
-  Uart::print("\n");
+  Uart::putc('\n');
 
   Uart::print("FAR_EL2: 0x");
   Uart::writeHex(far);
-  Uart::print("\n");
+  Uart::putc('\n');
 
   for (size_t i{}; i < 31; i++) {
     Uart::putc('x');
@@ -75,9 +75,9 @@ inline void registerDump(ExceptionContext& ctx) {
     Uart::putc('0' + static_cast<char>(i % 10));
     Uart::print(i < 10 ? ":  0x" : ": 0x");
     Uart::writeHex(ctx.gpr[i]);
-    Uart::print("\n");
+    Uart::putc('\n');
   }
-  Uart::print("======================================\n");
+  Uart::println("======================================");
 }
 
 #endif // __cplusplus
