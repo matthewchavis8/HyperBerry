@@ -92,7 +92,7 @@ target_link_libraries(${ELF}
   Core
   Uart
   Exceptions
-  BuddyAlloc
+  Buddy
   Dtb
   Panic
 )

@@ -1,5 +1,5 @@
 add_subdirectory(exceptions)
-add_subdirectory(buddyAlloc)
+add_subdirectory(mm)
 add_subdirectory(dtb)
 
 add_library(Core
@@ -11,6 +11,6 @@ target_link_libraries(Core
   PRIVATE
   Uart
   Exceptions
-  BuddyAlloc
+  Buddy
   Dtb
 )
