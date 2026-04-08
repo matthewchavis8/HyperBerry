@@ -8,3 +8,4 @@ compile_commands.json
 *.a
 *.elf
 *.bin
+/TODO.md

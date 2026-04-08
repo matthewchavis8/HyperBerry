@@ -61,7 +61,6 @@ class Uart {
      *          from an interrupt context or time-critical path.
      */
   public:
-    static void putc(const char ch);
     /**
      * @brief Initialize the PL011 UART.
      *
@@ -75,7 +74,20 @@ class Uart {
      * @note Each character is sent via putc(), which spins on the
      *       TX FIFO. For large strings this blocks proportionally.
      */
+    static void println(const char* str);
+    
+    /**
+     * @brief Transmit a null-terminated string.
+     * @param str Pointer to the null-terminated string to send.
+     * @note Each character is sent via putc(), which spins on the
+     *       TX FIFO. For large strings this blocks proportionally.
+     */
     static void print(const char* str);
+
+    /* 
+     * @brief transmits a single char
+     * */ 
+    static void putc(const char ch);
 
     /**
      * @brief Write a 64-bit value as a 16-digit hexadecimal string.

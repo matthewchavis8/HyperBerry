@@ -26,7 +26,7 @@
  * @note Calls registerDump() to print full CPU state, then spins.
  */
 extern "C" void handle_el2_sync(ExceptionContext& ex) {
-  Uart::print("[handle_el2_sync] called\n");
+  Uart::println("[handle_el2_sync] called");
   registerDump(ex);
 
   for (;;) {
@@ -42,7 +42,7 @@ extern "C" void handle_el2_sync(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_el2_irq(ExceptionContext& ex) {
-  Uart::print("[handle_el2_irq] called\n");
+  Uart::println("[handle_el2_irq] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -56,7 +56,7 @@ extern "C" void handle_el2_irq(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_el2_fiq(ExceptionContext& ex) {
-  Uart::print("[handle_el2_fiq] called\n");
+  Uart::println("[handle_el2_fiq] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -70,7 +70,7 @@ extern "C" void handle_el2_fiq(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_el2_serror(ExceptionContext& ex) {
-  Uart::print("[handle_el2_serror] called\n");
+  Uart::println("[handle_el2_serror] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -88,7 +88,7 @@ extern "C" void handle_el2_serror(ExceptionContext& ex) {
  *       and Stage-2 faults.
  */
 extern "C" void handle_lower_el_sync(ExceptionContext& ex) {
-  Uart::print("[handle_lower_el_sync] called\n");
+  Uart::println("[handle_lower_el_sync] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -102,7 +102,7 @@ extern "C" void handle_lower_el_sync(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_lower_el_irq(ExceptionContext& ex) {
-  Uart::print("[handle_lower_el_irq] called\n");
+  Uart::println("[handle_lower_el_irq] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -116,7 +116,7 @@ extern "C" void handle_lower_el_irq(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_lower_el_fiq(ExceptionContext& ex) {
-  Uart::print("[handle_lower_el_fiq] called\n");
+  Uart::println("[handle_lower_el_fiq] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -130,7 +130,7 @@ extern "C" void handle_lower_el_fiq(ExceptionContext& ex) {
  * @note Stub -- prints a message and enters a @c wfe spin loop.
  */
 extern "C" void handle_lower_el_serror(ExceptionContext& ex) {
-  Uart::print("[handle_lower_el_serror] called\n");
+  Uart::println("[handle_lower_el_serror] called");
   for (;;) {
     asm volatile("wfe");
   }
@@ -146,7 +146,7 @@ extern "C" void handle_lower_el_serror(ExceptionContext& ex) {
  *          spins after this function returns.
  */
 extern "C" void handle_unhandled(ExceptionContext& ex) {
-  Uart::print("[handle_unhandled called]\n");
+  Uart::println("[handle_unhandled called]");
   for (;;) {
     asm volatile("wfe");
   }
