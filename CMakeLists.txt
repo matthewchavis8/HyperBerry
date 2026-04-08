@@ -117,6 +117,10 @@ target_link_options(${ELF}
   -static
 )
 
+if(CMAKE_HOST_APPLE)
+  target_link_options(${ELF} PRIVATE -fuse-ld=lld)
+endif()
+
 set_target_properties(${ELF}
   PROPERTIES
   LINK_DEPENDS ${LINKER_SCRIPT}
