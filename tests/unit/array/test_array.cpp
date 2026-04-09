@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "lib/array.h"
+#include "lib/array/array.h"
 
 TEST(HvArray, SizeCorrect) {
   hv::array<int, 5> arr {1, 2, 3, 4, 5};
