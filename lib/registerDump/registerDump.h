@@ -44,27 +44,33 @@ inline void registerDump(ExceptionContext& ctx) {
   // ESR
   Uart::print("ESR_EL2(Syndrome): 0x");
   Uart::writeHex(esr);
+  Uart::putc('\r');
   Uart::putc('\n');
 
   Uart::print("EC(Class):         0x");
   Uart::writeHex(static_cast<uint64_t>(ec));
+  Uart::putc('\r');
   Uart::putc('\n');
 
   Uart::print("ISS(Subclass):     0x");
   Uart::writeHex(static_cast<uint64_t>(iss));
+  Uart::putc('\r');
   Uart::putc('\n');
 
   // System Registers
   Uart::print("ELR_EL2(Return):   0x");
   Uart::writeHex(ctx.elr);
+  Uart::putc('\r');
   Uart::putc('\n');
 
   Uart::print("SPSR(Status):      0x");
   Uart::writeHex(ctx.spsr);
+  Uart::putc('\r');
   Uart::putc('\n');
 
   Uart::print("FAR_EL2(Fault):    0x");
   Uart::writeHex(far);
+  Uart::putc('\r');
   Uart::putc('\n');
 
   for (size_t i{}; i < 31; i++) {
@@ -75,7 +81,8 @@ inline void registerDump(ExceptionContext& ctx) {
     Uart::putc('0' + static_cast<char>(i % 10));
     Uart::print(i < 10 ? ":  0x" : ": 0x");
     Uart::writeHex(ctx.gpr[i]);
-    Uart::putc('\n');
+    Uart::putc('\r');
+  Uart::putc('\n');
   }
   Uart::println("======================================");
 }

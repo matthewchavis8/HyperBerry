@@ -35,6 +35,7 @@ void Uart::println(const char* str) {
     ++str;
   }
 
+  putc('\r');
   putc('\n');
 }
 

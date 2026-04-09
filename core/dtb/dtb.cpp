@@ -49,7 +49,9 @@ static bool strEq(const char* str1, const char* str2) {
 }
 
 // Reads a big-endian (base, size) pair from a reg cell using 2 address and 2 size cells.
-static void readReg64(const uint32_t* data, uint64_t& base, uint64_t& size) {
+// volatile prevents the compiler from coalescing 32-bit reads into 64-bit loads,
+// which fault on Device-nGnRnE memory (Cortex-A76 with MMU off).
+static void readReg64(const volatile uint32_t* data, uint64_t& base, uint64_t& size) {
   base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
   size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
 }
@@ -61,13 +63,18 @@ static const uint32_t* alignUp(const uint8_t* ptr, uint32_t bytes) {
   return reinterpret_cast<const uint32_t*>(addr);
 }
 
+// All DTB pointers use volatile to prevent the compiler from coalescing
+// 32-bit reads into wider loads. With MMU off on Cortex-A76, memory is
+// Device-nGnRnE which requires natural alignment on every access.
+// The DTB only guarantees 4-byte alignment.
 MemoryMap parseDtb(uintptr_t dtb) {
   MemoryMap map = {};
 
   if (dtb == 0)
     return map;
 
-  const FdtHeader* hdr = reinterpret_cast<const FdtHeader*>(dtb);
+  const volatile FdtHeader* hdr =
+    reinterpret_cast<const volatile FdtHeader*>(dtb);
 
   if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC))
     return map;
@@ -75,8 +82,8 @@ MemoryMap parseDtb(uintptr_t dtb) {
   map.dtbBase = dtb;
   map.dtbSize = be32(hdr->totalSize);
 
-  const uint32_t* structs =
-    reinterpret_cast<const uint32_t*>(dtb + be32(hdr->structOff));
+  const volatile uint32_t* structs =
+    reinterpret_cast<const volatile uint32_t*>(dtb + be32(hdr->structOff));
   const char* strings =
     reinterpret_cast<const char*>(dtb + be32(hdr->stringsOff));
 
@@ -89,7 +96,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
 
   int depth {};
 
-  const uint32_t* tok = structs;
+  const volatile uint32_t* tok = structs;
 
   while (true) {
     uint32_t token = be32(*tok);
@@ -98,8 +105,10 @@ MemoryMap parseDtb(uintptr_t dtb) {
     switch (static_cast<FDT>(token)) {
 
       case FDT::BEGIN_NODE: {
-        const char* name     = reinterpret_cast<const char*>(tok);
-        const uint8_t* nameB = reinterpret_cast<const uint8_t*>(tok);
+        const char* name =
+          reinterpret_cast<const char*>(const_cast<const uint32_t*>(tok));
+        const uint8_t* nameB =
+          reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(tok));
 
         // depth == 1: inside root "/", entering a top-level node
         if (depth == 1) {
@@ -116,7 +125,8 @@ MemoryMap parseDtb(uintptr_t dtb) {
         while (nameB[nameLen] != 0)
           nameLen++;
 
-        tok = alignUp(nameB, nameLen + 1);
+        tok = reinterpret_cast<const volatile uint32_t*>(
+          alignUp(nameB, nameLen + 1));
         depth++;
         break;
       }
@@ -136,11 +146,10 @@ MemoryMap parseDtb(uintptr_t dtb) {
       }
 
       case FDT::PROP: {
-        const FdtProp*  prop     = reinterpret_cast<const FdtProp*>(tok);
-        uint32_t        dataLen  = be32(prop->dataLen);
-        uint32_t        nameOff  = be32(prop->nameOff);
+        uint32_t        dataLen  = be32(tok[0]);
+        uint32_t        nameOff  = be32(tok[1]);
         const char*     propName = strings + nameOff;
-        const uint32_t* propData = tok + 2;  // skip dataLen + nameOff
+        const volatile uint32_t* propData = tok + 2;  // skip dataLen + nameOff
 
         if (strEq(propName, "reg") && dataLen >= 16) {
           if (inMemory && !foundMem) {
@@ -152,7 +161,9 @@ MemoryMap parseDtb(uintptr_t dtb) {
           }
         }
 
-        tok = alignUp(reinterpret_cast<const uint8_t*>(propData), dataLen);
+        tok = reinterpret_cast<const volatile uint32_t*>(
+          alignUp(reinterpret_cast<const uint8_t*>(
+            const_cast<const uint32_t*>(propData)), dataLen));
         break;
       }
 
