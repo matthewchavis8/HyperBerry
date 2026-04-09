@@ -12,11 +12,12 @@ ENTRY(_start)
 MEMORY
 {
   /*
-   * Pi firmware loads kernel.img to 0x00200000
+   * Pi firmware (TF-A BL33 / bare-metal) loads kernel8.img to 0x00080000.
+   * AArch64 TEXT_OFFSET = 0x80000; RAM base = 0x00000000 on BCM2712.
    * Physical memory size: 8GB
    */
-  RESERVED (r)  : ORIGIN = 0x00000000, LENGTH = 32K
-  RAM      (xrw): ORIGIN = 0x00200000, LENGTH = (0x200000000 - 0x00200000)
+  RESERVED (r)  : ORIGIN = 0x00000000, LENGTH = 512K
+  RAM      (xrw): ORIGIN = 0x00080000, LENGTH = (0x200000000 - 0x00080000)
 }
 
 SECTIONS {

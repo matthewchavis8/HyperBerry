@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct MemoryMap {
+struct alignas(16) MemoryMap {
   uint64_t memBase;  /**< Base physical address of the main RAM region.       */
   uint64_t memSize;  /**< Size in bytes of the main RAM region.               */
   uint64_t atfBase;  /**< Base physical address of the TF-A reserved region.  */

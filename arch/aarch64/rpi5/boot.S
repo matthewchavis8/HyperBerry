@@ -57,10 +57,14 @@ _start:
     msr   HCR_EL2, x0
 
     // SCTLR_EL2: MMU, D-cache, I-cache off until page tables are ready.
+    // Also clear SA (bit 3) to disable SP alignment fault checking, which
+    // TF-A may leave enabled and which would fault on non-16-byte-aligned
+    // stack accesses before our C++ ABI establishes proper alignment.
     mrs   x0, SCTLR_EL2
     bic   x0, x0, #(1 << 0)      // Disable MMU
-    bic   x0, x0, #(1 << 1)      // Cache allignment disabled
+    bic   x0, x0, #(1 << 1)      // Disable alignment fault checking (A)
     bic   x0, x0, #(1 << 2)      // Data cache disabled
+    bic   x0, x0, #(1 << 3)      // Disable SP alignment fault checking (SA)
     bic   x0, x0, #(1 << 12)     // Instruction cache disabled
     msr   SCTLR_EL2, x0
     isb
