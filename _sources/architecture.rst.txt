@@ -45,6 +45,27 @@ The AArch64 assembly entry point (``boot.S``) runs before any C++ code:
 6. Shadow ``MIDR/MPIDR`` into ``VPIDR/VMPIDR``.
 7. Zero the ``.bss`` section using linker-exported symbols.
 8. Set ``SP_EL2`` to ``__stack_end`` and branch to ``hmain()``.
+9. In ``hmain()``, initialize UART, parse the DTB, and bring up the buddy
+   allocator from the discovered physical memory map.
+
+Memory Management
+-----------------
+
+HyperBerry now includes an early-boot physical page allocator in
+``core/mm/buddy/``. The allocator consumes the RAM range reported by the DTB,
+reserves the hypervisor image, TF-A, and the DTB blob itself, and exposes
+physically contiguous allocations in powers of two.
+
+Current allocator characteristics:
+
+- page size: ``4 KiB``
+- supported orders: ``0`` through ``11``
+- maximum single allocation: ``8 MiB``
+- metadata model: intrusive free lists plus a buddy bitmap
+
+This allocator is the foundation for the remaining memory-management work:
+EL2 page tables, stage-2 mappings, guest RAM allocation, and per-VM memory
+ownership.
 
 Development Roadmap
 -------------------
@@ -52,10 +73,10 @@ Development Roadmap
 Phase 0 — Bootstrap *(current)*
   - [x] Enter EL2, initialize BSS, set up EL2 stack
   - [x] PL011 UART driver for early debug output
-  - [ ] Exception vector table and synchronous exception handling
+  - [x] Exception vector table and synchronous exception handling
 
 Phase 1 — Memory Management
-  - [ ] Physical page allocator (buddy or bitmap)
+  - [x] Physical page allocator (buddy allocator)
   - [ ] EL2 Stage-1 page tables
   - [ ] Stage-2 page tables (guest IPA → PA translation)
 

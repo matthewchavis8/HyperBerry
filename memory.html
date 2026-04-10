@@ -1,13 +1,13 @@
 <!doctype html>
 <html class="no-js" lang="en" data-content_root="./">
-  <head>
-<meta charset="utf-8">
+  <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="#">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api.html"><link rel="prev" title="Architecture" href="architecture.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-<meta name="robots" content="noindex" />
-<title>Search - HyperBerry 0.0.1 documentation</title><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
+        <title>Memory Management - HyperBerry 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=acfd86a5" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
@@ -172,7 +172,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -184,16 +184,16 @@
   
   <span class="sidebar-brand-text">HyperBerry 0.0.1 documentation</span>
   
-</a><form class="sidebar-search-container" method="get" action="#" role="search">
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="memory.html">Memory Management</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -214,7 +214,13 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/memory.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -222,30 +228,148 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          
-<noscript>
-<div class="admonition error">
-  <p class="admonition-title">Error</p>
-  <p>
-    Please activate JavaScript to enable the search functionality.
-  </p>
-</div>
-</noscript>
-
-<div id="search-results"></div>
+          <section id="memory-management">
+<h1>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>HyperBerry now has an early-boot physical page allocator implemented with the
+buddy allocation algorithm. It is responsible for turning the RAM range
+reported by the firmware DTB into a pool of physically contiguous blocks that
+later EL2 subsystems can allocate and free.</p>
+<p>The allocator lives in <code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code> and is exposed through the global
+<code class="docutils literal notranslate"><span class="pre">g_Allocator</span></code> instance. Boot code reaches it from <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> after the DTB
+has been parsed successfully.</p>
+</section>
+<section id="boot-flow">
+<h2>Boot Flow<a class="headerlink" href="#boot-flow" title="Link to this heading">¶</a></h2>
+<p>The allocator is brought up in this order:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">boot.S</span></code> transfers control to <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> at EL2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parseDtb()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
+<code class="docutils literal notranslate"><span class="pre">memBase</span></code>, <code class="docutils literal notranslate"><span class="pre">memSize</span></code>, <code class="docutils literal notranslate"><span class="pre">atfBase</span></code>, <code class="docutils literal notranslate"><span class="pre">atfSize</span></code>, <code class="docutils literal notranslate"><span class="pre">dtbBase</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">dtbSize</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g_Allocator.init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
+<li><p>The allocator reserves memory already occupied by:</p>
+<ul class="simple">
+<li><p>the hypervisor image</p></li>
+<li><p>TF-A / secure-monitor reserved memory</p></li>
+<li><p>the DTB blob itself</p></li>
+</ul>
+</li>
+<li><p>Remaining RAM is left available for future EL2 subsystems such as page
+tables, guest images, and per-VM state.</p></li>
+</ol>
+</section>
+<section id="allocator-model">
+<h2>Allocator Model<a class="headerlink" href="#allocator-model" title="Link to this heading">¶</a></h2>
+<p>HyperBerry uses 4 KiB pages and supports orders <code class="docutils literal notranslate"><span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">11</span></code>:</p>
+<ul class="simple">
+<li><p>order 0 = 1 page = 4 KiB</p></li>
+<li><p>order 1 = 2 pages = 8 KiB</p></li>
+<li><p>order 11 = 2048 pages = 8 MiB</p></li>
+</ul>
+<p>Each free block is stored in a per-order intrusive singly linked list. The
+<code class="docutils literal notranslate"><span class="pre">FreeNode</span></code> metadata lives inside the free page itself, so the allocator does
+not need a separate heap or side allocation for bookkeeping.</p>
+<p>A bitmap tracks buddy-pair state across all orders. On allocation and free,
+the corresponding bit is toggled. During free, a zero bit means both buddies
+are now free and the allocator attempts to merge them into the next higher
+order.</p>
+</section>
+<section id="allocation-path">
+<h2>Allocation Path<a class="headerlink" href="#allocation-path" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">allocPages(order)</span></code> works as follows:</p>
+<ol class="arabic simple">
+<li><p>Find the lowest free list at or above the requested order.</p></li>
+<li><p>Remove one block from that list.</p></li>
+<li><p>Split it repeatedly until the requested order is reached.</p></li>
+<li><p>Return the physical base address of the left-most block.</p></li>
+</ol>
+<p>This gives the caller a physically contiguous region of <code class="docutils literal notranslate"><span class="pre">PAGE_SIZE</span> <span class="pre">*</span> <span class="pre">2^order</span></code>
+bytes.</p>
+</section>
+<section id="free-path">
+<h2>Free Path<a class="headerlink" href="#free-path" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">freePages(addr,</span> <span class="pre">order)</span></code> starts with the returned block and checks whether
+its buddy is also free:</p>
+<ol class="arabic simple">
+<li><p>Compute the buddy address by XORing the block offset with the block size.</p></li>
+<li><p>Consult the bitmap state for that order.</p></li>
+<li><p>If the buddy is free and present in the free list, remove it and merge.</p></li>
+<li><p>Repeat at the next higher order until no more merging is possible.</p></li>
+</ol>
+<p>The final merged block is pushed back onto the appropriate free list.</p>
+</section>
+<section id="reservations">
+<h2>Reservations<a class="headerlink" href="#reservations" title="Link to this heading">¶</a></h2>
+<p>During <code class="docutils literal notranslate"><span class="pre">init()</span></code>, HyperBerry first seeds the allocator with the full RAM range
+reported by the DTB, then removes regions that must never be handed out:</p>
+<ul class="simple">
+<li><p>the hypervisor image from <code class="docutils literal notranslate"><span class="pre">__text_start</span></code> through <code class="docutils literal notranslate"><span class="pre">__uncached_space_end</span></code></p></li>
+<li><p>the TF-A reserved region reported in the DTB</p></li>
+<li><p>the DTB blob itself</p></li>
+</ul>
+<p>That reservation pass is what makes the allocator safe to use before an MMU or
+virtual-memory subsystem exists.</p>
+</section>
+<section id="current-scope">
+<h2>Current Scope<a class="headerlink" href="#current-scope" title="Link to this heading">¶</a></h2>
+<p>What exists today:</p>
+<ul class="simple">
+<li><p>DTB-backed RAM discovery</p></li>
+<li><p>early boot allocator initialisation</p></li>
+<li><p>physically contiguous allocation by order</p></li>
+<li><p>free with buddy coalescing</p></li>
+<li><p>UART dump of free-list state for bring-up debugging</p></li>
+</ul>
+<p>What does not exist yet:</p>
+<ul class="simple">
+<li><p>virtual memory for EL2</p></li>
+<li><p>stage-2 page-table management for guests</p></li>
+<li><p>higher-level allocators built on top of the page allocator</p></li>
+<li><p>allocation tests in the unit-test suite</p></li>
+</ul>
+</section>
+<section id="source-locations">
+<h2>Source Locations<a class="headerlink" href="#source-locations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">core/dtb/</span></code>: boot-time DTB parsing and <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code>: buddy allocator implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/main.cpp</span></code>: allocator bring-up during EL2 boot</p></li>
+</ul>
+</section>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="architecture.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Architecture</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -264,8 +388,34 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Memory Management</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#boot-flow">Boot Flow</a></li>
+<li><a class="reference internal" href="#allocator-model">Allocator Model</a></li>
+<li><a class="reference internal" href="#allocation-path">Allocation Path</a></li>
+<li><a class="reference internal" href="#free-path">Free Path</a></li>
+<li><a class="reference internal" href="#reservations">Reservations</a></li>
+<li><a class="reference internal" href="#current-scope">Current Scope</a></li>
+<li><a class="reference internal" href="#source-locations">Source Locations</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -274,8 +424,5 @@
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    
-<script src="_static/searchtools.js"></script>
-<script src="_static/language_data.js"></script>
-<script src="searchindex.js"></script></body>
+    </body>
 </html>

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api.html"><link rel="prev" title="HyperBerry" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Memory Management" href="memory.html"><link rel="prev" title="HyperBerry" href="index.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Architecture - HyperBerry 0.0.1 documentation</title>
@@ -193,6 +193,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">Memory Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -276,7 +277,26 @@ managed by the hypervisor.</p>
 <li><p>Shadow <code class="docutils literal notranslate"><span class="pre">MIDR/MPIDR</span></code> into <code class="docutils literal notranslate"><span class="pre">VPIDR/VMPIDR</span></code>.</p></li>
 <li><p>Zero the <code class="docutils literal notranslate"><span class="pre">.bss</span></code> section using linker-exported symbols.</p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">SP_EL2</span></code> to <code class="docutils literal notranslate"><span class="pre">__stack_end</span></code> and branch to <code class="docutils literal notranslate"><span class="pre">hmain()</span></code>.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">hmain()</span></code>, initialize UART, parse the DTB, and bring up the buddy
+allocator from the discovered physical memory map.</p></li>
 </ol>
+</section>
+<section id="memory-management">
+<h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
+<p>HyperBerry now includes an early-boot physical page allocator in
+<code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code>. The allocator consumes the RAM range reported by the DTB,
+reserves the hypervisor image, TF-A, and the DTB blob itself, and exposes
+physically contiguous allocations in powers of two.</p>
+<p>Current allocator characteristics:</p>
+<ul class="simple">
+<li><p>page size: <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">KiB</span></code></p></li>
+<li><p>supported orders: <code class="docutils literal notranslate"><span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">11</span></code></p></li>
+<li><p>maximum single allocation: <code class="docutils literal notranslate"><span class="pre">8</span> <span class="pre">MiB</span></code></p></li>
+<li><p>metadata model: intrusive free lists plus a buddy bitmap</p></li>
+</ul>
+<p>This allocator is the foundation for the remaining memory-management work:
+EL2 page tables, stage-2 mappings, guest RAM allocation, and per-VM memory
+ownership.</p>
 </section>
 <section id="development-roadmap">
 <h2>Development Roadmap<a class="headerlink" href="#development-roadmap" title="Link to this heading">¶</a></h2>
@@ -284,11 +304,11 @@ managed by the hypervisor.</p>
 <dt>Phase 0 — Bootstrap <em>(current)</em></dt><dd><ul class="simple">
 <li><p>[x] Enter EL2, initialize BSS, set up EL2 stack</p></li>
 <li><p>[x] PL011 UART driver for early debug output</p></li>
-<li><p>[ ] Exception vector table and synchronous exception handling</p></li>
+<li><p>[x] Exception vector table and synchronous exception handling</p></li>
 </ul>
 </dd>
 <dt>Phase 1 — Memory Management</dt><dd><ul class="simple">
-<li><p>[ ] Physical page allocator (buddy or bitmap)</p></li>
+<li><p>[x] Physical page allocator (buddy allocator)</p></li>
 <li><p>[ ] EL2 Stage-1 page tables</p></li>
 <li><p>[ ] Stage-2 page tables (guest IPA → PA translation)</p></li>
 </ul>
@@ -324,12 +344,12 @@ managed by the hypervisor.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api.html">
+          <a class="next-page" href="memory.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API Reference</div>
+                <div class="title">Memory Management</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -378,6 +398,7 @@ managed by the hypervisor.</p>
 <li><a class="reference internal" href="#design-goals">Design Goals</a></li>
 <li><a class="reference internal" href="#exception-level-layout">Exception Level Layout</a></li>
 <li><a class="reference internal" href="#boot-sequence">Boot Sequence</a></li>
+<li><a class="reference internal" href="#memory-management">Memory Management</a></li>
 <li><a class="reference internal" href="#development-roadmap">Development Roadmap</a></li>
 </ul>
 </li>

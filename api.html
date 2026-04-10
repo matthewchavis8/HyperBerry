@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Architecture" href="architecture.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Memory Management" href="memory.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>API Reference - HyperBerry 0.0.1 documentation</title>
@@ -193,6 +193,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory.html">Memory Management</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API Reference</a></li>
 </ul>
 
@@ -240,13 +241,27 @@
 <dl>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__core"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Core</span></span></dt>
-<dd><p>Hypervisor entry point and boot-time initialization. </p>
-<p>Hypervisor core — entry point, scheduler, and exception handling.</p>
+<dd><p>Hypervisor core — entry point, scheduler, and exception handling. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv45hmainv">
-<span id="_CPPv35hmainv"></span><span id="_CPPv25hmainv"></span><span id="hmain"></span><span class="target" id="group__core_1ga0b1cd4925fad44c55d505514ae2cdcf8"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hmain</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv45hmainv" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv48parseDtb9uintptr_t">
+<span id="_CPPv38parseDtb9uintptr_t"></span><span id="_CPPv28parseDtb9uintptr_t"></span><span id="parseDtb__uintptr_t"></span><span class="target" id="group__core_1gac29b3af3d09cfbc043047781a19e4cf0"></span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parseDtb</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48parseDtb9uintptr_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Parse a Flattened Device Tree blob and extract key memory regions. </p>
+<p>Walks the DTB structure block to locate the main RAM node and selected reserved-memory children used by TF-A or secure monitor firmware.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtb</strong> – Physical address of the DTB blob passed in at boot. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed <a class="reference internal" href="#structMemoryMap"><span class="std std-ref">MemoryMap</span></a>. The returned map has <code class="docutils literal notranslate"><span class="pre">isValid</span></code> set only when the main memory region was found and decoded successfully. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv45hmain9uintptr_t">
+<span id="_CPPv35hmain9uintptr_t"></span><span id="_CPPv25hmain9uintptr_t"></span><span id="hmain__uintptr_t"></span><span class="target" id="group__core_1ga00a50954698be76af103fda76b558dca"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hmain</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv45hmain9uintptr_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Main hypervisor entry point (called from boot.S). </p>
 <p>Uses C linkage so the assembly boot code can branch to it by name without C++ name mangling.</p>
 <div class="admonition note">
@@ -255,11 +270,178 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Must never return. The assembly boot stub has no return address — falling off the end of <a class="reference internal" href="#group__core_1ga0b1cd4925fad44c55d505514ae2cdcf8"><span class="std std-ref">hmain()</span></a> is undefined behaviour. </p>
+<p>Must never return. The assembly boot stub has no return address — falling off the end of <a class="reference internal" href="#group__core_1ga00a50954698be76af103fda76b558dca"><span class="std std-ref">hmain()</span></a> is undefined behaviour. </p>
 </div>
 </dd></dl>
 
 </div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv49MemoryMap">
+<span id="_CPPv39MemoryMap"></span><span id="_CPPv29MemoryMap"></span><span id="MemoryMap"></span><span class="target" id="structMemoryMap"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MemoryMap</span></span></span><a class="headerlink" href="#_CPPv49MemoryMap" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dtb.h&gt;</em></div>
+<p>Boot-time physical memory layout parsed from the DTB. </p>
+<p>Contains the primary RAM range plus reserved regions needed by the hypervisor before the MMU and dynamic allocation are available. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7memBaseE">
+<span id="_CPPv3N9MemoryMap7memBaseE"></span><span id="_CPPv2N9MemoryMap7memBaseE"></span><span id="MemoryMap::memBase__uint64_t"></span><span class="target" id="structMemoryMap_1a085e59aca3714243c159a8fb353ad0eb"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7memBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base physical address of the main RAM region. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7memSizeE">
+<span id="_CPPv3N9MemoryMap7memSizeE"></span><span id="_CPPv2N9MemoryMap7memSizeE"></span><span id="MemoryMap::memSize__uint64_t"></span><span class="target" id="structMemoryMap_1a7347cd1abfc793f8c1375fe11371714d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7memSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the main RAM region. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7atfBaseE">
+<span id="_CPPv3N9MemoryMap7atfBaseE"></span><span id="_CPPv2N9MemoryMap7atfBaseE"></span><span id="MemoryMap::atfBase__uint64_t"></span><span class="target" id="structMemoryMap_1a83d8683e842c0f09b5ac6ff46f140b2b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">atfBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7atfBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base physical address of the TF-A reserved region. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7atfSizeE">
+<span id="_CPPv3N9MemoryMap7atfSizeE"></span><span id="_CPPv2N9MemoryMap7atfSizeE"></span><span id="MemoryMap::atfSize__uint64_t"></span><span class="target" id="structMemoryMap_1a4b07a662f2020f6a9a7989831ace2bbf"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">atfSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7atfSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the TF-A reserved region. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7dtbBaseE">
+<span id="_CPPv3N9MemoryMap7dtbBaseE"></span><span id="_CPPv2N9MemoryMap7dtbBaseE"></span><span id="MemoryMap::dtbBase__uint64_t"></span><span class="target" id="structMemoryMap_1aea7d1753e074510422aaccd076242368"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7dtbBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base physical address of the DTB blob. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7dtbSizeE">
+<span id="_CPPv3N9MemoryMap7dtbSizeE"></span><span id="_CPPv2N9MemoryMap7dtbSizeE"></span><span id="MemoryMap::dtbSize__uint64_t"></span><span class="target" id="structMemoryMap_1afc8fbf72f5f0b0bdf3116ee2d99640e6"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7dtbSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Total size in bytes of the DTB blob. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7isValidE">
+<span id="_CPPv3N9MemoryMap7isValidE"></span><span id="_CPPv2N9MemoryMap7isValidE"></span><span id="MemoryMap::isValid__b"></span><span class="target" id="structMemoryMap_1a494534b75d3b6b977f5859945fa235b6"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isValid</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7isValidE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>True only if all fields were successfully parsed. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="memory-management">
+<h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
+<p>Boot-time physical memory discovery and contiguous page allocation.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__mm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Memory</span> <span class="pre">Management</span></span></dt>
+<dd><p>Physical memory discovery and page allocation at EL2. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv49PAGE_SIZE">
+<span id="_CPPv39PAGE_SIZE"></span><span id="_CPPv29PAGE_SIZE"></span><span id="PAGE_SIZE__uint64_t"></span><span class="target" id="group__mm_1gac5a9e05347e4b0576b23d3e925a7cfa3"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PAGE_SIZE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x1000</span></span><a class="headerlink" href="#_CPPv49PAGE_SIZE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base physical page size used by the allocator. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv410PAGE_SHIFT">
+<span id="_CPPv310PAGE_SHIFT"></span><span id="_CPPv210PAGE_SHIFT"></span><span id="PAGE_SHIFT__uint64_t"></span><span class="target" id="group__mm_1ga13f35b9cff87d34ad2cca696f6c76020"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PAGE_SHIFT</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">12</span></span><a class="headerlink" href="#_CPPv410PAGE_SHIFT" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Bit shift corresponding to <a class="reference internal" href="#group__mm_1gac5a9e05347e4b0576b23d3e925a7cfa3"><span class="std std-ref">PAGE_SIZE</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv49MAX_ORDER">
+<span id="_CPPv39MAX_ORDER"></span><span id="_CPPv29MAX_ORDER"></span><span id="MAX_ORDER__uint32_t"></span><span class="target" id="group__mm_1gaf14331d02cf1717e9731af1e8fcdfd06"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MAX_ORDER</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">11</span></span><a class="headerlink" href="#_CPPv49MAX_ORDER" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Highest allocation order supported by the allocator. </p>
+<p>Order 11 corresponds to an 8 MiB contiguous physical allocation. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv410NUM_ORDERS">
+<span id="_CPPv310NUM_ORDERS"></span><span id="_CPPv210NUM_ORDERS"></span><span id="NUM_ORDERS__uint32_t"></span><span class="target" id="group__mm_1ga382604bba803701bc86770f319a90d28"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NUM_ORDERS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49MAX_ORDER" title="MAX_ORDER"><span class="n"><span class="pre">MAX_ORDER</span></span></a><span class="w"> </span><span class="o"><span class="pre">+</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv410NUM_ORDERS" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Number of free-list levels managed by the allocator. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv412BITMAP_BYTES">
+<span id="_CPPv312BITMAP_BYTES"></span><span id="_CPPv212BITMAP_BYTES"></span><span id="BITMAP_BYTES__s"></span><span class="target" id="group__mm_1gaea88c47d0abd5f18d343225e992a8e40"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BITMAP_BYTES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">16384</span></span><a class="headerlink" href="#_CPPv412BITMAP_BYTES" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Buddy bitmap storage. </p>
+<p>One bit per buddy pair per order. Bit toggled on every alloc and free. If the bit is 0 after toggling, both buddies are free and can merge.</p>
+<p>Sized for 640MB / 4KB = 163840 pages. Order 0 needs 163840/2 = 81920 bits = 10240 bytes. Total across all orders is bounded below that. 16KB is ample. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv411g_Allocator">
+<span id="_CPPv311g_Allocator"></span><span id="_CPPv211g_Allocator"></span><span id="g_Allocator__BuddyAllocator"></span><span class="target" id="group__mm_1gaafa8c7438beae8469eee1f0afe2b718c"></span><a class="reference internal" href="#_CPPv414BuddyAllocator" title="BuddyAllocator"><span class="n"><span class="pre">BuddyAllocator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">g_Allocator</span></span></span><a class="headerlink" href="#_CPPv411g_Allocator" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Global physical page allocator instance used during boot and runtime. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv414BuddyAllocator">
+<span id="_CPPv314BuddyAllocator"></span><span id="_CPPv214BuddyAllocator"></span><span id="BuddyAllocator"></span><span class="target" id="classBuddyAllocator"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BuddyAllocator</span></span></span><a class="headerlink" href="#_CPPv414BuddyAllocator" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;buddy.h&gt;</em></div>
+<p>Physical page buddy allocator. </p>
+<p>Initialised once at boot via <a class="reference internal" href="#classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"><span class="std std-ref">init()</span></a>. After that, <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a> and <a class="reference internal" href="#classBuddyAllocator_1aa5a57acdd4e4f2386a8ad3ef0e2a21ab"><span class="std std-ref">freePages()</span></a> are the only interface the rest of the hypervisor needs. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator4initERK9MemoryMap">
+<span id="_CPPv3N14BuddyAllocator4initERK9MemoryMap"></span><span id="_CPPv2N14BuddyAllocator4initERK9MemoryMap"></span><span id="BuddyAllocator::init__MemoryMapCR"></span><span class="target" id="classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">map</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator4initERK9MemoryMap" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialise the allocator from the firmware memory map. </p>
+<p>Computes the free pool as: [__uncached_space_end, memBase + memSize) minus the TF-A reservation and the DTB blob.</p>
+<p>Must be called exactly once before any <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a> call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>map</strong> – Parsed firmware memory map from <a class="reference internal" href="#group__core_1gac29b3af3d09cfbc043047781a19e4cf0"><span class="std std-ref">parseDtb()</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator10allocPagesE8uint32_t">
+<span id="_CPPv3N14BuddyAllocator10allocPagesE8uint32_t"></span><span id="_CPPv2N14BuddyAllocator10allocPagesE8uint32_t"></span><span id="BuddyAllocator::allocPages__uint32_t"></span><span class="target" id="classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allocPages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator10allocPagesE8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate a physically contiguous block of 2^order pages. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> – Allocation order (0 = 4KB, 1 = 8KB, …, 11 = 8MB). </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Physical base address of the allocated block, or 0 if the allocation failed. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t">
+<span id="_CPPv3N14BuddyAllocator9freePagesE8uint64_t8uint32_t"></span><span id="_CPPv2N14BuddyAllocator9freePagesE8uint64_t8uint32_t"></span><span id="BuddyAllocator::freePages__uint64_t.uint32_t"></span><span class="target" id="classBuddyAllocator_1aa5a57acdd4e4f2386a8ad3ef0e2a21ab"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freePages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return a previously allocated block to the free pool. </p>
+<p>Merges with the buddy block if the buddy is also free, recursing upward until no further merges are possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – Physical base address returned by <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a>. </p></li>
+<li><p><strong>order</strong> – Must match the order passed to the original <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK14BuddyAllocator9dumpStateEv">
+<span id="_CPPv3NK14BuddyAllocator9dumpStateEv"></span><span id="_CPPv2NK14BuddyAllocator9dumpStateEv"></span><span id="BuddyAllocator::dumpStateC"></span><span class="target" id="classBuddyAllocator_1abcabde35eacf78ba249bfc8a27e3660d"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dumpState</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK14BuddyAllocator9dumpStateEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Print free block counts per order over UART. </p>
+<p>Walks every free list and reports how many blocks are available at each order. Call after <a class="reference internal" href="#classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"><span class="std std-ref">init()</span></a> to verify reservations are correct, and after alloc/free sequences to verify merge behaviour. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <section id="exception-handling">
@@ -275,19 +457,13 @@
 <dd><div class="docutils container">
 <em>#include &lt;exceptions.h&gt;</em></div>
 <p>Saved CPU state at the moment an exception is taken. </p>
-<p>Populated by the <code class="docutils literal notranslate"><span class="pre">save_context</span></code> macro in exceptions.S. The layout must match the assembly stack frame exactly: gpr[0..29] at offsets 0-232, lr at 240, elr at 248, spsr at 256. </p>
+<p>Populated by the <code class="docutils literal notranslate"><span class="pre">save_context</span></code> macro in exceptions.S. The layout must match the assembly stack frame exactly: gpr[0..30] at offsets 0-240, elr at 248, spsr at 256. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext3gprE">
-<span id="_CPPv3N16ExceptionContext3gprE"></span><span id="_CPPv2N16ExceptionContext3gprE"></span><span id="ExceptionContext::gpr__hv::array:uint64_t.30:"></span><span class="target" id="structExceptionContext_1a9702e76413cf450b64eebd8a95f946a0"></span><span class="n"><span class="pre">hv</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">30</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3gprE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>General-purpose registers x0-x29. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext2lrE">
-<span id="_CPPv3N16ExceptionContext2lrE"></span><span id="_CPPv2N16ExceptionContext2lrE"></span><span id="ExceptionContext::lr__uint64_t"></span><span class="target" id="structExceptionContext_1ab591c25ca28a7c00dc8e791f765c5f45"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">lr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext2lrE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Link register (x30). </p>
+<span id="_CPPv3N16ExceptionContext3gprE"></span><span id="_CPPv2N16ExceptionContext3gprE"></span><span id="ExceptionContext::gpr__hv::array:uint64_t.31:"></span><span class="target" id="structExceptionContext_1ac27a76108e83ee229770f052e733e1bb"></span><span class="n"><span class="pre">hv</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">31</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3gprE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>General-purpose registers x0-x30. </p>
 </dd></dl>
 
 <dl class="cpp var">
@@ -318,9 +494,68 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dl>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">UART</span> <span class="pre">Driver</span></span></dt>
-<dd><p>PL011 UART driver for early serial I/O. </p>
-<p>PL011 UART driver for early debug output.</p>
+<dd><p>PL011 UART driver for early debug output. </p>
 <p>Supports both the QEMU virt machine (base 0x09000000) and physical Raspberry Pi 5 hardware (base 0x7E201000), selected at compile time via the <code class="docutils literal notranslate"><span class="pre">QEMU</span></code> preprocessor define. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv48UART_REG">
+<span id="_CPPv38UART_REG"></span><span id="_CPPv28UART_REG"></span><span class="target" id="group__drivers__uart_1ga420d6f42b420a39140ea427f1a3d3558"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_REG</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><a class="headerlink" href="#_CPPv48UART_REG" title="Link to this definition">¶</a><br /></dt>
+<dd><p>PL011 register offsets from <a class="reference internal" href="#group__drivers__uart_1gaeffbd0ea9285b9143ad378b5bede4388"><span class="std std-ref">UART_BASE</span></a>. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2DRE">
+<span id="_CPPv3N8UART_REG2DRE"></span><span id="_CPPv2N8UART_REG2DRE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a3754385271c4f2a2648b471683d21149"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DR</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG2DRE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2FRE">
+<span id="_CPPv3N8UART_REG2FRE"></span><span id="_CPPv2N8UART_REG2FRE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a11aedd0e432747c2bcd97b82808d24a0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FR</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG2FRE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG4IBRDE">
+<span id="_CPPv3N8UART_REG4IBRDE"></span><span id="_CPPv2N8UART_REG4IBRDE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558aff799d49c521f4bf7dd83fb6fa27ca0f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IBRD</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG4IBRDE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG4FBRDE">
+<span id="_CPPv3N8UART_REG4FBRDE"></span><span id="_CPPv2N8UART_REG4FBRDE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a4a3940a482cbe843ce0b6fefb938bf62"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FBRD</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG4FBRDE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG4LCRHE">
+<span id="_CPPv3N8UART_REG4LCRHE"></span><span id="_CPPv2N8UART_REG4LCRHE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a1d357a78a7d12cf57386d8942089f003"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">LCRH</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG4LCRHE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2CRE">
+<span id="_CPPv3N8UART_REG2CRE"></span><span id="_CPPv2N8UART_REG2CRE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a1d7b33fc26ca22c2011aaa97fecc43d8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CR</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG2CRE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8UART_REG3ICRE">
+<span id="_CPPv3N8UART_REG3ICRE"></span><span id="_CPPv2N8UART_REG3ICRE"></span><span class="target" id="group__drivers__uart_1gga420d6f42b420a39140ea427f1a3d3558a95458b1d74059cbf83c4635363e0ba7a"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ICR</span></span></span><a class="headerlink" href="#_CPPv4N8UART_REG3ICRE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv49UART_BASE">
+<span id="_CPPv39UART_BASE"></span><span id="_CPPv29UART_BASE"></span><span id="UART_BASE__uint64_t"></span><span class="target" id="group__drivers__uart_1gaeffbd0ea9285b9143ad378b5bede4388"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_BASE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x09000000</span></span><a class="headerlink" href="#_CPPv49UART_BASE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>PL011 UART base address selected for the current target. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv43hex">
+<span id="_CPPv33hex"></span><span id="_CPPv23hex"></span><span id="hex__cA"></span><span class="target" id="group__drivers__uart_1ga0d3626bb4d25c2203af5eda15e7ca843"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hex</span></span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;0123456789ABCDEF&quot;</span></span><a class="headerlink" href="#_CPPv43hex" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Uppercase hexadecimal digit lookup table used by writeHex(). </p>
+</dd></dl>
+
+</div>
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv44Uart">
 <span id="_CPPv34Uart"></span><span id="_CPPv24Uart"></span><span id="Uart"></span><span class="target" id="classUart"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Uart</span></span></span><a class="headerlink" href="#_CPPv44Uart" title="Link to this definition">¶</a><br /></dt>
@@ -330,21 +565,6 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N4Uart4putcEKc">
-<span id="_CPPv3N4Uart4putcEKc"></span><span id="_CPPv2N4Uart4putcEKc"></span><span id="Uart::putc__cC"></span><span class="target" id="classUart_1a414f8b85eab21f16edfd38ebec0e2767"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">putc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ch</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4putcEKc" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Transmit a single character via the UART Data Register. </p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Busy-waits until the TX FIFO has space. Do not call from an interrupt context or time-critical path. </p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ch</strong> – Character to send. </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N4Uart4initEv">
 <span id="_CPPv3N4Uart4initEv"></span><span id="_CPPv2N4Uart4initEv"></span><span id="Uart::init"></span><span class="target" id="classUart_1aa6f4296883e0453a718200adf6d009f2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4initEv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Initialize the PL011 UART. </p>
@@ -352,6 +572,21 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <p class="admonition-title">Note</p>
 <p>Must be called before <a class="reference internal" href="#classUart_1aa778f6e4345184ceb4efbdc93ebf6c7a"><span class="std std-ref">print()</span></a>. </p>
 </div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Uart7printlnEPKc">
+<span id="_CPPv3N4Uart7printlnEPKc"></span><span id="_CPPv2N4Uart7printlnEPKc"></span><span id="Uart::println__cCP"></span><span class="target" id="classUart_1a7433654a6c738b6c6c187db75dc91102"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">println</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">str</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart7printlnEPKc" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Transmit a null-terminated string. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each character is sent via <a class="reference internal" href="#classUart_1a414f8b85eab21f16edfd38ebec0e2767"><span class="std std-ref">putc()</span></a>, which spins on the TX FIFO. For large strings this blocks proportionally. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>str</strong> – Pointer to the null-terminated string to send. </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="cpp function">
@@ -365,6 +600,21 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>str</strong> – Pointer to the null-terminated string to send. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Uart4putcEKc">
+<span id="_CPPv3N4Uart4putcEKc"></span><span id="_CPPv2N4Uart4putcEKc"></span><span id="Uart::putc__cC"></span><span class="target" id="classUart_1a414f8b85eab21f16edfd38ebec0e2767"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">putc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ch</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Uart4putcEKc" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Transmit a single character over the UART. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Busy-waits until the TX FIFO has space. Do not call from an interrupt context or time-critical path. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ch</strong> – Character to send. </p>
 </dd>
 </dl>
 </dd></dl>
@@ -394,6 +644,21 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <section id="hv-library">
 <h2>HV Library<a class="headerlink" href="#hv-library" title="Link to this heading">¶</a></h2>
 <p>Freestanding C++ utility headers with no standard library dependency.</p>
+<section id="panic">
+<h3>Panic<a class="headerlink" href="#panic" title="Link to this heading">¶</a></h3>
+<p>Fatal exception reporting for unrecoverable EL2 errors.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hv_panic()</span></code> prints an error message, emits a full exception register dump,
+and halts the current CPU indefinitely.</p>
+</section>
+<section id="memory-primitives">
+<h3>Memory Primitives<a class="headerlink" href="#memory-primitives" title="Link to this heading">¶</a></h3>
+<p>Freestanding C memory helpers used when no hosted libc is available,
+including <code class="docutils literal notranslate"><span class="pre">memcpy()</span></code> and <code class="docutils literal notranslate"><span class="pre">memset()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">memcpy()</span></code> copies <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dest</span></code> and returns
+<code class="docutils literal notranslate"><span class="pre">dest</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">memset()</span></code> fills <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes at <code class="docutils literal notranslate"><span class="pre">dest</span></code> with the low byte of <code class="docutils literal notranslate"><span class="pre">c</span></code> and
+returns <code class="docutils literal notranslate"><span class="pre">dest</span></code>.</p>
+</section>
 <section id="array">
 <h3>Array<a class="headerlink" href="#array" title="Link to this heading">¶</a></h3>
 <p>Freestanding fixed-size container used in exception context state.</p>
@@ -514,14 +779,14 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
         
         <div class="related-pages">
           
-          <a class="prev-page" href="architecture.html">
+          <a class="prev-page" href="memory.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Architecture</div>
+                <div class="title">Memory Management</div>
                 
               </div>
             </a>
@@ -557,11 +822,37 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
             <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#core">Core</a><ul>
-<li><a class="reference internal" href="#_CPPv45hmainv"><code class="docutils literal notranslate"><span class="pre">hmain()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv48parseDtb9uintptr_t"><code class="docutils literal notranslate"><span class="pre">parseDtb()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv45hmain9uintptr_t"><code class="docutils literal notranslate"><span class="pre">hmain()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49MemoryMap"><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7memBaseE"><code class="docutils literal notranslate"><span class="pre">memBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7memSizeE"><code class="docutils literal notranslate"><span class="pre">memSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7atfBaseE"><code class="docutils literal notranslate"><span class="pre">atfBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7atfSizeE"><code class="docutils literal notranslate"><span class="pre">atfSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbBaseE"><code class="docutils literal notranslate"><span class="pre">dtbBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbSizeE"><code class="docutils literal notranslate"><span class="pre">dtbSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7isValidE"><code class="docutils literal notranslate"><span class="pre">isValid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
+<li><a class="reference internal" href="#_CPPv49PAGE_SIZE"><code class="docutils literal notranslate"><span class="pre">PAGE_SIZE</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410PAGE_SHIFT"><code class="docutils literal notranslate"><span class="pre">PAGE_SHIFT</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49MAX_ORDER"><code class="docutils literal notranslate"><span class="pre">MAX_ORDER</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410NUM_ORDERS"><code class="docutils literal notranslate"><span class="pre">NUM_ORDERS</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv412BITMAP_BYTES"><code class="docutils literal notranslate"><span class="pre">BITMAP_BYTES</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv411g_Allocator"><code class="docutils literal notranslate"><span class="pre">g_Allocator</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv414BuddyAllocator"><code class="docutils literal notranslate"><span class="pre">BuddyAllocator</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator4initERK9MemoryMap"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator10allocPagesE8uint32_t"><code class="docutils literal notranslate"><span class="pre">allocPages()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t"><code class="docutils literal notranslate"><span class="pre">freePages()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK14BuddyAllocator9dumpStateEv"><code class="docutils literal notranslate"><span class="pre">dumpState()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
 <li><a class="reference internal" href="#_CPPv416ExceptionContext"><code class="docutils literal notranslate"><span class="pre">ExceptionContext</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext3gprE"><code class="docutils literal notranslate"><span class="pre">gpr</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N16ExceptionContext2lrE"><code class="docutils literal notranslate"><span class="pre">lr</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext3elrE"><code class="docutils literal notranslate"><span class="pre">elr</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext4spsrE"><code class="docutils literal notranslate"><span class="pre">spsr</span></code></a></li>
 </ul>
@@ -572,10 +863,23 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 </li>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>
 <li><a class="reference internal" href="#uart-driver">UART Driver</a><ul>
+<li><a class="reference internal" href="#_CPPv48UART_REG"><code class="docutils literal notranslate"><span class="pre">UART_REG</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG2DRE"><code class="docutils literal notranslate"><span class="pre">DR</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG2FRE"><code class="docutils literal notranslate"><span class="pre">FR</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG4IBRDE"><code class="docutils literal notranslate"><span class="pre">IBRD</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG4FBRDE"><code class="docutils literal notranslate"><span class="pre">FBRD</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG4LCRHE"><code class="docutils literal notranslate"><span class="pre">LCRH</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG2CRE"><code class="docutils literal notranslate"><span class="pre">CR</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8UART_REG3ICRE"><code class="docutils literal notranslate"><span class="pre">ICR</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv49UART_BASE"><code class="docutils literal notranslate"><span class="pre">UART_BASE</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv43hex"><code class="docutils literal notranslate"><span class="pre">hex</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv44Uart"><code class="docutils literal notranslate"><span class="pre">Uart</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N4Uart4putcEKc"><code class="docutils literal notranslate"><span class="pre">putc()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Uart7printlnEPKc"><code class="docutils literal notranslate"><span class="pre">println()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart5printEPKc"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Uart4putcEKc"><code class="docutils literal notranslate"><span class="pre">putc()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart8writeHexE8uint64_t"><code class="docutils literal notranslate"><span class="pre">writeHex()</span></code></a></li>
 </ul>
 </li>
@@ -584,6 +888,8 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#hv-library">HV Library</a><ul>
+<li><a class="reference internal" href="#panic">Panic</a></li>
+<li><a class="reference internal" href="#memory-primitives">Memory Primitives</a></li>
 <li><a class="reference internal" href="#array">Array</a><ul>
 <li><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE"><code class="docutils literal notranslate"><span class="pre">hv::array</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N2hv5arrayixE9size_type"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
