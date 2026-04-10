@@ -40,6 +40,17 @@ HyperBerry runs directly on the BCM2712 SoC with no host OS, entering EL2 at boo
 HyperBerry runs at EL2. Guest operating systems run at EL1, where they remain isolated from each other. The hypervisor’sjob is to make each guest OS believe it owns the underlying hardware, even thougheach one actually controls only a smallslice of it. In addition, the hypervisor is responsible for scheduling, VM isolation, and enforcing security between
 guests and firmware.
 
+## Memory Management
+
+HyperBerry includes an early-boot physical page allocator implemented with the
+buddy allocation algorithm in `core/mm/buddy/`. The allocator is initialized
+from the firmware DTB, reserves the hypervisor image, TF-A, and the DTB blob,
+and provides physically contiguous page blocks from 4 KiB up to 8 MiB.
+
+The higher-level EL2 and guest memory-management work is still in progress, but
+the base physical allocator is already in place and documented in
+`docs/sphinx/memory.rst`.
+
 ## Project Structure
 
 ```
