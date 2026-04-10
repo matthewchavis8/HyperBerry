@@ -1,3 +1,8 @@
+/**
+ * @file test_array.cpp
+ * @brief Unit tests for the freestanding hv::array container.
+ */
+
 #include <gtest/gtest.h>
 #include "lib/array/array.h"
 
