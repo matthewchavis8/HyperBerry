@@ -4,12 +4,7 @@
  *
  * Provides transmit and receive functionality over the PL011 UART peripheral
  * for both QEMU virt and Raspberry Pi 5 hardware targets. The base
- * address is selected at compile time via the macros
- */
-
-/**
- * @defgroup drivers_uart UART Driver
- * @brief PL011 UART driver for early serial I/O.
+ * address is selected at compile time for the active build target.
  */
 
 #ifndef __UART_H__
@@ -17,16 +12,26 @@
 
 #include <stdint.h>
 
-// PL011 UART base address, selected per target board.
+/**
+ * @brief PL011 UART base address selected for the current target.
+ * @ingroup drivers_uart
+ */
 #ifdef QEMU
 static constexpr uint64_t UART_BASE = 0x09000000;
 #else
 static constexpr uint64_t UART_BASE = 0x107D001000;
 #endif
 
+/**
+ * @brief Uppercase hexadecimal digit lookup table used by writeHex().
+ * @ingroup drivers_uart
+ */
 static constexpr char hex[] = "0123456789ABCDEF";
 
-// UART PL011 register offsets
+/**
+ * @brief PL011 register offsets from @ref UART_BASE.
+ * @ingroup drivers_uart
+ */
 enum class UART_REG : uint8_t {
     DR   = 0x00,
     FR   = 0x18,
@@ -54,12 +59,6 @@ class Uart {
      * */
     static volatile uint32_t* reg(UART_REG reg);
 
-    /**
-     * @brief Transmit a single character via the UART Data Register.
-     * @param ch Character to send.
-     * @warning Busy-waits until the TX FIFO has space. Do not call
-     *          from an interrupt context or time-critical path.
-     */
   public:
     /**
      * @brief Initialize the PL011 UART.
@@ -84,9 +83,12 @@ class Uart {
      */
     static void print(const char* str);
 
-    /* 
-     * @brief transmits a single char
-     * */ 
+    /**
+     * @brief Transmit a single character over the UART.
+     * @param ch Character to send.
+     * @warning Busy-waits until the TX FIFO has space. Do not call
+     *          from an interrupt context or time-critical path.
+     */
     static void putc(const char ch);
 
     /**

@@ -13,6 +13,12 @@
  */
 
 /**
+ * @defgroup mm Memory Management
+ * @ingroup hypervisor
+ * @brief Physical memory discovery and page allocation at EL2.
+ */
+
+/**
  * @defgroup drivers Drivers
  * @ingroup hypervisor
  * @brief Hardware device drivers for bare-metal peripherals.

@@ -1,19 +1,15 @@
 add_executable(hyperberry_unit_tests
   array/test_array.cpp
 
-  # Stubs for bare-metal dependencies
   stubs/uart_stub.cpp
   stubs/linker_stubs.cpp
 
-  # Strings tests + source under test
   strings/test_strings.cpp
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
 
-  # DTB parser tests + source under test
   dtb/test_dtb.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
 
-  # Buddy allocator tests + source under test
   buddy/test_buddy.cpp
   ${CMAKE_SOURCE_DIR}/core/mm/buddy/buddy.cpp
 )

@@ -11,4 +11,5 @@ virtualization to host isolated guest operating systems.
    :caption: Contents
 
    architecture
+   memory
    api

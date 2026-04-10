@@ -19,7 +19,7 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5
 
 ### Phase 1 — Memory Management
-- [ ] Physical page allocator (buddy or bitmap)
+- [x] Physical page allocator (buddy allocator)
 - [ ] EL2 Stage-1 page tables (hypervisor virtual address space)
 - [ ] Stage-2 page tables (guest IPA → PA translation)
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5

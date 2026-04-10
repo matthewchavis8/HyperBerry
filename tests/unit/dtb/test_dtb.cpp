@@ -6,10 +6,6 @@
 #include <cstdint>
 #include <algorithm>
 
-// ---------------------------------------------------------------------------
-// DtbBuilder — constructs valid FDT blobs in memory for testing.
-// All multi-byte fields are big-endian per the devicetree spec.
-// ---------------------------------------------------------------------------
 class DtbBuilder {
   std::vector<uint8_t> m_structs;
   std::vector<char>    m_strings;
@@ -100,9 +96,6 @@ public:
   }
 };
 
-// ---------------------------------------------------------------------------
-// Helper: build a standard DTB with memory + reserved-memory/atf nodes.
-// ---------------------------------------------------------------------------
 static std::vector<uint8_t> buildStandardDtb(
     uint64_t memBase, uint64_t memSize,
     uint64_t atfBase, uint64_t atfSize,
@@ -124,10 +117,6 @@ static std::vector<uint8_t> buildStandardDtb(
 
   return b.build();
 }
-
-// ===========================================================================
-// Tests
-// ===========================================================================
 
 TEST(DtbParser, NullDtbReturnsInvalid) {
   MemoryMap map = parseDtb(0);
@@ -235,7 +224,6 @@ TEST(DtbParser, ShortRegPropertySkipped) {
 
   b.beginNode("");
     b.beginNode("memory");
-      // 8-byte reg — too short (needs >= 16), should be skipped
       b.prop(reg, {0, 0, 0, 0, 0, 0, 0, 0});
     b.endNode();
   b.endNode();

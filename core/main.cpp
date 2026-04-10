@@ -1,9 +1,4 @@
 /**
- * @defgroup core Core
- * @brief Hypervisor entry point and boot-time initialization.
- */
-
-/**
  * @file main.cpp
  * @brief Hypervisor entry point.
  * @ingroup core

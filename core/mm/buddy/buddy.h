@@ -27,13 +27,27 @@
 
 #include "core/dtb/dtb.h"
 
-// Page Size
+/**
+ * @brief Base physical page size used by the allocator.
+ * @ingroup mm
+ */
 static constexpr uint64_t PAGE_SIZE = 0x1000;
-// Page Shift
+/**
+ * @brief Bit shift corresponding to @ref PAGE_SIZE.
+ * @ingroup mm
+ */
 static constexpr uint64_t PAGE_SHIFT = 12;
-// Maxium allocation size
+/**
+ * @brief Highest allocation order supported by the allocator.
+ * @ingroup mm
+ *
+ * Order 11 corresponds to an 8 MiB contiguous physical allocation.
+ */
 static constexpr uint32_t MAX_ORDER = 11;
-// Total number of order levels
+/**
+ * @brief Number of free-list levels managed by the allocator.
+ * @ingroup mm
+ */
 static constexpr uint32_t NUM_ORDERS = MAX_ORDER + 1;
 
 /**
@@ -48,6 +62,7 @@ struct FreeNode {
 
 /**
  * @brief Buddy bitmap storage.
+ * @ingroup mm
  *
  * One bit per buddy pair per order. Bit toggled on every alloc and free.
  * If the bit is 0 after toggling, both buddies are free and can merge.
@@ -189,6 +204,10 @@ class BuddyAllocator {
     void dumpState() const;
 };
 
+/**
+ * @brief Global physical page allocator instance used during boot and runtime.
+ * @ingroup mm
+ */
 extern BuddyAllocator g_Allocator;
 
 #endif // __BUDDY_H__
