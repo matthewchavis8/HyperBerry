@@ -103,11 +103,17 @@ void BuddyAllocator::freePages(uint64_t addr, uint32_t order) {
  
     // Toggle bitmap — 0 means buddy is also free, merge.
     uint8_t bit = bitmapToggle(addr, order);
-    if (bit != 0)
-      break;
+    if (bit != 0) {
+      listPush(addr, order);
+      return;
+    }
  
-    if (!listRemove(buddy, order))
-      break;
+    if (!listRemove(buddy, order)) {
+      // Keep the pair marked as partially free if the list and bitmap diverge.
+      bitmapToggle(addr, order);
+      listPush(addr, order);
+      return;
+    }
  
     // Merged block starts at the lower address.
     if (buddy < addr)
