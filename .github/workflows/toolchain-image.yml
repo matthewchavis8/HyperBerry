@@ -2,7 +2,7 @@ name: Build CI Toolchain Image
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths: [ci/Dockerfile]
   workflow_dispatch:
 

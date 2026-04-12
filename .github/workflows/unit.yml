@@ -13,13 +13,10 @@ concurrency:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/matthewchavis8/hyperberry-ci:latest
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set up CI toolchain
+        uses: ./.github/actions/setup-ci
       - name: Run unit tests
         run: just test-unit
       - name: Upload test artifacts
