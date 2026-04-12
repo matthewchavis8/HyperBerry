@@ -1,0 +1,25 @@
+name: Run QEMU Integration Tests
+description: Boot the integration test kernel in QEMU and fail on the emitted verdict.
+
+inputs:
+  kernel:
+    description: Path to the kernel image to boot.
+    required: true
+  log:
+    description: Path to the QEMU serial log file.
+    required: true
+  timeout:
+    description: Seconds to wait for a PASS/FAIL verdict.
+    required: false
+    default: "120"
+
+runs:
+  using: composite
+  steps:
+    - name: Run integration kernel in QEMU
+      shell: bash
+      run: |
+        python3 "$GITHUB_ACTION_PATH/run_qemu_integration.py" \
+          --kernel "${{ inputs.kernel }}" \
+          --log "${{ inputs.log }}" \
+          --timeout "${{ inputs.timeout }}"
