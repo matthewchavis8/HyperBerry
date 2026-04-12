@@ -16,8 +16,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up CI toolchain
         uses: ./.github/actions/setup-ci
+      - name: Configure QEMU integration tests
+        run: cmake --preset integration-test -DBOARD=qemu
+      - name: Build QEMU integration tests
+        run: cmake --build --preset integration-test
       - name: Run QEMU integration tests
-        run: just test-integration qemu
+        uses: ./.github/actions/run-qemu-integration
+        with:
+          kernel: build/integration-test/kernel8.img
+          log: build/integration-test/qemu.log
       - name: Upload QEMU serial logs
         if: failure()
         uses: actions/upload-artifact@v4
