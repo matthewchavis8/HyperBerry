@@ -5,6 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-aarch64-linux-gnu \
     qemu-system-arm \
+    qemu-user \
+    make \
     cmake \
     ninja-build \
     python3 \
