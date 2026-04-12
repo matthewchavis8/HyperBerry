@@ -46,7 +46,7 @@ test-integration BOARD="qemu" SD_DEV="/dev/sda1":
 
   {{ if BOARD == "rpi5" { "sudo mkdir -p /mnt/sdcard" } else { "" } }}
   {{ if BOARD == "rpi5" { "sudo mount -o uid=$(id -u),gid=$(id -g) " + SD_DEV + " /mnt/sdcard" } else { "" } }}
-  cmake --build --preset integration-test --target run
+  cmake --build --preset integration-test --target run 2>&1 | tee build/integration-test/qemu.log
   {{ if BOARD == "rpi5" { "sudo umount /mnt/sdcard" } else { "" } }}
 
 test-unit:
@@ -55,4 +55,4 @@ test-unit:
   ctest --preset unit-tests
 
 clean:
-  rm -rf /build
+  rm -rf build/
