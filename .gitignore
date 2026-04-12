@@ -9,3 +9,4 @@ compile_commands.json
 *.elf
 *.bin
 /TODO.md
+.worktrees/
