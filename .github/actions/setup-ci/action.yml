@@ -1,0 +1,35 @@
+name: Setup CI Toolchain
+description: Install the cross toolchain and utilities needed by HyperBerry CI jobs.
+
+runs:
+  using: composite
+  steps:
+    - name: Install apt packages
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          gcc-aarch64-linux-gnu \
+          g++-aarch64-linux-gnu \
+          libc6-dev-arm64-cross \
+          clang \
+          lld \
+          llvm \
+          qemu-system-arm \
+          qemu-user \
+          ipxe-qemu \
+          make \
+          cmake \
+          ninja-build \
+          python3 \
+          git \
+          ca-certificates \
+          curl
+
+    - name: Install just
+      shell: bash
+      run: |
+        curl -LsSf https://github.com/casey/just/releases/download/1.36.0/just-1.36.0-x86_64-unknown-linux-musl.tar.gz -o /tmp/just.tar.gz
+        echo "bc7c9f377944f8de9cd0418b11d2955adebfa25a488c0b5e3dd2d2c0e9d732da  /tmp/just.tar.gz" | sha256sum -c
+        sudo tar -xz -C /usr/local/bin just -f /tmp/just.tar.gz
+        rm /tmp/just.tar.gz
