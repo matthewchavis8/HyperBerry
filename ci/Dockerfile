@@ -4,8 +4,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-aarch64-linux-gnu \
+    g++-aarch64-linux-gnu \
+    clang \
+    lld \
+    llvm \
     qemu-system-arm \
     qemu-user \
+    ipxe-qemu \
     make \
     cmake \
     ninja-build \
