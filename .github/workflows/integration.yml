@@ -11,7 +11,11 @@ concurrency:
 jobs:
   integration-qemu:
     runs-on: ubuntu-latest
-    container: ghcr.io/matthewchavis8/hyperberry-ci:latest
+    container:
+      image: ghcr.io/matthewchavis8/hyperberry-ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
