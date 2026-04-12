@@ -2,9 +2,13 @@
  * @file tap.h
  * @brief Freestanding TAP-style test output emitter over UART.
  *
- * Header-only, no stdlib. All output goes through Uart::print() and
- * Uart::putc(). Provides suite headers, per-case PASS/FAIL lines with
+ * Header-only, no stdlib. All output goes through Uart::println() and
+ * Uart::print(). Provides suite headers, per-case PASS/FAIL lines with
  * progress counters, and a final summary.
+ *
+ * @note Uses Uart::println() for all line endings to emit proper CRLF
+ *       sequences required by raw UART hardware (e.g. Raspberry Pi 5).
+ *       Never embed bare '\n' in print() calls.
  */
 
 #ifndef __TAP_H__
@@ -43,29 +47,30 @@ inline void print_int(int n) {
  * @param count Number of test cases in the suite.
  */
 inline void suite_header(const char* name, int count) {
-  Uart::print("\n======== ");
+  Uart::println("");
+  Uart::print("======== ");
   Uart::print(name);
   Uart::print(" (");
   print_int(count);
-  Uart::print(" tests) ========\n");
+  Uart::println(" tests) ========");
 }
 
 /**
- * @brief Emit a PASS line: `[n/total] PASS: suite::desc`.
+ * @brief Emit a PASS line: `[n/total] PASS: suite: desc`.
  * @param n     Current test number (1-based).
  * @param total Total cases in the suite.
  * @param suite Suite name.
  * @param desc  Test case description.
  */
 inline void ok(int n, int total, const char* suite, const char* desc) {
-  Uart::print("\n[");
+  Uart::print("[");
   print_int(n);
   Uart::print("/");
   print_int(total);
   Uart::print("] PASS: ");
   Uart::print(suite);
   Uart::print(": ");
-  Uart::print(desc);
+  Uart::println(desc);
 }
 
 /**
@@ -78,17 +83,16 @@ inline void ok(int n, int total, const char* suite, const char* desc) {
  */
 inline void fail(int n, int total, const char* suite, const char* desc,
                  const char* reason) {
-  Uart::print("\n[");
+  Uart::print("[");
   print_int(n);
   Uart::print("/");
   print_int(total);
   Uart::print("] FAIL: ");
   Uart::print(suite);
   Uart::print("::");
-  Uart::print(desc);
-  Uart::print("\n");
+  Uart::println(desc);
   Uart::print("         reason: ");
-  Uart::print(reason);
+  Uart::println(reason);
 }
 
 /**
@@ -98,15 +102,14 @@ inline void fail(int n, int total, const char* suite, const char* desc,
  * @param total  Total cases run.
  */
 inline void summary(int passed, int failed, int total) {
-  Uart::print("\n-------- Results --------\n");
+  Uart::println("-------- Results --------");
   print_int(passed);
   Uart::print(" passed, ");
   print_int(failed);
   Uart::print(" failed, ");
   print_int(total);
-  Uart::print(" total\n");
-
-  failed == 0 ? Uart::print("TESTS PASSED\n") : Uart::print("TESTS FAILED\n");
+  Uart::println(" total");
+  failed == 0 ? Uart::println("TESTS PASSED") : Uart::println("TESTS FAILED");
 }
 
 } // namespace Tap
