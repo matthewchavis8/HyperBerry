@@ -1,0 +1,25 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: integration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  integration-qemu:
+    runs-on: ubuntu-latest
+    container: ghcr.io/matthewchavis8/hyperberry-ci:latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run QEMU integration tests
+        run: just test-integration BOARD=qemu
+      - name: Upload QEMU serial logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-serial-logs
+          path: build/integration-test/*.log
