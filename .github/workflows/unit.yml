@@ -1,0 +1,26 @@
+name: Unit Tests
+
+on:
+  push:
+    branches-ignore: [gh-pages]
+  pull_request:
+    branches: [main, dev]
+
+concurrency:
+  group: unit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    container: ghcr.io/matthewchavis8/hyperberry-ci:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unit tests
+        run: just test-unit
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-logs
+          path: build/unit-tests/Testing/
