@@ -11,6 +11,6 @@ target_link_libraries(Core
   PRIVATE
   Uart
   Exceptions
-  Buddy
+  Pmm
   Dtb
 )

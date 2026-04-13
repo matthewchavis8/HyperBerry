@@ -97,7 +97,7 @@ target_link_libraries(${ELF}
   Core
   Uart
   Exceptions
-  Buddy
+  Pmm
   Dtb
   Panic
   Strings

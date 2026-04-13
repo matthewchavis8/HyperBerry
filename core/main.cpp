@@ -7,7 +7,7 @@
  * EL2 initialization, BSS zeroing, and stack setup.
  */
 
-#include "core/mm/buddy/buddy.h"
+#include "core/mm/pmm/pmm.h"
 #include "lib/panic/panic.h"
 #include "uart.h"
 #include "stddef.h"
