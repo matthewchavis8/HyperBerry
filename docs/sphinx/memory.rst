@@ -9,9 +9,9 @@ buddy allocation algorithm. It is responsible for turning the RAM range
 reported by the firmware DTB into a pool of physically contiguous blocks that
 later EL2 subsystems can allocate and free.
 
-The allocator lives in ``core/mm/buddy/`` and is exposed through the global
-``g_Allocator`` instance. Boot code reaches it from ``hmain()`` after the DTB
-has been parsed successfully.
+The allocator lives in ``core/mm/pmm/`` and is exposed through the ``pmm``
+namespace (``pmm::init``, ``pmm::allocPages``, ``pmm::freePages``). Boot code
+reaches it from ``hmain()`` after the DTB has been parsed successfully.
 
 Boot Flow
 ---------
@@ -22,7 +22,7 @@ The allocator is brought up in this order:
 2. ``parseDtb()`` decodes the firmware DTB and returns a ``MemoryMap`` with:
    ``memBase``, ``memSize``, ``atfBase``, ``atfSize``, ``dtbBase``, and
    ``dtbSize``.
-3. ``g_Allocator.init(memoryMap)`` seeds the free lists from the RAM region.
+3. ``pmm::init(memoryMap)`` seeds the free lists from the RAM region.
 4. The allocator reserves memory already occupied by:
 
    - the hypervisor image
@@ -111,5 +111,5 @@ Source Locations
 ----------------
 
 - ``core/dtb/``: boot-time DTB parsing and ``MemoryMap``
-- ``core/mm/buddy/``: buddy allocator implementation
+- ``core/mm/pmm/``: buddy allocator implementation
 - ``core/main.cpp``: allocator bring-up during EL2 boot

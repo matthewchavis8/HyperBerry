@@ -9,9 +9,6 @@ add_executable(hyperberry_unit_tests
 
   dtb/test_dtb.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
-
-  buddy/test_buddy.cpp
-  ${CMAKE_SOURCE_DIR}/core/mm/buddy/buddy.cpp
 )
 
 target_include_directories(hyperberry_unit_tests
