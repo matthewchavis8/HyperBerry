@@ -98,6 +98,7 @@ target_link_libraries(${ELF}
   Uart
   Exceptions
   Pmm
+  Mmu
   Dtb
   Panic
   Strings
