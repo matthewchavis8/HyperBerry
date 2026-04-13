@@ -41,7 +41,7 @@ extern "C" void hmain(uintptr_t dtb) {
     for (;;) asm volatile("wfe");
   }
 
-  g_Allocator.init(memoryMap);
+  pmm::init(memoryMap);
   
   Uart::println("[MM] memSize=");
   Uart::writeHex(memoryMap.memSize);

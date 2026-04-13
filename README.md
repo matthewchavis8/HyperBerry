@@ -43,7 +43,7 @@ guests and firmware.
 ## Memory Management
 
 HyperBerry includes an early-boot physical page allocator implemented with the
-buddy allocation algorithm in `core/mm/buddy/`. The allocator is initialized
+buddy allocation algorithm in `core/mm/pmm/`. The allocator is initialized
 from the firmware DTB, reserves the hypervisor image, TF-A, and the DTB blob,
 and provides physically contiguous page blocks from 4 KiB up to 8 MiB.
 
