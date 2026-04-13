@@ -1,5 +1,5 @@
 /**
- * @file Buddy.h
+ * @file pmm.h
  * @brief Physical page allocator using the buddy allocation algorithm.
  * @ingroup mm
  *
@@ -18,8 +18,8 @@
  * each bit represents a buddy pair. Toggling the bit on alloc/free tells
  * us whether the buddy is free without scanning the free list.
  */
-#ifndef __BUDDY_H__
-#define __BUDDY_H__
+#ifndef __PMM_H__
+#define __PMM_H__
 
 #include <stdint.h>
 #include <stddef.h>
@@ -210,4 +210,4 @@ class BuddyAllocator {
  */
 extern BuddyAllocator g_Allocator;
 
-#endif // __BUDDY_H__
+#endif // __PMM_H__

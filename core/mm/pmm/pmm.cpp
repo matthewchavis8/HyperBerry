@@ -1,4 +1,4 @@
-#include "buddy.h"
+#include "pmm.h"
 #include "drivers/uart/uart.h"
 
 #include <stddef.h>
