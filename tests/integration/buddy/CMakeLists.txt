@@ -1,2 +1,2 @@
-add_library(TestBuddy STATIC test_buddy.cpp)
-target_link_libraries(TestBuddy Pmm Uart)
+add_library(TestPmm STATIC test_pmm.cpp)
+target_link_libraries(TestPmm Pmm Uart)

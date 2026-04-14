@@ -1,5 +1,5 @@
 /**
- * @file test_uart_hw.cpp
+ * @file test_uart.cpp
  * @brief Integration tests for PL011 UART hardware.
  *
  * Exercises basic UART TX on real hardware or QEMU. The RX loopback

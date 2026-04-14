@@ -1,3 +1,8 @@
+/**
+ * @file test_pmm.cpp
+ * @brief Integration tests for the physical memory allocator (PMM).
+ */
+
 #include "tests/integration/suite.h"
 #include "core/mm/pmm/pmm.h"
 
@@ -51,7 +56,7 @@ static bool test_alloc_two_different() {
   return different;
 }
 
-static const TestCase buddy_cases[] = {
+static const TestCase pmm_cases[] = {
     {"alloc_order0_succeeds\n",   test_alloc_order0_succeeds},
     {"alloc_page_aligned\n",      test_alloc_page_aligned},
     {"free_and_realloc\n",        test_free_and_realloc},
@@ -59,10 +64,10 @@ static const TestCase buddy_cases[] = {
     {"alloc_two_different\n",     test_alloc_two_different},
 };
 
-static const TestSuite buddySuite = {
-    "pmm",
-    buddy_cases,
+static const TestSuite pmmSuite = {
+    "PmmHarness",
+    pmm_cases,
     5,
 };
 
-REGISTER_SUITE(buddySuite);
+REGISTER_SUITE(pmmSuite);
