@@ -69,6 +69,7 @@ if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/uart)
   add_subdirectory(tests/integration/exceptions)
   add_subdirectory(tests/integration/buddy)
+  add_subdirectory(tests/integration/mmu)
 endif()
 
 add_executable(${ELF}
@@ -87,6 +88,7 @@ if(INTEGRATION_TEST)
     TestExceptions
     TestUart
     TestPmm
+    TestMmu
     -Wl,--no-whole-archive
   )
 endif()

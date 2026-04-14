@@ -1,5 +1,6 @@
 add_executable(hyperberry_unit_tests
   array/test_array.cpp
+  mmu/test_mmu.cpp
 
   stubs/uart_stub.cpp
   stubs/linker_stubs.cpp
