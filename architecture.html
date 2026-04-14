@@ -284,7 +284,7 @@ allocator from the discovered physical memory map.</p></li>
 <section id="memory-management">
 <h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
 <p>HyperBerry now includes an early-boot physical page allocator in
-<code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code>. The allocator consumes the RAM range reported by the DTB,
+<code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code>. The allocator consumes the RAM range reported by the DTB,
 reserves the hypervisor image, TF-A, and the DTB blob itself, and exposes
 physically contiguous allocations in powers of two.</p>
 <p>Current allocator characteristics:</p>

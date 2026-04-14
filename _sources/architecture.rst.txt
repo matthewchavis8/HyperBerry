@@ -52,7 +52,7 @@ Memory Management
 -----------------
 
 HyperBerry now includes an early-boot physical page allocator in
-``core/mm/buddy/``. The allocator consumes the RAM range reported by the DTB,
+``core/mm/pmm/``. The allocator consumes the RAM range reported by the DTB,
 reserves the hypervisor image, TF-A, and the DTB blob itself, and exposes
 physically contiguous allocations in powers of two.
 

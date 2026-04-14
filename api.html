@@ -339,111 +339,132 @@
 <dt class="sig sig-object cpp">
 <span class="target" id="group__mm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Memory</span> <span class="pre">Management</span></span></dt>
 <dd><p>Physical memory discovery and page allocation at EL2. </p>
+</dd></dl>
+
+<section id="pmm">
+<h3>PMM<a class="headerlink" href="#pmm" title="Link to this heading">¶</a></h3>
+<p>Physical page allocator using the buddy allocation algorithm.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__pmm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">PMM</span></span></dt>
+<dd><p>Physical page allocator using the buddy allocation algorithm. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv49PAGE_SIZE">
-<span id="_CPPv39PAGE_SIZE"></span><span id="_CPPv29PAGE_SIZE"></span><span id="PAGE_SIZE__uint64_t"></span><span class="target" id="group__mm_1gac5a9e05347e4b0576b23d3e925a7cfa3"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PAGE_SIZE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x1000</span></span><a class="headerlink" href="#_CPPv49PAGE_SIZE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Base physical page size used by the allocator. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv410PAGE_SHIFT">
-<span id="_CPPv310PAGE_SHIFT"></span><span id="_CPPv210PAGE_SHIFT"></span><span id="PAGE_SHIFT__uint64_t"></span><span class="target" id="group__mm_1ga13f35b9cff87d34ad2cca696f6c76020"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PAGE_SHIFT</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">12</span></span><a class="headerlink" href="#_CPPv410PAGE_SHIFT" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Bit shift corresponding to <a class="reference internal" href="#group__mm_1gac5a9e05347e4b0576b23d3e925a7cfa3"><span class="std std-ref">PAGE_SIZE</span></a>. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv49MAX_ORDER">
-<span id="_CPPv39MAX_ORDER"></span><span id="_CPPv29MAX_ORDER"></span><span id="MAX_ORDER__uint32_t"></span><span class="target" id="group__mm_1gaf14331d02cf1717e9731af1e8fcdfd06"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MAX_ORDER</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">11</span></span><a class="headerlink" href="#_CPPv49MAX_ORDER" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Highest allocation order supported by the allocator. </p>
-<p>Order 11 corresponds to an 8 MiB contiguous physical allocation. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv410NUM_ORDERS">
-<span id="_CPPv310NUM_ORDERS"></span><span id="_CPPv210NUM_ORDERS"></span><span id="NUM_ORDERS__uint32_t"></span><span class="target" id="group__mm_1ga382604bba803701bc86770f319a90d28"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NUM_ORDERS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49MAX_ORDER" title="MAX_ORDER"><span class="n"><span class="pre">MAX_ORDER</span></span></a><span class="w"> </span><span class="o"><span class="pre">+</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv410NUM_ORDERS" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Number of free-list levels managed by the allocator. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv412BITMAP_BYTES">
-<span id="_CPPv312BITMAP_BYTES"></span><span id="_CPPv212BITMAP_BYTES"></span><span id="BITMAP_BYTES__s"></span><span class="target" id="group__mm_1gaea88c47d0abd5f18d343225e992a8e40"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BITMAP_BYTES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">16384</span></span><a class="headerlink" href="#_CPPv412BITMAP_BYTES" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Buddy bitmap storage. </p>
-<p>One bit per buddy pair per order. Bit toggled on every alloc and free. If the bit is 0 after toggling, both buddies are free and can merge.</p>
-<p>Sized for 640MB / 4KB = 163840 pages. Order 0 needs 163840/2 = 81920 bits = 10240 bytes. Total across all orders is bounded below that. 16KB is ample. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv411g_Allocator">
-<span id="_CPPv311g_Allocator"></span><span id="_CPPv211g_Allocator"></span><span id="g_Allocator__BuddyAllocator"></span><span class="target" id="group__mm_1gaafa8c7438beae8469eee1f0afe2b718c"></span><a class="reference internal" href="#_CPPv414BuddyAllocator" title="BuddyAllocator"><span class="n"><span class="pre">BuddyAllocator</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">g_Allocator</span></span></span><a class="headerlink" href="#_CPPv411g_Allocator" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Global physical page allocator instance used during boot and runtime. </p>
-</dd></dl>
-
-</div>
-<dl class="cpp class">
-<dt class="sig sig-object cpp" id="_CPPv414BuddyAllocator">
-<span id="_CPPv314BuddyAllocator"></span><span id="_CPPv214BuddyAllocator"></span><span id="BuddyAllocator"></span><span class="target" id="classBuddyAllocator"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BuddyAllocator</span></span></span><a class="headerlink" href="#_CPPv414BuddyAllocator" title="Link to this definition">¶</a><br /></dt>
-<dd><div class="docutils container">
-<em>#include &lt;buddy.h&gt;</em></div>
-<p>Physical page buddy allocator. </p>
-<p>Initialised once at boot via <a class="reference internal" href="#classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"><span class="std std-ref">init()</span></a>. After that, <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a> and <a class="reference internal" href="#classBuddyAllocator_1aa5a57acdd4e4f2386a8ad3ef0e2a21ab"><span class="std std-ref">freePages()</span></a> are the only interface the rest of the hypervisor needs. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator4initERK9MemoryMap">
-<span id="_CPPv3N14BuddyAllocator4initERK9MemoryMap"></span><span id="_CPPv2N14BuddyAllocator4initERK9MemoryMap"></span><span id="BuddyAllocator::init__MemoryMapCR"></span><span class="target" id="classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">map</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator4initERK9MemoryMap" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Initialise the allocator from the firmware memory map. </p>
-<p>Computes the free pool as: [__uncached_space_end, memBase + memSize) minus the TF-A reservation and the DTB blob.</p>
-<p>Must be called exactly once before any <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a> call.</p>
+<dt class="sig sig-object cpp" id="_CPPv44initRK9MemoryMap">
+<span id="_CPPv34initRK9MemoryMap"></span><span id="_CPPv24initRK9MemoryMap"></span><span id="init__MemoryMapCR"></span><span class="target" id="group__pmm_1ga8d5301b0f488dc893d7d2318d0fabcdd"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">map</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initRK9MemoryMap" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialise the buddy allocator from a DTB memory map. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>map</strong> – Parsed firmware memory map from <a class="reference internal" href="#group__core_1gac29b3af3d09cfbc043047781a19e4cf0"><span class="std std-ref">parseDtb()</span></a>. </p>
+<dd class="field-odd"><p><strong>map</strong> – Physical memory regions discovered from the device tree. </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator10allocPagesE8uint32_t">
-<span id="_CPPv3N14BuddyAllocator10allocPagesE8uint32_t"></span><span id="_CPPv2N14BuddyAllocator10allocPagesE8uint32_t"></span><span id="BuddyAllocator::allocPages__uint32_t"></span><span class="target" id="classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allocPages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator10allocPagesE8uint32_t" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Allocate a physically contiguous block of 2^order pages. </p>
+<dt class="sig sig-object cpp" id="_CPPv410allocPages8uint32_t">
+<span id="_CPPv310allocPages8uint32_t"></span><span id="_CPPv210allocPages8uint32_t"></span><span id="allocPages__uint32_t"></span><span class="target" id="group__pmm_1ga09bae0b91a1f62bd513849c1c6678548"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allocPages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410allocPages8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate a power-of-2 block of physical pages. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>order</strong> – Allocation order (0 = 4KB, 1 = 8KB, …, 11 = 8MB). </p>
+<dd class="field-odd"><p><strong>order</strong> – Block size exponent: allocates PAGE_SIZE * 2^order bytes. </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Physical base address of the allocated block, or 0 if the allocation failed. </p>
+<dd class="field-even"><p>Physical base address of the allocated block, or 0 on failure. </p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t">
-<span id="_CPPv3N14BuddyAllocator9freePagesE8uint64_t8uint32_t"></span><span id="_CPPv2N14BuddyAllocator9freePagesE8uint64_t8uint32_t"></span><span id="BuddyAllocator::freePages__uint64_t.uint32_t"></span><span class="target" id="classBuddyAllocator_1aa5a57acdd4e4f2386a8ad3ef0e2a21ab"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freePages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv49freePages8uint64_t8uint32_t">
+<span id="_CPPv39freePages8uint64_t8uint32_t"></span><span id="_CPPv29freePages8uint64_t8uint32_t"></span><span id="freePages__uint64_t.uint32_t"></span><span class="target" id="group__pmm_1ga2b5156007b5c0efd349fc8bf4ff6f6e8"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freePages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49freePages8uint64_t8uint32_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Return a previously allocated block to the free pool. </p>
-<p>Merges with the buddy block if the buddy is also free, recursing upward until no further merges are possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>addr</strong> – Physical base address returned by <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a>. </p></li>
-<li><p><strong>order</strong> – Must match the order passed to the original <a class="reference internal" href="#classBuddyAllocator_1a7d78b087f67fcc1c6e8335f70b42628c"><span class="std std-ref">allocPages()</span></a>. </p></li>
+<li><p><strong>addr</strong> – Physical base address returned by <a class="reference internal" href="#group__pmm_1ga09bae0b91a1f62bd513849c1c6678548"><span class="std std-ref">allocPages()</span></a>. </p></li>
+<li><p><strong>order</strong> – Must match the order passed to <a class="reference internal" href="#group__pmm_1ga09bae0b91a1f62bd513849c1c6678548"><span class="std std-ref">allocPages()</span></a>. </p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4NK14BuddyAllocator9dumpStateEv">
-<span id="_CPPv3NK14BuddyAllocator9dumpStateEv"></span><span id="_CPPv2NK14BuddyAllocator9dumpStateEv"></span><span id="BuddyAllocator::dumpStateC"></span><span class="target" id="classBuddyAllocator_1abcabde35eacf78ba249bfc8a27e3660d"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dumpState</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK14BuddyAllocator9dumpStateEv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Print free block counts per order over UART. </p>
-<p>Walks every free list and reports how many blocks are available at each order. Call after <a class="reference internal" href="#classBuddyAllocator_1ade563e1a4dcf51d21fea7ad4866d8904"><span class="std std-ref">init()</span></a> to verify reservations are correct, and after alloc/free sequences to verify merge behaviour. </p>
+<dt class="sig sig-object cpp" id="_CPPv49dumpStatev">
+<span id="_CPPv39dumpStatev"></span><span id="_CPPv29dumpStatev"></span><span id="dumpState"></span><span class="target" id="group__pmm_1ga901564c0719a93e8bbb9d89dd8dc3670"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dumpState</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49dumpStatev" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Print a human-readable summary of the free-list state. </p>
 </dd></dl>
 
 </div>
 </dd></dl>
 
+</section>
+<section id="mmu">
+<h3>MMU<a class="headerlink" href="#mmu" title="Link to this heading">¶</a></h3>
+<p>EL2 Stage-1 MMU mapping interface and descriptor helpers.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__mmu"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">MMU</span></span></dt>
+<dd><p>EL2 Stage-1 MMU mapping interface and descriptor helpers. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv44initv">
+<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mmu_1ga1ee31bcc13e7e2414bfcb6e78db92d85"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Build EL2 translation tables and enable Stage-1 MMU. </p>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t">
+<span id="_CPPv38mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv28mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="mapRange__uint64_t.uint64_t.uint64_t.uint64_t"></span><span class="target" id="group__mmu_1ga4e9eacd1b81b2587dd9fb2d280258912"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Map a physical range into EL2 VA space using 2 MiB blocks. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>va</strong> – Virtual base address. </p></li>
+<li><p><strong>pa</strong> – Physical base address. </p></li>
+<li><p><strong>size</strong> – Mapping size in bytes. </p></li>
+<li><p><strong>flags</strong> – Descriptor flags excluding output address bits. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410unmapRange8uint64_t8uint64_t">
+<span id="_CPPv310unmapRange8uint64_t8uint64_t"></span><span id="_CPPv210unmapRange8uint64_t8uint64_t"></span><span id="unmapRange__uint64_t.uint64_t"></span><span class="target" id="group__mmu_1ga59ca873cb75822a0cc2d3e4f62dd5ed2"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unmapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410unmapRange8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Remove mappings for a virtual range and invalidate affected TLBs. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>va</strong> – Virtual base address. </p></li>
+<li><p><strong>size</strong> – Unmapped size in bytes. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411tlbFlushAllv">
+<span id="_CPPv311tlbFlushAllv"></span><span id="_CPPv211tlbFlushAllv"></span><span id="tlbFlushAll"></span><span class="target" id="group__mmu_1ga0bc958e202dcaece6eaae1336c11b916"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushAll</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411tlbFlushAllv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Invalidate all EL2 Stage-1 TLB entries. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410tlbFlushVa8uint64_t">
+<span id="_CPPv310tlbFlushVa8uint64_t"></span><span id="_CPPv210tlbFlushVa8uint64_t"></span><span id="tlbFlushVa__uint64_t"></span><span class="target" id="group__mmu_1ga21db52bef06d3f8e083e1cb4ccc2ae4a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushVa</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410tlbFlushVa8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Invalidate a single EL2 VA translation from TLB. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>va</strong> – Virtual address within the page to flush. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
 <section id="exception-handling">
 <h3>Exception Handling<a class="headerlink" href="#exception-handling" title="Link to this heading">¶</a></h3>
 <p>EL2 exception vector table, context save/restore, and handler stubs.</p>
@@ -837,17 +858,19 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
-<li><a class="reference internal" href="#_CPPv49PAGE_SIZE"><code class="docutils literal notranslate"><span class="pre">PAGE_SIZE</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv410PAGE_SHIFT"><code class="docutils literal notranslate"><span class="pre">PAGE_SHIFT</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv49MAX_ORDER"><code class="docutils literal notranslate"><span class="pre">MAX_ORDER</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv410NUM_ORDERS"><code class="docutils literal notranslate"><span class="pre">NUM_ORDERS</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv412BITMAP_BYTES"><code class="docutils literal notranslate"><span class="pre">BITMAP_BYTES</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv411g_Allocator"><code class="docutils literal notranslate"><span class="pre">g_Allocator</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv414BuddyAllocator"><code class="docutils literal notranslate"><span class="pre">BuddyAllocator</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator4initERK9MemoryMap"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator10allocPagesE8uint32_t"><code class="docutils literal notranslate"><span class="pre">allocPages()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N14BuddyAllocator9freePagesE8uint64_t8uint32_t"><code class="docutils literal notranslate"><span class="pre">freePages()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4NK14BuddyAllocator9dumpStateEv"><code class="docutils literal notranslate"><span class="pre">dumpState()</span></code></a></li>
+<li><a class="reference internal" href="#pmm">PMM</a><ul>
+<li><a class="reference internal" href="#_CPPv44initRK9MemoryMap"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410allocPages8uint32_t"><code class="docutils literal notranslate"><span class="pre">allocPages()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49freePages8uint64_t8uint32_t"><code class="docutils literal notranslate"><span class="pre">freePages()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49dumpStatev"><code class="docutils literal notranslate"><span class="pre">dumpState()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mmu">MMU</a><ul>
+<li><a class="reference internal" href="#_CPPv44initv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">mapRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410unmapRange8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">unmapRange()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv411tlbFlushAllv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAll()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410tlbFlushVa8uint64_t"><code class="docutils literal notranslate"><span class="pre">tlbFlushVa()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>

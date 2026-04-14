@@ -241,9 +241,9 @@
 buddy allocation algorithm. It is responsible for turning the RAM range
 reported by the firmware DTB into a pool of physically contiguous blocks that
 later EL2 subsystems can allocate and free.</p>
-<p>The allocator lives in <code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code> and is exposed through the global
-<code class="docutils literal notranslate"><span class="pre">g_Allocator</span></code> instance. Boot code reaches it from <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> after the DTB
-has been parsed successfully.</p>
+<p>The allocator lives in <code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code> and is exposed through the <code class="docutils literal notranslate"><span class="pre">pmm</span></code>
+namespace (<code class="docutils literal notranslate"><span class="pre">pmm::init</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::allocPages</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::freePages</span></code>). Boot code
+reaches it from <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> after the DTB has been parsed successfully.</p>
 </section>
 <section id="boot-flow">
 <h2>Boot Flow<a class="headerlink" href="#boot-flow" title="Link to this heading">¶</a></h2>
@@ -253,7 +253,7 @@ has been parsed successfully.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">parseDtb()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
 <code class="docutils literal notranslate"><span class="pre">memBase</span></code>, <code class="docutils literal notranslate"><span class="pre">memSize</span></code>, <code class="docutils literal notranslate"><span class="pre">atfBase</span></code>, <code class="docutils literal notranslate"><span class="pre">atfSize</span></code>, <code class="docutils literal notranslate"><span class="pre">dtbBase</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">dtbSize</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">g_Allocator.init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pmm::init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
 <li><p>The allocator reserves memory already occupied by:</p>
 <ul class="simple">
 <li><p>the hypervisor image</p></li>
@@ -339,7 +339,7 @@ virtual-memory subsystem exists.</p>
 <h2>Source Locations<a class="headerlink" href="#source-locations" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">core/dtb/</span></code>: boot-time DTB parsing and <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/buddy/</span></code>: buddy allocator implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code>: buddy allocator implementation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/main.cpp</span></code>: allocator bring-up during EL2 boot</p></li>
 </ul>
 </section>
