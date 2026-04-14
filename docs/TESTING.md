@@ -155,8 +155,8 @@ add_executable(hyperberry_unit_tests
 
 | Test type   | When to use                                         |
 |-------------|-----------------------------------------------------|
-| Unit        | Pure logic, utility types, anything without hardware |
-| Integration | UART, GIC, timers, MMU — anything that needs EL2    |
+| Unit        | Pure logic, utility types, header helpers, anything without hardware |
+| Integration | UART, GIC, timers, MMU runtime APIs — anything that needs EL2    |
 
 ## Notes
 
@@ -164,3 +164,4 @@ add_executable(hyperberry_unit_tests
 - `INTEGRATION_TEST` compiles tests into the bare-metal binary and replaces the normal hypervisor entry path.
 - GoogleTest is fetched during the unit-test configure step.
 - `just test-integration qemu` streams UART output directly in the terminal because the QEMU target uses `-nographic`.
+- MMU tests are intentionally split: `tests/unit/mmu/test_mmu.cpp` covers header-level descriptor/index helpers, while `tests/integration/mmu/test_mmu.cpp` exercises the real EL2 MMU APIs and live page tables.
