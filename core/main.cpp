@@ -8,6 +8,7 @@
  */
 
 #include "core/mm/pmm/pmm.h"
+#include "core/mm/mmu/mmu.h"
 #include "lib/panic/panic.h"
 #include "uart.h"
 #include "stddef.h"
@@ -46,6 +47,10 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::println("[MM] memSize=");
   Uart::writeHex(memoryMap.memSize);
   Uart::println("");
+
+  Uart::println("[MMU] Attempting to bring up MMU");
+  mmu::init();
+  Uart::println("[MMU] MMU is brought up");
   
 
 #ifdef INTEGRATION_TEST
