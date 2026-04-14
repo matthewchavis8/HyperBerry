@@ -1,3 +1,9 @@
+/**
+ * @file pmm.cpp
+ * @brief Buddy-based physical memory allocator implementation.
+ * @ingroup mm
+ */
+
 #include "pmm.h"
 #include "drivers/uart/uart.h"
 

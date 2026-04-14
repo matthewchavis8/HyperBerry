@@ -86,7 +86,7 @@ if(INTEGRATION_TEST)
     -Wl,--whole-archive
     TestExceptions
     TestUart
-    TestBuddy
+    TestPmm
     -Wl,--no-whole-archive
   )
 endif()
