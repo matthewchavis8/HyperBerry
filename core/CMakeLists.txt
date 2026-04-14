@@ -12,5 +12,6 @@ target_link_libraries(Core
   Uart
   Exceptions
   Pmm
+  Mmu
   Dtb
 )

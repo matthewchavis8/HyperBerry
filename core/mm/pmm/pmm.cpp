@@ -8,7 +8,18 @@ extern uint8_t __uncached_space_end[];
 
 namespace {
 
-constexpr size_t BITMAP_BYTES = 16384;
+constexpr uint64_t MAX_POOL_SIZE = 0x200000000ULL;
+
+constexpr size_t bitmapBytesForPool(uint64_t poolSizeBytes) {
+  const uint64_t totalPages = poolSizeBytes >> PAGE_SHIFT;
+  size_t bits = 0;
+  for (uint32_t off = 0; off < MAX_ORDER; off++) {
+    bits += static_cast<size_t>(totalPages >> (off + 1));
+  }
+  return (bits + 7u) / 8u;
+}
+
+constexpr size_t BITMAP_BYTES = bitmapBytesForPool(MAX_POOL_SIZE);
 
 struct FreeNode {
   FreeNode* m_next;
@@ -36,6 +47,10 @@ size_t bitmapIndex(uint64_t addr, uint32_t order) {
 uint8_t bitmapToggle(uint64_t addr, uint32_t order) {
   size_t  bitIdx  = bitmapIndex(addr, order);
   size_t  byteIdx = bitIdx >> 3;
+  if (byteIdx >= BITMAP_BYTES) {
+    Uart::println("[ERROR] PMM bitmap overflow");
+    for (;;) asm volatile("wfe");
+  }
   uint8_t mask    = (uint8_t)(1u << (bitIdx & 7u));
 
   s_bitmap[byteIdx] ^= mask;
@@ -174,6 +189,11 @@ void init(const MemoryMap& map) {
   s_base = map.memBase;
   s_size = map.memSize;
 
+  if (s_size > MAX_POOL_SIZE) {
+    Uart::println("[ERROR] PMM pool larger than supported bitmap");
+    for (;;) asm volatile("wfe");
+  }
+
   Uart::println("[MM] Initialising buddy allocator");
 
   uint64_t maxBlockSize = (uint64_t)PAGE_SIZE << MAX_ORDER;
@@ -210,6 +230,11 @@ void init(const MemoryMap& map) {
 
   reserveRegion(map.dtbBase, map.dtbSize);
   Uart::println("[MM] Reserved: DTB");
+
+  if (map.memBase == 0 && map.memSize >= PAGE_SIZE) {
+    reserveRegion(0, PAGE_SIZE);
+    Uart::println("[MM] Reserved: null page");
+  }
 
   Uart::println("[MM] Buddy allocator ready");
   dumpState();
