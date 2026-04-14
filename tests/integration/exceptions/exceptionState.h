@@ -1,5 +1,5 @@
 /**
- * @file test_exception_state.h
+ * @file exceptionState.h
  * @brief Shared state between the test exception handler and test cases.
  *
  * The handler writes into g_test_ex_state; each test case zeroes it

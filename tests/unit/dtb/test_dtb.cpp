@@ -1,3 +1,8 @@
+/**
+ * @file test_dtb.cpp
+ * @brief Unit tests for DTB parsing and memory map extraction.
+ */
+
 #include <gtest/gtest.h>
 #include "core/dtb/dtb.h"
 

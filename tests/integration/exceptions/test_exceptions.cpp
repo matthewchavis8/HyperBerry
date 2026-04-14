@@ -164,6 +164,6 @@ static const TestCase kCases[] = {
     {"context_gpr_preserved",  test_context_gpr_preserved},
 };
 
-static const TestSuite kSuite = {"exceptionHarness", kCases, 5};
+static const TestSuite kSuite = {"ExceptionHarness", kCases, 5};
 
 REGISTER_SUITE(kSuite);
