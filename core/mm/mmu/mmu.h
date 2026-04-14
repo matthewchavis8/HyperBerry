@@ -1,3 +1,11 @@
+/**
+ * @file mmu.h
+ * @brief EL2 Stage-1 MMU mapping interface and descriptor helpers.
+ * @ingroup mm
+ *
+ * Defines descriptor bitfields and the early-boot MMU API used to build
+ * identity mappings for hypervisor RAM and device regions.
+ */
 #ifndef __MMU_H__
 #define __MMU_H__
 
@@ -73,10 +81,41 @@ static inline int pte_is_block(uint64_t entry) {
 }
 
 namespace mmu {
+  /**
+   * @brief Build EL2 translation tables and enable Stage-1 MMU.
+   * @ingroup mm
+   */
   void init();
+
+  /**
+   * @brief Map a physical range into EL2 VA space using 2 MiB blocks.
+   * @ingroup mm
+   * @param va   Virtual base address.
+   * @param pa   Physical base address.
+   * @param size Mapping size in bytes.
+   * @param flags Descriptor flags excluding output address bits.
+   */
   void mapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags);
+
+  /**
+   * @brief Remove mappings for a virtual range and invalidate affected TLBs.
+   * @ingroup mm
+   * @param va   Virtual base address.
+   * @param size Unmapped size in bytes.
+   */
   void unmapRange(uint64_t va, uint64_t size);
+
+  /**
+   * @brief Invalidate all EL2 Stage-1 TLB entries.
+   * @ingroup mm
+   */
   void tlbFlushAll();
+
+  /**
+   * @brief Invalidate a single EL2 VA translation from TLB.
+   * @ingroup mm
+   * @param va Virtual address within the page to flush.
+   */
   void tlbFlushVa(uint64_t va);
 }
 

@@ -1,3 +1,9 @@
+/**
+ * @file mmu.cpp
+ * @brief EL2 Stage-1 MMU bring-up and mapping operations.
+ * @ingroup mm
+ */
+
 #include "core/mm/pmm/pmm.h"
 #include "drivers/uart/uart.h"
 #include "lib/strings/strings.h"
