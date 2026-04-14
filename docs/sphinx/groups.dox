@@ -19,6 +19,18 @@
  */
 
 /**
+ * @defgroup pmm PMM
+ * @ingroup mm
+ * @brief Physical page allocator using the buddy allocation algorithm.
+ */
+
+/**
+ * @defgroup mmu MMU
+ * @ingroup mm
+ * @brief EL2 Stage-1 MMU mapping interface and descriptor helpers.
+ */
+
+/**
  * @defgroup drivers Drivers
  * @ingroup hypervisor
  * @brief Hardware device drivers for bare-metal peripherals.

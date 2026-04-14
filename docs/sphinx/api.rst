@@ -19,6 +19,24 @@ Boot-time physical memory discovery and contiguous page allocation.
    :project: HyperBerry
    :members:
 
+PMM
+~~~
+
+Physical page allocator using the buddy allocation algorithm.
+
+.. doxygengroup:: pmm
+   :project: HyperBerry
+   :members:
+
+MMU
+~~~
+
+EL2 Stage-1 MMU mapping interface and descriptor helpers.
+
+.. doxygengroup:: mmu
+   :project: HyperBerry
+   :members:
+
 Exception Handling
 ~~~~~~~~~~~~~~~~~~
 
