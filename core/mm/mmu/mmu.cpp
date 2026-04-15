@@ -15,16 +15,19 @@ namespace {
   uint64_t* allocTable() {
     Uart::println("[MMU] allocTable: request");
     uint64_t pa = pmm::allocPages(0);
+
     Uart::println("[MMU] allocTable: pa=");
     Uart::writeHex(pa);
     Uart::println("");
+
     if (pa == 0) {
       Uart::println("[MMU] Failed to allocate page table");
       for (;;) asm volatile("wfe");
     }
+
     uint64_t* table = reinterpret_cast<uint64_t*>(pa);
     memset(table, 0, PAGE_SIZE);
-    Uart::println("[MMU] allocTable: zeroed");
+
     return table;
   }
 

@@ -18,29 +18,33 @@ constexpr uint64_t MAX_POOL_SIZE = 0x200000000ULL;
 
 constexpr size_t bitmapBytesForPool(uint64_t poolSizeBytes) {
   const uint64_t totalPages = poolSizeBytes >> PAGE_SHIFT;
-  size_t bits = 0;
-  for (uint32_t off = 0; off < MAX_ORDER; off++) {
+
+  size_t bits {};
+  for (uint32_t off = 0; off <= MAX_ORDER; off++) {
     bits += static_cast<size_t>(totalPages >> (off + 1));
   }
-  return (bits + 7u) / 8u;
+
+  return (bits + 7U) / 8U;
 }
 
+// Get the number of state bits available in the block splits
 constexpr size_t BITMAP_BYTES = bitmapBytesForPool(MAX_POOL_SIZE);
 
+// Here we write into each page a pointer to the next page
 struct FreeNode {
   FreeNode* m_next;
 };
 
-uint64_t  s_base = 0;
-uint64_t  s_size = 0;
-FreeNode* s_freeLists[NUM_ORDERS] = {};
-uint8_t   s_bitmap[BITMAP_BYTES] = {};
+uint64_t  s_base {};                    // Base address of RAM
+uint64_t  s_size {};                    // Max size of the Pool
+FreeNode* s_freeLists[NUM_ORDERS] = {}; // Array of order buckets representing every page in that order
+uint8_t   s_bitmap[BITMAP_BYTES] = {};  // Stores the state bits of every buddy pair
 
 size_t bitmapIndex(uint64_t addr, uint32_t order) {
   uint64_t pageIndex = (addr - s_base) >> PAGE_SHIFT;
   uint64_t pairIndex = pageIndex >> (order + 1);
 
-  size_t   bitOffset  = 0;
+  size_t   bitOffset {};
   uint64_t totalPages = s_size >> PAGE_SHIFT;
 
   for (uint32_t off = 0; off < order; off++) {
@@ -123,7 +127,7 @@ void reserveRegion(uint64_t base, uint64_t size) {
   }
 }
 
-} // namespace
+}
 
 namespace pmm {
 
@@ -131,6 +135,7 @@ uint64_t allocPages(uint32_t order) {
   if (order > MAX_ORDER)
     return 0;
 
+  // Find the order level
   uint32_t found = MAX_ORDER + 1;
   for (uint32_t o = order; o <= MAX_ORDER; o++) {
     if (s_freeLists[o] != nullptr) {
@@ -139,12 +144,11 @@ uint64_t allocPages(uint32_t order) {
     }
   }
 
-  if (found > MAX_ORDER)
-    return 0;
-
+  // We found a buddy block that fits the request so allocate it
   uint64_t addr = listPop(found);
   bitmapToggle(addr, found);
 
+  // Buddy block we found is too big so split it until it fits
   while (found > order) {
     found--;
     uint64_t split = addr + ((uint64_t)PAGE_SIZE << found);
@@ -187,20 +191,21 @@ void freePages(uint64_t addr, uint32_t order) {
 void init(const MemoryMap& map) {
   s_base = 0;
   s_size = 0;
-  for (uint32_t o = 0; o < NUM_ORDERS; o++)
-    s_freeLists[o] = nullptr;
-  for (size_t i = 0; i < BITMAP_BYTES; i++)
-    s_bitmap[i] = 0;
+
+  for (auto& orderLevel : s_freeLists)
+    orderLevel = nullptr;
+  for (auto buddyBit : s_bitmap)
+    buddyBit = 0;
 
   s_base = map.memBase;
   s_size = map.memSize;
 
   if (s_size > MAX_POOL_SIZE) {
-    Uart::println("[ERROR] PMM pool larger than supported bitmap");
+    Uart::println("[PMM][ERROR] PMM pool larger than supported bitmap");
     for (;;) asm volatile("wfe");
   }
 
-  Uart::println("[MM] Initialising buddy allocator");
+  Uart::println("[PMM] Initialising buddy allocator");
 
   uint64_t maxBlockSize = (uint64_t)PAGE_SIZE << MAX_ORDER;
   uint64_t poolEnd      = map.memBase + map.memSize;
@@ -229,27 +234,27 @@ void init(const MemoryMap& map) {
   uint64_t kernelSize = reinterpret_cast<uint64_t>(__uncached_space_end)
                       - kernelBase;
   reserveRegion(kernelBase, kernelSize);
-  Uart::println("[MM] Reserved: kernel");
+  Uart::println("[PMM] Reserved: kernel");
 
   reserveRegion(map.atfBase, map.atfSize);
-  Uart::println("[MM] Reserved: TF-A");
+  Uart::println("[PMM] Reserved: TF-A");
 
   reserveRegion(map.dtbBase, map.dtbSize);
-  Uart::println("[MM] Reserved: DTB");
+  Uart::println("[PMM] Reserved: DTB");
 
   if (map.memBase == 0 && map.memSize >= PAGE_SIZE) {
     reserveRegion(0, PAGE_SIZE);
-    Uart::println("[MM] Reserved: null page");
+    Uart::println("[PMM] Reserved: null page");
   }
 
-  Uart::println("[MM] Buddy allocator ready");
+  Uart::println("[PMM] Buddy allocator ready");
   dumpState();
 }
 
 void dumpState() {
-  Uart::println("[MM] Free blocks per order:");
+  Uart::println("[PMM] Free blocks per order:");
   for (uint32_t o = 0; o <= MAX_ORDER; o++) {
-    uint32_t  count = 0;
+    uint32_t  count {};
     FreeNode* node  = s_freeLists[o];
     while (node != nullptr) {
       count++;
