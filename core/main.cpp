@@ -32,32 +32,34 @@
  */
 extern "C" void hmain(uintptr_t dtb) {
   Uart::init();
-  Uart::println("[LOG] UART intialized and reached hmain");
-  Uart::println("[LOG] Attempting to parse device tree blob");
+  Uart::println("[UART] UART intialized");
+
+  Uart::println("[DTB] Attempting to parse device tree blob");
   MemoryMap memoryMap = parseDtb(dtb);
-  Uart::println("[LOG] Succesfully parsed device tree blob");
+  Uart::println("[DTB] Succesfully parsed device tree blob");
 
   if (!memoryMap.isValid) {
-    Uart::println("[ERROR] Failed to parse Tree Blob");
+    Uart::println("[ERROR][DTB] Failed to parse Tree Blob");
     for (;;) asm volatile("wfe");
   }
-
+ 
+  Uart::println("[PMM] Attempting to bring up PMM");
   pmm::init(memoryMap);
+  Uart::println("[PMM] Successfully brought up PMM");
   
-  Uart::println("[MM] memSize=");
+  Uart::println("[MM] Memory Pool Size=");
   Uart::writeHex(memoryMap.memSize);
   Uart::println("");
 
   Uart::println("[MMU] Attempting to bring up MMU");
   mmu::init();
-  Uart::println("[MMU] MMU is brought up");
+  Uart::println("[MMU] Successfully MMU is brought up");
   
-
 #ifdef INTEGRATION_TEST
   TestRunner::run_all();
 #else
 
-  Uart::println("[LOG] intentionally triggering the sync exception");
+  Uart::println("[EXCEPTION] intentionally triggering the sync exception");
   asm volatile("brk #0");
 #endif
 }
