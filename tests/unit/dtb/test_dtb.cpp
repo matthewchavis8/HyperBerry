@@ -4,12 +4,21 @@
  */
 
 #include <gtest/gtest.h>
+
+#include "drivers/uart/uart.h"
 #include "core/dtb/dtb.h"
 
 #include <vector>
 #include <cstring>
 #include <cstdint>
 #include <algorithm>
+
+volatile uint32_t* Uart::reg(UART_REG) { return nullptr; }
+void Uart::init() {}
+void Uart::println(const char*) {}
+void Uart::print(const char*) {}
+void Uart::putc(const char) {}
+void Uart::writeHex(uint64_t) {}
 
 class DtbBuilder {
   std::vector<uint8_t> m_structs;
