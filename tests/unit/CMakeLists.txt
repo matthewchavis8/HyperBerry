@@ -1,9 +1,7 @@
 add_executable(hyperberry_unit_tests
   array/test_array.cpp
   mmu/test_mmu.cpp
-
-  stubs/uart_stub.cpp
-  stubs/linker_stubs.cpp
+  vcpu/test_vcpu.cpp
 
   strings/test_strings.cpp
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
