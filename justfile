@@ -25,6 +25,7 @@ rpi5 MODE="release" SD_DEV="/dev/sda1":
   @echo "[LOG] Succesfully mounted SD Card for flashing"
 
   cmake --build --preset {{ MODE }} --target run
+  sync
   sudo umount /mnt/sdcard
   @echo "[LOG] SD card flashing is done unmounting SD card"
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
@@ -47,6 +48,7 @@ test-integration BOARD="qemu" SD_DEV="/dev/sda1":
   {{ if BOARD == "rpi5" { "sudo mkdir -p /mnt/sdcard" } else { "" } }}
   {{ if BOARD == "rpi5" { "sudo mount -o uid=$(id -u),gid=$(id -g) " + SD_DEV + " /mnt/sdcard" } else { "" } }}
   cmake --build --preset integration-test --target run 2>&1 | tee build/integration-test/qemu.log
+  {{ if BOARD == "rpi5" { "sync" } else { "" } }}
   {{ if BOARD == "rpi5" { "sudo umount /mnt/sdcard" } else { "" } }}
 
 test-unit:

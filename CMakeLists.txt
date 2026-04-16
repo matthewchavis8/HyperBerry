@@ -48,9 +48,6 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_compile_options(
   -ffreestanding
   -nostdinc++
-  # TODO: Re-enable NEON/SIMD once CPTR_EL2 trapping and guest state save/restore are in place.
-  # Disabled because Cortex-A76 enforces alignment on Q-register loads/stores even with SCTLR.A=0.
-  -mgeneral-regs-only
   -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
 )
 
