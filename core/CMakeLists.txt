@@ -1,6 +1,7 @@
 add_subdirectory(exceptions)
 add_subdirectory(mm)
 add_subdirectory(dtb)
+add_subdirectory(vcpu)
 
 add_library(Core
   STATIC
@@ -14,4 +15,5 @@ target_link_libraries(Core
   Pmm
   Mmu
   Dtb
+  Vcpu
 )

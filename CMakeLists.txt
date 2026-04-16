@@ -99,6 +99,7 @@ target_link_libraries(${ELF}
   Pmm
   Mmu
   Dtb
+  Vcpu
   Panic
   Strings
 )
