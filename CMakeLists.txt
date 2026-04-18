@@ -65,7 +65,7 @@ add_subdirectory(lib)
 if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/uart)
   add_subdirectory(tests/integration/exceptions)
-  add_subdirectory(tests/integration/buddy)
+  add_subdirectory(tests/integration/pmm)
   add_subdirectory(tests/integration/mmu)
 endif()
 
