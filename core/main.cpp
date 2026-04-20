@@ -9,10 +9,19 @@
 
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/mmu/mmu.h"
-#include "lib/panic/panic.h"
+#include "core/vcpu/vcpu.h"
 #include "uart.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
+
+// Minimal guest kernel: traps to HV via HVC, then prints a message and sleeps.
+extern "C" void guest_stub() {
+  Uart::println("Hello World from the guest kernel!");
+
+  asm volatile("hvc #0");
+
+  for (;;) asm volatile("wfe");
+}
 
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
@@ -59,7 +68,14 @@ extern "C" void hmain(uintptr_t dtb) {
   TestRunner::run_all();
 #else
 
-  Uart::println("[EXCEPTION] intentionally triggering the sync exception");
-  asm volatile("brk #0");
+  static Vcpu gVcpu;
+  gVcpu.init(reinterpret_cast<uint64_t>(guest_stub));
+
+  // Guest needs a valid EL1 stack — allocate one page, point SP_EL1 at the top.
+  uint64_t guestStackBase = pmm::allocPages(0);
+  gVcpu.setGuestSp(guestStackBase + PAGE_SIZE);
+
+  Uart::println("[VCPU] entering guest");
+  vcpu_enter(&gVcpu);
 #endif
 }

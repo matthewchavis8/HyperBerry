@@ -5,6 +5,7 @@
  */
 
 #include "vcpu.h"
+#include "drivers/uart/uart.h"
 #include "lib/strings/strings.h"
 
 // EL1h, DAIF all masked: guest wakes with interrupts disabled
@@ -18,6 +19,20 @@ static constexpr uint64_t SCTLR_A_BIT  = (1ULL << 1);
 static constexpr uint64_t SCTLR_C_BIT  = (1ULL << 2);
 static constexpr uint64_t SCTLR_SA_BIT = (1ULL << 3);
 static constexpr uint64_t SCTLR_I_BIT  = (1ULL << 12);
+
+extern "C" void vcpu_restore_el1_sysregs(Vcpu* vcpu) {
+  if (!vcpu)
+    Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
+  
+  vcpu->restoreEl1SysRegs();
+}
+
+extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
+  if (!vcpu)
+    Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
+  
+  vcpu->saveEl1SysRegs();
+}
 
 void Vcpu::init(uint64_t entrypoint) {
   memset(this, 0, sizeof(*this));
@@ -41,6 +56,10 @@ void Vcpu::setPc(uint64_t pc) {
 
 void Vcpu::skipInstruction() {
   setPc(elr() + 4);
+}
+
+void Vcpu::setGuestSp(uint64_t sp) {
+  m_el1SysRegs.regs[VCPU_SP_EL1 / sizeof(uint64_t)] = sp;
 }
 
 uint64_t Vcpu::gpReg(uint64_t off) const {
