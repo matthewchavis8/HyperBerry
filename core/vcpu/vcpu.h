@@ -86,6 +86,23 @@
 #define VCPU_EL1REGS_OFFSET   (VCPU_EL2STATE_OFFSET + VCPU_EL2STATE_SIZE)
 #define VCPU_SIZEOF           (VCPU_EL1REGS_OFFSET + VCPU_EL1SYSREGS_SIZE)
 
+// Hypervisor context offsets
+#define VCPU_HVCTX_OFFSET (VCPU_EL1REGS_OFFSET + VCPU_EL1SYSREGS_SIZE)
+#define VCPU_HVCTX_SP     0x000
+#define VCPU_HVCTX_LR     0x008
+#define VCPU_HVCTX_X19    0x010
+#define VCPU_HVCTX_X20    0x018
+#define VCPU_HVCTX_X21    0x020
+#define VCPU_HVCTX_X22    0x028
+#define VCPU_HVCTX_X23    0x030
+#define VCPU_HVCTX_X24    0x038
+#define VCPU_HVCTX_X25    0x040
+#define VCPU_HVCTX_X26    0x048
+#define VCPU_HVCTX_X27    0x050
+#define VCPU_HVCTX_X28    0x058
+#define VCPU_HVCTX_X29    0x060
+
+#define VCPU_HVCTX_SIZE 0x070
 #ifndef __ASSEMBLER__
 
 /**
@@ -112,6 +129,12 @@ struct El1SysRegs {
   hv::array<uint64_t, VCPU_EL1SYSREGS_SIZE / sizeof(uint64_t)> regs;
 } __attribute__((aligned(16)));
 
+struct HvContext {
+  uint64_t sp;
+  uint64_t lr;
+  hv::array<uint64_t, 11> callSavedReg;
+} __attribute__((aligned(16)));
+
 /**
  * @brief Per-guest virtual CPU context.
  * @ingroup vcpu
@@ -132,6 +155,7 @@ private:
   GpRegs     m_gpRegs;
   El2State   m_el2State;
   El1SysRegs m_el1SysRegs;
+  HvContext  m_hvCtx;
   uint32_t   m_vcpuId;
 
 public:
@@ -201,17 +225,13 @@ public:
 } __attribute__((aligned(128)));
 
 struct VcpuLayoutAccess {
-  static constexpr uint64_t gpRegsOffset() {
-    return __builtin_offsetof(Vcpu, m_gpRegs);
-  }
+  static constexpr uint64_t gpRegsOffset() { return __builtin_offsetof(Vcpu, m_gpRegs); }
+  
+  static constexpr uint64_t hvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
 
-  static constexpr uint64_t el2StateOffset() {
-    return __builtin_offsetof(Vcpu, m_el2State);
-  }
+  static constexpr uint64_t el2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
 
-  static constexpr uint64_t el1SysRegsOffset() {
-    return __builtin_offsetof(Vcpu, m_el1SysRegs);
-  }
+  static constexpr uint64_t el1SysRegsOffset() { return __builtin_offsetof(Vcpu, m_el1SysRegs); }
 };
 
 // Fail Loudly
@@ -231,6 +251,11 @@ static_assert(VcpuLayoutAccess::el1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
   "m_el1SysRegs offset drifted from VCPU_EL1REGS_OFFSET");
 static_assert(sizeof(Vcpu) >= VCPU_SIZEOF,
   "Vcpu smaller than asm-expected context size");
+
+static_assert(sizeof(HvContext) == VCPU_HVCTX_SIZE,
+  "HvContext size drifted from asm-visible layout");
+static_assert(VcpuLayoutAccess::hvCtxOffset() == VCPU_HVCTX_OFFSET,
+  "m_hvCtx offset drifted from VCPU_HVCTX_OFFSET");
 
 // Assembly-callable entry (implemented in a future vcpu.S)
 extern "C" void vcpu_enter(Vcpu* ctx);
