@@ -104,38 +104,6 @@ el2_serror:
     bl      handle_el2_serror
     restore_context
 
-// EL2 (guest) handlers
-.global lower_el_sync
-.global lower_el_irq
-.global lower_el_fiq
-.global lower_el_serror
-
-lower_el_sync:
-    save_context
-    mov     x0, sp
-    mrs     x1, esr_el2
-    bl      handle_lower_el_sync
-    restore_context
-
-lower_el_irq:
-    save_context
-    mov     x0, sp
-    bl      handle_lower_el_irq
-    restore_context
-
-lower_el_fiq:
-    save_context
-    mov     x0, sp
-    bl      handle_lower_el_fiq
-    restore_context
-
-lower_el_serror:
-    save_context
-    mov     x0, sp
-    mrs     x1, esr_el2
-    bl      handle_lower_el_serror
-    restore_context
-
 // Catch-all for stubbed groups
 .global el2_unhandled
 

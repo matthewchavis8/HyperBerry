@@ -73,6 +73,7 @@ add_executable(${ELF}
   ${BOOT_S}
   ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
   ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
+  ${CMAKE_SOURCE_DIR}/arch/aarch64/vcpu.S
 )
 
 if(INTEGRATION_TEST)

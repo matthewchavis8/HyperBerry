@@ -1,24 +1,14 @@
 /**
  * @file vectors.S
- * @brief EL2 exception vector table for HyperBerry.
+ * @brief EL2 exception vector table.
  * @ingroup exceptions
  *
- * Defines the 16-entry vector table installed in VBAR_EL2 by boot.S.
- * The table is aligned to 0x800 bytes with each entry spaced at 0x80
- * bytes, as required by the ARMv8-A architecture.
+ * Table installed in VBAR_EL2 by boot.S. 0x800-byte aligned, 0x80-byte entries.
  *
- * @par Vector Table Layout
- * - **Group 1 (offset 0x000):** Current EL with SP_EL0 -- stubbed,
- *   branches to @c el2_unhandled.
- * - **Group 2 (offset 0x200):** Current EL with SP_ELx --
- *   active hypervisor handlers (sync, IRQ, FIQ, SError).
- * - **Group 3 (offset 0x400):** Lower EL using AArch64 --
- *   guest trap handlers (sync, IRQ, FIQ, SError).
- * - **Group 4 (offset 0x600):** Lower EL using AArch32 -- stubbed,
- *   branches to @c el2_unhandled (32-bit guests unsupported).
- *
- * @note Each entry is a single branch instruction. The actual
- *       save/restore logic lives in exceptions.S.
+ * Group 1 (0x000): EL2 / SP_EL0       — stubbed
+ * Group 2 (0x200): EL2 / SP_EL2       — active HV handlers
+ * Group 3 (0x400): Lower EL / AArch64 — guest trap handlers
+ * Group 4 (0x600): Lower EL / AArch32 — stubbed (32-bit guests unsupported)
  */
 
 .section .text.vectors
@@ -26,27 +16,43 @@
 .global el2_vectors
 
 el2_vectors:
-  // Group 1: User space (STUBBED for now)
+  // Group 1: EL2/SP_EL0 (stubbed)
   .balign 0x80; b el2_unhandled
   .balign 0x80; b el2_unhandled
   .balign 0x80; b el2_unhandled
   .balign 0x80; b el2_unhandled
 
-  // Group 2: Hypervisor context
+  // Group 2: EL2/SP_EL2
   .balign 0x80; b el2_sync
   .balign 0x80; b el2_irq
   .balign 0x80; b el2_fiq
   .balign 0x80; b el2_serror
-  
-  // Group 3: Lower EL using AArch64
-  .balign 0x80; b lower_el_sync
-  .balign 0x80; b lower_el_irq
-  .balign 0x80; b lower_el_fiq
-  .balign 0x80; b lower_el_serror
 
-  
+  // Group 3: Lower EL / AArch64
+  // x0–x3 pushed before branch; layout: sp+0=x2, sp+8=x3, sp+16=x0, sp+24=x1
+  .balign 0x80
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    mrs x0, esr_el2
+    b vcpu_exit_sync
 
-  // Group 4: 32 Bit guest kernels (STUBBED for now)
+  .balign 0x80
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    b vcpu_exit_irq
+
+  .balign 0x80
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    b vcpu_exit_fiq
+
+  .balign 0x80
+    stp x0, x1, [sp, #-16]!
+    stp x2, x3, [sp, #-16]!
+    mrs x0, esr_el2
+    b vcpu_exit_serror
+
+  // Group 4: Lower EL / AArch32 (stubbed)
   .balign 0x80; b el2_unhandled
   .balign 0x80; b el2_unhandled
   .balign 0x80; b el2_unhandled

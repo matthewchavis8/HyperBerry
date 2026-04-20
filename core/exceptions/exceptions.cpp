@@ -1,149 +1,74 @@
 /**
  * @file exceptions.cpp
- * @brief C++ exception handler stubs for EL2 and lower-EL exceptions.
+ * @brief C++ exception handlers for EL2 and lower-EL (guest) exits.
  * @ingroup exceptions
  *
- * Each handler receives an ExceptionContext reference built by the
- * assembly entry points in exceptions.S.  All handlers are currently
- * stub implementations that print a diagnostic message and enter an
- * infinite @c wfe loop.
+ * EL2 handlers receive an ExceptionContext built by exceptions.S.
+ * Lower-EL handlers receive the Vcpu* parked in TPIDR_EL2 and the
+ * ESR_EL2 value passed through by vcpu.S, then re-enter the guest
+ * via vcpu_enter().
  *
- * @note Uses C linkage (@c extern "C") so the assembly code can
- *       branch to the handlers by unmangled symbol name.
+ * @note Uses C linkage (@c extern "C") so assembly can branch to
+ *       handlers by unmangled symbol name.
  */
 
 #include "exceptions.h"
+#include "core/vcpu/vcpu.h"
 #include "lib/panic/panic.h"
-#include "lib/registerDump/registerDump.h"
 #include "uart.h"
 
-// Hypervisor (EL2) exception handlers
+// Hypervisor EL2 exception handlers
 
-/**
- * @brief Handle a synchronous exception taken at EL2.
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Calls registerDump() to print full CPU state, then spins.
- */
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
   hv_panic("[EL2 Synchronous exception] was triggered", ctx);
 }
 
-/**
- * @brief Handle an IRQ taken at EL2.
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_el2_irq(ExceptionContext& ex) {
-  Uart::println("[handle_el2_irq] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_el2_irq(ExceptionContext& ctx) {
+  hv_panic("[EL2 irq exception] was triggered", ctx);
 }
 
-/**
- * @brief Handle an FIQ taken at EL2.
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_el2_fiq(ExceptionContext& ex) {
-  Uart::println("[handle_el2_fiq] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
+  hv_panic("[EL2 fiq exception] was triggered", ctx);
 }
 
-/**
- * @brief Handle an SError taken at EL2.
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_el2_serror(ExceptionContext& ex) {
-  Uart::println("[handle_el2_serror] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_el2_serror(ExceptionContext& ctx) {
+  hv_panic("[EL2 SError exception] was triggered", ctx);
 }
 
-// Lower EL (guest) exception handlers
-
-/**
- * @brief Handle a synchronous exception from a lower EL (guest).
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- *       Future phases will decode ESR_EL2 to handle HVC, SMC,
- *       and Stage-2 faults.
- */
-extern "C" void handle_lower_el_sync(ExceptionContext& ex) {
-  Uart::println("[handle_lower_el_sync] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_unhandled(ExceptionContext& ctx) {
+  hv_panic("[EL2 mysterious exception?] was triggered", ctx);
 }
 
-/**
- * @brief Handle an IRQ from a lower EL (guest).
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_lower_el_irq(ExceptionContext& ex) {
-  Uart::println("[handle_lower_el_irq] called");
-  for (;;) {
-    asm volatile("wfe");
+// Guest Exception Handlers
+
+extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
+  switch (esrEc(esr)) {
+    case EsrEc::HvcAarch64:
+      Uart::println("HVC from guest, x0=");
+      vcpu->skipInstruction();
+      break;
+    case EsrEc::SmcAarch64:
+      vcpu->skipInstruction();
+      break;
+    default:
+      Uart::println("Unhandled guest exit EC=");
+      break;
   }
+
+  vcpu_enter(vcpu);
 }
 
-/**
- * @brief Handle an FIQ from a lower EL (guest).
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_lower_el_fiq(ExceptionContext& ex) {
-  Uart::println("[handle_lower_el_fiq] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t) {
+  vcpu_enter(vcpu);
 }
 
-/**
- * @brief Handle an SError from a lower EL (guest).
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @note Stub -- prints a message and enters a @c wfe spin loop.
- */
-extern "C" void handle_lower_el_serror(ExceptionContext& ex) {
-  Uart::println("[handle_lower_el_serror] called");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t) {
+  vcpu_enter(vcpu);
 }
 
-/**
- * @brief Catch-all for exceptions with no dedicated handler.
- *
- * @param ex  Saved register context from the exception frame.
- *
- * @warning This handler never returns. Called from the
- *          @c el2_unhandled assembly entry point, which itself
- *          spins after this function returns.
- */
-extern "C" void handle_unhandled(ExceptionContext& ex) {
-  Uart::println("[handle_unhandled called]");
-  for (;;) {
-    asm volatile("wfe");
-  }
+extern "C" void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr) {
+  (void)vcpu;
+  (void)esr;
+  Uart::println("[Lower EL SError exception] was triggered");
+  for (;;) { asm volatile("wfe"); }
 }

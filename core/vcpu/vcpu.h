@@ -11,10 +11,6 @@
 #ifndef __VCPU_H__
 #define __VCPU_H__
 
-#include <stdint.h>
-
-#include "lib/array/array.h"
-
 // General-purpose register offsets (from GpRegs base)
 #define VCPU_GPREG_X0     0x000
 #define VCPU_GPREG_X1     0x008
@@ -100,10 +96,14 @@
 #define VCPU_HVCTX_X26    0x048
 #define VCPU_HVCTX_X27    0x050
 #define VCPU_HVCTX_X28    0x058
-#define VCPU_HVCTX_X29    0x060
+#define VCPU_HVCTX_X29      0x060
+#define VCPU_HVCTX_EXIT_ESR 0x068
 
 #define VCPU_HVCTX_SIZE 0x070
 #ifndef __ASSEMBLER__
+
+#include <stdint.h>
+#include "lib/array/array.h"
 
 /**
  * @brief General-purpose register file: x0–x30, sp_el0.
@@ -133,6 +133,7 @@ struct HvContext {
   uint64_t sp;
   uint64_t lr;
   hv::array<uint64_t, 11> callSavedReg;
+  uint64_t exitEsr;  // stashed by vcpu_exit_sync/serror before guest state save
 } __attribute__((aligned(16)));
 
 /**
@@ -192,6 +193,9 @@ public:
 
   /** @brief Advance ELR_EL2 by 4 bytes (skip faulting instruction). */
   void skipInstruction();
+
+  /** @brief Set the guest SP_EL1 (stack pointer seen by the guest at EL1). */
+  void setGuestSp(uint64_t sp);
 
   /**
    * @brief Read a saved GPR by offset.
