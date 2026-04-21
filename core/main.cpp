@@ -8,16 +8,15 @@
  */
 
 #include "core/mm/pmm/pmm.h"
-#include "core/mm/mmu/mmu.h"
-#include "core/vcpu/vcpu.h"
+#include "core/mm/hostMmu/hostMmu.h"
+#include "core/vm/vm.h"
 #include "uart.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
 
-// Minimal guest kernel: traps to HV via HVC, then prints a message and sleeps.
+// Minimal guest kernel: trap to the hypervisor first, then idle.
+// Direct UART MMIO from EL1 is not stage-2 mapped yet.
 extern "C" void guest_stub() {
-  Uart::println("Hello World from the guest kernel!");
-
   asm volatile("hvc #0");
 
   for (;;) asm volatile("wfe");
@@ -36,8 +35,6 @@ extern "C" void guest_stub() {
  *
  * @warning Must never return. The assembly boot stub has no return
  *          address — falling off the end of hmain() is undefined behaviour.
- * @note Currently a Phase 0 boot stub. Future phases will replace the
- *       infinite loop with vCPU scheduling and Stage-2 MMU setup.
  */
 extern "C" void hmain(uintptr_t dtb) {
   Uart::init();
@@ -60,22 +57,22 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::writeHex(memoryMap.memSize);
   Uart::println("");
 
-  Uart::println("[MMU] Attempting to bring up MMU");
-  mmu::init();
-  Uart::println("[MMU] Successfully MMU is brought up");
+  Uart::println("[HostMmu] Attempting to bring up host MMU");
+  HostMmu::init();
+  Uart::println("[HostMmu] Successfully host MMU is brought up");
   
 #ifdef INTEGRATION_TEST
   TestRunner::run_all();
 #else
 
-  static Vcpu gVcpu;
-  gVcpu.init(reinterpret_cast<uint64_t>(guest_stub));
+  static Vm guest;
+  uint64_t guestEntry = reinterpret_cast<uint64_t>(guest_stub);
+  uint64_t guestIpaBase = guestEntry & ~(SIZE_1GB - 1ULL);
 
-  // Guest needs a valid EL1 stack — allocate one page, point SP_EL1 at the top.
-  uint64_t guestStackBase = pmm::allocPages(0);
-  gVcpu.setGuestSp(guestStackBase + PAGE_SIZE);
-
-  Uart::println("[VCPU] entering guest");
-  vcpu_enter(&gVcpu);
+  guest.init(/*ipaBase=*/guestIpaBase,
+             /*sizeBytes=*/SIZE_1GB,
+             /*vmid=*/1,
+             /*guestEntry=*/guestEntry);
+  guest.run();
 #endif
 }

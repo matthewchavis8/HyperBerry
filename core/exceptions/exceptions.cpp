@@ -42,16 +42,24 @@ extern "C" void handle_unhandled(ExceptionContext& ctx) {
 // Guest Exception Handlers
 
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
+  uint64_t ec = static_cast<uint64_t>(esrEc(esr));
+
   switch (esrEc(esr)) {
     case EsrEc::HvcAarch64:
-      Uart::println("HVC from guest, x0=");
+      Uart::print("HVC from guest, x0=");
+      Uart::writeHex(vcpu->gpReg(VCPU_GPREG_X0));
+      Uart::println("");
       vcpu->skipInstruction();
       break;
     case EsrEc::SmcAarch64:
       vcpu->skipInstruction();
       break;
     default:
-      Uart::println("Unhandled guest exit EC=");
+      Uart::print("Unhandled guest exit EC=");
+      Uart::writeHex(ec);
+      Uart::print(" ESR=");
+      Uart::writeHex(esr);
+      Uart::println("");
       break;
   }
 
