@@ -1,6 +1,8 @@
 add_executable(hyperberry_unit_tests
   array/test_array.cpp
-  mmu/test_mmu.cpp
+  pageTable/test_pageTable.cpp
+  hostMmu/test_hostMmu.cpp
+  guestMmu/test_guestMmu.cpp
   vcpu/test_vcpu.cpp
 
   strings/test_strings.cpp
