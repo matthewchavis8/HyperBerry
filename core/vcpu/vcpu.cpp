@@ -21,15 +21,19 @@ static constexpr uint64_t SCTLR_SA_BIT = (1ULL << 3);
 static constexpr uint64_t SCTLR_I_BIT  = (1ULL << 12);
 
 extern "C" void vcpu_restore_el1_sysregs(Vcpu* vcpu) {
-  if (!vcpu)
+  if (vcpu == nullptr) {
     Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
+    for (;;) asm volatile("wfe"); // TODO: Add a generic panic handler soon
+  }
   
   vcpu->restoreEl1SysRegs();
 }
 
 extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
-  if (!vcpu)
+  if (vcpu == nullptr) {
     Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
+    for (;;) asm volatile("wfe"); // TODO: Add a generic panic handler soon
+  }
   
   vcpu->saveEl1SysRegs();
 }
@@ -37,47 +41,47 @@ extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
 void Vcpu::init(uint64_t entrypoint) {
   memset(this, 0, sizeof(*this));
 
-  m_el2State.regs[VCPU_ELR_EL2 / sizeof(uint64_t)] = entrypoint;
-  m_el2State.regs[VCPU_SPSR_EL2 / sizeof(uint64_t)] = SPSR_EL1H_ALL_MASKED;
+  m_el2State.regs[regIdx(VCPU_ELR_EL2)] = entrypoint;
+  m_el2State.regs[regIdx(VCPU_SPSR_EL2)] = SPSR_EL1H_ALL_MASKED;
 
   uint64_t sctlr;
   asm volatile("mrs %0, sctlr_el1" : "=r"(sctlr));
   sctlr &= ~(SCTLR_M_BIT | SCTLR_A_BIT | SCTLR_C_BIT | SCTLR_SA_BIT | SCTLR_I_BIT);
-  m_el1SysRegs.regs[VCPU_SCTLR_EL1 / sizeof(uint64_t)] = sctlr;
+  m_el1SysRegs.regs[regIdx(VCPU_SCTLR_EL1)] = sctlr;
 }
 
-uint64_t Vcpu::elr() const {
-  return m_el2State.regs[VCPU_ELR_EL2 / sizeof(uint64_t)];
+uint64_t Vcpu::getElr() const {
+  return m_el2State.regs[regIdx(VCPU_ELR_EL2)];
 }
 
 void Vcpu::setPc(uint64_t pc) {
-  m_el2State.regs[VCPU_ELR_EL2 / sizeof(uint64_t)] = pc;
+  m_el2State.regs[regIdx(VCPU_ELR_EL2)] = pc;
 }
 
 void Vcpu::skipInstruction() {
-  setPc(elr() + 4);
+  setPc(getElr() + 4);
 }
 
 void Vcpu::setGuestSp(uint64_t sp) {
-  m_el1SysRegs.regs[VCPU_SP_EL1 / sizeof(uint64_t)] = sp;
+  m_el1SysRegs.regs[regIdx(VCPU_SP_EL1)] = sp;
 }
 
-uint64_t Vcpu::gpReg(uint64_t off) const {
-  return m_gpRegs.regs[off / sizeof(uint64_t)];
+uint64_t Vcpu::getGpReg(uint64_t off) const {
+  return m_gpRegs.regs[regIdx(off)];
 }
 
 void Vcpu::setGpReg(uint64_t off, uint64_t val) {
-  m_gpRegs.regs[off / sizeof(uint64_t)] = val;
+  m_gpRegs.regs[regIdx(off)] = val;
 }
 
 #define VCPU_SAVE_EL1(name, off) do {                                     \
     uint64_t value;                                                       \
     asm volatile("mrs %0, " #name : "=r"(value));                         \
-    m_el1SysRegs.regs[(off) / sizeof(uint64_t)] = value;                  \
+    m_el1SysRegs.regs[regIdx(off)] = value;                               \
   } while (0)
 
 #define VCPU_RESTORE_EL1(name, off) do {                                  \
-    uint64_t value = m_el1SysRegs.regs[(off) / sizeof(uint64_t)];         \
+    uint64_t value = m_el1SysRegs.regs[regIdx(off)];                      \
     asm volatile("msr " #name ", %0" :: "r"(value));                      \
   } while (0)
 
@@ -134,7 +138,7 @@ void Vcpu::restoreEl1SysRegs() {
   asm volatile("isb");
 }
 
-Vcpu* Vcpu::current() {
+Vcpu* Vcpu::getCurrentVcpu() {
   uint64_t currentVcpu;
   asm volatile("mrs %0, tpidr_el2" : "=r"(currentVcpu));
   return reinterpret_cast<Vcpu*>(static_cast<uintptr_t>(currentVcpu));

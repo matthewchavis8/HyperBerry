@@ -20,43 +20,48 @@
 // Hypervisor EL2 exception handlers
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-  hv_panic("[EL2 Synchronous exception] was triggered", ctx);
+  hv_panic("[HV Synchronous exception] was triggered", ctx);
 }
 
 extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-  hv_panic("[EL2 irq exception] was triggered", ctx);
+  hv_panic("[HV irq exception] was triggered", ctx);
 }
 
 extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-  hv_panic("[EL2 fiq exception] was triggered", ctx);
+  hv_panic("[HV fiq exception] was triggered", ctx);
 }
 
 extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-  hv_panic("[EL2 SError exception] was triggered", ctx);
+  hv_panic("[HV SError exception] was triggered", ctx);
 }
 
 extern "C" void handle_unhandled(ExceptionContext& ctx) {
-  hv_panic("[EL2 mysterious exception?] was triggered", ctx);
+  hv_panic("[HV mysterious exception?] was triggered", ctx);
 }
 
 // Guest Exception Handlers
 
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
-  uint64_t ec = static_cast<uint64_t>(esrEc(esr));
+  EsrEc exceptionClass = getEsrEc(esr);
 
-  switch (esrEc(esr)) {
+  switch (exceptionClass) {
+
     case EsrEc::HvcAarch64:
-      Uart::print("HVC from guest, x0=");
-      Uart::writeHex(vcpu->gpReg(VCPU_GPREG_X0));
+      Uart::print("[Guest][HVC] Handling HVC call from guest, call ID=");
+      Uart::writeHex(vcpu->getGpReg(VCPU_GPREG_X0));
       Uart::println("");
       vcpu->skipInstruction();
       break;
+
     case EsrEc::SmcAarch64:
+      Uart::print("[Guest][SMC] Handling SMC call from guest, call ID=");
+      Uart::writeHex(vcpu->getGpReg(VCPU_GPREG_X0));
       vcpu->skipInstruction();
       break;
+
     default:
-      Uart::print("Unhandled guest exit EC=");
-      Uart::writeHex(ec);
+      Uart::print("[Guest][ERROR] Unhandled guest exit EC=");
+      Uart::writeHex(static_cast<uint64_t>(exceptionClass));
       Uart::print(" ESR=");
       Uart::writeHex(esr);
       Uart::println("");
@@ -66,17 +71,19 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
   vcpu_enter(vcpu);
 }
 
-extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t) {
+extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t esr) {
+  (void) esr; // Unused for now will add some debugging later
   vcpu_enter(vcpu);
 }
 
-extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t) {
+extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t esr) {
+  (void) esr;
   vcpu_enter(vcpu);
 }
 
 extern "C" void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr) {
-  (void)vcpu;
-  (void)esr;
-  Uart::println("[Lower EL SError exception] was triggered");
+  (void) vcpu;
+  (void) esr;
+  Uart::println("[Guest EL SError] was triggered");
   for (;;) { asm volatile("wfe"); }
 }

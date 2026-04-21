@@ -66,7 +66,7 @@ enum class EsrEc : uint64_t {
   BrkAarch64      = 0x3C,
 };
 
-inline EsrEc esrEc(uint64_t esr) {
+inline EsrEc getEsrEc(uint64_t esr) {
   return static_cast<EsrEc>((esr >> 26) & 0x3F);
 }
 

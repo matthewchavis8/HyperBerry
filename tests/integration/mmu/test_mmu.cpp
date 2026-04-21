@@ -3,7 +3,7 @@
  * @brief Integration tests for EL2 MMU mappings and runtime APIs.
  */
 
-#include "core/mm/hostMmu/hostMmu.h"
+#include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "tests/integration/suite.h"
 
 namespace {

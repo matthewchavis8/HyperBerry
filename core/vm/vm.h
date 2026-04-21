@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#include "core/mm/guestMmu/guestMmu.h"
+#include "core/mm/mmu/guestMmu/guestMmu.h"
 #include "core/vcpu/vcpu.h"
 
 class Vm {

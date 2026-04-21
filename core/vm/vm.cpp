@@ -12,10 +12,10 @@ void Vm::init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
               uint64_t guestEntry) {
   m_vmid = vmid;
 
-  Uart::println("[Vm] Building stage-2 mappings");
+  Uart::println("[VM] Intializin Guest MMU");
   m_guestMmu.init(ipaBase, sizeBytes);
 
-  Uart::println("[Vm] Initialising vCPU");
+  Uart::println("[VM] Intializing Guest Vcpu");
   m_vcpu.init(guestEntry);
 
   uint64_t guestStackBase = pmm::allocPages(0);
@@ -23,9 +23,10 @@ void Vm::init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
 }
 
 void Vm::run() {
-  Uart::println("[Vm] Enabling stage-2 translation");
+  Uart::println("[VM] Enabling Guest MMU");
   m_guestMmu.enable(m_vmid);
+  Uart::println("[VM] Succesfully enabled Guest MMU");
 
-  Uart::println("[Vm] Entering guest");
+  Uart::println("[VM] Guest Kernel Running");
   vcpu_enter(&m_vcpu);
 }

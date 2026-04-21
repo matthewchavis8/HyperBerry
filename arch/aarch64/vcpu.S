@@ -10,9 +10,9 @@
 
 .global vcpu_enter
 vcpu_enter:
-    msr     tpidr_el2, x0
+    msr     tpidr_el2, x0 // Save the current VCPU
 
-    // Save HV callee-saved state into m_hvCtx
+    // Save Hypervisor State before swapping to el1
     add     x1, x0, #VCPU_HVCTX_OFFSET
     mov     x2, sp
     str     x2,       [x1, #VCPU_HVCTX_SP]
@@ -23,10 +23,11 @@ vcpu_enter:
     stp     x25, x26, [x1, #VCPU_HVCTX_X25]
     stp     x27, x28, [x1, #VCPU_HVCTX_X27]
     str     x29,      [x1, #VCPU_HVCTX_X29]
-
+    
+    // Restore guest system registers
     bl      vcpu_restore_el1_sysregs
 
-    // Re-read Vcpu* after bl clobbers x0
+    // Resore elr and spsr
     mrs     x0, tpidr_el2
     add     x1, x0, #VCPU_EL2STATE_OFFSET
     ldr     x2, [x1, #VCPU_ELR_EL2]
