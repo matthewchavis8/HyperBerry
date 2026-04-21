@@ -11,14 +11,14 @@
 namespace {
   uint64_t* l0_table;
 
-  constexpr PageTable::WalkConfig kStage1Walk{
-    /*startLevel=*/0,
-    /*allocOnMiss=*/true,
+  constexpr PageTable::WalkConfig kStage1Walk {
+    0,
+    true,
   };
 
-  constexpr PageTable::WalkConfig kStage1Lookup{
-    /*startLevel=*/0,
-    /*allocOnMiss=*/false,
+  constexpr PageTable::WalkConfig kStage1Lookup {
+    0,
+    false,
   };
 }
 

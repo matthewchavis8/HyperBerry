@@ -9,15 +9,16 @@
 #include "guestMmu.h"
 
 namespace {
-  constexpr uint32_t kStage2StartLevel = 1;   // T0SZ=32 -> start at L1.
+  constexpr uint32_t kStage2StartLevel = 1;   // T0SZ=32 -> start at L1 since the guest is 32 bit for now
   constexpr uint64_t kStage2T0sz       = 32;
 
-  constexpr PageTable::WalkConfig kStage2Walk{
-    /*startLevel=*/kStage2StartLevel,
-    /*allocOnMiss=*/true,
+  constexpr PageTable::WalkConfig kStage2Walk {
+    kStage2StartLevel,
+    true,
   };
 
   uint64_t buildStage2BlockDescriptor(uint64_t pa, bool isDevice) {
+    // Check if this is device memory or normal memory
     uint64_t memAttr = isDevice ? S2PTE_MEMATTR_DEVICE_nGnRnE
                                 : S2PTE_MEMATTR_NORMAL_WB;
     uint64_t xn = isDevice ? S2PTE_XN_ALL : S2PTE_XN_NONE;
@@ -48,13 +49,14 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t sizeBytes) {
                 | VTCR_IRGN0_WB
                 | VTCR_PS_40BIT
                 | VTCR_RES1;
+
   Uart::println("[GuestMmu] Programming VTCR_EL2");
   asm volatile("msr vtcr_el2, %0" :: "r"(vtcr) : "memory");
   asm volatile("isb");
 
   Uart::println("[GuestMmu] Identity-mapping guest IPA range");
   for (uint64_t off {}; off < sizeBytes; off += SIZE_2MB) {
-    mapBlock(ipaBase + off, ipaBase + off, /*isDevice=*/false);
+    mapBlock(ipaBase + off, ipaBase + off, false);
   }
 
   Uart::println("[GuestMmu] init finished");

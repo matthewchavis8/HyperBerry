@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "core/mm/guestMmu/guestMmu.h"
+#include "core/mm/mmu/guestMmu/guestMmu.h"
 
 TEST(GuestMmu, StageTwoS2apEncodingMatchesArmSpec) {
   EXPECT_EQ(S2PTE_S2AP_NONE, 0b00ULL << 6);

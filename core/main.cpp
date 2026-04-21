@@ -8,7 +8,7 @@
  */
 
 #include "core/mm/pmm/pmm.h"
-#include "core/mm/hostMmu/hostMmu.h"
+#include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/vm/vm.h"
 #include "uart.h"
 #include "stddef.h"
@@ -69,10 +69,10 @@ extern "C" void hmain(uintptr_t dtb) {
   uint64_t guestEntry = reinterpret_cast<uint64_t>(guest_stub);
   uint64_t guestIpaBase = guestEntry & ~(SIZE_1GB - 1ULL);
 
-  guest.init(/*ipaBase=*/guestIpaBase,
-             /*sizeBytes=*/SIZE_1GB,
-             /*vmid=*/1,
-             /*guestEntry=*/guestEntry);
+  Uart::println("[VM] Bringing up Guest Kernel");
+  guest.init(guestIpaBase, SIZE_1GB, 1, guestEntry);
+  Uart::println("[VM] Guest Kernel Intialized");
+  Uart::println("[VM] Guest Kernel running");
   guest.run();
 #endif
 }

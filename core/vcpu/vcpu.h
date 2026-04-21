@@ -105,6 +105,10 @@
 #include <stdint.h>
 #include "lib/array/array.h"
 
+static constexpr size_t regIdx(size_t off) {
+  return off / sizeof(uint64_t);
+}
+
 /**
  * @brief General-purpose register file: x0–x30, sp_el0.
  * @ingroup vcpu
@@ -171,7 +175,7 @@ public:
    * @param entrypoint Guest physical address to resume at on first eret.
    */
   void init(uint64_t entrypoint);
-
+  
   /**
    * @brief Save EL1 system registers from hardware into this context.
    * @note Call site must have DAIF masked. Meaningful only on AArch64.
@@ -186,7 +190,7 @@ public:
   void restoreEl1SysRegs();
 
   /** @brief Return the saved guest PC (ELR_EL2). */
-  uint64_t elr() const;
+  uint64_t getElr() const;
 
   /** @brief Overwrite the saved guest PC (ELR_EL2). */
   void setPc(uint64_t pc);
@@ -201,7 +205,7 @@ public:
    * @brief Read a saved GPR by offset.
    * @param off One of the VCPU_GPREG_* constants.
    */
-  uint64_t gpReg(uint64_t off) const;
+  uint64_t getGpReg(uint64_t off) const;
 
   /**
    * @brief Write a saved GPR by offset.
@@ -211,7 +215,7 @@ public:
   void setGpReg(uint64_t off, uint64_t val);
 
   /** @brief Opaque vCPU identifier assigned by the scheduler. */
-  uint32_t id() const { return m_vcpuId; }
+  uint32_t getId() const { return m_vcpuId; }
 
   /** @brief Set the vCPU identifier (scheduler-only). */
   void setId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
@@ -220,7 +224,7 @@ public:
    * @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
    * @note Returns nullptr on hosted (non-AArch64) builds.
    */
-  static Vcpu* current();
+  static Vcpu* getCurrentVcpu();
 
   /**
    * @brief Stub scheduler entry. Replaced by real scheduler later.
@@ -261,7 +265,7 @@ static_assert(sizeof(HvContext) == VCPU_HVCTX_SIZE,
 static_assert(VcpuLayoutAccess::hvCtxOffset() == VCPU_HVCTX_OFFSET,
   "m_hvCtx offset drifted from VCPU_HVCTX_OFFSET");
 
-// Assembly-callable entry (implemented in a future vcpu.S)
+// @brief fn used to resume guest state
 extern "C" void vcpu_enter(Vcpu* ctx);
 
 #endif /* __ASSEMBLER__ */

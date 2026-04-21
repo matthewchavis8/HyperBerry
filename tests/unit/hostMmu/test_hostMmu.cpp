@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "core/mm/hostMmu/hostMmu.h"
+#include "core/mm/mmu/hostMmu/hostMmu.h"
 
 TEST(HostMmu, BuildsExpectedNormalAndDeviceFlags) {
   EXPECT_EQ(PTE_NORMAL,
