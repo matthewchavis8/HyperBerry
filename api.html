@@ -264,10 +264,6 @@
 <span id="_CPPv35hmain9uintptr_t"></span><span id="_CPPv25hmain9uintptr_t"></span><span id="hmain__uintptr_t"></span><span class="target" id="group__core_1ga00a50954698be76af103fda76b558dca"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hmain</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv45hmain9uintptr_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Main hypervisor entry point (called from boot.S). </p>
 <p>Uses C linkage so the assembly boot code can branch to it by name without C++ name mangling.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently a Phase 0 boot stub. Future phases will replace the infinite loop with vCPU scheduling and Stage-2 MMU setup. </p>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Must never return. The assembly boot stub has no return address — falling off the end of <a class="reference internal" href="#group__core_1ga00a50954698be76af103fda76b558dca"><span class="std std-ref">hmain()</span></a> is undefined behaviour. </p>
@@ -339,6 +335,47 @@
 <dt class="sig sig-object cpp">
 <span class="target" id="group__mm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Memory</span> <span class="pre">Management</span></span></dt>
 <dd><p>Physical memory discovery and page allocation at EL2. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410allocTablev">
+<span id="_CPPv310allocTablev"></span><span id="_CPPv210allocTablev"></span><span id="allocTable"></span><span class="target" id="group__mm_1ga882e3d6c8efb90b42856b3666b0206df"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocTable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410allocTablev" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate a zeroed 4 KiB table from the PMM. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pointer to the fresh table. Never returns null — halts on allocation failure so a missing page does not silently produce bogus translations. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig">
+<span id="_CPPv34walkP8uint64_t8uint64_tRK10WalkConfig"></span><span id="_CPPv24walkP8uint64_t8uint64_tRK10WalkConfig"></span><span id="walk__uint64_tP.uint64_t.WalkConfigCR"></span><span class="target" id="group__mm_1gab583ad8eb31d4df6643cfd75df45e7c1"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">walk</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">root</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">WalkConfig</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Walk a multi-level translation table and return the L2 entry. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – Root table pointer (stage-1 L0 or stage-2 L1). </p></li>
+<li><p><strong>addr</strong> – Address to resolve (VA for stage-1, IPA for stage-2). </p></li>
+<li><p><strong>cfg</strong> – Starting level and allocation behaviour. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pointer to the L2 entry covering <code class="docutils literal notranslate"><span class="pre">addr</span></code>, or nullptr when allocOnMiss is false and an intermediate table is absent. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N9PageTable10WalkConfigE">
+<span id="_CPPv3N9PageTable10WalkConfigE"></span><span id="_CPPv2N9PageTable10WalkConfigE"></span><span id="PageTable::WalkConfig"></span><span class="target" id="structPageTable_1_1WalkConfig"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WalkConfig</span></span></span><a class="headerlink" href="#_CPPv4N9PageTable10WalkConfigE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;pageTable.h&gt;</em></div>
+<p>Walker configuration: where to start and whether to grow the table on a missing intermediate entry. </p>
+<p><code class="docutils literal notranslate"><span class="pre">startLevel</span> <span class="pre">==</span> <span class="pre">0</span></code> corresponds to stage-1 with T0SZ=16 (48-bit VA). <code class="docutils literal notranslate"><span class="pre">startLevel</span> <span class="pre">==</span> <span class="pre">1</span></code> corresponds to stage-2 with T0SZ=32 (32-bit IPA). Both walks terminate at the L2 entry; callers map 2 MiB blocks. </p>
+</dd></dl>
+
 </dd></dl>
 
 <section id="pmm">
@@ -410,21 +447,21 @@
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv44initv">
-<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mmu_1ga1ee31bcc13e7e2414bfcb6e78db92d85"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Build EL2 translation tables and enable Stage-1 MMU. </p>
+<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mmu_1ga60db85779e3b8168a290247fb19e742c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Build EL2 translation tables and enable stage-1 translation. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t">
-<span id="_CPPv38mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv28mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="mapRange__uint64_t.uint64_t.uint64_t.uint64_t"></span><span class="target" id="group__mmu_1ga4e9eacd1b81b2587dd9fb2d280258912"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv38mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv28mapRange8uint64_t8uint64_t8uint64_t8uint64_t"></span><span id="mapRange__uint64_t.uint64_t.uint64_t.uint64_t"></span><span class="target" id="group__mmu_1gaf7229a66c0a22362bba3f6adcb367793"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Map a physical range into EL2 VA space using 2 MiB blocks. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>va</strong> – Virtual base address. </p></li>
 <li><p><strong>pa</strong> – Physical base address. </p></li>
-<li><p><strong>size</strong> – Mapping size in bytes. </p></li>
-<li><p><strong>flags</strong> – Descriptor flags excluding output address bits. </p></li>
+<li><p><strong>size</strong> – Mapping size in bytes (multiple of 2 MiB). </p></li>
+<li><p><strong>flags</strong> – Descriptor flags excluding the output-address bits. </p></li>
 </ul>
 </dd>
 </dl>
@@ -432,13 +469,13 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv410unmapRange8uint64_t8uint64_t">
-<span id="_CPPv310unmapRange8uint64_t8uint64_t"></span><span id="_CPPv210unmapRange8uint64_t8uint64_t"></span><span id="unmapRange__uint64_t.uint64_t"></span><span class="target" id="group__mmu_1ga59ca873cb75822a0cc2d3e4f62dd5ed2"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unmapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410unmapRange8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Remove mappings for a virtual range and invalidate affected TLBs. </p>
+<span id="_CPPv310unmapRange8uint64_t8uint64_t"></span><span id="_CPPv210unmapRange8uint64_t8uint64_t"></span><span id="unmapRange__uint64_t.uint64_t"></span><span class="target" id="group__mmu_1gacc461b851908feb7e6f88c8fee2a74a9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">unmapRange</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410unmapRange8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Remove mappings for a virtual range and flush affected TLBs. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>va</strong> – Virtual base address. </p></li>
-<li><p><strong>size</strong> – Unmapped size in bytes. </p></li>
+<li><p><strong>size</strong> – Range size in bytes (multiple of 2 MiB). </p></li>
 </ul>
 </dd>
 </dl>
@@ -446,14 +483,14 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv411tlbFlushAllv">
-<span id="_CPPv311tlbFlushAllv"></span><span id="_CPPv211tlbFlushAllv"></span><span id="tlbFlushAll"></span><span class="target" id="group__mmu_1ga0bc958e202dcaece6eaae1336c11b916"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushAll</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411tlbFlushAllv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Invalidate all EL2 Stage-1 TLB entries. </p>
+<span id="_CPPv311tlbFlushAllv"></span><span id="_CPPv211tlbFlushAllv"></span><span id="tlbFlushAll"></span><span class="target" id="group__mmu_1ga02dd0065113d6433c237463bfe44ccba"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushAll</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411tlbFlushAllv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Invalidate all EL2 stage-1 TLB entries. </p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv410tlbFlushVa8uint64_t">
-<span id="_CPPv310tlbFlushVa8uint64_t"></span><span id="_CPPv210tlbFlushVa8uint64_t"></span><span id="tlbFlushVa__uint64_t"></span><span class="target" id="group__mmu_1ga21db52bef06d3f8e083e1cb4ccc2ae4a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushVa</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410tlbFlushVa8uint64_t" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Invalidate a single EL2 VA translation from TLB. </p>
+<span id="_CPPv310tlbFlushVa8uint64_t"></span><span id="_CPPv210tlbFlushVa8uint64_t"></span><span id="tlbFlushVa__uint64_t"></span><span class="target" id="group__mmu_1gae94cbeca5d3e9b40c652815612fd5f2b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushVa</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">va</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410tlbFlushVa8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Invalidate a single EL2 VA translation from the TLB. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>va</strong> – Virtual address within the page to flush. </p>
@@ -462,6 +499,64 @@
 </dd></dl>
 
 </div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv48GuestMmu">
+<span id="_CPPv38GuestMmu"></span><span id="_CPPv28GuestMmu"></span><span id="GuestMmu"></span><span class="target" id="classGuestMmu"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestMmu</span></span></span><a class="headerlink" href="#_CPPv48GuestMmu" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;guestMmu.h&gt;</em></div>
+<p>Per-guest stage-2 MMU. </p>
+<p>Owns the stage-2 root table and VMID. <a class="reference internal" href="#classGuestMmu_1afdb9ecf0bb59b4eaf675810aef979c21"><span class="std std-ref">enable()</span></a> programs VTTBR_EL2 and sets HCR_EL2.VM=1. Shared by all vCPUs that belong to the same guest (ARM semantics: one stage-2 table per VM, distinguished at the TLB by VMID). </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu4initE8uint64_t8uint64_t">
+<span id="_CPPv3N8GuestMmu4initE8uint64_t8uint64_t"></span><span id="_CPPv2N8GuestMmu4initE8uint64_t8uint64_t"></span><span id="GuestMmu::init__uint64_t.uint64_t"></span><span class="target" id="classGuestMmu_1a475d0e02c502dfae8386603dee8dd9b1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate the stage-2 root table, program VTCR_EL2, and identity-map a contiguous IPA range in 2 MiB blocks. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ipaBase</strong> – Start of the identity-mapped region. </p></li>
+<li><p><strong>sizeBytes</strong> – Size of the region (must be 2 MiB aligned). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu8mapBlockE8uint64_t8uint64_tb">
+<span id="_CPPv3N8GuestMmu8mapBlockE8uint64_t8uint64_tb"></span><span id="_CPPv2N8GuestMmu8mapBlockE8uint64_t8uint64_tb"></span><span id="GuestMmu::mapBlock__uint64_t.uint64_t.b"></span><span class="target" id="classGuestMmu_1a8f7afb896b91704e00e0415d91a1bea0"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapBlock</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">isDevice</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu8mapBlockE8uint64_t8uint64_tb" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Install one 2 MiB stage-2 block descriptor. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ipa</strong> – Intermediate physical address (2 MiB aligned). </p></li>
+<li><p><strong>pa</strong> – Target physical address. </p></li>
+<li><p><strong>isDevice</strong> – True selects device-nGnRnE memory attributes, false selects normal write-back cacheable memory. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu6enableE7uint8_t">
+<span id="_CPPv3N8GuestMmu6enableE7uint8_t"></span><span id="_CPPv2N8GuestMmu6enableE7uint8_t"></span><span id="GuestMmu::enable__uint8_t"></span><span class="target" id="classGuestMmu_1afdb9ecf0bb59b4eaf675810aef979c21"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enable</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu6enableE7uint8_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Commit this stage-2 context: program VTTBR_EL2 with <code class="docutils literal notranslate"><span class="pre">vmid</span></code>, flush stage-2 TLB, and set HCR_EL2.VM=1. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vmid</strong> – Non-zero VMID. Each live VM must have a unique VMID. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu16tlbFlushAllGuestEv">
+<span id="_CPPv3N8GuestMmu16tlbFlushAllGuestEv"></span><span id="_CPPv2N8GuestMmu16tlbFlushAllGuestEv"></span><span id="GuestMmu::tlbFlushAllGuest"></span><span class="target" id="classGuestMmu_1a73040e49836a966f8e129ac00401ce84"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tlbFlushAllGuest</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu16tlbFlushAllGuestEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Invalidate all stage-1 &amp; stage-2 TLB entries for this VMID. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -858,6 +953,9 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
+<li><a class="reference internal" href="#_CPPv410allocTablev"><code class="docutils literal notranslate"><span class="pre">allocTable()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig"><code class="docutils literal notranslate"><span class="pre">walk()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9PageTable10WalkConfigE"><code class="docutils literal notranslate"><span class="pre">PageTable::WalkConfig</span></code></a></li>
 <li><a class="reference internal" href="#pmm">PMM</a><ul>
 <li><a class="reference internal" href="#_CPPv44initRK9MemoryMap"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410allocPages8uint32_t"><code class="docutils literal notranslate"><span class="pre">allocPages()</span></code></a></li>
@@ -871,6 +969,13 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 <li><a class="reference internal" href="#_CPPv410unmapRange8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">unmapRange()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv411tlbFlushAllv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAll()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410tlbFlushVa8uint64_t"><code class="docutils literal notranslate"><span class="pre">tlbFlushVa()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv48GuestMmu"><code class="docutils literal notranslate"><span class="pre">GuestMmu</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu8mapBlockE8uint64_t8uint64_tb"><code class="docutils literal notranslate"><span class="pre">mapBlock()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu6enableE7uint8_t"><code class="docutils literal notranslate"><span class="pre">enable()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu16tlbFlushAllGuestEv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAllGuest()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
