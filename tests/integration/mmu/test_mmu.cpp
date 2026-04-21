@@ -3,7 +3,7 @@
  * @brief Integration tests for EL2 MMU mappings and runtime APIs.
  */
 
-#include "core/mm/mmu/mmu.h"
+#include "core/mm/hostMmu/hostMmu.h"
 #include "tests/integration/suite.h"
 
 namespace {
@@ -64,21 +64,21 @@ static bool test_peripheral_mapping_present() {
 }
 
 static bool test_map_range_installs_block_entry() {
-  mmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
+  HostMmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
   return entryMatches(walkToL2Entry(kTestVa), kTestPa, PTE_NORMAL | PTE_AP_RW);
 }
 
 static bool test_unmap_range_clears_block_entry() {
-  mmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
-  mmu::unmapRange(kTestVa, SIZE_2MB);
+  HostMmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
+  HostMmu::unmapRange(kTestVa, SIZE_2MB);
 
   uint64_t* entry = walkToL2Entry(kTestVa);
   return entry && *entry == 0;
 }
 
 static bool test_tlb_flush_apis_do_not_hang() {
-  mmu::tlbFlushVa(HV_VA_BASE);
-  mmu::tlbFlushAll();
+  HostMmu::tlbFlushVa(HV_VA_BASE);
+  HostMmu::tlbFlushAll();
   return true;
 }
 
