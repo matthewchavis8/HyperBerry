@@ -2,6 +2,7 @@ add_subdirectory(exceptions)
 add_subdirectory(mm)
 add_subdirectory(dtb)
 add_subdirectory(vcpu)
+add_subdirectory(vm)
 
 add_library(Core
   STATIC
@@ -13,7 +14,10 @@ target_link_libraries(Core
   Uart
   Exceptions
   Pmm
-  Mmu
+  PageTable
+  HostMmu
+  GuestMmu
   Dtb
   Vcpu
+  Vm
 )

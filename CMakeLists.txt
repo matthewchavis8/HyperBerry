@@ -98,9 +98,12 @@ target_link_libraries(${ELF}
   Uart
   Exceptions
   Pmm
-  Mmu
+  PageTable
+  HostMmu
+  GuestMmu
   Dtb
   Vcpu
+  Vm
   Panic
   Strings
 )
