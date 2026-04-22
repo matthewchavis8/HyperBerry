@@ -37,9 +37,7 @@ namespace {
 void GuestMmu::init(uint64_t ipaBase, uint64_t sizeBytes) {
   Uart::println("[GuestMmu] init called");
   m_rootTable = PageTable::allocTable();
-  Uart::println("[GuestMmu] root table=");
-  Uart::writeHex((uint64_t)(uintptr_t)m_rootTable);
-  Uart::println("");
+  Uart::println("[GuestMmu] root table={}", m_rootTable);
 
   uint64_t vtcr = VTCR_T0SZ(kStage2T0sz)
                 | VTCR_SL0_L1

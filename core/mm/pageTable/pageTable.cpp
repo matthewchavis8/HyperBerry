@@ -13,10 +13,7 @@ namespace PageTable {
   uint64_t* allocTable() {
     Uart::println("[PageTable] allocTable: request");
     uint64_t pa = pmm::allocPages(0);
-
-    Uart::println("[PageTable] allocTable: pa=");
-    Uart::writeHex(pa);
-    Uart::println("");
+    Uart::println("[PageTable] allocTable: pa={:x}", pa);
 
     if (pa == 0) {
       Uart::println("[PageTable] Failed to allocate page table");

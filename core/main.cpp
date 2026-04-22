@@ -53,9 +53,7 @@ extern "C" void hmain(uintptr_t dtb) {
   pmm::init(memoryMap);
   Uart::println("[PMM] Successfully brought up PMM");
   
-  Uart::println("[MM] Memory Pool Size=");
-  Uart::writeHex(memoryMap.memSize);
-  Uart::println("");
+  Uart::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
 
   Uart::println("[HostMmu] Attempting to bring up host MMU");
   HostMmu::init();
