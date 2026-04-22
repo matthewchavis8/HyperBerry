@@ -611,13 +611,13 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">UART</span> <span class="pre">Driver</span></span></dt>
 <dd><p>PL011 UART driver for early debug output. </p>
-<p>Supports both the QEMU virt machine (base 0x09000000) and physical Raspberry Pi 5 hardware (base 0x7E201000), selected at compile time via the <code class="docutils literal notranslate"><span class="pre">QEMU</span></code> preprocessor define. </p>
+<p>Supports both the QEMU virt machine and physical Raspberry Pi 5 hardware, with the UART base selected from the active platform definition at compile time. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
 <dl class="cpp enum-class">
 <dt class="sig sig-object cpp" id="_CPPv48UART_REG">
 <span id="_CPPv38UART_REG"></span><span id="_CPPv28UART_REG"></span><span class="target" id="group__drivers__uart_1ga420d6f42b420a39140ea427f1a3d3558"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_REG</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><a class="headerlink" href="#_CPPv48UART_REG" title="Link to this definition">¶</a><br /></dt>
-<dd><p>PL011 register offsets from <a class="reference internal" href="#group__drivers__uart_1gaeffbd0ea9285b9143ad378b5bede4388"><span class="std std-ref">UART_BASE</span></a>. </p>
+<dd><p>PL011 register offsets from Platform::kUartBase. </p>
 <p><em>Values:</em></p>
 <dl class="cpp enumerator">
 <dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2DRE">
@@ -659,12 +659,6 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv49UART_BASE">
-<span id="_CPPv39UART_BASE"></span><span id="_CPPv29UART_BASE"></span><span id="UART_BASE__uint64_t"></span><span class="target" id="group__drivers__uart_1gaeffbd0ea9285b9143ad378b5bede4388"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_BASE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x09000000</span></span><a class="headerlink" href="#_CPPv49UART_BASE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>PL011 UART base address selected for the current target. </p>
-</dd></dl>
-
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv43hex">
 <span id="_CPPv33hex"></span><span id="_CPPv23hex"></span><span id="hex__cA"></span><span class="target" id="group__drivers__uart_1ga0d3626bb4d25c2203af5eda15e7ca843"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hex</span></span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;0123456789ABCDEF&quot;</span></span><a class="headerlink" href="#_CPPv43hex" title="Link to this definition">¶</a><br /></dt>
@@ -1001,7 +995,6 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 <li><a class="reference internal" href="#_CPPv4N8UART_REG3ICRE"><code class="docutils literal notranslate"><span class="pre">ICR</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#_CPPv49UART_BASE"><code class="docutils literal notranslate"><span class="pre">UART_BASE</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv43hex"><code class="docutils literal notranslate"><span class="pre">hex</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv44Uart"><code class="docutils literal notranslate"><span class="pre">Uart</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N4Uart4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
