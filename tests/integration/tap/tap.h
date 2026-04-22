@@ -19,40 +19,13 @@
 namespace Tap {
 
 /**
- * @brief Print a positive integer as decimal digits over UART.
- * @param n Non-negative integer to print.
- */
-inline void print_int(int n) {
-  if (n == 0) {
-    Uart::putc('0');
-    return;
-  }
-
-  char buf[10];
-  int len = 0;
-
-  while (n > 0) {
-    buf[len++] = '0' + (n % 10);
-    n /= 10;
-  }
-
-  for (int i = len - 1; i >= 0; i--) {
-    Uart::putc(buf[i]);
-  }
-}
-
-/**
  * @brief Print a suite header banner with the suite name and case count.
  * @param name  Suite name.
  * @param count Number of test cases in the suite.
  */
 inline void suite_header(const char* name, int count) {
   Uart::println("");
-  Uart::print("======== ");
-  Uart::print(name);
-  Uart::print(" (");
-  print_int(count);
-  Uart::println(" tests) ========");
+  Uart::println("======== {} ({} tests) ========", name, count);
 }
 
 /**
@@ -63,14 +36,7 @@ inline void suite_header(const char* name, int count) {
  * @param desc  Test case description.
  */
 inline void ok(int n, int total, const char* suite, const char* desc) {
-  Uart::print("[");
-  print_int(n);
-  Uart::print("/");
-  print_int(total);
-  Uart::print("] PASS: ");
-  Uart::print(suite);
-  Uart::print(": ");
-  Uart::println(desc);
+  Uart::println("[{}/{}] PASS: {}: {}", n, total, suite, desc);
 }
 
 /**
@@ -83,16 +49,8 @@ inline void ok(int n, int total, const char* suite, const char* desc) {
  */
 inline void fail(int n, int total, const char* suite, const char* desc,
                  const char* reason) {
-  Uart::print("[");
-  print_int(n);
-  Uart::print("/");
-  print_int(total);
-  Uart::print("] FAIL: ");
-  Uart::print(suite);
-  Uart::print("::");
-  Uart::println(desc);
-  Uart::print("         reason: ");
-  Uart::println(reason);
+  Uart::println("[{}/{}] FAIL: {}::{}", n, total, suite, desc);
+  Uart::println("         reason: {}", reason);
 }
 
 /**
@@ -103,12 +61,7 @@ inline void fail(int n, int total, const char* suite, const char* desc,
  */
 inline void summary(int passed, int failed, int total) {
   Uart::println("-------- Results --------");
-  print_int(passed);
-  Uart::print(" passed, ");
-  print_int(failed);
-  Uart::print(" failed, ");
-  print_int(total);
-  Uart::println(" total");
+  Uart::println("{} passed, {} failed, {} total", passed, failed, total);
   failed == 0 ? Uart::println("TESTS PASSED") : Uart::println("TESTS FAILED");
 }
 

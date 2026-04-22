@@ -30,20 +30,14 @@ void Uart::putc(const char ch) {
 }
 
 void Uart::println(const char* str) {
-  while (*str != '\0') {
-    putc(*str);
-    ++str;
-  }
+  uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
 
   putc('\r');
   putc('\n');
 }
 
 void Uart::print(const char *str) {
-  while (*str != '\0') {
-    putc(*str);
-    ++str;
-  }
+  uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
 }
 
 void Uart::writeHex(uint64_t val) {

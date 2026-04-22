@@ -260,13 +260,7 @@ void dumpState() {
       count++;
       node = node->m_next;
     }
-    Uart::println("  [order] ");
-    Uart::writeHex((uint64_t)o);
-    Uart::println(" [size] ");
-    Uart::writeHex((uint64_t)PAGE_SIZE << o);
-    Uart::println(" [free] ");
-    Uart::writeHex((uint64_t)count);
-    Uart::println("");
+    Uart::println("  [order] {} [size] {:x} [free] {}", o, (uint64_t)PAGE_SIZE << o, count);
   }
 }
 

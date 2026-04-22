@@ -26,9 +26,7 @@ namespace HostMmu {
   void init() {
     Uart::println("[HostMmu] init called");
     l0_table = PageTable::allocTable();
-    Uart::println("[HostMmu] L0 table=");
-    Uart::writeHex((uint64_t)(uintptr_t)l0_table);
-    Uart::println("");
+    Uart::println("[HostMmu] L0 table={}", l0_table);
 
     Uart::println("[HostMmu] Programming MAIR");
     uint64_t mair = (0xFFULL << (MAIR_IDX_NORMAL * 8))     // Normal memory

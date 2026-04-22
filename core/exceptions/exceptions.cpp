@@ -47,24 +47,21 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
   switch (exceptionClass) {
 
     case EsrEc::HvcAarch64:
-      Uart::print("[Guest][HVC] Handling HVC call from guest, call ID=");
-      Uart::writeHex(vcpu->getGpReg(VCPU_GPREG_X0));
-      Uart::println("");
+      Uart::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
+                    vcpu->getGpReg(VCPU_GPREG_X0));
       vcpu->skipInstruction();
       break;
 
     case EsrEc::SmcAarch64:
-      Uart::print("[Guest][SMC] Handling SMC call from guest, call ID=");
-      Uart::writeHex(vcpu->getGpReg(VCPU_GPREG_X0));
+      Uart::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
+                    vcpu->getGpReg(VCPU_GPREG_X0));
       vcpu->skipInstruction();
       break;
 
     default:
-      Uart::print("[Guest][ERROR] Unhandled guest exit EC=");
-      Uart::writeHex(static_cast<uint64_t>(exceptionClass));
-      Uart::print(" ESR=");
-      Uart::writeHex(esr);
-      Uart::println("");
+      Uart::println("[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}",
+                    exceptionClass,
+                    esr);
       break;
   }
 

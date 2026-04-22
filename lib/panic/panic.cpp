@@ -23,8 +23,7 @@
   Uart::putc('\n');
 
   if (msg) {
-    Uart::print("[ERROR]");
-    Uart::println(msg);
+    Uart::println("[ERROR]{}", msg);
   }
 
   registerDump(ctx);
