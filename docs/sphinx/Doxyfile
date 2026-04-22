@@ -8,7 +8,7 @@ OUTPUT_DIRECTORY       = docs/_doxygen
 CREATE_SUBDIRS         = NO
 
 # Input
-INPUT                  = core/ drivers/ arch/ lib/ docs/sphinx/
+INPUT                  = core/ drivers/ arch/ lib/ platform/ docs/sphinx/
 FILE_PATTERNS          = *.cpp *.h *.S *.dox
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */build/*
@@ -40,4 +40,4 @@ WARN_IF_DOC_ERROR      = YES
 # Preprocessing
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
-PREDEFINED             = QEMU __cplusplus
+PREDEFINED             = QEMU __cplusplus __attribute__(x)=

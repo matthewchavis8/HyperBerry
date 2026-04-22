@@ -27,7 +27,19 @@
 /**
  * @defgroup mmu MMU
  * @ingroup mm
- * @brief EL2 Stage-1 MMU mapping interface and descriptor helpers.
+ * @brief Host stage-1 and guest stage-2 MMU interfaces and helpers.
+ */
+
+/**
+ * @defgroup vcpu Virtual CPU
+ * @ingroup core
+ * @brief Guest CPU context, EL1 register save/restore, and guest entry glue.
+ */
+
+/**
+ * @defgroup vm Virtual Machine
+ * @ingroup core
+ * @brief Per-guest VM container owning stage-2 translation and vCPU state.
  */
 
 /**
@@ -56,4 +68,10 @@
  * @defgroup lib HV Library
  * @ingroup hypervisor
  * @brief Freestanding C++ utility headers with no standard library dependency.
+ */
+
+/**
+ * @defgroup platform Platform
+ * @ingroup hypervisor
+ * @brief Compile-time platform constants selected by the active board target.
  */
