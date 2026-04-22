@@ -438,11 +438,11 @@
 </section>
 <section id="mmu">
 <h3>MMU<a class="headerlink" href="#mmu" title="Link to this heading">¶</a></h3>
-<p>EL2 Stage-1 MMU mapping interface and descriptor helpers.</p>
+<p>Host stage-1 and guest stage-2 translation interfaces.</p>
 <dl>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__mmu"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">MMU</span></span></dt>
-<dd><p>EL2 Stage-1 MMU mapping interface and descriptor helpers. </p>
+<dd><p>Host stage-1 and guest stage-2 MMU interfaces and helpers. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
@@ -560,6 +560,101 @@
 </dd></dl>
 
 </section>
+<section id="page-tables">
+<h3>Page Tables<a class="headerlink" href="#page-tables" title="Link to this heading">¶</a></h3>
+<p>Shared page-table walk and allocation helpers used by both MMU paths.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414pte_next_table8uint64_t">
+<span id="_CPPv314pte_next_table8uint64_t"></span><span id="_CPPv214pte_next_table8uint64_t"></span><span id="pte_next_table__uint64_t"></span><span class="target" id="pageTable_8h_1a1a03e339dc3094238a66a75f05666834"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">pte_next_table</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">entry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414pte_next_table8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412pte_is_valid8uint64_t">
+<span id="_CPPv312pte_is_valid8uint64_t"></span><span id="_CPPv212pte_is_valid8uint64_t"></span><span id="pte_is_valid__uint64_t"></span><span class="target" id="pageTable_8h_1a219ad3889cee34b83807f563f828d1d2"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pte_is_valid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">entry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412pte_is_valid8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412pte_is_table8uint64_t">
+<span id="_CPPv312pte_is_table8uint64_t"></span><span id="_CPPv212pte_is_table8uint64_t"></span><span id="pte_is_table__uint64_t"></span><span class="target" id="pageTable_8h_1a43f214f61d9985c83f8156b07b7f0e11"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pte_is_table</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">entry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412pte_is_table8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412pte_is_block8uint64_t">
+<span id="_CPPv312pte_is_block8uint64_t"></span><span id="_CPPv212pte_is_block8uint64_t"></span><span id="pte_is_block__uint64_t"></span><span class="target" id="pageTable_8h_1a68857f9c976340b94757d2ec69253d7b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pte_is_block</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">entry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412pte_is_block8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PTE_VALID">
+<span class="target" id="pageTable_8h_1acbf74ea3b60c44ecf94b3267065ff2a8"></span><span class="sig-name descname"><span class="n"><span class="pre">PTE_VALID</span></span></span><a class="headerlink" href="#c.PTE_VALID" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PTE_TABLE">
+<span class="target" id="pageTable_8h_1ad70c61c278353ee4835810b30f2afe8c"></span><span class="sig-name descname"><span class="n"><span class="pre">PTE_TABLE</span></span></span><a class="headerlink" href="#c.PTE_TABLE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PTE_BLOCK">
+<span class="target" id="pageTable_8h_1aecc2dcf46eb4db5e52ceb6fa16067cb2"></span><span class="sig-name descname"><span class="n"><span class="pre">PTE_BLOCK</span></span></span><a class="headerlink" href="#c.PTE_BLOCK" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PTE_AF">
+<span class="target" id="pageTable_8h_1a997b65de6cc7f68e8022249bdca05004"></span><span class="sig-name descname"><span class="n"><span class="pre">PTE_AF</span></span></span><a class="headerlink" href="#c.PTE_AF" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PTE_ADDR_MASK">
+<span class="target" id="pageTable_8h_1a85a159e372991b9ebcda1380c877c310"></span><span class="sig-name descname"><span class="n"><span class="pre">PTE_ADDR_MASK</span></span></span><a class="headerlink" href="#c.PTE_ADDR_MASK" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SIZE_4KB">
+<span class="target" id="pageTable_8h_1a893d7f21ccd211aa54f16e4c259f04ff"></span><span class="sig-name descname"><span class="n"><span class="pre">SIZE_4KB</span></span></span><a class="headerlink" href="#c.SIZE_4KB" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SIZE_2MB">
+<span class="target" id="pageTable_8h_1ae88b7422dc6627f348b3e67a1849b27a"></span><span class="sig-name descname"><span class="n"><span class="pre">SIZE_2MB</span></span></span><a class="headerlink" href="#c.SIZE_2MB" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SIZE_1GB">
+<span class="target" id="pageTable_8h_1ae1da0a1c50b4e655bbe38b4eb742d9ed"></span><span class="sig-name descname"><span class="n"><span class="pre">SIZE_1GB</span></span></span><a class="headerlink" href="#c.SIZE_1GB" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SIZE_8GB">
+<span class="target" id="pageTable_8h_1a41ff0defed24edc48f938418328be07b"></span><span class="sig-name descname"><span class="n"><span class="pre">SIZE_8GB</span></span></span><a class="headerlink" href="#c.SIZE_8GB" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.L0_INDEX">
+<span class="target" id="pageTable_8h_1a16cbde7a3769e6bcd744480c98473304"></span><span class="sig-name descname"><span class="n"><span class="pre">L0_INDEX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">addr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.L0_INDEX" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.L1_INDEX">
+<span class="target" id="pageTable_8h_1afd4c8d1ef538a4272778e59218c0cb7f"></span><span class="sig-name descname"><span class="n"><span class="pre">L1_INDEX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">addr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.L1_INDEX" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.L2_INDEX">
+<span class="target" id="pageTable_8h_1a8d55539afdcefabbd3c6670e42190828"></span><span class="sig-name descname"><span class="n"><span class="pre">L2_INDEX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">addr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.L2_INDEX" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.L3_INDEX">
+<span class="target" id="pageTable_8h_1a46d493ee62303e12a3aee45d9e8c9993"></span><span class="sig-name descname"><span class="n"><span class="pre">L3_INDEX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">addr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.L3_INDEX" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</section>
 <section id="exception-handling">
 <h3>Exception Handling<a class="headerlink" href="#exception-handling" title="Link to this heading">¶</a></h3>
 <p>EL2 exception vector table, context save/restore, and handler stubs.</p>
@@ -597,6 +692,225 @@
 </div>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+</section>
+<section id="virtualization">
+<h2>Virtualization<a class="headerlink" href="#virtualization" title="Link to this heading">¶</a></h2>
+<section id="vcpu">
+<h3>vCPU<a class="headerlink" href="#vcpu" title="Link to this heading">¶</a></h3>
+<p>Guest CPU context, EL1 register save/restore helpers, and guest entry glue.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__vcpu"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Virtual</span> <span class="pre">CPU</span></span></dt>
+<dd><p>Guest CPU context, EL1 register save/restore, and guest entry glue. </p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv46GpRegs">
+<span id="_CPPv36GpRegs"></span><span id="_CPPv26GpRegs"></span><span id="GpRegs"></span><span class="target" id="structGpRegs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GpRegs</span></span></span><a class="headerlink" href="#_CPPv46GpRegs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;vcpu.h&gt;</em></div>
+<p>General-purpose register file: x0–x30, sp_el0. </p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv48El2State">
+<span id="_CPPv38El2State"></span><span id="_CPPv28El2State"></span><span id="El2State"></span><span class="target" id="structEl2State"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">El2State</span></span></span><a class="headerlink" href="#_CPPv48El2State" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;vcpu.h&gt;</em></div>
+<p>EL2 exception-return state: elr_el2, spsr_el2. </p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410El1SysRegs">
+<span id="_CPPv310El1SysRegs"></span><span id="_CPPv210El1SysRegs"></span><span id="El1SysRegs"></span><span class="target" id="structEl1SysRegs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">El1SysRegs</span></span></span><a class="headerlink" href="#_CPPv410El1SysRegs" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;vcpu.h&gt;</em></div>
+<p>EL1 system register context (SCTLR_EL1, TTBRn_EL1, etc). </p>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv44Vcpu">
+<span id="_CPPv34Vcpu"></span><span id="_CPPv24Vcpu"></span><span id="Vcpu"></span><span class="target" id="classVcpu"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Vcpu</span></span></span><a class="headerlink" href="#_CPPv44Vcpu" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;vcpu.h&gt;</em></div>
+<p>Per-guest virtual CPU context. </p>
+<p>Layout-critical: the first three sub-structs are indexed from vcpu.S via the VCPU_*_OFFSET constants above. Fields below the “asm contract line” comment are free to reorder.</p>
+<p>All data is private; the class exposes methods for every operation a caller might need. This preserves standard-layout (all non-static data members share the same access specifier) while hiding the raw register arrays from normal C++ callers. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu4initE8uint64_t">
+<span id="_CPPv3N4Vcpu4initE8uint64_t"></span><span id="_CPPv2N4Vcpu4initE8uint64_t"></span><span id="Vcpu::init__uint64_t"></span><span class="target" id="classVcpu_1ad8116d57d4ba815a3c3512da0e736b54"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">entrypoint</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu4initE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialise this vCPU for first entry into EL1. </p>
+<p>Zeroes all state, then seeds:<ul class="simple">
+<li><p>elr_el2 ← entrypoint</p></li>
+<li><p>spsr_el2 ← EL1h with all DAIF bits masked</p></li>
+<li><p>sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>entrypoint</strong> – Guest physical address to resume at on first eret. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu14saveEl1SysRegsEv">
+<span id="_CPPv3N4Vcpu14saveEl1SysRegsEv"></span><span id="_CPPv2N4Vcpu14saveEl1SysRegsEv"></span><span id="Vcpu::saveEl1SysRegs"></span><span class="target" id="classVcpu_1a6761b6dc3f2cf78dfc264290f50cff02"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">saveEl1SysRegs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu14saveEl1SysRegsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Save EL1 system registers from hardware into this context. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Call site must have DAIF masked. Meaningful only on AArch64. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu17restoreEl1SysRegsEv">
+<span id="_CPPv3N4Vcpu17restoreEl1SysRegsEv"></span><span id="_CPPv2N4Vcpu17restoreEl1SysRegsEv"></span><span id="Vcpu::restoreEl1SysRegs"></span><span class="target" id="classVcpu_1a78f9ee4b578aa1c2023f922228d4679a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">restoreEl1SysRegs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu17restoreEl1SysRegsEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Restore EL1 system registers from this context into hardware. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>SCTLR_EL1 is restored last, after TTBR/TCR/MAIR, with an intervening isb. Call site must have DAIF masked. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4Vcpu6getElrEv">
+<span id="_CPPv3NK4Vcpu6getElrEv"></span><span id="_CPPv2NK4Vcpu6getElrEv"></span><span id="Vcpu::getElrC"></span><span class="target" id="classVcpu_1a21e5566eb4e2b7c9ce5a98193d3b6670"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getElr</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4Vcpu6getElrEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the saved guest PC (ELR_EL2). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu5setPcE8uint64_t">
+<span id="_CPPv3N4Vcpu5setPcE8uint64_t"></span><span id="_CPPv2N4Vcpu5setPcE8uint64_t"></span><span id="Vcpu::setPc__uint64_t"></span><span class="target" id="classVcpu_1a3339e0689858dbec1cf03bb84a69c870"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setPc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu5setPcE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Overwrite the saved guest PC (ELR_EL2). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu15skipInstructionEv">
+<span id="_CPPv3N4Vcpu15skipInstructionEv"></span><span id="_CPPv2N4Vcpu15skipInstructionEv"></span><span id="Vcpu::skipInstruction"></span><span class="target" id="classVcpu_1ad744fb38881d352b61a24012ccd1106c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">skipInstruction</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu15skipInstructionEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Advance ELR_EL2 by 4 bytes (skip faulting instruction). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu10setGuestSpE8uint64_t">
+<span id="_CPPv3N4Vcpu10setGuestSpE8uint64_t"></span><span id="_CPPv2N4Vcpu10setGuestSpE8uint64_t"></span><span id="Vcpu::setGuestSp__uint64_t"></span><span class="target" id="classVcpu_1a13a687fbe6573c122c956e5b66c6b822"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setGuestSp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu10setGuestSpE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set the guest SP_EL1 (stack pointer seen by the guest at EL1). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4Vcpu8getGpRegE8uint64_t">
+<span id="_CPPv3NK4Vcpu8getGpRegE8uint64_t"></span><span id="_CPPv2NK4Vcpu8getGpRegE8uint64_t"></span><span id="Vcpu::getGpReg__uint64_tC"></span><span class="target" id="classVcpu_1afd5f46d25a4c544ce3617510e2d8dd71"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getGpReg</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">off</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4Vcpu8getGpRegE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Read a saved GPR by offset. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>off</strong> – One of the VCPU_GPREG_* constants. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu8setGpRegE8uint64_t8uint64_t">
+<span id="_CPPv3N4Vcpu8setGpRegE8uint64_t8uint64_t"></span><span id="_CPPv2N4Vcpu8setGpRegE8uint64_t8uint64_t"></span><span id="Vcpu::setGpReg__uint64_t.uint64_t"></span><span class="target" id="classVcpu_1a0c63f14165f04f1b8ea3bfac27f7c4be"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setGpReg</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">off</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">val</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu8setGpRegE8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Write a saved GPR by offset. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>off</strong> – One of the VCPU_GPREG_* constants. </p></li>
+<li><p><strong>val</strong> – Value to store. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4Vcpu5getIdEv">
+<span id="_CPPv3NK4Vcpu5getIdEv"></span><span id="_CPPv2NK4Vcpu5getIdEv"></span><span id="Vcpu::getIdC"></span><span class="target" id="classVcpu_1a7b1d318bfb8e913a9dadfc7fb87e5e5d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getId</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4Vcpu5getIdEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Opaque vCPU identifier assigned by the scheduler. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu5setIdE8uint32_t">
+<span id="_CPPv3N4Vcpu5setIdE8uint32_t"></span><span id="_CPPv2N4Vcpu5setIdE8uint32_t"></span><span id="Vcpu::setId__uint32_t"></span><span class="target" id="classVcpu_1ac2f80eda770b6909fe5ca6cf4e42104c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setId</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vcpuId</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu5setIdE8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set the vCPU identifier (scheduler-only). </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu14getCurrentVcpuEv">
+<span id="_CPPv3N4Vcpu14getCurrentVcpuEv"></span><span id="_CPPv2N4Vcpu14getCurrentVcpuEv"></span><span id="Vcpu::getCurrentVcpu"></span><span class="target" id="classVcpu_1ade61111da9ffece037e33d658e16b7ba"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv44Vcpu" title="Vcpu"><span class="n"><span class="pre">Vcpu</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getCurrentVcpu</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu14getCurrentVcpuEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the <a class="reference internal" href="#classVcpu"><span class="std std-ref">Vcpu</span></a> pointer parked in TPIDR_EL2 on this pCPU. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Returns nullptr on hosted (non-AArch64) builds. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Vcpu12scheduleNextEv">
+<span id="_CPPv3N4Vcpu12scheduleNextEv"></span><span id="_CPPv2N4Vcpu12scheduleNextEv"></span><span id="Vcpu::scheduleNext"></span><span class="target" id="classVcpu_1a2f8caeb02dfd8f6d412c4108be152914"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">scheduleNext</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Vcpu12scheduleNextEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Stub scheduler entry. </p>
+<p>Replaced by real scheduler later. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="vm">
+<h3>VM<a class="headerlink" href="#vm" title="Link to this heading">¶</a></h3>
+<p>Per-guest container that owns one stage-2 MMU context and one guest vCPU.
+The public API currently consists of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Vm::init(ipaBase,</span> <span class="pre">sizeBytes,</span> <span class="pre">vmid,</span> <span class="pre">guestEntry)</span></code> to build stage-2
+mappings and seed first-entry guest CPU state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vm::run()</span></code> to commit the VM’s stage-2 context and enter the guest.</p></li>
+</ul>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__vm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Virtual</span> <span class="pre">Machine</span></span></dt>
+<dd><p>Per-guest VM container owning stage-2 translation and vCPU state. </p>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv42Vm">
+<span id="_CPPv32Vm"></span><span id="_CPPv22Vm"></span><span id="Vm"></span><span class="target" id="classVm"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Vm</span></span></span><a class="headerlink" href="#_CPPv42Vm" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t">
+<span id="_CPPv3N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="_CPPv2N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="Vm::init__uint64_t.uint64_t.uint8_t.uint64_t"></span><span class="target" id="classVm_1a89ca4aeca1d742b8fb645112ce700743"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestEntry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Build this VM’s stage-2 mappings and seed its vCPU. </p>
+<p>Order is significant: stage-2 tables are constructed first so they are in place before the vCPU’s first entry. VTTBR_EL2 / HCR_EL2.VM are committed in <a class="reference internal" href="#classVm_1a394e95f04ac39065da4356dc86d27cce"><span class="std std-ref">run()</span></a>, after vCPU state is seeded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ipaBase</strong> – Guest IPA base identity-mapped to matching PA. </p></li>
+<li><p><strong>sizeBytes</strong> – Size of the identity-mapped region. </p></li>
+<li><p><strong>vmid</strong> – Non-zero VMID (unique across live VMs). </p></li>
+<li><p><strong>guestEntry</strong> – Guest IPA at which to resume on first <code class="docutils literal notranslate"><span class="pre">eret</span></code>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N2Vm3runEv">
+<span id="_CPPv3N2Vm3runEv"></span><span id="_CPPv2N2Vm3runEv"></span><span id="Vm::run"></span><span class="target" id="classVm_1a394e95f04ac39065da4356dc86d27cce"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">run</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm3runEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Enable stage-2 and enter the guest. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Does not return; the guest runs forever or traps back via the exception path, which is owned by vcpu.S / exceptions.S. </p>
+</div>
+</dd></dl>
+
+</div>
 </dd></dl>
 
 </section>
@@ -881,6 +1195,35 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 <p>Human-readable register dump for exception diagnostics. </p>
 </section>
 </section>
+<section id="platform">
+<h2>Platform<a class="headerlink" href="#platform" title="Link to this heading">¶</a></h2>
+<p>Compile-time board constants selected by the active target. This is a
+top-level hardware description group, not part of the freestanding helper
+library.</p>
+<section id="selection-wrapper">
+<h3>Selection Wrapper<a class="headerlink" href="#selection-wrapper" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">platform_def.h</span></code> picks exactly one board definition based on the build:
+<code class="docutils literal notranslate"><span class="pre">PLATFORM_QEMU</span></code> or <code class="docutils literal notranslate"><span class="pre">PLATFORM_RPI5</span></code>.</p>
+</section>
+<section id="qemu-virt">
+<h3>QEMU virt<a class="headerlink" href="#qemu-virt" title="Link to this heading">¶</a></h3>
+<p>Base addresses exposed today:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kUartBase</span> <span class="pre">=</span> <span class="pre">0x09000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralBase</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralSize</span> <span class="pre">=</span> <span class="pre">0x38000000</span></code></p></li>
+</ul>
+</section>
+<section id="raspberry-pi-5">
+<h3>Raspberry Pi 5<a class="headerlink" href="#raspberry-pi-5" title="Link to this heading">¶</a></h3>
+<p>Base addresses exposed today:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kUartBase</span> <span class="pre">=</span> <span class="pre">0x107D001000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralBase</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralSize</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
+</ul>
+</section>
+</section>
 </section>
 
         </article>
@@ -972,11 +1315,64 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#page-tables">Page Tables</a><ul>
+<li><a class="reference internal" href="#_CPPv414pte_next_table8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_next_table()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv412pte_is_valid8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_valid()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv412pte_is_table8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_table()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv412pte_is_block8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_block()</span></code></a></li>
+<li><a class="reference internal" href="#c.PTE_VALID"><code class="docutils literal notranslate"><span class="pre">PTE_VALID</span></code></a></li>
+<li><a class="reference internal" href="#c.PTE_TABLE"><code class="docutils literal notranslate"><span class="pre">PTE_TABLE</span></code></a></li>
+<li><a class="reference internal" href="#c.PTE_BLOCK"><code class="docutils literal notranslate"><span class="pre">PTE_BLOCK</span></code></a></li>
+<li><a class="reference internal" href="#c.PTE_AF"><code class="docutils literal notranslate"><span class="pre">PTE_AF</span></code></a></li>
+<li><a class="reference internal" href="#c.PTE_ADDR_MASK"><code class="docutils literal notranslate"><span class="pre">PTE_ADDR_MASK</span></code></a></li>
+<li><a class="reference internal" href="#c.SIZE_4KB"><code class="docutils literal notranslate"><span class="pre">SIZE_4KB</span></code></a></li>
+<li><a class="reference internal" href="#c.SIZE_2MB"><code class="docutils literal notranslate"><span class="pre">SIZE_2MB</span></code></a></li>
+<li><a class="reference internal" href="#c.SIZE_1GB"><code class="docutils literal notranslate"><span class="pre">SIZE_1GB</span></code></a></li>
+<li><a class="reference internal" href="#c.SIZE_8GB"><code class="docutils literal notranslate"><span class="pre">SIZE_8GB</span></code></a></li>
+<li><a class="reference internal" href="#c.L0_INDEX"><code class="docutils literal notranslate"><span class="pre">L0_INDEX</span></code></a></li>
+<li><a class="reference internal" href="#c.L1_INDEX"><code class="docutils literal notranslate"><span class="pre">L1_INDEX</span></code></a></li>
+<li><a class="reference internal" href="#c.L2_INDEX"><code class="docutils literal notranslate"><span class="pre">L2_INDEX</span></code></a></li>
+<li><a class="reference internal" href="#c.L3_INDEX"><code class="docutils literal notranslate"><span class="pre">L3_INDEX</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
 <li><a class="reference internal" href="#_CPPv416ExceptionContext"><code class="docutils literal notranslate"><span class="pre">ExceptionContext</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext3gprE"><code class="docutils literal notranslate"><span class="pre">gpr</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext3elrE"><code class="docutils literal notranslate"><span class="pre">elr</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N16ExceptionContext4spsrE"><code class="docutils literal notranslate"><span class="pre">spsr</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#virtualization">Virtualization</a><ul>
+<li><a class="reference internal" href="#vcpu">vCPU</a><ul>
+<li><a class="reference internal" href="#_CPPv46GpRegs"><code class="docutils literal notranslate"><span class="pre">GpRegs</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv48El2State"><code class="docutils literal notranslate"><span class="pre">El2State</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv410El1SysRegs"><code class="docutils literal notranslate"><span class="pre">El1SysRegs</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv44Vcpu"><code class="docutils literal notranslate"><span class="pre">Vcpu</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu4initE8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu14saveEl1SysRegsEv"><code class="docutils literal notranslate"><span class="pre">saveEl1SysRegs()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu17restoreEl1SysRegsEv"><code class="docutils literal notranslate"><span class="pre">restoreEl1SysRegs()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4Vcpu6getElrEv"><code class="docutils literal notranslate"><span class="pre">getElr()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu5setPcE8uint64_t"><code class="docutils literal notranslate"><span class="pre">setPc()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu15skipInstructionEv"><code class="docutils literal notranslate"><span class="pre">skipInstruction()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu10setGuestSpE8uint64_t"><code class="docutils literal notranslate"><span class="pre">setGuestSp()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4Vcpu8getGpRegE8uint64_t"><code class="docutils literal notranslate"><span class="pre">getGpReg()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu8setGpRegE8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">setGpReg()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK4Vcpu5getIdEv"><code class="docutils literal notranslate"><span class="pre">getId()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu5setIdE8uint32_t"><code class="docutils literal notranslate"><span class="pre">setId()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu14getCurrentVcpuEv"><code class="docutils literal notranslate"><span class="pre">getCurrentVcpu()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N4Vcpu12scheduleNextEv"><code class="docutils literal notranslate"><span class="pre">scheduleNext()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vm">VM</a><ul>
+<li><a class="reference internal" href="#_CPPv42Vm"><code class="docutils literal notranslate"><span class="pre">Vm</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2Vm3runEv"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1031,6 +1427,12 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 </ul>
 </li>
 <li><a class="reference internal" href="#registerdump">registerDump()</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#platform">Platform</a><ul>
+<li><a class="reference internal" href="#selection-wrapper">Selection Wrapper</a></li>
+<li><a class="reference internal" href="#qemu-virt">QEMU virt</a></li>
+<li><a class="reference internal" href="#raspberry-pi-5">Raspberry Pi 5</a></li>
 </ul>
 </li>
 </ul>

@@ -228,7 +228,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -258,12 +258,16 @@
   <h2>E</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api.html#_CPPv416ExceptionContext">ExceptionContext (C++ struct)</a>
+        <li><a href="api.html#_CPPv410El1SysRegs">El1SysRegs (C++ struct)</a>
 </li>
-        <li><a href="api.html#_CPPv4N16ExceptionContext3elrE">ExceptionContext::elr (C++ member)</a>
+        <li><a href="api.html#_CPPv48El2State">El2State (C++ struct)</a>
+</li>
+        <li><a href="api.html#_CPPv416ExceptionContext">ExceptionContext (C++ struct)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#_CPPv4N16ExceptionContext3elrE">ExceptionContext::elr (C++ member)</a>
+</li>
         <li><a href="api.html#_CPPv4N16ExceptionContext3gprE">ExceptionContext::gpr (C++ member)</a>
 </li>
         <li><a href="api.html#_CPPv4N16ExceptionContext4spsrE">ExceptionContext::spsr (C++ member)</a>
@@ -286,6 +290,8 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#_CPPv46GpRegs">GpRegs (C++ struct)</a>
+</li>
         <li><a href="api.html#_CPPv48GuestMmu">GuestMmu (C++ class)</a>
 </li>
         <li><a href="api.html#_CPPv4N8GuestMmu6enableE7uint8_t">GuestMmu::enable (C++ function)</a>
@@ -354,6 +360,24 @@
   </tr></table>
 </section>
 
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#c.L0_INDEX">L0_INDEX (C macro)</a>
+</li>
+        <li><a href="api.html#c.L1_INDEX">L1_INDEX (C macro)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#c.L2_INDEX">L2_INDEX (C macro)</a>
+</li>
+        <li><a href="api.html#c.L3_INDEX">L3_INDEX (C macro)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="M" class="genindex-section">
   <h2>M</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
@@ -388,9 +412,45 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api.html#_CPPv4N9PageTable10WalkConfigE">PageTable::WalkConfig (C++ struct)</a>
 </li>
+        <li><a href="api.html#_CPPv48parseDtb9uintptr_t">parseDtb (C++ function)</a>
+</li>
+        <li><a href="api.html#c.PTE_ADDR_MASK">PTE_ADDR_MASK (C macro)</a>
+</li>
+        <li><a href="api.html#c.PTE_AF">PTE_AF (C macro)</a>
+</li>
+        <li><a href="api.html#c.PTE_BLOCK">PTE_BLOCK (C macro)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api.html#_CPPv48parseDtb9uintptr_t">parseDtb (C++ function)</a>
+        <li><a href="api.html#_CPPv412pte_is_block8uint64_t">pte_is_block (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv412pte_is_table8uint64_t">pte_is_table (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv412pte_is_valid8uint64_t">pte_is_valid (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv414pte_next_table8uint64_t">pte_next_table (C++ function)</a>
+</li>
+        <li><a href="api.html#c.PTE_TABLE">PTE_TABLE (C macro)</a>
+</li>
+        <li><a href="api.html#c.PTE_VALID">PTE_VALID (C macro)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#c.SIZE_1GB">SIZE_1GB (C macro)</a>
+</li>
+        <li><a href="api.html#c.SIZE_2MB">SIZE_2MB (C macro)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#c.SIZE_4KB">SIZE_4KB (C macro)</a>
+</li>
+        <li><a href="api.html#c.SIZE_8GB">SIZE_8GB (C macro)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -445,6 +505,50 @@
         <li><a href="api.html#_CPPv4N8UART_REG4LCRHE">UART_REG::LCRH (C++ enumerator)</a>
 </li>
         <li><a href="api.html#_CPPv410unmapRange8uint64_t8uint64_t">unmapRange (C++ function)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#_CPPv44Vcpu">Vcpu (C++ class)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu14getCurrentVcpuEv">Vcpu::getCurrentVcpu (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4NK4Vcpu6getElrEv">Vcpu::getElr (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4NK4Vcpu8getGpRegE8uint64_t">Vcpu::getGpReg (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4NK4Vcpu5getIdEv">Vcpu::getId (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu4initE8uint64_t">Vcpu::init (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu17restoreEl1SysRegsEv">Vcpu::restoreEl1SysRegs (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu14saveEl1SysRegsEv">Vcpu::saveEl1SysRegs (C++ function)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api.html#_CPPv4N4Vcpu12scheduleNextEv">Vcpu::scheduleNext (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu8setGpRegE8uint64_t8uint64_t">Vcpu::setGpReg (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu10setGuestSpE8uint64_t">Vcpu::setGuestSp (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu5setIdE8uint32_t">Vcpu::setId (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu5setPcE8uint64_t">Vcpu::setPc (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N4Vcpu15skipInstructionEv">Vcpu::skipInstruction (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv42Vm">Vm (C++ class)</a>
+</li>
+        <li><a href="api.html#_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t">Vm::init (C++ function)</a>
+</li>
+        <li><a href="api.html#_CPPv4N2Vm3runEv">Vm::run (C++ function)</a>
 </li>
     </ul></td>
   </tr></table>

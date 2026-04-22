@@ -98,18 +98,26 @@ What exists today:
 - early boot allocator initialisation
 - physically contiguous allocation by order
 - free with buddy coalescing
+- shared page-table helpers for 4 KiB tables and 2 MiB block mappings
+- EL2 host stage-1 MMU bring-up for hypervisor DRAM and peripheral space
+- per-VM stage-2 MMU setup with VMID-tagged VTTBR_EL2 contexts
 - UART dump of free-list state for bring-up debugging
 
 What does not exist yet:
 
-- virtual memory for EL2
-- stage-2 page-table management for guests
 - higher-level allocators built on top of the page allocator
-- allocation tests in the unit-test suite
+- guest RAM loading and ownership management beyond simple identity maps
+- fine-grained stage-2 permissions and richer guest memory layouts
+- long-running multi-vCPU scheduling and reclamation paths
 
 Source Locations
 ----------------
 
 - ``core/dtb/``: boot-time DTB parsing and ``MemoryMap``
 - ``core/mm/pmm/``: buddy allocator implementation
+- ``core/mm/pageTable/``: shared page-table walk/allocation helpers
+- ``core/mm/mmu/hostMmu/``: EL2 stage-1 MMU implementation
+- ``core/mm/mmu/guestMmu/``: guest stage-2 MMU implementation
+- ``core/vm/``: VM container owning stage-2 state and vCPU bring-up
+- ``core/vcpu/``: guest CPU context save/restore and first-entry state
 - ``core/main.cpp``: allocator bring-up during EL2 boot

@@ -277,8 +277,9 @@ managed by the hypervisor.</p>
 <li><p>Shadow <code class="docutils literal notranslate"><span class="pre">MIDR/MPIDR</span></code> into <code class="docutils literal notranslate"><span class="pre">VPIDR/VMPIDR</span></code>.</p></li>
 <li><p>Zero the <code class="docutils literal notranslate"><span class="pre">.bss</span></code> section using linker-exported symbols.</p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">SP_EL2</span></code> to <code class="docutils literal notranslate"><span class="pre">__stack_end</span></code> and branch to <code class="docutils literal notranslate"><span class="pre">hmain()</span></code>.</p></li>
-<li><p>In <code class="docutils literal notranslate"><span class="pre">hmain()</span></code>, initialize UART, parse the DTB, and bring up the buddy
-allocator from the discovered physical memory map.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">hmain()</span></code>, initialize UART, parse the DTB, bring up the buddy
+allocator, enable the EL2 host stage-1 MMU, construct a VM, and enter
+the guest through the vCPU path.</p></li>
 </ol>
 </section>
 <section id="memory-management">
@@ -294,9 +295,10 @@ physically contiguous allocations in powers of two.</p>
 <li><p>maximum single allocation: <code class="docutils literal notranslate"><span class="pre">8</span> <span class="pre">MiB</span></code></p></li>
 <li><p>metadata model: intrusive free lists plus a buddy bitmap</p></li>
 </ul>
-<p>This allocator is the foundation for the remaining memory-management work:
-EL2 page tables, stage-2 mappings, guest RAM allocation, and per-VM memory
-ownership.</p>
+<p>This allocator now backs the shared page-table helpers plus both MMU paths:
+the EL2 host stage-1 map for the hypervisor itself and the per-VM stage-2
+map used to translate guest IPA to PA. It is also the base allocator for
+future guest RAM loading and richer per-VM memory ownership.</p>
 </section>
 <section id="development-roadmap">
 <h2>Development Roadmap<a class="headerlink" href="#development-roadmap" title="Link to this heading">¶</a></h2>
@@ -309,14 +311,15 @@ ownership.</p>
 </dd>
 <dt>Phase 1 — Memory Management</dt><dd><ul class="simple">
 <li><p>[x] Physical page allocator (buddy allocator)</p></li>
-<li><p>[ ] EL2 Stage-1 page tables</p></li>
-<li><p>[ ] Stage-2 page tables (guest IPA → PA translation)</p></li>
+<li><p>[x] EL2 Stage-1 page tables</p></li>
+<li><p>[x] Stage-2 page tables (guest IPA → PA translation)</p></li>
 </ul>
 </dd>
 <dt>Phase 2 — Single Guest</dt><dd><ul class="simple">
 <li><p>[ ] Load a flat binary guest image into isolated memory</p></li>
-<li><p>[ ] Context switch: save/restore EL1 system registers</p></li>
+<li><p>[x] Context switch: save/restore EL1 system registers</p></li>
 <li><p>[ ] Trap and emulate essential system registers</p></li>
+<li><p>[x] VM container with VMID-tagged stage-2 context and first guest entry</p></li>
 </ul>
 </dd>
 <dt>Phase 3 — Interrupt Virtualization</dt><dd><ul class="simple">
@@ -327,7 +330,7 @@ ownership.</p>
 </dd>
 <dt>Phase 4 — Multi-Guest</dt><dd><ul class="simple">
 <li><p>[ ] vCPU scheduler (round-robin or fixed time-slice)</p></li>
-<li><p>[ ] Per-VM Stage-2 address spaces with VMID tagging</p></li>
+<li><p>[x] Per-VM Stage-2 address spaces with VMID tagging</p></li>
 </ul>
 </dd>
 <dt>Phase 5 — Device Passthrough &amp; Virtio</dt><dd><ul class="simple">

@@ -325,14 +325,17 @@ virtual-memory subsystem exists.</p>
 <li><p>early boot allocator initialisation</p></li>
 <li><p>physically contiguous allocation by order</p></li>
 <li><p>free with buddy coalescing</p></li>
+<li><p>shared page-table helpers for 4 KiB tables and 2 MiB block mappings</p></li>
+<li><p>EL2 host stage-1 MMU bring-up for hypervisor DRAM and peripheral space</p></li>
+<li><p>per-VM stage-2 MMU setup with VMID-tagged VTTBR_EL2 contexts</p></li>
 <li><p>UART dump of free-list state for bring-up debugging</p></li>
 </ul>
 <p>What does not exist yet:</p>
 <ul class="simple">
-<li><p>virtual memory for EL2</p></li>
-<li><p>stage-2 page-table management for guests</p></li>
 <li><p>higher-level allocators built on top of the page allocator</p></li>
-<li><p>allocation tests in the unit-test suite</p></li>
+<li><p>guest RAM loading and ownership management beyond simple identity maps</p></li>
+<li><p>fine-grained stage-2 permissions and richer guest memory layouts</p></li>
+<li><p>long-running multi-vCPU scheduling and reclamation paths</p></li>
 </ul>
 </section>
 <section id="source-locations">
@@ -340,6 +343,11 @@ virtual-memory subsystem exists.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">core/dtb/</span></code>: boot-time DTB parsing and <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code>: buddy allocator implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/pageTable/</span></code>: shared page-table walk/allocation helpers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/mmu/hostMmu/</span></code>: EL2 stage-1 MMU implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/mm/mmu/guestMmu/</span></code>: guest stage-2 MMU implementation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/vm/</span></code>: VM container owning stage-2 state and vCPU bring-up</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/vcpu/</span></code>: guest CPU context save/restore and first-entry state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/main.cpp</span></code>: allocator bring-up during EL2 boot</p></li>
 </ul>
 </section>
