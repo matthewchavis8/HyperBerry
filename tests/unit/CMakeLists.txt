@@ -4,6 +4,7 @@ add_executable(hyperberry_unit_tests
   hostMmu/test_hostMmu.cpp
   guestMmu/test_guestMmu.cpp
   vcpu/test_vcpu.cpp
+  exceptions/test_exceptions.cpp
 
   strings/test_strings.cpp
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
