@@ -11,6 +11,7 @@
 #define __HOST_MMU_H__
 
 #include "core/mm/pageTable/pageTable.h"
+#include "platform/platform_def.h"
 
 // Shareability [9:8].
 #define PTE_SH_INNER (3ULL << 8)
@@ -37,9 +38,6 @@
 // Hypervisor VA layout.
 #define HV_VA_BASE 0x0ULL
 #define HV_VA_SIZE SIZE_8GB
-
-#define BCM2712_PERIPH_BASE 0x107D000000ULL
-#define BCM2712_PERIPH_SIZE 0x200000000ULL
 
 namespace HostMmu {
   /**

@@ -3,24 +3,15 @@
  * @brief PL011 UART driver for serial I/O.
  *
  * Provides transmit and receive functionality over the PL011 UART peripheral
- * for both QEMU virt and Raspberry Pi 5 hardware targets. The base
- * address is selected at compile time for the active build target.
+ * for both QEMU virt and Raspberry Pi 5 hardware targets. The MMIO base
+ * address is selected from the active platform definition.
  */
 
 #ifndef __UART_H__
 #define __UART_H__
 
+#include "platform/platform_def.h"
 #include <stdint.h>
-
-/**
- * @brief PL011 UART base address selected for the current target.
- * @ingroup drivers_uart
- */
-#ifdef QEMU
-static constexpr uint64_t UART_BASE = 0x09000000;
-#else
-static constexpr uint64_t UART_BASE = 0x107D001000;
-#endif
 
 /**
  * @brief Uppercase hexadecimal digit lookup table used by writeHex().
@@ -29,7 +20,7 @@ static constexpr uint64_t UART_BASE = 0x107D001000;
 static constexpr char hex[] = "0123456789ABCDEF";
 
 /**
- * @brief PL011 register offsets from @ref UART_BASE.
+ * @brief PL011 register offsets from @ref Platform::kUartBase.
  * @ingroup drivers_uart
  */
 enum class UART_REG : uint8_t {

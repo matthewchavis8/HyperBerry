@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 volatile uint32_t* Uart::reg(UART_REG reg) {
-  return reinterpret_cast<volatile uint32_t*>(UART_BASE + static_cast<uint64_t>(reg));
+  return reinterpret_cast<volatile uint32_t*>(Platform::kUartBase + static_cast<uint64_t>(reg));
 }
 
 void Uart::init() {
