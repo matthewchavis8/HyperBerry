@@ -41,9 +41,9 @@
  * @ingroup drivers
  * @brief PL011 UART driver for early debug output.
  *
- * Supports both the QEMU virt machine (base 0x09000000) and
- * physical Raspberry Pi 5 hardware (base 0x7E201000), selected
- * at compile time via the @c QEMU preprocessor define.
+ * Supports both the QEMU virt machine and physical Raspberry Pi 5
+ * hardware, with the UART base selected from the active platform
+ * definition at compile time.
  */
 
 /**

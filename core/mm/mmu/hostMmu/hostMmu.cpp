@@ -50,7 +50,10 @@ namespace HostMmu {
     mapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
     Uart::println("[HostMmu] Mapping periph space");
-    mapRange(BCM2712_PERIPH_BASE, BCM2712_PERIPH_BASE, BCM2712_PERIPH_SIZE, PTE_DEVICE);
+    mapRange(Platform::kPeripheralBase,
+             Platform::kPeripheralBase,
+             Platform::kPeripheralSize,
+             PTE_DEVICE);
 
     Uart::println("[HostMmu] Programming TTBR0");
     asm volatile("msr ttbr0_el2, %0" :: "r"((uint64_t)(uintptr_t)l0_table) : "memory");

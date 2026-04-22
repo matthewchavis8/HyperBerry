@@ -25,7 +25,8 @@
  *    entry point. hmain() must never return.
  *
  * @note Target: QEMU virt machine emulating Cortex-A76.
- *       UART base 0x09000000 is selected by the @c QEMU compile-time define.
+ *       Shared C/C++ code selects UART and MMIO ranges from the QEMU
+ *       platform definition.
  */
 
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76. VIRTUAL
