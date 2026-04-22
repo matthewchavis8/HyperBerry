@@ -72,6 +72,15 @@ static bool test_write_hex_max_doesnt_hang() {
   return true;
 }
 
+/**
+ * @brief Verify brace-style formatting emits output without stalling.
+ * @return Always true if control reaches the end of the function.
+ */
+static bool test_formatted_print_doesnt_hang() {
+  Uart::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
+  return true;
+}
+
 /** Static case table for the UART hardware integration suite. */
 static const TestCase uart_hw_cases[] = {
     {"test_tx_doesnt_hang\n",           test_tx_doesnt_hang},
@@ -80,13 +89,14 @@ static const TestCase uart_hw_cases[] = {
     {"test_write_hex_doesnt_hang\n",    test_write_hex_doesnt_hang},
     {"test_write_hex_zero_doesnt_hang\n", test_write_hex_zero_doesnt_hang},
     {"test_write_hex_max_doesnt_hang\n",  test_write_hex_max_doesnt_hang},
+    {"test_formatted_print_doesnt_hang\n", test_formatted_print_doesnt_hang},
 };
 
 /** UART integration test suite auto-registered into `.hyperberry_tests`. */
 static const TestSuite uartSuite = {
     "UartHarness",
     uart_hw_cases,
-    6,
+    7,
 };
 
 REGISTER_SUITE(uartSuite);
