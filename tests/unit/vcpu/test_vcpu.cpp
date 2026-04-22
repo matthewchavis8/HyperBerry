@@ -11,7 +11,13 @@ static constexpr uint64_t SPSR_EL1H_ALL_MASKED =
     (0b00101ULL) |
     (0xFULL << 6);
 
+// Capture globals — readable from other translation units (e.g. test_vm.cpp)
+// via extern declarations. Sentinel 0xDEADDEADDEADDEADULL means "not set".
+uint64_t gVcpuInitEntryCap   = 0xDEADDEADDEADDEADULL;
+uint64_t gVcpuSetGuestSpCap  = 0xDEADDEADDEADDEADULL;
+
 void Vcpu::init(uint64_t entrypoint) {
+  gVcpuInitEntryCap = entrypoint;
   memset(this, 0, sizeof(*this));
 
   m_el2State.regs[regIdx(VCPU_ELR_EL2)] = entrypoint;
@@ -50,6 +56,7 @@ Vcpu* Vcpu::getCurrentVcpu() {
 void Vcpu::scheduleNext() {}
 
 void Vcpu::setGuestSp(uint64_t sp) {
+  gVcpuSetGuestSpCap = sp;
   m_el1SysRegs.regs[regIdx(VCPU_SP_EL1)] = sp;
 }
 
