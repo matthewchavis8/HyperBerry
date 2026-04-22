@@ -58,8 +58,8 @@ static bool test_hv_identity_mapping_present() {
 }
 
 static bool test_peripheral_mapping_present() {
-  return entryMatches(walkToL2Entry(BCM2712_PERIPH_BASE),
-                      BCM2712_PERIPH_BASE,
+  return entryMatches(walkToL2Entry(Platform::kPeripheralBase),
+                      Platform::kPeripheralBase,
                       PTE_DEVICE);
 }
 

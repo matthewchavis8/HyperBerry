@@ -13,11 +13,46 @@
 #include <cstdint>
 #include <algorithm>
 
+namespace uart_test_support {
+
+constexpr size_t kUartCaptureSize = 1024;
+
+char gUartCapture[kUartCaptureSize] = {};
+size_t gUartCaptureLen = 0;
+
+void reset() {
+  gUartCaptureLen = 0;
+  gUartCapture[0] = '\0';
+}
+
+const char* buffer() {
+  return gUartCapture;
+}
+
+void append(char ch) {
+  if (gUartCaptureLen + 1 >= kUartCaptureSize) {
+    return;
+  }
+
+  gUartCapture[gUartCaptureLen++] = ch;
+  gUartCapture[gUartCaptureLen] = '\0';
+}
+
+} // namespace uart_test_support
+
 volatile uint32_t* Uart::reg(UART_REG) { return nullptr; }
 void Uart::init() {}
-void Uart::println(const char*) {}
-void Uart::print(const char*) {}
-void Uart::putc(const char) {}
+void Uart::println(const char* str) {
+  print(str);
+  putc('\r');
+  putc('\n');
+}
+void Uart::print(const char* str) {
+  uart::detail::writeCString([](char ch) { uart_test_support::append(ch); }, str);
+}
+void Uart::putc(const char ch) {
+  uart_test_support::append(ch);
+}
 void Uart::writeHex(uint64_t) {}
 
 class DtbBuilder {
