@@ -11,11 +11,19 @@ add_executable(hyperberry_unit_tests
 
   dtb/test_dtb.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
+
+  vm/test_vm.cpp
+  ${CMAKE_SOURCE_DIR}/core/vm/vm.cpp
 )
 
 target_include_directories(hyperberry_unit_tests
   PRIVATE
   ${CMAKE_SOURCE_DIR}
+)
+
+target_compile_definitions(hyperberry_unit_tests
+  PRIVATE
+  PLATFORM_QEMU
 )
 
 target_compile_options(hyperberry_unit_tests

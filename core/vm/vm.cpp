@@ -12,7 +12,7 @@ void Vm::init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
               uint64_t guestEntry) {
   m_vmid = vmid;
 
-  Uart::println("[VM] Intializin Guest MMU");
+  Uart::println("[VM] Initializing Guest MMU");
   m_guestMmu.init(ipaBase, sizeBytes);
 
   Uart::println("[VM] Intializing Guest Vcpu");
@@ -25,7 +25,7 @@ void Vm::init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
 void Vm::run() {
   Uart::println("[VM] Enabling Guest MMU");
   m_guestMmu.enable(m_vmid);
-  Uart::println("[VM] Succesfully enabled Guest MMU");
+  Uart::println("[VM] Successfully enabled Guest MMU");
 
   Uart::println("[VM] Guest Kernel Running");
   vcpu_enter(&m_vcpu);
