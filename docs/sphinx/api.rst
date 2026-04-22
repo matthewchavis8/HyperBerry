@@ -31,11 +31,20 @@ Physical page allocator using the buddy allocation algorithm.
 MMU
 ~~~
 
-EL2 Stage-1 MMU mapping interface and descriptor helpers.
+Host stage-1 and guest stage-2 translation interfaces.
 
 .. doxygengroup:: mmu
    :project: HyperBerry
    :members:
+
+Page Tables
+~~~~~~~~~~~
+
+Shared page-table walk and allocation helpers used by both MMU paths.
+
+.. doxygenfile:: pageTable.h
+   :project: HyperBerry
+   :sections: func innerclass define
 
 Exception Handling
 ~~~~~~~~~~~~~~~~~~
@@ -43,6 +52,36 @@ Exception Handling
 EL2 exception vector table, context save/restore, and handler stubs.
 
 .. doxygengroup:: exceptions
+   :project: HyperBerry
+   :members:
+
+Virtualization
+--------------
+
+vCPU
+~~~~
+
+Guest CPU context, EL1 register save/restore helpers, and guest entry glue.
+
+.. doxygengroup:: vcpu
+   :project: HyperBerry
+   :members:
+
+VM
+~~
+
+Per-guest container that owns one stage-2 MMU context and one guest vCPU.
+The public API currently consists of:
+
+- ``Vm::init(ipaBase, sizeBytes, vmid, guestEntry)`` to build stage-2
+  mappings and seed first-entry guest CPU state.
+- ``Vm::run()`` to commit the VM's stage-2 context and enter the guest.
+
+.. doxygengroup:: vm
+   :project: HyperBerry
+   :members:
+
+.. doxygenclass:: Vm
    :project: HyperBerry
    :members:
 
@@ -108,3 +147,46 @@ Prints a full exception-state register dump to UART for diagnostics.
 
 .. doxygenfile:: registerDump.h
    :project: HyperBerry
+
+Platform
+--------
+
+Compile-time board constants selected by the active target. This is a
+top-level hardware description group, not part of the freestanding helper
+library.
+
+Selection Wrapper
+~~~~~~~~~~~~~~~~~
+
+``platform_def.h`` picks exactly one board definition based on the build:
+``PLATFORM_QEMU`` or ``PLATFORM_RPI5``.
+
+.. doxygenfile:: platform_def.h
+   :project: HyperBerry
+   :sections: define
+
+QEMU virt
+~~~~~~~~~
+
+Base addresses exposed today:
+
+- ``Platform::kUartBase = 0x09000000``
+- ``Platform::kPeripheralBase = 0x08000000``
+- ``Platform::kPeripheralSize = 0x38000000``
+
+.. doxygenfile:: qemu.h
+   :project: HyperBerry
+   :sections: var
+
+Raspberry Pi 5
+~~~~~~~~~~~~~~
+
+Base addresses exposed today:
+
+- ``Platform::kUartBase = 0x107D001000``
+- ``Platform::kPeripheralBase = 0x107D000000``
+- ``Platform::kPeripheralSize = 0x200000000``
+
+.. doxygenfile:: rpi5.h
+   :project: HyperBerry
+   :sections: var

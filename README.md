@@ -47,8 +47,9 @@ buddy allocation algorithm in `core/mm/pmm/`. The allocator is initialized
 from the firmware DTB, reserves the hypervisor image, TF-A, and the DTB blob,
 and provides physically contiguous page blocks from 4 KiB up to 8 MiB.
 
-The higher-level EL2 and guest memory-management work is still in progress, but
-the base physical allocator is already in place and documented in
+That allocator now backs shared page-table helpers, the EL2 host stage-1 MMU,
+and per-VM stage-2 mappings. Guest loading and richer VM memory ownership are
+still in progress, and the current layout is documented in
 `docs/sphinx/memory.rst`.
 
 ## Project Structure
@@ -209,7 +210,7 @@ The integration test build uses the `integration-test` CMake preset, enables `IN
 
 ## AI Use Declaration
 
-AI tools (aka claude code) were used for **documentation** in this project, including Doxygen comments, README, content, and design notes in this file. All hypervisor implementation code, including assembly, C++, and linker scripts, was written by me. You will prolly see messy code and maybe not the best practice, but hey I am getting the job done and having fun. My view of AI use in college ist that it trades knowledge depth for speed. In industry, that tradeoff makes sense, because of fast paced environments prioritizes delivers, and engineers may be handling mutliple tasks at once. The downside is reduced cognitive engagement when too much if offloaded to AI. I do not see that a inherently negative, just a trade off like everything in software. That is why I choose not to rely heavily on AI here because I am not under strict timing so I can eat the speed cost
+AI tools (aka claude code) were used for **documentation** in this project, including Doxygen comments, Some Tests, README, content, and design notes in this file. All hypervisor implementation code, including assembly, C++, and linker scripts, was written by me. You will prolly see messy code and maybe not the best practice, but hey I am getting the job done and having fun. My view of AI use in college ist that it trades knowledge depth for speed. In industry, that tradeoff makes sense, because of fast paced environments prioritizes delivers, and engineers may be handling mutliple tasks at once. The downside is reduced cognitive engagement when too much if offloaded to AI. I do not see that a inherently negative, just a trade off like everything in software. That is why I choose not to rely heavily on AI here because I am not under strict timing so I can eat the speed cost
 
 ## License
 

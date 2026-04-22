@@ -45,8 +45,9 @@ The AArch64 assembly entry point (``boot.S``) runs before any C++ code:
 6. Shadow ``MIDR/MPIDR`` into ``VPIDR/VMPIDR``.
 7. Zero the ``.bss`` section using linker-exported symbols.
 8. Set ``SP_EL2`` to ``__stack_end`` and branch to ``hmain()``.
-9. In ``hmain()``, initialize UART, parse the DTB, and bring up the buddy
-   allocator from the discovered physical memory map.
+9. In ``hmain()``, initialize UART, parse the DTB, bring up the buddy
+   allocator, enable the EL2 host stage-1 MMU, construct a VM, and enter
+   the guest through the vCPU path.
 
 Memory Management
 -----------------
@@ -63,9 +64,10 @@ Current allocator characteristics:
 - maximum single allocation: ``8 MiB``
 - metadata model: intrusive free lists plus a buddy bitmap
 
-This allocator is the foundation for the remaining memory-management work:
-EL2 page tables, stage-2 mappings, guest RAM allocation, and per-VM memory
-ownership.
+This allocator now backs the shared page-table helpers plus both MMU paths:
+the EL2 host stage-1 map for the hypervisor itself and the per-VM stage-2
+map used to translate guest IPA to PA. It is also the base allocator for
+future guest RAM loading and richer per-VM memory ownership.
 
 Development Roadmap
 -------------------
@@ -77,13 +79,14 @@ Phase 0 — Bootstrap *(current)*
 
 Phase 1 — Memory Management
   - [x] Physical page allocator (buddy allocator)
-  - [ ] EL2 Stage-1 page tables
-  - [ ] Stage-2 page tables (guest IPA → PA translation)
+  - [x] EL2 Stage-1 page tables
+  - [x] Stage-2 page tables (guest IPA → PA translation)
 
 Phase 2 — Single Guest
   - [ ] Load a flat binary guest image into isolated memory
-  - [ ] Context switch: save/restore EL1 system registers
+  - [x] Context switch: save/restore EL1 system registers
   - [ ] Trap and emulate essential system registers
+  - [x] VM container with VMID-tagged stage-2 context and first guest entry
 
 Phase 3 — Interrupt Virtualization
   - [ ] GIC-400 distributor and CPU interface initialization
@@ -92,7 +95,7 @@ Phase 3 — Interrupt Virtualization
 
 Phase 4 — Multi-Guest
   - [ ] vCPU scheduler (round-robin or fixed time-slice)
-  - [ ] Per-VM Stage-2 address spaces with VMID tagging
+  - [x] Per-VM Stage-2 address spaces with VMID tagging
 
 Phase 5 — Device Passthrough & Virtio
   - [ ] MMIO trap-and-emulate for shared devices
