@@ -10,7 +10,6 @@
 #ifndef __UART_H__
 #define __UART_H__
 
-#include "platform/platform_def.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -18,7 +17,7 @@
  * @brief Uppercase hexadecimal digit lookup table used by writeHex().
  * @ingroup drivers_uart
  */
-static constexpr char hex[] = "0123456789ABCDEF";
+inline constexpr char hex[] = "0123456789ABCDEF";
 
 namespace uart::detail {
 
@@ -93,89 +92,26 @@ inline void writeUnsignedHex(Writer&& writer, uint64_t value) {
     }
 }
 
-template<typename Writer>
-inline void writeValue(Writer&& writer, const char* value) {
-    writeCString(writer, value);
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, char* value) {
-    writeCString(writer, value);
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, char value) {
-    writer(value);
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, bool value) {
-    writeCString(writer, value ? "true" : "false");
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, signed char value) {
-    writeSignedDecimal(writer, static_cast<int64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, short value) {
-    writeSignedDecimal(writer, static_cast<int64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, int value) {
-    writeSignedDecimal(writer, static_cast<int64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, long value) {
-    writeSignedDecimal(writer, static_cast<int64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, long long value) {
-    writeSignedDecimal(writer, static_cast<int64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, unsigned char value) {
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, unsigned short value) {
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, unsigned int value) {
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, unsigned long value) {
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, unsigned long long value) {
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-}
-
 template<typename Writer, typename T>
-inline void writeValue(Writer&& writer, T* value) {
-    writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeValue(Writer&& writer, decltype(nullptr)) {
-    writeUnsignedHex(writer, 0U);
-}
-
-template<typename Writer, typename T>
-inline void writeValue(Writer&&, T) {
-    static_assert(AlwaysFalse<T>::kValue, "Unsupported UART format type");
+inline void writeValue(Writer&& writer, T value) {
+    if constexpr (__is_same(T, decltype(nullptr)))
+      writeUnsignedHex(writer, 0U);
+    else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
+      writeCString(writer, value);
+    else if constexpr (__is_pointer(T))
+      writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+    else if constexpr (__is_same(T, bool))
+      writeCString(writer, value ? "true" : "false");
+    else if constexpr (__is_same(T, char))
+        writer(value);
+    else if constexpr (__is_integral(T)) {
+        if constexpr (__is_signed(T))
+          writeSignedDecimal(writer, static_cast<int64_t>(value));
+        else
+          writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
+    }
+    else
+      static_assert(AlwaysFalse<T>::kValue, "Unsupported UART format type");
 }
 
 enum class FormatStep : uint8_t {
@@ -193,11 +129,6 @@ struct FormatResult {
     FormatStep step;
     FormatSpec spec;
 };
-
-template<typename Writer>
-inline void writeFormatError(Writer&& writer, const char* message) {
-    writeCString(writer, message);
-}
 
 template<typename Writer>
 inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
@@ -224,7 +155,7 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
                 return {FormatStep::Placeholder, FormatSpec::Hex};
             }
 
-            writeFormatError(writer, "[invalid format]");
+            writeCString(writer, "[invalid format]");
             return {FormatStep::Invalid, FormatSpec::Default};
         }
 
@@ -235,7 +166,7 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
                 continue;
             }
 
-            writeFormatError(writer, "[invalid format]");
+            writeCString(writer, "[invalid format]");
             return {FormatStep::Invalid, FormatSpec::Default};
         }
 
@@ -245,79 +176,21 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
     return {FormatStep::End, FormatSpec::Default};
 }
 
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, signed char value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, short value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, int value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, long value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, long long value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, unsigned char value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, unsigned short value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, unsigned int value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, unsigned long value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, unsigned long long value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, bool value) {
-    writeUnsignedHex(writer, value ? 1U : 0U);
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, char value) {
-    writeUnsignedHex(writer, static_cast<uint64_t>(static_cast<unsigned char>(value)));
-}
-
 template<typename Writer, typename T>
-inline void writeHexValue(Writer&& writer, T* value) {
-    writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
-}
-
-template<typename Writer>
-inline void writeHexValue(Writer&& writer, decltype(nullptr)) {
-    writeUnsignedHex(writer, 0U);
-}
-
-template<typename Writer, typename T>
-inline void writeHexValue(Writer&&, T) {
-    static_assert(AlwaysFalse<T>::kValue, "Unsupported UART hex format type");
+inline void writeHexValue(Writer&& writer, T value) {
+    if constexpr (__is_same(T, decltype(nullptr))) {
+        writeUnsignedHex(writer, 0U);
+    } else if constexpr (__is_pointer(T)) {
+        writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+    } else if constexpr (__is_same(T, bool)) {
+        writeUnsignedHex(writer, value ? 1U : 0U);
+    } else if constexpr (__is_same(T, char)) {
+        writeUnsignedHex(writer, static_cast<uint64_t>(static_cast<unsigned char>(value)));
+    } else if constexpr (__is_integral(T)) {
+        writeUnsignedHex(writer, static_cast<uint64_t>(value));
+    } else {
+        static_assert(AlwaysFalse<T>::kValue, "Unsupported UART hex format type");
+    }
 }
 
 template<typename Writer, typename T>
@@ -341,7 +214,7 @@ inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
 template<typename Writer>
 inline void formatToSink(Writer&& writer, const char* fmt) {
     if (writeUntilPlaceholder(writer, fmt).step == FormatStep::Placeholder) {
-        writeFormatError(writer, "[missing arg]");
+        writeCString(writer, "[missing arg]");
     }
 }
 
@@ -356,7 +229,7 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
     }
 
     if (result.step == FormatStep::End) {
-        writeFormatError(writer, "[extra arg]");
+        writeCString(writer, "[extra arg]");
     }
 }
 
