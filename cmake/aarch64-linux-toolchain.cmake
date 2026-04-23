@@ -1,8 +1,14 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-set(CMAKE_C_COMPILER   aarch64-linux-gnu-gcc)
-set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+set(CMAKE_C_COMPILER   clang)
+set(CMAKE_CXX_COMPILER clang++)
+
+set(CMAKE_C_COMPILER_TARGET   aarch64-linux-gnu)
+set(CMAKE_CXX_COMPILER_TARGET aarch64-linux-gnu)
+
+add_compile_options(--gcc-toolchain=/usr)
+add_link_options(--gcc-toolchain=/usr -fuse-ld=lld)
 
 set(CMAKE_FIND_ROOT_PATH /usr/aarch64-linux-gnu)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
