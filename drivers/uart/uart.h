@@ -26,6 +26,14 @@ struct AlwaysFalse {
     static constexpr bool kValue = false;
 };
 
+template<typename T>
+inline constexpr bool kIsPointer = false;
+template<typename T>
+inline constexpr bool kIsPointer<T*> = true;
+
+template<typename T>
+inline constexpr bool kIsSigned = static_cast<T>(-1) < static_cast<T>(0);
+
 template<typename Writer>
 inline void writeCString(Writer&& writer, const char* str) {
     if (str == nullptr) {
@@ -98,14 +106,14 @@ inline void writeValue(Writer&& writer, T value) {
       writeUnsignedHex(writer, 0U);
     else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
       writeCString(writer, value);
-    else if constexpr (__is_pointer(T))
+    else if constexpr (kIsPointer<T>)
       writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     else if constexpr (__is_same(T, bool))
       writeCString(writer, value ? "true" : "false");
     else if constexpr (__is_same(T, char))
         writer(value);
     else if constexpr (__is_integral(T)) {
-        if constexpr (__is_signed(T))
+        if constexpr (kIsSigned<T>)
           writeSignedDecimal(writer, static_cast<int64_t>(value));
         else
           writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
@@ -180,7 +188,7 @@ template<typename Writer, typename T>
 inline void writeHexValue(Writer&& writer, T value) {
     if constexpr (__is_same(T, decltype(nullptr))) {
         writeUnsignedHex(writer, 0U);
-    } else if constexpr (__is_pointer(T)) {
+    } else if constexpr (kIsPointer<T>) {
         writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     } else if constexpr (__is_same(T, bool)) {
         writeUnsignedHex(writer, value ? 1U : 0U);
