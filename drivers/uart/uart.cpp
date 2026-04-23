@@ -5,6 +5,7 @@
  */
 
 #include "uart.h"
+#include "platform/platform_def.h"
 #include <stdint.h>
 
 volatile uint32_t* Uart::reg(UART_REG reg) {

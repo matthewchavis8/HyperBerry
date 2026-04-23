@@ -23,6 +23,7 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -misc-use-anonymous-namespace,
   -misc-no-recursion,
+  -readability-braces-around-statements,
   -readability-identifier-naming,
   -performance-no-int-to-ptr,
 
