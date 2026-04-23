@@ -1,3 +1,10 @@
+# macOS lacks the aarch64-linux-gnu sysroot (Scrt1.o, crti.o, crtbeginS.o
+# come from libc6-dev-arm64-cross, which has no Darwin equivalent). Unit
+# tests are pure logic — let macOS build them host-native instead.
+if(CMAKE_HOST_APPLE)
+  return()
+endif()
+
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
