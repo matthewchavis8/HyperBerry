@@ -10,6 +10,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/vm/vm.h"
+#include "lib/panic/panic.h"
 #include "uart.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
@@ -44,10 +45,8 @@ extern "C" void hmain(uintptr_t dtb) {
   MemoryMap memoryMap = parseDtb(dtb);
   Uart::println("[DTB] Succesfully parsed device tree blob");
 
-  if (!memoryMap.isValid) {
-    Uart::println("[ERROR][DTB] Failed to parse Tree Blob");
-    for (;;) asm volatile("wfe");
-  }
+  if (!memoryMap.isValid)
+    hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
  
   Uart::println("[PMM] Attempting to bring up PMM");
   pmm::init(memoryMap);
@@ -63,13 +62,14 @@ extern "C" void hmain(uintptr_t dtb) {
   TestRunner::run_all();
 #else
 
-  static Vm guest;
+  Vm guest;
+  const char* guestName = "Guest 0";
   uint64_t guestEntry = reinterpret_cast<uint64_t>(guest_stub);
   uint64_t guestIpaBase = guestEntry & ~(SIZE_1GB - 1ULL);
 
-  Uart::println("[VM] Bringing up Guest Kernel");
-  guest.init(guestIpaBase, SIZE_1GB, 1, guestEntry);
-  Uart::println("[VM] Guest Kernel Intialized");
+  Uart::println("[VM] Bringing up guest:{}", guest.getName());
+  guest.init(guestName, guestIpaBase, SIZE_1GB, 1, guestEntry);
+  Uart::println("[VM] {} Intialized", guest.getName());
   Uart::println("[VM] Guest Kernel running");
   guest.run();
 #endif

@@ -88,7 +88,7 @@ static void resetCaptures() {
 TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
   resetCaptures();
   Vm vm;
-  vm.init(0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
+  vm.init("test-vm", 0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
 
   EXPECT_EQ(gGuestMmuInitIpa,  0x40000000ULL);
   EXPECT_EQ(gGuestMmuInitSize, 0x200000ULL);
@@ -97,7 +97,7 @@ TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
 TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
   resetCaptures();
   Vm vm;
-  vm.init(0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
+  vm.init("test-vm", 0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
 
   EXPECT_EQ(gVcpuInitEntryCap, 0x40000000ULL);
 }
@@ -105,7 +105,7 @@ TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
 TEST(Vm, InitSetsGuestSpAboveAllocatedPage) {
   resetCaptures();
   Vm vm;
-  vm.init(0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
+  vm.init("test-vm", 0x40000000ULL, 0x200000ULL, 1, 0x40000000ULL);
 
   EXPECT_EQ(gVcpuSetGuestSpCap, kAllocPagesSentinel + PAGE_SIZE);
 }
@@ -113,7 +113,7 @@ TEST(Vm, InitSetsGuestSpAboveAllocatedPage) {
 TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
   resetCaptures();
   Vm vm;
-  vm.init(0x40000000ULL, 0x200000ULL, 2, 0x40000000ULL);
+  vm.init("test-vm", 0x40000000ULL, 0x200000ULL, 2, 0x40000000ULL);
   vm.run();
 
   EXPECT_EQ(gGuestMmuEnableVmid, 2);
