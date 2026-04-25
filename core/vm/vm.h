@@ -17,9 +17,10 @@
 
 class Vm {
 private:
-  GuestMmu m_guestMmu;
-  Vcpu     m_vcpu;
-  uint8_t  m_vmid;
+  const char* m_name;
+  GuestMmu    m_guestMmu;
+  Vcpu        m_vcpu;
+  uint8_t     m_vmid;
 
 public:
   /**
@@ -34,7 +35,7 @@ public:
    * @param vmid        Non-zero VMID (unique across live VMs).
    * @param guestEntry  Guest IPA at which to resume on first @c eret.
    */
-  void init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
+  void init(const char* name, uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
             uint64_t guestEntry);
 
   /**
@@ -43,6 +44,11 @@ public:
    *       the exception path, which is owned by vcpu.S / exceptions.S.
    */
   void run();
+  
+  /*
+   * @brief Return Guest Kernel name
+   * */
+  const char* getName() const;
 };
 
 #endif  // !__VM_H__

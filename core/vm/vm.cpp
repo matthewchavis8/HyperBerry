@@ -8,14 +8,16 @@
 #include "drivers/uart/uart.h"
 #include "vm.h"
 
-void Vm::init(uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
+void Vm::init(const char* name, uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
               uint64_t guestEntry) {
+  m_name = name;
   m_vmid = vmid;
 
-  Uart::println("[VM] Initializing Guest MMU");
+  Uart::println("[VM] Bringing up Guest MMU");
   m_guestMmu.init(ipaBase, sizeBytes);
+  Uart::println("[VM] Bringing up Guest MMU");
 
-  Uart::println("[VM] Intializing Guest Vcpu");
+  Uart::println("[VM] Bringing up Vcpu");
   m_vcpu.init(guestEntry);
 
   uint64_t guestStackBase = pmm::allocPages(0);
@@ -30,3 +32,5 @@ void Vm::run() {
   Uart::println("[VM] Guest Kernel Running");
   vcpu_enter(&m_vcpu);
 }
+
+[[nodiscard]] const char* Vm::getName() const { return m_name; }
