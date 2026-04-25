@@ -21,13 +21,13 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 ### Phase 1 — Memory Management
 - [x] Physical page allocator (buddy allocator)
 - [x] EL2 Stage-1 page tables (hypervisor virtual address space)
-- [ ] Stage-2 page tables (guest IPA → PA translation)
+- [x] Stage-2 page tables (guest IPA → PA translation)
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5
 
 ### Phase 2 — Single Guest
-- [ ] Load a flat binary guest image into isolated memory
-- [ ] Context switch: save/restore EL1 system registers
-- [ ] Trap and emulate essential system registers (VBAR_EL1, SCTLR_EL1, etc.)
+- [x] Load a flat binary guest image into isolated memory
+- [x] Context switch: save/restore EL1 system registers
+- [x] Trap and emulate essential system registers (VBAR_EL1, SCTLR_EL1, etc.)
 - [ ] Arm Generic Timer virtualization (CNTVOFF_EL2)
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5
 
