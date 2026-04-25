@@ -20,5 +20,6 @@
  * @param ctx Saved exception context associated with the fatal condition.
  */
 [[noreturn]] void hv_panic(const char* msg, ExceptionContext& ctx);
+[[noreturn]] void hv_panic(const char* msg);
 
 #endif // !__PANIC_H__

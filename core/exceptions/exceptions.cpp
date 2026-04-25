@@ -20,19 +20,19 @@
 // Hypervisor EL2 exception handlers
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-  hv_panic("[HV Synchronous exception] was triggered", ctx);
+  hv_panic("[HV sync] was triggered", ctx);
 }
 
 extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-  hv_panic("[HV irq exception] was triggered", ctx);
+  hv_panic("[HV irq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-  hv_panic("[HV fiq exception] was triggered", ctx);
+  hv_panic("[HV fiq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-  hv_panic("[HV SError exception] was triggered", ctx);
+  hv_panic("[HV SError] was triggered", ctx);
 }
 
 extern "C" void handle_unhandled(ExceptionContext& ctx) {
