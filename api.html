@@ -338,6 +338,13 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv44initv">
+<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mm_1ga83b00a9895c7c87c491d6e056db89413"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialise the kernel heap. </p>
+<p>Must be called once during boot, after <code class="docutils literal notranslate"><a class="reference internal" href="#group__pmm_1ga8d5301b0f488dc893d7d2318d0fabcdd"><span class="std std-ref"><span class="pre">pmm::init()</span></span></a></code> and before any code path that allocates dynamic objects. Subsequent calls re-arm the heap; the existing slab/large bookkeeping is reset. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv410allocTablev">
 <span id="_CPPv310allocTablev"></span><span id="_CPPv210allocTablev"></span><span id="allocTable"></span><span class="target" id="group__mm_1ga882e3d6c8efb90b42856b3666b0206df"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocTable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410allocTablev" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Allocate a zeroed 4 KiB table from the PMM. </p>
@@ -446,8 +453,8 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv44initv">
-<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mmu_1ga60db85779e3b8168a290247fb19e742c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__mmu_1ga60db85779e3b8168a290247fb19e742c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><br /></dt>
 <dd><p>Build EL2 translation tables and enable stage-1 translation. </p>
 </dd></dl>
 
@@ -884,8 +891,8 @@ mappings and seed first-entry guest CPU state.</p></li>
 <dd><div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t">
-<span id="_CPPv3N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="_CPPv2N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="Vm::init__uint64_t.uint64_t.uint8_t.uint64_t"></span><span class="target" id="classVm_1a89ca4aeca1d742b8fb645112ce700743"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestEntry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t">
+<span id="_CPPv3N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="_CPPv2N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="Vm::init__cCP.uint64_t.uint64_t.uint8_t.uint64_t"></span><span class="target" id="classVm_1a3178250dc72c78df7f1a67abf51f11ec"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestEntry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Build this VM’s stage-2 mappings and seed its vCPU. </p>
 <p>Order is significant: stage-2 tables are constructed first so they are in place before the vCPU’s first entry. VTTBR_EL2 / HCR_EL2.VM are committed in <a class="reference internal" href="#classVm_1a394e95f04ac39065da4356dc86d27cce"><span class="std std-ref">run()</span></a>, after vCPU state is seeded.</p>
 <dl class="field-list simple">
@@ -1290,6 +1297,7 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
+<li><a class="reference internal" href="#_CPPv44initv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410allocTablev"><code class="docutils literal notranslate"><span class="pre">allocTable()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig"><code class="docutils literal notranslate"><span class="pre">walk()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9PageTable10WalkConfigE"><code class="docutils literal notranslate"><span class="pre">PageTable::WalkConfig</span></code></a></li>
@@ -1301,7 +1309,6 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#mmu">MMU</a><ul>
-<li><a class="reference internal" href="#_CPPv44initv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">mapRange()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410unmapRange8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">unmapRange()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv411tlbFlushAllv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAll()</span></code></a></li>
@@ -1371,7 +1378,7 @@ library.</p>
 </li>
 <li><a class="reference internal" href="#vm">VM</a><ul>
 <li><a class="reference internal" href="#_CPPv42Vm"><code class="docutils literal notranslate"><span class="pre">Vm</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N2Vm4initE8uint64_t8uint64_t7uint8_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N2Vm3runEv"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 </ul>
 </li>
