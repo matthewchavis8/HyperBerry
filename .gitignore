@@ -9,6 +9,7 @@ __pycache__/
 *.o
 *.a
 *.elf
+!boot/start4.elf
 *.bin
 .codex
 .agents

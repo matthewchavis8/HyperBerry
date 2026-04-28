@@ -8,6 +8,7 @@
  */
 
 #include "core/mm/pmm/pmm.h"
+#include "core/mm/heap/heap.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/vm/vm.h"
 #include "lib/panic/panic.h"
@@ -51,8 +52,12 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::println("[PMM] Attempting to bring up PMM");
   pmm::init(memoryMap);
   Uart::println("[PMM] Successfully brought up PMM");
-  
+
   Uart::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
+
+  Uart::println("[HEAP] Attempting to bring up kernel heap");
+  hv::heap::init();
+  Uart::println("[HEAP] Successfully brought up kernel heap");
 
   Uart::println("[HostMmu] Attempting to bring up host MMU");
   HostMmu::init();

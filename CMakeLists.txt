@@ -101,6 +101,7 @@ target_link_libraries(${ELF}
   Uart
   Exceptions
   Pmm
+  Heap
   PageTable
   HostMmu
   GuestMmu
