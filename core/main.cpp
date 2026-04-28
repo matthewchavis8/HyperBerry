@@ -71,9 +71,9 @@ extern "C" void hmain(uintptr_t dtb) {
   const char* guestName = "Guest 0";
   uint64_t guestEntry = reinterpret_cast<uint64_t>(guest_stub);
   uint64_t guestIpaBase = guestEntry & ~(SIZE_1GB - 1ULL);
+  guest.init(guestName, guestIpaBase, SIZE_1GB, 1, guestEntry);
 
   Uart::println("[VM] Bringing up guest:{}", guest.getName());
-  guest.init(guestName, guestIpaBase, SIZE_1GB, 1, guestEntry);
   Uart::println("[VM] {} Intialized", guest.getName());
   Uart::println("[VM] Guest Kernel running");
   guest.run();
