@@ -6,6 +6,10 @@ add_executable(hyperberry_unit_tests
   vcpu/test_vcpu.cpp
   exceptions/test_exceptions.cpp
 
+  utility/test_utility.cpp
+  memory/test_unique_ptr.cpp
+  memory/test_shared_ptr.cpp
+
   strings/test_strings.cpp
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
 
