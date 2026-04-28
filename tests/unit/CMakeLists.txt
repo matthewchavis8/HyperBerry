@@ -44,3 +44,28 @@ target_link_libraries(hyperberry_unit_tests
 
 include(GoogleTest)
 gtest_discover_tests(hyperberry_unit_tests)
+
+# Heap tests live in their own executable: heap.cpp's PMM stub conflicts
+# with the sentinel-returning pmm stub used by the Vm unit tests.
+add_executable(hyperberry_heap_tests
+  heap/test_heap.cpp
+  ${CMAKE_SOURCE_DIR}/core/mm/heap/heap.cpp
+)
+
+target_include_directories(hyperberry_heap_tests
+  PRIVATE
+  ${CMAKE_SOURCE_DIR}
+)
+
+target_compile_definitions(hyperberry_heap_tests
+  PRIVATE
+  PLATFORM_QEMU
+  HEAP_TESTING_BUILD
+)
+
+target_link_libraries(hyperberry_heap_tests
+  PRIVATE
+  GTest::gtest_main
+)
+
+gtest_discover_tests(hyperberry_heap_tests)
