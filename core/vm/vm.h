@@ -17,7 +17,7 @@
 
 class Vm {
 private:
-  const char* m_name;
+  const char* m_name = "";
   GuestMmu    m_guestMmu;
   Vcpu        m_vcpu;
   uint8_t     m_vmid;
