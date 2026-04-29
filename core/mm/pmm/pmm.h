@@ -21,7 +21,9 @@
 
 static constexpr uint64_t PAGE_SIZE  = 0x1000;
 static constexpr uint64_t PAGE_SHIFT = 12;
-static constexpr uint32_t MAX_ORDER  = 11;
+// TODO: Move guest RAM ownership to a block-list allocator so VMs do not
+// require one large contiguous host-physical allocation.
+static constexpr uint32_t MAX_ORDER  = 16;
 static constexpr uint32_t NUM_ORDERS = MAX_ORDER + 1;
 
 namespace pmm {

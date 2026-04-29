@@ -16,14 +16,6 @@
 #include "stddef.h"
 #include "dtb/dtb.h"
 
-// Minimal guest kernel: trap to the hypervisor first, then idle.
-// Direct UART MMIO from EL1 is not stage-2 mapped yet.
-extern "C" void guest_stub() {
-  asm volatile("hvc #0");
-
-  for (;;) asm volatile("wfe");
-}
-
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
 #endif
@@ -67,15 +59,6 @@ extern "C" void hmain(uintptr_t dtb) {
   TestRunner::run_all();
 #else
 
-  Vm guest;
-  const char* guestName = "Guest 0";
-  uint64_t guestEntry = reinterpret_cast<uint64_t>(guest_stub);
-  uint64_t guestIpaBase = guestEntry & ~(SIZE_1GB - 1ULL);
-  guest.init(guestName, guestIpaBase, SIZE_1GB, 1, guestEntry);
-
-  Uart::println("[VM] Bringing up guest:{}", guest.getName());
-  Uart::println("[VM] {} Intialized", guest.getName());
-  Uart::println("[VM] Guest Kernel running");
-  guest.run();
+  hv_panic("[ERROR][VM] Failed to spin up Linux VM");
 #endif
 }

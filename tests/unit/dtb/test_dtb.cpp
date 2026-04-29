@@ -103,6 +103,14 @@ public:
     pushBE32(static_cast<uint32_t>(size));
   }
 
+  void propU64Cells(uint32_t nameOff, uint64_t value) {
+    pushBE32(3); // FDT_PROP
+    pushBE32(8); // dataLen
+    pushBE32(nameOff);
+    pushBE32(static_cast<uint32_t>(value >> 32));
+    pushBE32(static_cast<uint32_t>(value));
+  }
+
   void nop() { pushBE32(4); }
   void end() { pushBE32(9); }
 
@@ -193,6 +201,31 @@ TEST(DtbParser, ValidMemoryAndAtf) {
   EXPECT_EQ(map.atfBase, 0x80000000ULL);
   EXPECT_EQ(map.atfSize, 0x00080000ULL);
   EXPECT_EQ(map.dtbBase, reinterpret_cast<uint64_t>(blob.data()));
+}
+
+TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
+  DtbBuilder b;
+  uint32_t reg = b.addString("reg");
+  uint32_t initrdStart = b.addString("linux,initrd-start");
+  uint32_t initrdEnd = b.addString("linux,initrd-end");
+
+  b.beginNode("");
+    b.beginNode("memory@0");
+      b.propReg64(reg, 0x0ULL, 0x40000000ULL);
+    b.endNode();
+    b.beginNode("chosen");
+      b.propU64Cells(initrdStart, 0x20000000ULL);
+      b.propU64Cells(initrdEnd, 0x20400000ULL);
+    b.endNode();
+  b.endNode();
+  b.end();
+
+  auto blob = b.build();
+  MemoryMap map = parseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+
+  EXPECT_TRUE(map.isValid);
+  EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
+  EXPECT_EQ(map.bootPackageSize, 0x400000ULL);
 }
 
 TEST(DtbParser, MemoryOnlyNoAtf) {

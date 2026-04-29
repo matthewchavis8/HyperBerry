@@ -34,7 +34,7 @@ namespace {
   }
 }
 
-void GuestMmu::init(uint64_t ipaBase, uint64_t sizeBytes) {
+void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
   Uart::println("[GuestMmu] init called");
   m_rootTable = PageTable::allocTable();
   Uart::println("[GuestMmu] root table={}", m_rootTable);
@@ -52,9 +52,9 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t sizeBytes) {
   asm volatile("msr vtcr_el2, %0" :: "r"(vtcr) : "memory");
   asm volatile("isb");
 
-  Uart::println("[GuestMmu] Identity-mapping guest IPA range");
+  Uart::println("[GuestMmu] Mapping guest IPA range");
   for (uint64_t off {}; off < sizeBytes; off += SIZE_2MB) {
-    mapBlock(ipaBase + off, ipaBase + off, false);
+    mapBlock(ipaBase + off, hostPaBase + off, false);
   }
 
   Uart::println("[GuestMmu] init finished");

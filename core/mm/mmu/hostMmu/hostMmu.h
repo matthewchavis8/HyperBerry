@@ -47,6 +47,21 @@ namespace HostMmu {
   void init();
 
   /**
+   * @brief Convert a host physical address to an EL2-accessible pointer.
+   *
+   * HyperBerry currently uses an identity direct map for RAM. Keeping this
+   * helper at the boundary avoids spreading that assumption through loaders.
+   *
+   * @param pa Host physical address.
+   * @return EL2 virtual address for the same byte.
+   */
+  inline void* paToVa(uint64_t pa) {
+    // TODO: Replace this identity direct-map assumption if HyperBerry moves
+    // to a higher-half or otherwise non-identity host VA layout.
+    return reinterpret_cast<void*>(pa);
+  }
+
+  /**
    * @brief Map a physical range into EL2 VA space using 2 MiB blocks.
    * @ingroup mmu
    * @param va    Virtual base address.

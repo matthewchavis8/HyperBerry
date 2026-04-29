@@ -242,6 +242,11 @@ void init(const MemoryMap& map) {
   reserveRegion(map.dtbBase, map.dtbSize);
   Uart::println("[PMM] Reserved: DTB");
 
+  if (map.bootPackageSize != 0) {
+    reserveRegion(map.bootPackageBase, map.bootPackageSize);
+    Uart::println("[PMM] Reserved: boot package");
+  }
+
   if (map.memBase == 0 && map.memSize >= PAGE_SIZE) {
     reserveRegion(0, PAGE_SIZE);
     Uart::println("[PMM] Reserved: null page");
