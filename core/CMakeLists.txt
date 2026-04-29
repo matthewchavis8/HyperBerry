@@ -1,6 +1,7 @@
 add_subdirectory(exceptions)
 add_subdirectory(mm)
 add_subdirectory(dtb)
+add_subdirectory(bootpkg)
 add_subdirectory(vcpu)
 add_subdirectory(vm)
 
@@ -18,6 +19,7 @@ target_link_libraries(Core
   HostMmu
   GuestMmu
   Dtb
+  BootPkg
   Vcpu
   Vm
 )
