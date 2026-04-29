@@ -1,0 +1,48 @@
+// Common guest DTS nodes shared across all boards.
+// Board-specific files must include this and add an interrupt-controller,
+// serial console, and clock nodes.
+
+/ {
+	compatible = "linux,dummy-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+			reg = <0x0>;
+			enable-method = "psci";
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "hvc";
+	};
+
+	// Placeholder values — HyperBerry patches reg at load time.
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x00000000 0x0 0x10000000>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		// secure, non-secure, virtual, hypervisor PPI lines
+		interrupts = <0x1 0xd 0xf04
+		              0x1 0xe 0xf04
+		              0x1 0xb 0xf04
+		              0x1 0xa 0xf04>;
+		always-on;
+	};
+
+	chosen {
+		// Placeholder values — HyperBerry patches initrd addresses at load time.
+		linux,initrd-start = <0x0 0x00000000>;
+		linux,initrd-end   = <0x0 0x00000000>;
+	};
+};

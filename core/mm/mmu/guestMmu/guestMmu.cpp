@@ -12,6 +12,11 @@ namespace {
   constexpr uint32_t kStage2StartLevel = 1;   // T0SZ=32 -> start at L1 since the guest is 32 bit for now
   constexpr uint64_t kStage2T0sz       = 32;
 
+#if defined(PLATFORM_QEMU)
+  constexpr uint64_t kQemuGicIpa  = 0x08000000;
+  constexpr uint64_t kQemuUartIpa = 0x09000000;
+#endif
+
   constexpr PageTable::WalkConfig kStage2Walk {
     kStage2StartLevel,
     true,
@@ -56,6 +61,12 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
   for (uint64_t off {}; off < sizeBytes; off += SIZE_2MB) {
     mapBlock(ipaBase + off, hostPaBase + off, false);
   }
+
+#if defined(PLATFORM_QEMU)
+  Uart::println("[GuestMmu] Mapping QEMU guest MMIO");
+  mapBlock(kQemuGicIpa, kQemuGicIpa, true);
+  mapBlock(kQemuUartIpa, kQemuUartIpa, true);
+#endif
 
   Uart::println("[GuestMmu] init finished");
 }

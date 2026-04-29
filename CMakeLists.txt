@@ -156,6 +156,9 @@ add_custom_command(
 
 # QEMU run target
 if (BOARD STREQUAL "qemu")
+  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/guest-qemu.hgbp"
+      CACHE STRING "QEMU guest boot package")
+
   add_custom_target(run
     COMMAND qemu-system-aarch64
       -machine virt,virtualization=on,gic-version=2
@@ -163,6 +166,7 @@ if (BOARD STREQUAL "qemu")
       -m 4G
       -nographic
       -kernel ${CMAKE_BINARY_DIR}/kernel8.img
+      -initrd ${QEMU_GUEST_PACKAGE}
     DEPENDS hyperberry.elf
     COMMENT "[LOG] Launching HyperBerry in QEMU"
   )
@@ -187,6 +191,9 @@ if (BOARD STREQUAL "rpi5")
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_SOURCE_DIR}/boot/fixup4.dat
       ${SD_MOUNT}/fixup4.dat
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/boot/guest.hgbp
+      ${SD_MOUNT}/guest.hgbp
 
     DEPENDS hyperberry.elf
     COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"

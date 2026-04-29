@@ -336,11 +336,22 @@ TEST(BootPkg, RejectsBadHeaderSize) {
             bootpkg::ValidateError::BadHeaderSize);
 }
 
-TEST(BootPkg, RejectsWrongFirmwareLoadedSize) {
+TEST(BootPkg, RejectsTruncatedFirmwareLoadedSize) {
   auto data = buildPackage();
 
   EXPECT_EQ(bootpkg::validate(data.data(), data.size() - 1).error,
             bootpkg::ValidateError::BadTotalSize);
+}
+
+TEST(BootPkg, AcceptsTrailingFirmwarePadding) {
+  auto data = buildPackage();
+  uint64_t packageSize = data.size();
+  data.resize(data.size() + 4096, 0);
+
+  auto result = bootpkg::validate(data.data(), data.size());
+
+  ASSERT_TRUE(result.isValid);
+  EXPECT_EQ(result.package.totalSize, packageSize);
 }
 
 TEST(BootPkg, RejectsHeaderCrcMismatch) {

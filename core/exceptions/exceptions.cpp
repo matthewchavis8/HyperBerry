@@ -43,6 +43,7 @@ extern "C" void handle_unhandled(ExceptionContext& ctx) {
 
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
   EsrEc exceptionClass = getEsrEc(esr);
+  bool resumeGuest = true;
 
   switch (exceptionClass) {
 
@@ -58,14 +59,38 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
       vcpu->skipInstruction();
       break;
 
+    case EsrEc::DataAbortLower: {
+      uint64_t far;
+      uint64_t hpfar;
+      asm volatile("mrs %0, far_el2" : "=r"(far));
+      asm volatile("mrs %0, hpfar_el2" : "=r"(hpfar));
+
+      uint64_t iss = esr & 0x01FFFFFFULL;
+      uint64_t dfsc = iss & 0x3FULL;
+      uint64_t faultIpa = ((hpfar & 0xFFFFFFFFF0ULL) << 8) | (far & 0xFFFULL);
+
+      Uart::println("[Guest][DATA ABORT] ESR={:x} ISS={:x} DFSC={:x}",
+                    esr, iss, dfsc);
+      Uart::println("[Guest][DATA ABORT] ELR={:x} FAR={:x} HPFAR={:x}",
+                    vcpu->getElr(), far, hpfar);
+      Uart::println("[Guest][DATA ABORT] IPA={:x} WnR={} S1PTW={}",
+                    faultIpa, (iss >> 6) & 1ULL, (iss >> 7) & 1ULL);
+      resumeGuest = false;
+      break;
+    }
+
     default:
       Uart::println("[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}",
                     exceptionClass,
                     esr);
+      resumeGuest = false;
       break;
   }
 
-  vcpu_enter(vcpu);
+  if (resumeGuest)
+    vcpu_enter(vcpu);
+
+  for (;;) { asm volatile("wfe"); }
 }
 
 extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t esr) {

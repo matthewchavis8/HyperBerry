@@ -44,6 +44,8 @@
       "binaryDir": "${sourceDir}/build/unit-tests",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/aarch64-linux-toolchain.cmake",
         "BUILD_TESTING": "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"

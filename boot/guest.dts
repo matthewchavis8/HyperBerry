@@ -1,0 +1,70 @@
+/dts-v1/;
+
+/ {
+	compatible = "linux,dummy-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&gic>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+			reg = <0x0>;
+			enable-method = "psci";
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "hvc";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x00000000 0x0 0x10000000>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <0x1 0xd 0xf04
+		              0x1 0xe 0xf04
+		              0x1 0xb 0xf04
+		              0x1 0xa 0xf04>;
+		always-on;
+	};
+
+	gic: interrupt-controller@7fff9000 {
+		compatible = "arm,gic-400";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg = <0x0 0x7fff9000 0x0 0x1000
+		       0x0 0x7fffa000 0x0 0x2000
+		       0x0 0x7fffc000 0x0 0x2000
+		       0x0 0x7fffe000 0x0 0x2000>;
+	};
+
+	serial@7d001000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x0 0x7d001000 0x0 0x200>;
+		interrupts = <0x0 0x79 0x4>;
+		clocks = <&clk_uart &clk_uart>;
+		clock-names = "uartclk", "apb_pclk";
+	};
+
+	clk_uart: clock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <9216000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyAMA0 earlycon=pl011,0x7d001000 root=/dev/ram0 rdinit=/sbin/init";
+		linux,initrd-start = <0x0 0x00000000>;
+		linux,initrd-end   = <0x0 0x00000000>;
+	};
+};
