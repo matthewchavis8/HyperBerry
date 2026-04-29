@@ -10,6 +10,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/heap/heap.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
+#include "core/bootpkg/bootpkg.h"
 #include "core/vm/vm.h"
 #include "lib/panic/panic.h"
 #include "uart.h"
@@ -19,6 +20,18 @@
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
 #endif
+
+namespace {
+
+void logBootPackageError(const bootpkg::LoadResult& result) {
+  Uart::println("[BootPkg][ERROR] load error={}", static_cast<uint64_t>(result.error));
+  if (result.error == bootpkg::LoadError::InvalidPackage) {
+    Uart::println("[BootPkg][ERROR] validation error={}",
+                  static_cast<uint64_t>(result.validateError));
+  }
+}
+
+} // namespace
 
 /**
  * @brief Main hypervisor entry point (called from boot.S).
@@ -59,6 +72,27 @@ extern "C" void hmain(uintptr_t dtb) {
   TestRunner::run_all();
 #else
 
-  hv_panic("[ERROR][VM] Failed to spin up Linux VM");
+  Uart::println("[BootPkg] Attempting to load Linux guest package");
+  bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
+  if (!loaded.isLoaded) {
+    logBootPackageError(loaded);
+    hv_panic("[ERROR][VM] Failed to spin up Linux VM");
+  }
+  Uart::println("[BootPkg] Linux guest package loaded");
+
+  Vm guest;
+  const char* guestName = "Linux VM";
+  guest.init(guestName,
+             loaded.guest.guestIpaBase,
+             loaded.guest.guestRamHostPa,
+             loaded.guest.guestRamSize,
+             1,
+             loaded.guest.entryIpa,
+             loaded.guest.dtbIpa);
+
+  Uart::println("[VM] Bringing up guest:{}", guest.getName());
+  Uart::println("[VM] {} Intialized", guest.getName());
+  Uart::println("[VM] Guest Kernel running");
+  guest.run();
 #endif
 }

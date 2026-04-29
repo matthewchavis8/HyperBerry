@@ -6,11 +6,21 @@
 
 #include "bootpkg.h"
 
+#include "core/mm/mmu/hostMmu/hostMmu.h"
+#include "core/mm/pmm/pmm.h"
+#include "lib/strings/strings.h"
+
 #include <stddef.h>
 
 namespace {
 
 static constexpr uint64_t ALIGN_4K = 4096;
+static constexpr uint64_t ALIGN_64K = 64 * 1024;
+static constexpr uint64_t ALIGN_2MB = 2 * 1024 * 1024;
+static constexpr uint32_t GUEST_RAM_ORDER = 16;
+
+static_assert(bootpkg::GUEST_RAM_SIZE == (PAGE_SIZE << GUEST_RAM_ORDER),
+              "Guest RAM size must match the PMM allocation order");
 
 static constexpr uint64_t OFF_MAGIC = 0;
 static constexpr uint64_t OFF_VERSION = 4;
@@ -32,6 +42,28 @@ static constexpr uint64_t OFF_BUILD_ID = 88;
 static constexpr uint64_t CHECKSUM_FIELDS_START = OFF_HEADER_CRC32;
 static constexpr uint64_t CHECKSUM_FIELDS_END = OFF_PAYLOAD_CRC32 + sizeof(uint32_t);
 
+enum class FDT : uint32_t {
+  MAGIC      = 0xD00DFEED,
+  BEGIN_NODE = 1,
+  END_NODE   = 2,
+  PROP       = 3,
+  NOP        = 4,
+  END        = 9,
+};
+
+struct FdtHeader {
+  uint32_t magic;
+  uint32_t totalSize;
+  uint32_t structOff;
+  uint32_t stringsOff;
+  uint32_t memRsvMapOff;
+  uint32_t version;
+  uint32_t lastCompVersion;
+  uint32_t bootCpuId;
+  uint32_t sizeStrings;
+  uint32_t sizeStructs;
+};
+
 uint16_t readLe16(const uint8_t* data, uint64_t off) {
   return static_cast<uint16_t>(data[off])
        | static_cast<uint16_t>(data[off + 1] << 8);
@@ -49,8 +81,56 @@ uint64_t readLe64(const uint8_t* data, uint64_t off) {
        | (static_cast<uint64_t>(readLe32(data, off + 4)) << 32);
 }
 
+uint32_t be32(uint32_t byte) {
+  return __builtin_bswap32(byte);
+}
+
+void writeBe32(uint8_t* data, uint32_t value) {
+  data[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
+  data[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
+  data[2] = static_cast<uint8_t>((value >>  8) & 0xFF);
+  data[3] = static_cast<uint8_t>( value        & 0xFF);
+}
+
+void writeBe64Cells(uint8_t* data, uint64_t value) {
+  writeBe32(data, static_cast<uint32_t>(value >> 32));
+  writeBe32(data + 4, static_cast<uint32_t>(value));
+}
+
+bool strEq(const char* str1, const char* str2) {
+  while (*str1 && *str2) {
+    if (*str1 != *str2)
+      return false;
+    str1++;
+    str2++;
+  }
+
+  return *str1 == *str2;
+}
+
+bool strStartsWith(const char* str, const char* prefix) {
+  while (*prefix) {
+    if (*str != *prefix)
+      return false;
+    str++;
+    prefix++;
+  }
+
+  return true;
+}
+
+uint32_t* alignStruct(uint8_t* ptr, uint32_t bytes) {
+  uintptr_t addr = reinterpret_cast<uintptr_t>(ptr + bytes);
+  addr = (addr + 3) & ~(uintptr_t)3;
+  return reinterpret_cast<uint32_t*>(addr);
+}
+
 uint64_t align4k(uint64_t value) {
   return (value + ALIGN_4K - 1) & ~(ALIGN_4K - 1);
+}
+
+uint64_t alignDown(uint64_t value, uint64_t alignment) {
+  return value & ~(alignment - 1);
 }
 
 bool addOverflows(uint64_t a, uint64_t b) {
@@ -94,6 +174,114 @@ bootpkg::ValidateResult fail(bootpkg::ValidateError error) {
   bootpkg::ValidateResult result = {};
   result.error = error;
   return result;
+}
+
+bootpkg::LoadResult loadFail(bootpkg::LoadError error,
+                             bootpkg::ValidateError validateError = bootpkg::ValidateError::None) {
+  bootpkg::LoadResult result = {};
+  result.error = error;
+  result.validateError = validateError;
+  return result;
+}
+
+void copyToGuest(uint64_t guestRamHostPa, uint64_t guestIpa,
+                 const uint8_t* source, uint64_t size) {
+  uint64_t guestOffset = guestIpa - bootpkg::GUEST_IPA_BASE;
+  void* dest = HostMmu::paToVa(guestRamHostPa + guestOffset);
+  memcpy(dest, source, static_cast<size_t>(size));
+}
+
+bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
+  if (dtb == nullptr)
+    return false;
+
+  auto* hdr = static_cast<FdtHeader*>(dtb);
+  if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC))
+    return false;
+
+  auto* base = static_cast<uint8_t*>(dtb);
+  auto* tok = reinterpret_cast<uint32_t*>(base + be32(hdr->structOff));
+  const char* strings = reinterpret_cast<const char*>(base + be32(hdr->stringsOff));
+
+  bool inMemory = false;
+  bool inChosen = false;
+  bool patchedMemory = false;
+  bool patchedInitrdStart = false;
+  bool patchedInitrdEnd = false;
+  int depth {};
+
+  while (true) {
+    uint32_t token = be32(*tok);
+    tok++;
+
+    switch (static_cast<FDT>(token)) {
+      case FDT::BEGIN_NODE: {
+        const char* name = reinterpret_cast<const char*>(tok);
+        auto* nameB = reinterpret_cast<uint8_t*>(tok);
+
+        if (depth == 1) {
+          inMemory = strStartsWith(name, "memory");
+          inChosen = strEq(name, "chosen");
+        }
+
+        uint32_t nameLen {};
+        while (nameB[nameLen] != 0)
+          nameLen++;
+
+        tok = alignStruct(nameB, nameLen + 1);
+        depth++;
+        break;
+      }
+
+      case FDT::END_NODE:
+        depth--;
+        if (depth == 1) {
+          inMemory = false;
+          inChosen = false;
+        }
+        break;
+
+      case FDT::PROP: {
+        uint32_t dataLen = be32(tok[0]);
+        uint32_t nameOff = be32(tok[1]);
+        const char* propName = strings + nameOff;
+        auto* propData = reinterpret_cast<uint8_t*>(tok + 2);
+
+        if (inMemory && strEq(propName, "reg")) {
+          if (dataLen != 16)
+            return false;
+          writeBe64Cells(propData, layout.guestIpaBase);
+          writeBe64Cells(propData + 8, layout.guestRamSize);
+          patchedMemory = true;
+        } else if (inChosen && strEq(propName, "linux,initrd-start")) {
+          if (dataLen != 8)
+            return false;
+          writeBe64Cells(propData, layout.initrdIpa);
+          patchedInitrdStart = true;
+        } else if (inChosen && strEq(propName, "linux,initrd-end")) {
+          if (dataLen != 8)
+            return false;
+          uint64_t initrdEnd = layout.initrdSize == 0
+                             ? 0
+                             : layout.initrdIpa + layout.initrdSize;
+          writeBe64Cells(propData, initrdEnd);
+          patchedInitrdEnd = true;
+        }
+
+        tok = alignStruct(propData, dataLen);
+        break;
+      }
+
+      case FDT::NOP:
+        break;
+
+      case FDT::END:
+        return patchedMemory && patchedInitrdStart && patchedInitrdEnd;
+
+      default:
+        return false;
+    }
+  }
 }
 
 } // namespace
@@ -208,6 +396,105 @@ ValidateResult validate(const void* package, uint64_t size) {
   result.isValid = true;
   result.error = ValidateError::None;
   result.package = view;
+  return result;
+}
+
+bool calculateGuestLayout(const PackageView& package, GuestLayout& out) {
+  out = {};
+
+  if (package.kernelSize == 0 || package.dtbSize == 0)
+    return false;
+
+  uint64_t guestEnd = GUEST_IPA_BASE + GUEST_RAM_SIZE;
+  if (addOverflows(GUEST_IPA_BASE, GUEST_RAM_SIZE))
+    return false;
+
+  uint64_t kernelEnd {};
+  if (addOverflows(LINUX_KERNEL_LOAD_IPA, package.kernelSize))
+    return false;
+  kernelEnd = LINUX_KERNEL_LOAD_IPA + package.kernelSize;
+
+  if (addOverflows(LINUX_KERNEL_LOAD_IPA, package.entryOffset))
+    return false;
+  uint64_t entryIpa = LINUX_KERNEL_LOAD_IPA + package.entryOffset;
+
+  uint64_t highCursor = guestEnd;
+  uint64_t initrdIpa {};
+
+  if (package.initrdSize != 0) {
+    if (package.initrdSize > highCursor)
+      return false;
+    initrdIpa = alignDown(highCursor - package.initrdSize, ALIGN_2MB);
+    if (initrdIpa < kernelEnd)
+      return false;
+    highCursor = initrdIpa;
+  }
+
+  if (package.dtbSize > highCursor)
+    return false;
+  uint64_t dtbIpa = alignDown(highCursor - package.dtbSize, ALIGN_64K);
+  if (dtbIpa < kernelEnd)
+    return false;
+
+  if (entryIpa < LINUX_KERNEL_LOAD_IPA || entryIpa >= kernelEnd)
+    return false;
+
+  out.guestIpaBase = GUEST_IPA_BASE;
+  out.guestRamSize = GUEST_RAM_SIZE;
+  out.kernelIpa = LINUX_KERNEL_LOAD_IPA;
+  out.kernelSize = package.kernelSize;
+  out.entryIpa = entryIpa;
+  out.dtbIpa = dtbIpa;
+  out.dtbSize = package.dtbSize;
+  out.initrdIpa = initrdIpa;
+  out.initrdSize = package.initrdSize;
+  return true;
+}
+
+LoadResult loadLinuxGuest(const MemoryMap& map) {
+  if (map.bootPackageBase == 0 || map.bootPackageSize == 0)
+    return loadFail(LoadError::MissingFirmwarePackage);
+
+  const auto* packageBytes =
+    static_cast<const uint8_t*>(HostMmu::paToVa(map.bootPackageBase));
+
+  ValidateResult validated = validate(packageBytes, map.bootPackageSize);
+  if (!validated.isValid)
+    return loadFail(LoadError::InvalidPackage, validated.error);
+
+  GuestLayout layout = {};
+  if (!calculateGuestLayout(validated.package, layout))
+    return loadFail(LoadError::GuestLayoutOverflow);
+
+  uint64_t guestRamHostPa = pmm::allocPages(GUEST_RAM_ORDER);
+  if (guestRamHostPa == 0)
+    return loadFail(LoadError::GuestRamAllocationFailed);
+
+  copyToGuest(guestRamHostPa, layout.kernelIpa,
+              packageBytes + validated.package.kernelOffset,
+              validated.package.kernelSize);
+  copyToGuest(guestRamHostPa, layout.dtbIpa,
+              packageBytes + validated.package.dtbOffset,
+              validated.package.dtbSize);
+  void* guestDtb = HostMmu::paToVa(guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE));
+  if (!patchGuestDtb(guestDtb, layout))
+    return loadFail(LoadError::GuestDtbPatchFailed);
+
+  if (validated.package.initrdSize != 0) {
+    copyToGuest(guestRamHostPa, layout.initrdIpa,
+                packageBytes + validated.package.initrdOffset,
+                validated.package.initrdSize);
+  }
+
+  LoadResult result = {};
+  result.isLoaded = true;
+  result.error = LoadError::None;
+  result.validateError = ValidateError::None;
+  result.guest.guestRamHostPa = guestRamHostPa;
+  result.guest.guestIpaBase = layout.guestIpaBase;
+  result.guest.guestRamSize = layout.guestRamSize;
+  result.guest.entryIpa = layout.entryIpa;
+  result.guest.dtbIpa = layout.dtbIpa;
   return result;
 }
 

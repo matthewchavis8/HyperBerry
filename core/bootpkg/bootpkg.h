@@ -13,6 +13,8 @@
 
 #include <stdint.h>
 
+#include "core/dtb/dtb.h"
+
 namespace bootpkg {
 
 static constexpr uint32_t HGBP_MAGIC = 0x50424748U; // "HGBP"
@@ -24,6 +26,10 @@ static constexpr uint32_t HGBP_BOOT_PROTOCOL_BARE_METAL_AARCH64 = 2;
 
 static constexpr uint32_t HGBP_FLAG_INITRD_PRESENT = (1U << 0);
 static constexpr uint32_t HGBP_KNOWN_FLAGS = HGBP_FLAG_INITRD_PRESENT;
+
+static constexpr uint64_t GUEST_IPA_BASE = 0x0ULL;
+static constexpr uint64_t GUEST_RAM_SIZE = 256ULL * 1024ULL * 1024ULL;
+static constexpr uint64_t LINUX_KERNEL_LOAD_IPA = 0x80000ULL;
 
 struct PackageView {
   uint64_t totalSize;
@@ -37,6 +43,26 @@ struct PackageView {
   uint64_t initrdSize;
   uint64_t entryOffset;
   const char* buildId;
+};
+
+struct GuestLayout {
+  uint64_t guestIpaBase;
+  uint64_t guestRamSize;
+  uint64_t kernelIpa;
+  uint64_t kernelSize;
+  uint64_t entryIpa;
+  uint64_t dtbIpa;
+  uint64_t dtbSize;
+  uint64_t initrdIpa;
+  uint64_t initrdSize;
+};
+
+struct LoadedGuest {
+  uint64_t guestRamHostPa;
+  uint64_t guestIpaBase;
+  uint64_t guestRamSize;
+  uint64_t entryIpa;
+  uint64_t dtbIpa;
 };
 
 enum class ValidateError : uint32_t {
@@ -59,12 +85,29 @@ enum class ValidateError : uint32_t {
   BadInitrdOffset,
   BadTotalLayout,
   ComponentOutOfBounds,
+  GuestLayoutOverflow,
+};
+
+enum class LoadError : uint32_t {
+  None = 0,
+  MissingFirmwarePackage,
+  InvalidPackage,
+  GuestLayoutOverflow,
+  GuestRamAllocationFailed,
+  GuestDtbPatchFailed,
 };
 
 struct ValidateResult {
   bool isValid;
   ValidateError error;
   PackageView package;
+};
+
+struct LoadResult {
+  bool isLoaded;
+  LoadError error;
+  ValidateError validateError;
+  LoadedGuest guest;
 };
 
 /**
@@ -74,6 +117,21 @@ struct ValidateResult {
  * @return Parsed package metadata when valid; otherwise the first error found.
  */
 ValidateResult validate(const void* package, uint64_t size);
+
+/**
+ * @brief Calculate the v1 Linux guest IPA layout for a validated package.
+ * @param package Validated package metadata.
+ * @param out Output guest layout.
+ * @return True when all components fit in the fixed v1 guest RAM region.
+ */
+bool calculateGuestLayout(const PackageView& package, GuestLayout& out);
+
+/**
+ * @brief Validate and copy a firmware package into newly allocated guest RAM.
+ * @param map Boot-time host memory map including the firmware package region.
+ * @return Loaded guest metadata when successful.
+ */
+LoadResult loadLinuxGuest(const MemoryMap& map);
 
 /**
  * @brief Compute IEEE CRC32 over a byte range.
