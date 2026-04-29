@@ -109,6 +109,13 @@ static uint64_t readU64Cells(const volatile uint32_t* data) {
   return (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
 }
 
+static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLen) {
+  if (dataLen >= 8)
+    return readU64Cells(data);
+
+  return static_cast<uint64_t>(be32(data[0]));
+}
+
 /**
  * @brief Advance a byte pointer to the next 4-byte DTB-aligned location.
  * @param ptr Start pointer.
@@ -221,11 +228,11 @@ MemoryMap parseDtb(uintptr_t dtb) {
             readReg64(propData, map.atfBase, map.atfSize);
             foundAtf = true;
           }
-        } else if (inChosen && dataLen >= 8) {
+        } else if (inChosen && dataLen >= 4) {
           if (strEq(propName, "linux,initrd-start")) {
-            map.bootPackageBase = readU64Cells(propData);
+            map.bootPackageBase = readInitrdAddress(propData, dataLen);
           } else if (strEq(propName, "linux,initrd-end")) {
-            uint64_t end = readU64Cells(propData);
+            uint64_t end = readInitrdAddress(propData, dataLen);
             if (end > map.bootPackageBase)
               map.bootPackageSize = end - map.bootPackageBase;
           }

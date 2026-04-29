@@ -330,7 +330,7 @@ ValidateResult validate(const void* package, uint64_t size) {
   view.entryOffset = readLe64(bytes, OFF_ENTRY_OFFSET);
   view.buildId = reinterpret_cast<const char*>(bytes + OFF_BUILD_ID);
 
-  if (view.totalSize != size || view.totalSize < HGBP_HEADER_SIZE)
+  if (view.totalSize < HGBP_HEADER_SIZE || view.totalSize > size)
     return fail(ValidateError::BadTotalSize);
 
   uint32_t expectedHeaderCrc = readLe32(bytes, OFF_HEADER_CRC32);

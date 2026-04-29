@@ -111,6 +111,13 @@ public:
     pushBE32(static_cast<uint32_t>(value));
   }
 
+  void propU32Cell(uint32_t nameOff, uint32_t value) {
+    pushBE32(3); // FDT_PROP
+    pushBE32(4); // dataLen
+    pushBE32(nameOff);
+    pushBE32(value);
+  }
+
   void nop() { pushBE32(4); }
   void end() { pushBE32(9); }
 
@@ -216,6 +223,31 @@ TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
     b.beginNode("chosen");
       b.propU64Cells(initrdStart, 0x20000000ULL);
       b.propU64Cells(initrdEnd, 0x20400000ULL);
+    b.endNode();
+  b.endNode();
+  b.end();
+
+  auto blob = b.build();
+  MemoryMap map = parseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+
+  EXPECT_TRUE(map.isValid);
+  EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
+  EXPECT_EQ(map.bootPackageSize, 0x400000ULL);
+}
+
+TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
+  DtbBuilder b;
+  uint32_t reg = b.addString("reg");
+  uint32_t initrdStart = b.addString("linux,initrd-start");
+  uint32_t initrdEnd = b.addString("linux,initrd-end");
+
+  b.beginNode("");
+    b.beginNode("memory@0");
+      b.propReg64(reg, 0x0ULL, 0x40000000ULL);
+    b.endNode();
+    b.beginNode("chosen");
+      b.propU32Cell(initrdStart, 0x20000000U);
+      b.propU32Cell(initrdEnd, 0x20400000U);
     b.endNode();
   b.endNode();
   b.end();
