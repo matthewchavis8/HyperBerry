@@ -27,6 +27,8 @@ struct alignas(16) MemoryMap {
   uint64_t atfSize;  /**< Size in bytes of the TF-A reserved region.          */
   uint64_t dtbBase;  /**< Base physical address of the DTB blob.              */
   uint64_t dtbSize;  /**< Total size in bytes of the DTB blob.                */
+  uint64_t bootPackageBase; /**< Base address of firmware-loaded guest package. */
+  uint64_t bootPackageSize; /**< Size in bytes of firmware-loaded guest package. */
   bool     isValid;    /**< True only if all fields were successfully parsed.   */
 };
 

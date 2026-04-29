@@ -30,13 +30,16 @@ public:
    * are in place before the vCPU's first entry. VTTBR_EL2 /
    * HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
    *
-   * @param ipaBase     Guest IPA base identity-mapped to matching PA.
-   * @param sizeBytes   Size of the identity-mapped region.
-   * @param vmid        Non-zero VMID (unique across live VMs).
-   * @param guestEntry  Guest IPA at which to resume on first @c eret.
+   * @param ipaBase        Guest IPA base.
+   * @param guestRamHostPa Host physical base backing guest RAM.
+   * @param sizeBytes      Size of the guest RAM region.
+   * @param vmid           Non-zero VMID (unique across live VMs).
+   * @param guestEntry     Guest IPA at which to resume on first @c eret.
+   * @param guestDtb       Guest IPA of the Linux device tree blob.
    */
-  void init(const char* name, uint64_t ipaBase, uint64_t sizeBytes, uint8_t vmid,
-            uint64_t guestEntry);
+  void init(const char* name, uint64_t ipaBase, uint64_t guestRamHostPa,
+            uint64_t sizeBytes, uint8_t vmid, uint64_t guestEntry,
+            uint64_t guestDtb);
 
   /**
    * @brief Enable stage-2 and enter the guest.

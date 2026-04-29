@@ -15,6 +15,7 @@ static constexpr uint64_t SPSR_EL1H_ALL_MASKED =
 // via extern declarations. Sentinel 0xDEADDEADDEADDEADULL means "not set".
 uint64_t gVcpuInitEntryCap   = 0xDEADDEADDEADDEADULL;
 uint64_t gVcpuSetGuestSpCap  = 0xDEADDEADDEADDEADULL;
+uint64_t gVcpuSetX0Cap       = 0xDEADDEADDEADDEADULL;
 
 void Vcpu::init(uint64_t entrypoint) {
   gVcpuInitEntryCap = entrypoint;
@@ -42,6 +43,8 @@ uint64_t Vcpu::getGpReg(uint64_t off) const {
 }
 
 void Vcpu::setGpReg(uint64_t off, uint64_t val) {
+  if (off == VCPU_GPREG_X0)
+    gVcpuSetX0Cap = val;
   m_gpRegs.regs[regIdx(off)] = val;
 }
 

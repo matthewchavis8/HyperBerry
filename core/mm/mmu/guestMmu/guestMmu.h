@@ -54,11 +54,12 @@ private:
 public:
   /**
    * @brief Allocate the stage-2 root table, program VTCR_EL2, and
-   *        identity-map a contiguous IPA range in 2 MiB blocks.
-   * @param ipaBase   Start of the identity-mapped region.
-   * @param sizeBytes Size of the region (must be 2 MiB aligned).
+   *        map a contiguous guest IPA range to host physical memory.
+   * @param ipaBase    Start of the guest IPA region.
+   * @param hostPaBase Start of the backing host physical region.
+   * @param sizeBytes  Size of the region (must be 2 MiB aligned).
    */
-  void init(uint64_t ipaBase, uint64_t sizeBytes);
+  void init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes);
 
   /**
    * @brief Install one 2 MiB stage-2 block descriptor.

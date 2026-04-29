@@ -76,6 +76,17 @@ static bool strEq(const char* str1, const char* str2) {
     str2++;
   }
 
+  return *str1 == *str2;
+}
+
+static bool strStartsWith(const char* str, const char* prefix) {
+  while (*prefix) {
+    if (*str != *prefix)
+      return false;
+    str++;
+    prefix++;
+  }
+
   return true;
 }
 
@@ -92,6 +103,10 @@ static bool strEq(const char* str1, const char* str2) {
 static void readReg64(const volatile uint32_t* data, uint64_t& base, uint64_t& size) {
   base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
   size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
+}
+
+static uint64_t readU64Cells(const volatile uint32_t* data) {
+  return (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
 }
 
 /**
@@ -137,6 +152,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
   bool inReservedMemory = false;
   bool inMemory = false;
   bool inAtf = false;
+  bool inChosen = false;
 
   int depth {};
 
@@ -156,8 +172,9 @@ MemoryMap parseDtb(uintptr_t dtb) {
 
         // depth == 1: inside root "/", entering a top-level node
         if (depth == 1) {
-          inMemory         = strEq(name, "memory");
+          inMemory         = strStartsWith(name, "memory");
           inReservedMemory = strEq(name, "reserved-memory");
+          inChosen         = strEq(name, "chosen");
         // depth == 2: inside reserved-memory, entering a child node
         } else if (depth == 2 && inReservedMemory) {
           inAtf = strEq(name, "atf") || strEq(name, "bl31") ||
@@ -180,6 +197,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
         if (depth == 1) {
           inMemory = false;
           inReservedMemory = false;
+          inChosen = false;
         } else if (depth == 2) {
           inAtf = false;
         }
@@ -202,6 +220,14 @@ MemoryMap parseDtb(uintptr_t dtb) {
           } else if (inAtf && !foundAtf) {
             readReg64(propData, map.atfBase, map.atfSize);
             foundAtf = true;
+          }
+        } else if (inChosen && dataLen >= 8) {
+          if (strEq(propName, "linux,initrd-start")) {
+            map.bootPackageBase = readU64Cells(propData);
+          } else if (strEq(propName, "linux,initrd-end")) {
+            uint64_t end = readU64Cells(propData);
+            if (end > map.bootPackageBase)
+              map.bootPackageSize = end - map.bootPackageBase;
           }
         }
 
