@@ -106,6 +106,7 @@ target_link_libraries(${ELF}
   HostMmu
   GuestMmu
   Dtb
+  BootPkg
   Vcpu
   Vm
   Panic
