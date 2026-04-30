@@ -143,6 +143,8 @@ uint64_t allocPages(uint32_t order) {
       break;
     }
   }
+  if (found > MAX_ORDER)
+    return 0;
 
   // We found a buddy block that fits the request so allocate it
   uint64_t addr = listPop(found);
