@@ -20,10 +20,13 @@ jobs:
         run: cmake --preset integration-test -DBOARD=qemu
       - name: Build QEMU integration tests
         run: cmake --build --preset integration-test
+      - name: Build guest boot package
+        run: cmake --build --preset integration-test --target guest_pkg
       - name: Run QEMU integration tests
         uses: ./.github/actions/run-qemu-integration
         with:
           kernel: build/integration-test/kernel8.img
+          initrd: boot/guest-qemu.hvgbp
           log: build/integration-test/qemu.log
       - name: Upload QEMU serial logs
         if: failure()

@@ -28,6 +28,11 @@ def main() -> int:
         description="Run HyperBerry integration tests in QEMU and stop on verdict."
     )
     parser.add_argument("--kernel", required=True, help="Path to kernel8.img")
+    parser.add_argument(
+        "--initrd",
+        default="",
+        help="Optional initrd/guest boot package to pass to QEMU",
+    )
     parser.add_argument("--log", required=True, help="Path to the QEMU log file")
     parser.add_argument(
         "--timeout",
@@ -52,6 +57,8 @@ def main() -> int:
         "-kernel",
         args.kernel,
     ]
+    if args.initrd:
+        command.extend(["-initrd", args.initrd])
 
     start = time.monotonic()
     verdict = None
