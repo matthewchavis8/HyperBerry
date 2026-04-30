@@ -2,11 +2,11 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-const HGBP_MAGIC: u32 = 0x5042_4748;
-const HGBP_VERSION: u16 = 1;
-const HGBP_HEADER_SIZE: usize = 4096;
-const HGBP_BOOT_PROTOCOL_LINUX_ARM64: u32 = 1;
-const HGBP_FLAG_INITRD_PRESENT: u32 = 1 << 0;
+const HV_GUEST_BOOT_PKG_MAGIC: u32 = 0x5042_4748;
+const HV_GUEST_BOOT_PKG_VERSION: u16 = 1;
+const HV_GUEST_BOOT_PKG_HEADER_SIZE: usize = 4096;
+const HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64: u32 = 1;
+const HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT: u32 = 1 << 0;
 
 const OFF_MAGIC: usize = 0;
 const OFF_VERSION: usize = 4;
@@ -77,7 +77,7 @@ fn write_le64(buf: &mut [u8], off: usize, value: u64) {
 }
 
 fn usage() -> &'static str {
-    "usage: mkguestpkg --kernel Image --dtb guest.dtb [--initrd rootfs.cpio.gz] --out boot/guest.hgbp [--build-id text]"
+    "usage: mkguestpkg --kernel Image --dtb guest.dtb [--initrd rootfs.cpio.gz] --out boot/guest.hvgbp [--build-id text]"
 }
 
 fn parse_args<I>(args: I) -> Result<Args, String>
@@ -124,7 +124,7 @@ fn layout(kernel_size: usize, dtb_size: usize, initrd_size: usize) -> Result<Lay
         return Err("dtb must not be empty".to_string());
     }
 
-    let kernel_offset = HGBP_HEADER_SIZE;
+    let kernel_offset = HV_GUEST_BOOT_PKG_HEADER_SIZE;
     let dtb_offset = align4k(
         kernel_offset
             .checked_add(kernel_size)
@@ -161,7 +161,7 @@ fn layout(kernel_size: usize, dtb_size: usize, initrd_size: usize) -> Result<Lay
         initrd_size,
         total_size: align4k(last_end),
         flags: if has_initrd {
-            HGBP_FLAG_INITRD_PRESENT
+            HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT
         } else {
             0
         },
@@ -194,14 +194,14 @@ fn build_package(
     let layout = layout(kernel.len(), dtb.len(), initrd_size)?;
     let mut package = vec![0u8; layout.total_size];
 
-    write_le32(&mut package, OFF_MAGIC, HGBP_MAGIC);
-    write_le16(&mut package, OFF_VERSION, HGBP_VERSION);
-    write_le16(&mut package, OFF_HEADER_SIZE, HGBP_HEADER_SIZE as u16);
+    write_le32(&mut package, OFF_MAGIC, HV_GUEST_BOOT_PKG_MAGIC);
+    write_le16(&mut package, OFF_VERSION, HV_GUEST_BOOT_PKG_VERSION);
+    write_le16(&mut package, OFF_HEADER_SIZE, HV_GUEST_BOOT_PKG_HEADER_SIZE as u16);
     write_le64(&mut package, OFF_TOTAL_SIZE, layout.total_size as u64);
     write_le32(
         &mut package,
         OFF_BOOT_PROTOCOL,
-        HGBP_BOOT_PROTOCOL_LINUX_ARM64,
+        HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64,
     );
     write_le32(&mut package, OFF_FLAGS, layout.flags);
     write_le64(&mut package, OFF_KERNEL_OFFSET, layout.kernel_offset as u64);
@@ -221,10 +221,10 @@ fn build_package(
             .copy_from_slice(initrd);
     }
 
-    let payload_crc = crc32(&package[HGBP_HEADER_SIZE..]);
+    let payload_crc = crc32(&package[HV_GUEST_BOOT_PKG_HEADER_SIZE..]);
     write_le32(&mut package, OFF_PAYLOAD_CRC32, payload_crc);
     let header_crc = {
-        let mut header = package[..HGBP_HEADER_SIZE].to_vec();
+        let mut header = package[..HV_GUEST_BOOT_PKG_HEADER_SIZE].to_vec();
         write_le32(&mut header, OFF_HEADER_CRC32, 0);
         write_le32(&mut header, OFF_PAYLOAD_CRC32, 0);
         crc32(&header)
@@ -295,11 +295,11 @@ mod tests {
     fn layout_with_initrd_is_canonical() {
         let layout = layout(0x1800, 0x800, 0x2800).unwrap();
 
-        assert_eq!(layout.kernel_offset, HGBP_HEADER_SIZE);
+        assert_eq!(layout.kernel_offset, HV_GUEST_BOOT_PKG_HEADER_SIZE);
         assert_eq!(layout.dtb_offset, 0x3000);
         assert_eq!(layout.initrd_offset, 0x4000);
         assert_eq!(layout.total_size, 0x7000);
-        assert_eq!(layout.flags, HGBP_FLAG_INITRD_PRESENT);
+        assert_eq!(layout.flags, HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT);
     }
 
     #[test]
@@ -316,19 +316,19 @@ mod tests {
     fn package_header_uses_expected_little_endian_fields() {
         let package = build_package(&vec![0x11; 0x1800], &vec![0x22; 0x800], None, None).unwrap();
 
-        assert_eq!(read_le32(&package, OFF_MAGIC), HGBP_MAGIC);
-        assert_eq!(read_le16(&package, OFF_VERSION), HGBP_VERSION);
+        assert_eq!(read_le32(&package, OFF_MAGIC), HV_GUEST_BOOT_PKG_MAGIC);
+        assert_eq!(read_le16(&package, OFF_VERSION), HV_GUEST_BOOT_PKG_VERSION);
         assert_eq!(
             read_le16(&package, OFF_HEADER_SIZE),
-            HGBP_HEADER_SIZE as u16
+            HV_GUEST_BOOT_PKG_HEADER_SIZE as u16
         );
         assert_eq!(
             read_le32(&package, OFF_BOOT_PROTOCOL),
-            HGBP_BOOT_PROTOCOL_LINUX_ARM64
+            HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64
         );
         assert_eq!(
             read_le64(&package, OFF_KERNEL_OFFSET),
-            HGBP_HEADER_SIZE as u64
+            HV_GUEST_BOOT_PKG_HEADER_SIZE as u64
         );
         assert_eq!(read_le64(&package, OFF_KERNEL_SIZE), 0x1800);
         assert_eq!(read_le64(&package, OFF_DTB_OFFSET), 0x3000);
@@ -350,12 +350,12 @@ mod tests {
         let header_crc = read_le32(&package, OFF_HEADER_CRC32);
         let payload_crc = read_le32(&package, OFF_PAYLOAD_CRC32);
 
-        let mut header = package[..HGBP_HEADER_SIZE].to_vec();
+        let mut header = package[..HV_GUEST_BOOT_PKG_HEADER_SIZE].to_vec();
         write_le32(&mut header, OFF_HEADER_CRC32, 0);
         write_le32(&mut header, OFF_PAYLOAD_CRC32, 0);
 
         assert_eq!(header_crc, crc32(&header));
-        assert_eq!(payload_crc, crc32(&package[HGBP_HEADER_SIZE..]));
+        assert_eq!(payload_crc, crc32(&package[HV_GUEST_BOOT_PKG_HEADER_SIZE..]));
     }
 
     #[test]
@@ -387,13 +387,13 @@ mod tests {
             "--dtb".to_string(),
             "guest.dtb".to_string(),
             "--out".to_string(),
-            "guest.hgbp".to_string(),
+            "guest.hvgbp".to_string(),
         ])
         .unwrap();
 
         assert_eq!(args.kernel, PathBuf::from("Image"));
         assert_eq!(args.dtb, PathBuf::from("guest.dtb"));
-        assert_eq!(args.out, PathBuf::from("guest.hgbp"));
+        assert_eq!(args.out, PathBuf::from("guest.hvgbp"));
         assert_eq!(args.initrd, None);
     }
 }

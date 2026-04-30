@@ -17,7 +17,7 @@ namespace {
 static uint64_t gAllocPagesReturn = 0x10000000ULL;
 static uint32_t gAllocPagesOrder = UINT32_MAX;
 
-static constexpr uint64_t kHeaderSize = bootpkg::HGBP_HEADER_SIZE;
+static constexpr uint64_t kHeaderSize = bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE;
 static constexpr uint64_t kKernelSize = 0x1800;
 static constexpr uint64_t kDtbSize = 0x800;
 static constexpr uint64_t kInitrdSize = 0x2800;
@@ -245,12 +245,12 @@ std::vector<uint8_t> buildPackage(bool withInitrd = true) {
 
   std::vector<uint8_t> data(totalSize, 0);
 
-  writeLe32(data, 0, bootpkg::HGBP_MAGIC);
-  writeLe16(data, 4, bootpkg::HGBP_VERSION);
-  writeLe16(data, 6, bootpkg::HGBP_HEADER_SIZE);
+  writeLe32(data, 0, bootpkg::HV_GUEST_BOOT_PKG_MAGIC);
+  writeLe16(data, 4, bootpkg::HV_GUEST_BOOT_PKG_VERSION);
+  writeLe16(data, 6, bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE);
   writeLe64(data, 8, totalSize);
-  writeLe32(data, 24, bootpkg::HGBP_BOOT_PROTOCOL_LINUX_ARM64);
-  writeLe32(data, 28, withInitrd ? bootpkg::HGBP_FLAG_INITRD_PRESENT : 0);
+  writeLe32(data, 24, bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64);
+  writeLe32(data, 28, withInitrd ? bootpkg::HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT : 0);
   writeLe64(data, 32, kernelOffset);
   writeLe64(data, 40, kKernelSize);
   writeLe64(data, 48, dtbOffset);
@@ -295,7 +295,7 @@ TEST(BootPkg, ValidPackageWithInitrdParsesMetadata) {
   EXPECT_EQ(result.package.kernelSize, kKernelSize);
   EXPECT_EQ(result.package.dtbSize, kDtbSize);
   EXPECT_EQ(result.package.initrdSize, kInitrdSize);
-  EXPECT_EQ(result.package.flags, bootpkg::HGBP_FLAG_INITRD_PRESENT);
+  EXPECT_EQ(result.package.flags, bootpkg::HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT);
 }
 
 TEST(BootPkg, ValidPackageWithoutInitrdParsesMetadata) {
@@ -372,7 +372,7 @@ TEST(BootPkg, RejectsPayloadCrcMismatch) {
 
 TEST(BootPkg, RejectsUnsupportedBootProtocol) {
   auto data = buildPackage();
-  writeLe32(data, 24, bootpkg::HGBP_BOOT_PROTOCOL_BARE_METAL_AARCH64);
+  writeLe32(data, 24, bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64);
 
   EXPECT_EQ(validateError(data),
             bootpkg::ValidateError::UnsupportedBootProtocol);
@@ -380,7 +380,7 @@ TEST(BootPkg, RejectsUnsupportedBootProtocol) {
 
 TEST(BootPkg, RejectsUnknownFlags) {
   auto data = buildPackage();
-  writeLe32(data, 28, bootpkg::HGBP_FLAG_INITRD_PRESENT | (1U << 8));
+  writeLe32(data, 28, bootpkg::HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT | (1U << 8));
 
   EXPECT_EQ(validateError(data), bootpkg::ValidateError::UnknownFlags);
 }

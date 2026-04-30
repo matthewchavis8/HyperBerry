@@ -156,8 +156,28 @@ add_custom_command(
 
 # QEMU run target
 if (BOARD STREQUAL "qemu")
-  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/guest-qemu.hgbp"
+  set(QEMU_GUEST_KERNEL "${CMAKE_SOURCE_DIR}/Image"
+      CACHE FILEPATH "Guest Linux kernel Image for QEMU")
+  set(QEMU_GUEST_DTB    "${CMAKE_SOURCE_DIR}/boot/guest-qemu.dtb"
+      CACHE FILEPATH "Guest DTB for QEMU")
+  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/guest-qemu.hvgbp"
       CACHE STRING "QEMU guest boot package")
+
+  find_program(CARGO_CMD cargo REQUIRED)
+
+  add_custom_command(
+    OUTPUT  ${QEMU_GUEST_PACKAGE}
+    COMMAND ${CARGO_CMD} build --release --manifest-path
+              ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
+    COMMAND ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg
+              --kernel ${QEMU_GUEST_KERNEL}
+              --dtb    ${QEMU_GUEST_DTB}
+              --out    ${QEMU_GUEST_PACKAGE}
+    DEPENDS ${QEMU_GUEST_KERNEL} ${QEMU_GUEST_DTB}
+    COMMENT "[LOG] Building guest-qemu.hvgbp"
+  )
+
+  add_custom_target(guest_pkg DEPENDS ${QEMU_GUEST_PACKAGE})
 
   add_custom_target(run
     COMMAND qemu-system-aarch64
@@ -167,7 +187,7 @@ if (BOARD STREQUAL "qemu")
       -nographic
       -kernel ${CMAKE_BINARY_DIR}/kernel8.img
       -initrd ${QEMU_GUEST_PACKAGE}
-    DEPENDS hyperberry.elf
+    DEPENDS hyperberry.elf guest_pkg
     COMMENT "[LOG] Launching HyperBerry in QEMU"
   )
 endif()
@@ -192,8 +212,8 @@ if (BOARD STREQUAL "rpi5")
       ${CMAKE_SOURCE_DIR}/boot/fixup4.dat
       ${SD_MOUNT}/fixup4.dat
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/guest.hgbp
-      ${SD_MOUNT}/guest.hgbp
+      ${CMAKE_SOURCE_DIR}/boot/guest.hvgbp
+      ${SD_MOUNT}/guest.hvgbp
 
     DEPENDS hyperberry.elf
     COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
