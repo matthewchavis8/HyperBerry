@@ -4,6 +4,7 @@
  * @ingroup mm
  */
 
+#include "bsp/bsp.h"
 #include "core/mm/pageTable/pageTable.h"
 #include "drivers/uart/uart.h"
 #include "guestMmu.h"
@@ -11,13 +12,6 @@
 namespace {
   constexpr uint32_t kStage2StartLevel = 1;   // T0SZ=32 -> start at L1 since the guest is 32 bit for now
   constexpr uint64_t kStage2T0sz       = 32;
-
-#if defined(PLATFORM_QEMU)
-  // TODO: Move platform-specific IPA constants into a BSP-style layer
-  // so `#if PLATFORM_*` mappings don't keep accumulating in core MMU code.
-  constexpr uint64_t kQemuGicIpa  = 0x08000000;
-  constexpr uint64_t kQemuUartIpa = 0x09000000;
-#endif
 
   constexpr PageTable::WalkConfig kStage2Walk {
     kStage2StartLevel,
@@ -64,11 +58,13 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
     mapBlock(ipaBase + off, hostPaBase + off, false);
   }
 
-#if defined(PLATFORM_QEMU)
-  Uart::println("[GuestMmu] Mapping QEMU guest MMIO");
-  mapBlock(kQemuGicIpa, kQemuGicIpa, true);
-  mapBlock(kQemuUartIpa, kQemuUartIpa, true);
-#endif
+  Uart::println("[GuestMmu] Mapping guest MMIO");
+  for (size_t rangeIndex {}; rangeIndex < b::GuestMmioCount; ++rangeIndex) {
+    const b::MmioRange& range = b::GuestMmio[rangeIndex];
+    for (uint64_t off {}; off < range.size; off += SIZE_2MB) {
+      mapBlock(range.ipa + off, range.pa + off, true);
+    }
+  }
 
   Uart::println("[GuestMmu] init finished");
 }

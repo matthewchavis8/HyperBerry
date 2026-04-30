@@ -27,7 +27,7 @@
  *
  * @note Target: physical BCM2712 SoC (Raspberry Pi 5).
  *       Shared C/C++ code selects UART and MMIO ranges from the Raspberry Pi 5
- *       platform definition.
+ *       BSP definition.
  * @warning Secondary cores (1–3) are parked in a `wfe` loop. Future
  *          SMP support will require a spin-table or PSCI wake-up sequence.
  */

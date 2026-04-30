@@ -4,7 +4,7 @@
  *
  * Provides transmit and receive functionality over the PL011 UART peripheral
  * for both QEMU virt and Raspberry Pi 5 hardware targets. The MMIO base
- * address is selected from the active platform definition.
+ * address is selected from the active BSP definition.
  */
 
 #ifndef __UART_H__
@@ -244,7 +244,7 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
 } // namespace uart::detail
 
 /**
- * @brief PL011 register offsets from @ref Platform::kUartBase.
+ * @brief PL011 register offsets from @ref b::UartBase.
  * @ingroup drivers_uart
  */
 enum class UART_REG : uint8_t {

@@ -5,11 +5,11 @@
  */
 
 #include "uart.h"
-#include "platform/platform_def.h"
+#include "bsp/bsp.h"
 #include <stdint.h>
 
 volatile uint32_t* Uart::reg(UART_REG reg) {
-  return reinterpret_cast<volatile uint32_t*>(Platform::kUartBase + static_cast<uint64_t>(reg));
+  return reinterpret_cast<volatile uint32_t*>(b::UartBase + static_cast<uint64_t>(reg));
 }
 
 void Uart::init() {

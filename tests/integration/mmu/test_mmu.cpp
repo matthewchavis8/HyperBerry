@@ -3,6 +3,7 @@
  * @brief Integration tests for EL2 MMU mappings and runtime APIs.
  */
 
+#include "bsp/bsp.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "tests/integration/suite.h"
 
@@ -58,8 +59,8 @@ static bool test_hv_identity_mapping_present() {
 }
 
 static bool test_peripheral_mapping_present() {
-  return entryMatches(walkToL2Entry(Platform::kPeripheralBase),
-                      Platform::kPeripheralBase,
+  return entryMatches(walkToL2Entry(b::HvMmioBase),
+                      b::HvMmioBase,
                       PTE_DEVICE);
 }
 

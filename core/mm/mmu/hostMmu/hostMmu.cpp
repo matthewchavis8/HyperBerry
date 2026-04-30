@@ -47,10 +47,10 @@ namespace HostMmu {
     Uart::println("[HostMmu] Mapping HV DRAM");
     mapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
-    Uart::println("[HostMmu] Mapping periph space");
-    mapRange(Platform::kPeripheralBase,
-             Platform::kPeripheralBase,
-             Platform::kPeripheralSize,
+    Uart::println("[HostMmu] Mapping HV MMIO space");
+    mapRange(b::HvMmioBase,
+             b::HvMmioBase,
+             b::HvMmioSize,
              PTE_DEVICE);
 
     Uart::println("[HostMmu] Programming TTBR0");

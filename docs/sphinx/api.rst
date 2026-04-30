@@ -148,8 +148,8 @@ Prints a full exception-state register dump to UART for diagnostics.
 .. doxygenfile:: registerDump.h
    :project: HyperBerry
 
-Platform
---------
+BSP
+---
 
 Compile-time board constants selected by the active target. This is a
 top-level hardware description group, not part of the freestanding helper
@@ -158,10 +158,10 @@ library.
 Selection Wrapper
 ~~~~~~~~~~~~~~~~~
 
-``platform_def.h`` picks exactly one board definition based on the build:
-``PLATFORM_QEMU`` or ``PLATFORM_RPI5``.
+``bsp.h`` picks exactly one board definition based on the build:
+``BSP_QEMU`` or ``BSP_RPI5``.
 
-.. doxygenfile:: platform_def.h
+.. doxygenfile:: bsp.h
    :project: HyperBerry
    :sections: define
 
@@ -170,9 +170,9 @@ QEMU virt
 
 Base addresses exposed today:
 
-- ``Platform::kUartBase = 0x09000000``
-- ``Platform::kPeripheralBase = 0x08000000``
-- ``Platform::kPeripheralSize = 0x38000000``
+- ``b::UartBase = 0x09000000``
+- ``b::HvMmioBase = 0x08000000``
+- ``b::HvMmioSize = 0x38000000``
 
 .. doxygenfile:: qemu.h
    :project: HyperBerry
@@ -183,9 +183,9 @@ Raspberry Pi 5
 
 Base addresses exposed today:
 
-- ``Platform::kUartBase = 0x107D001000``
-- ``Platform::kPeripheralBase = 0x107D000000``
-- ``Platform::kPeripheralSize = 0x200000000``
+- ``b::UartBase = 0x107D001000``
+- ``b::HvMmioBase = 0x107D000000``
+- ``b::HvMmioSize = 0x200000000``
 
 .. doxygenfile:: rpi5.h
    :project: HyperBerry
