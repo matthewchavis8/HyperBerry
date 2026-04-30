@@ -50,6 +50,9 @@ public:
   
   /** @brief Return the guest kernel name passed to @ref init(). */
   const char* getName() const;
+  
+  /** @brief Return the guest vm ID passed to @ref init(). */
+  uint8_t getVmId() const;
 };
 
 #endif  // !__VM_H__
