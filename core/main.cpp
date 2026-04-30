@@ -21,18 +21,6 @@
 #include "tests/integration/suite.h"
 #endif
 
-namespace {
-
-void logBootPackageError(const bootpkg::LoadResult& result) {
-  Uart::println("[BootPkg][ERROR] load error={}", static_cast<uint64_t>(result.error));
-  if (result.error == bootpkg::LoadError::InvalidPackage) {
-    Uart::println("[BootPkg][ERROR] validation error={}",
-                  static_cast<uint64_t>(result.validateError));
-  }
-}
-
-} // namespace
-
 /**
  * @brief Main hypervisor entry point (called from boot.S).
  * @ingroup core
@@ -75,7 +63,6 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::println("[BootPkg] Attempting to load Linux guest package");
   bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
   if (!loaded.isLoaded) {
-    logBootPackageError(loaded);
     hv_panic("[ERROR][VM] Failed to spin up Linux VM");
   }
   Uart::println("[BootPkg] Linux guest package loaded");
