@@ -1,7 +1,7 @@
 # Boot 64-bit hypervisor at EL2
 arm_64bit=1
 kernel=kernel8.img
-initramfs guest.hgbp followkernel
+initramfs guest.hvgbp followkernel
 disable_commandline_tags=1
 
 # Give GPU the baremininum amount of RAM needed to boot

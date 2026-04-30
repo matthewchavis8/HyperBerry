@@ -1,16 +1,16 @@
 # HyperBerry Guest Boot Package
 
-The HyperBerry Guest Boot Package (HGBP) is the v1 container used to boot a
+The HyperBerry Guest Boot Package (hvGuestBootPkg) is the v1 container used to boot a
 Linux guest without adding storage drivers to the hypervisor. The Raspberry Pi
 firmware loads one package through `config.txt` as an initramfs, then exposes
 the loaded host RAM range through the host device tree.
 
 ## Boot Flow
 
-1. The SD card boot partition contains `kernel8.img`, `guest.hgbp`, and
+1. The SD card boot partition contains `kernel8.img`, `guest.hvgbp`, and
    `config.txt`.
 2. Raspberry Pi firmware loads `kernel8.img` as HyperBerry.
-3. Raspberry Pi firmware loads `guest.hgbp` as the configured initramfs.
+3. Raspberry Pi firmware loads `guest.hvgbp` as the configured initramfs.
 4. Firmware writes `/chosen/linux,initrd-start` and
    `/chosen/linux,initrd-end` into the host DTB.
 5. HyperBerry parses the host DTB and reserves the package region from PMM.
@@ -22,7 +22,7 @@ the loaded host RAM range through the host device tree.
 
 ```text
 kernel=kernel8.img
-initramfs guest.hgbp followkernel
+initramfs guest.hvgbp followkernel
 ```
 
 ## Package Rules
@@ -48,7 +48,7 @@ listed here are reserved and should be zero.
 
 | Offset | Size | Field | Description |
 | ---: | ---: | --- | --- |
-| 0 | 4 | `magic` | `0x50424748` (`HGBP`) |
+| 0 | 4 | `magic` | `0x50424748` |
 | 4 | 2 | `version` | `1` |
 | 6 | 2 | `header_size` | `4096` |
 | 8 | 8 | `total_size` | Exact package byte count |
@@ -150,7 +150,7 @@ cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --kernel path/to/Image \
   --dtb path/to/guest.dtb \
   --initrd path/to/rootfs.cpio.gz \
-  --out boot/guest.hgbp \
+  --out boot/guest.hvgbp \
   --build-id buildroot-aarch64-minimal
 ```
 
@@ -160,10 +160,10 @@ Kernel + DTB only:
 cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --kernel path/to/Image \
   --dtb path/to/guest.dtb \
-  --out boot/guest.hgbp
+  --out boot/guest.hvgbp
 ```
 
-Generated `.hgbp` files are intentionally ignored by git.
+Generated `.hvgbp` files are intentionally ignored by git.
 
 ## V1 Limitations
 

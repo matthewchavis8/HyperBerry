@@ -17,15 +17,15 @@
 
 namespace bootpkg {
 
-static constexpr uint32_t HGBP_MAGIC = 0x50424748U; // "HGBP"
-static constexpr uint16_t HGBP_VERSION = 1;
-static constexpr uint16_t HGBP_HEADER_SIZE = 4096;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_MAGIC = 0x50424748U;
+static constexpr uint16_t HV_GUEST_BOOT_PKG_VERSION = 1;
+static constexpr uint16_t HV_GUEST_BOOT_PKG_HEADER_SIZE = 4096;
 
-static constexpr uint32_t HGBP_BOOT_PROTOCOL_LINUX_ARM64 = 1;
-static constexpr uint32_t HGBP_BOOT_PROTOCOL_BARE_METAL_AARCH64 = 2;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64 = 1;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64 = 2;
 
-static constexpr uint32_t HGBP_FLAG_INITRD_PRESENT = (1U << 0);
-static constexpr uint32_t HGBP_KNOWN_FLAGS = HGBP_FLAG_INITRD_PRESENT;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT = (1U << 0);
+static constexpr uint32_t HV_GUEST_BOOT_PKG_KNOWN_FLAGS = HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT;
 
 static constexpr uint64_t GUEST_IPA_BASE = 0x0ULL;
 static constexpr uint64_t GUEST_RAM_SIZE = 256ULL * 1024ULL * 1024ULL;

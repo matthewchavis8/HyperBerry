@@ -160,7 +160,7 @@ uint32_t crc32Update(uint32_t crc, uint8_t byte) {
 uint32_t headerCrc32(const uint8_t* data) {
   uint32_t crc = 0xFFFFFFFFU;
 
-  for (uint64_t i {}; i < bootpkg::HGBP_HEADER_SIZE; i++) {
+  for (uint64_t i {}; i < bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE; i++) {
     uint8_t byte = data[i];
     if (i >= CHECKSUM_FIELDS_START && i < CHECKSUM_FIELDS_END)
       byte = 0;
@@ -305,16 +305,16 @@ uint32_t crc32(const void* data, uint64_t size) {
 ValidateResult validate(const void* package, uint64_t size) {
   if (package == nullptr)
     return fail(ValidateError::NullPackage);
-  if (size < HGBP_HEADER_SIZE)
+  if (size < HV_GUEST_BOOT_PKG_HEADER_SIZE)
     return fail(ValidateError::TooSmall);
 
   const auto* bytes = static_cast<const uint8_t*>(package);
 
-  if (readLe32(bytes, OFF_MAGIC) != HGBP_MAGIC)
+  if (readLe32(bytes, OFF_MAGIC) != HV_GUEST_BOOT_PKG_MAGIC)
     return fail(ValidateError::BadMagic);
-  if (readLe16(bytes, OFF_VERSION) != HGBP_VERSION)
+  if (readLe16(bytes, OFF_VERSION) != HV_GUEST_BOOT_PKG_VERSION)
     return fail(ValidateError::BadVersion);
-  if (readLe16(bytes, OFF_HEADER_SIZE) != HGBP_HEADER_SIZE)
+  if (readLe16(bytes, OFF_HEADER_SIZE) != HV_GUEST_BOOT_PKG_HEADER_SIZE)
     return fail(ValidateError::BadHeaderSize);
 
   PackageView view = {};
@@ -330,7 +330,7 @@ ValidateResult validate(const void* package, uint64_t size) {
   view.entryOffset = readLe64(bytes, OFF_ENTRY_OFFSET);
   view.buildId = reinterpret_cast<const char*>(bytes + OFF_BUILD_ID);
 
-  if (view.totalSize < HGBP_HEADER_SIZE || view.totalSize > size)
+  if (view.totalSize < HV_GUEST_BOOT_PKG_HEADER_SIZE || view.totalSize > size)
     return fail(ValidateError::BadTotalSize);
 
   uint32_t expectedHeaderCrc = readLe32(bytes, OFF_HEADER_CRC32);
@@ -338,26 +338,26 @@ ValidateResult validate(const void* package, uint64_t size) {
     return fail(ValidateError::BadHeaderCrc);
 
   uint32_t expectedPayloadCrc = readLe32(bytes, OFF_PAYLOAD_CRC32);
-  if (crc32(bytes + HGBP_HEADER_SIZE, view.totalSize - HGBP_HEADER_SIZE) != expectedPayloadCrc)
+  if (crc32(bytes + HV_GUEST_BOOT_PKG_HEADER_SIZE, view.totalSize - HV_GUEST_BOOT_PKG_HEADER_SIZE) != expectedPayloadCrc)
     return fail(ValidateError::BadPayloadCrc);
 
-  if (view.bootProtocol != HGBP_BOOT_PROTOCOL_LINUX_ARM64)
+  if (view.bootProtocol != HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64)
     return fail(ValidateError::UnsupportedBootProtocol);
-  if ((view.flags & ~HGBP_KNOWN_FLAGS) != 0)
+  if ((view.flags & ~HV_GUEST_BOOT_PKG_KNOWN_FLAGS) != 0)
     return fail(ValidateError::UnknownFlags);
   if (view.kernelSize == 0)
     return fail(ValidateError::MissingKernel);
   if (view.dtbSize == 0)
     return fail(ValidateError::MissingDtb);
 
-  bool hasInitrdFlag = (view.flags & HGBP_FLAG_INITRD_PRESENT) != 0;
+  bool hasInitrdFlag = (view.flags & HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT) != 0;
   bool hasInitrd = view.initrdSize != 0;
   if (hasInitrdFlag != hasInitrd)
     return fail(ValidateError::BadInitrdFlag);
   if (!hasInitrd && view.initrdOffset != 0)
     return fail(ValidateError::BadInitrdFlag);
 
-  if (view.kernelOffset != HGBP_HEADER_SIZE)
+  if (view.kernelOffset != HV_GUEST_BOOT_PKG_HEADER_SIZE)
     return fail(ValidateError::BadKernelOffset);
 
   uint64_t expectedDtbOffset = align4k(view.kernelOffset + view.kernelSize);
