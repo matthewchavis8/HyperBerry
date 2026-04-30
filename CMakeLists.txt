@@ -103,6 +103,7 @@ target_link_libraries(${ELF}
   PRIVATE
   Core
   Uart
+  Gic
   Exceptions
   Pmm
   Heap
