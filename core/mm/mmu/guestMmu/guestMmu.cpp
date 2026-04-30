@@ -13,6 +13,8 @@ namespace {
   constexpr uint64_t kStage2T0sz       = 32;
 
 #if defined(PLATFORM_QEMU)
+  // TODO: Move platform-specific IPA constants into a BSP-style layer
+  // so `#if PLATFORM_*` mappings don't keep accumulating in core MMU code.
   constexpr uint64_t kQemuGicIpa  = 0x08000000;
   constexpr uint64_t kQemuUartIpa = 0x09000000;
 #endif
