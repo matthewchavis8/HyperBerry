@@ -48,6 +48,7 @@ namespace HostMmu {
 
   /**
    * @brief Convert a host physical address to an EL2-accessible pointer.
+   * @ingroup mmu
    *
    * HyperBerry currently uses an identity direct map for RAM. Keeping this
    * helper at the boundary avoids spreading that assumption through loaders.

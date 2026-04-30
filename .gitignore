@@ -12,7 +12,7 @@ __pycache__/
 *.elf
 !boot/start4.elf
 *.bin
-boot/*.hgbp
+boot/*.hvgbp
 .codex
 .agents
 skills-lock.json

@@ -15,10 +15,6 @@ Memory Management
 
 Boot-time physical memory discovery and contiguous page allocation.
 
-.. doxygengroup:: mm
-   :project: HyperBerry
-   :members:
-
 PMM
 ~~~
 
@@ -36,6 +32,15 @@ Host stage-1 and guest stage-2 translation interfaces.
 .. doxygengroup:: mmu
    :project: HyperBerry
    :members:
+
+Heap
+~~~~
+
+PMM-backed kernel heap lifecycle used by global C++ allocation.
+
+.. doxygenfile:: heap.h
+   :project: HyperBerry
+   :sections: func
 
 Page Tables
 ~~~~~~~~~~~
@@ -71,15 +76,6 @@ VM
 ~~
 
 Per-guest container that owns one stage-2 MMU context and one guest vCPU.
-The public API currently consists of:
-
-- ``Vm::init(ipaBase, sizeBytes, vmid, guestEntry)`` to build stage-2
-  mappings and seed first-entry guest CPU state.
-- ``Vm::run()`` to commit the VM's stage-2 context and enter the guest.
-
-.. doxygengroup:: vm
-   :project: HyperBerry
-   :members:
 
 .. doxygenclass:: Vm
    :project: HyperBerry

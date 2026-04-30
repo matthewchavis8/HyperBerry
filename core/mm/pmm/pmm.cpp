@@ -1,7 +1,7 @@
 /**
  * @file pmm.cpp
  * @brief Buddy-based physical memory allocator implementation.
- * @ingroup mm
+ * @ingroup pmm
  */
 
 #include "pmm.h"
