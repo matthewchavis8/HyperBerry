@@ -16,6 +16,18 @@ extern "C" const TestSuite* __test_suites_end[];
 
 namespace TestRunner {
 
+namespace {
+MemoryMap g_bootMemoryMap = {};
+}
+
+void setBootContext(const MemoryMap& map) {
+  g_bootMemoryMap = map;
+}
+
+const MemoryMap& bootMemoryMap() {
+  return g_bootMemoryMap;
+}
+
 /**
  * @brief Execute every registered integration test suite and print a UART summary.
  *

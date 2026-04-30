@@ -10,6 +10,8 @@
 #ifndef __SUITE_H__
 #define __SUITE_H__
 
+#include "core/dtb/dtb.h"
+
 /**
  * @brief A single test case: a name and a function that returns true on pass.
  */
@@ -43,6 +45,16 @@ struct TestSuite {
   static const TestSuite* __reg_##s = &s
 
 namespace TestRunner {
+/**
+ * @brief Save the boot-time memory map for integration tests that need it.
+ */
+void setBootContext(const MemoryMap& map);
+
+/**
+ * @brief Return the boot-time memory map captured before the suite started.
+ */
+const MemoryMap& bootMemoryMap();
+
 /**
  * @brief Walk all registered suites and run every test case.
  */

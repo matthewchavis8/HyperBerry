@@ -57,6 +57,7 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::println("[HostMmu] Successfully host MMU is brought up");
   
 #ifdef INTEGRATION_TEST
+  TestRunner::setBootContext(memoryMap);
   TestRunner::run_all();
 #else
 

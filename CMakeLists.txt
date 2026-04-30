@@ -68,6 +68,8 @@ if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/exceptions)
   add_subdirectory(tests/integration/pmm)
   add_subdirectory(tests/integration/mmu)
+  add_subdirectory(tests/integration/guestMmu)
+  add_subdirectory(tests/integration/bootpkg)
   add_subdirectory(tests/integration/vcpu)
 endif()
 
@@ -89,6 +91,8 @@ if(INTEGRATION_TEST)
     TestUart
     TestPmm
     TestMmu
+    TestGuestMmu
+    TestBootPkg
     TestVcpu
     -Wl,--no-whole-archive
   )
