@@ -163,7 +163,7 @@ cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --out boot/guest.hvgbp
 ```
 
-Generated `.hvgbp` files are intentionally ignored by git.
+Generated `.hvgbp` files are ignored by git (`boot/*.hvgbp` in `.gitignore`). Do not commit them.
 
 ## V1 Limitations
 

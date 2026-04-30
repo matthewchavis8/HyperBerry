@@ -39,7 +39,7 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 
 ### Phase 4 — Multi-Guest
 - [ ] vCPU scheduler (round-robin or fixed time-slice)
-- [ ] Per-VM Stage-2 address spaces with VMID tagging
+- [x] Per-VM Stage-2 address spaces with VMID tagging
 - [ ] Memory partitioning and guest resource limits
 
 ### Phase 5 — Device Passthrough & Virtio

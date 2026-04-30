@@ -48,9 +48,7 @@ public:
    */
   void run();
   
-  /*
-   * @brief Return Guest Kernel name
-   * */
+  /** @brief Return the guest kernel name passed to @ref init(). */
   const char* getName() const;
 };
 

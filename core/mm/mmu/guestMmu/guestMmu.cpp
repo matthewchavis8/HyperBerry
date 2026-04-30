@@ -1,7 +1,7 @@
 /**
  * @file guestMmu.cpp
  * @brief Stage-2 MMU bring-up and mapping.
- * @ingroup mm
+ * @ingroup mmu
  */
 
 #include "bsp/bsp.h"
