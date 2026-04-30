@@ -33,3 +33,5 @@ void Vm::run() {
 }
 
 [[nodiscard]] const char* Vm::getName() const { return m_name; }
+
+[[nodiscard]] uint8_t Vm::getVmId() const { return m_vmid; }
