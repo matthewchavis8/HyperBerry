@@ -26,7 +26,7 @@
  *
  * @note Target: QEMU virt machine emulating Cortex-A76.
  *       Shared C/C++ code selects UART and MMIO ranges from the QEMU
- *       platform definition.
+ *       BSP definition.
  */
 
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76. VIRTUAL

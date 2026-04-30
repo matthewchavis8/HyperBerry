@@ -54,7 +54,7 @@
  * @brief PL011 UART driver for early debug output.
  *
  * Supports both the QEMU virt machine and physical Raspberry Pi 5
- * hardware, with the UART base selected from the active platform
+ * hardware, with the UART base selected from the active BSP
  * definition at compile time.
  */
 
@@ -71,7 +71,7 @@
  */
 
 /**
- * @defgroup platform Platform
+ * @defgroup bsp BSP
  * @ingroup hypervisor
- * @brief Compile-time platform constants selected by the active board target.
+ * @brief Compile-time board constants selected by the active BSP target.
  */

@@ -10,8 +10,8 @@
 #ifndef __HOST_MMU_H__
 #define __HOST_MMU_H__
 
+#include "bsp/bsp.h"
 #include "core/mm/pageTable/pageTable.h"
-#include "platform/platform_def.h"
 
 // Shareability [9:8].
 #define PTE_SH_INNER (3ULL << 8)

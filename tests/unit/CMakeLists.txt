@@ -31,7 +31,7 @@ target_include_directories(hyperberry_unit_tests
 
 target_compile_definitions(hyperberry_unit_tests
   PRIVATE
-  PLATFORM_QEMU
+  BSP_QEMU
 )
 
 target_compile_options(hyperberry_unit_tests
@@ -62,7 +62,7 @@ target_include_directories(hyperberry_heap_tests
 
 target_compile_definitions(hyperberry_heap_tests
   PRIVATE
-  PLATFORM_QEMU
+  BSP_QEMU
   HEAP_TESTING_BUILD
 )
 

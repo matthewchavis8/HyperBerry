@@ -56,12 +56,13 @@ still in progress, and the current layout is documented in
 
 ```
 HyperBerry/
-├── arch/           # AArch64 boot assembly and platform-specific startup
+├── arch/           # AArch64 boot assembly and board-specific startup
+├── bsp/            # Active board constants selected by the build
 ├── cmake/          # Cross-compilation toolchain and CMake configuration
 ├── core/           # Hypervisor core
 ├── drivers/        # Software device drivers
 ├── lib/            # C++ utility headers
-├── linker/         # Platform-specific linker scripts and memory layouts
+├── linker/         # Board-specific linker scripts and memory layouts
 ├── tests/          # Test infrastructure
 ├── docs/           # extra docs
 ├── CMakeLists.txt
