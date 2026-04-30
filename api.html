@@ -243,6 +243,179 @@
 <span class="target" id="group__core"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Core</span></span></dt>
 <dd><p>Hypervisor core — entry point, scheduler, and exception handling. </p>
 <div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv413ValidateError">
+<span id="_CPPv313ValidateError"></span><span id="_CPPv213ValidateError"></span><span class="target" id="group__core_1ga5ad559d683f1c8e24da261e96b52c8ea"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ValidateError</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><a class="headerlink" href="#_CPPv413ValidateError" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Error codes returned by validate(). </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError4NoneE">
+<span id="_CPPv3N13ValidateError4NoneE"></span><span id="_CPPv2N13ValidateError4NoneE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa6adf97f83acf6453d4a6a4b1070f3754"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">None</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError4NoneE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>No error; package is valid. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError11NullPackageE">
+<span id="_CPPv3N13ValidateError11NullPackageE"></span><span id="_CPPv2N13ValidateError11NullPackageE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa60671a33317a9351bce75930c4f3cc49"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NullPackage</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError11NullPackageE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Null package pointer passed. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError8TooSmallE">
+<span id="_CPPv3N13ValidateError8TooSmallE"></span><span id="_CPPv2N13ValidateError8TooSmallE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaaf4482beda9168a6955883dcf19310ad0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TooSmall</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError8TooSmallE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Region is smaller than the minimum header size. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError8BadMagicE">
+<span id="_CPPv3N13ValidateError8BadMagicE"></span><span id="_CPPv2N13ValidateError8BadMagicE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaac87c2d41af62cc035e76f90e0f889e4f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadMagic</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError8BadMagicE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">magic</span></code> field does not match <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_MAGIC</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError10BadVersionE">
+<span id="_CPPv3N13ValidateError10BadVersionE"></span><span id="_CPPv2N13ValidateError10BadVersionE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa8a30fe55b459908d37fae43df3b8b854"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadVersion</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError10BadVersionE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">version</span></code> field is not <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_VERSION</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError13BadHeaderSizeE">
+<span id="_CPPv3N13ValidateError13BadHeaderSizeE"></span><span id="_CPPv2N13ValidateError13BadHeaderSizeE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa7323435b5eecea9d4e0b2990c8bab940"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadHeaderSize</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError13BadHeaderSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">header_size</span></code> field is not <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_HEADER_SIZE</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError12BadTotalSizeE">
+<span id="_CPPv3N13ValidateError12BadTotalSizeE"></span><span id="_CPPv2N13ValidateError12BadTotalSizeE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa2e203b8611e9cab606f51ba165c35aa3"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadTotalSize</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError12BadTotalSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">total_size</span></code> does not match the firmware-reported size. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError12BadHeaderCrcE">
+<span id="_CPPv3N13ValidateError12BadHeaderCrcE"></span><span id="_CPPv2N13ValidateError12BadHeaderCrcE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaaf7736336ed2357db99665a475cafab69"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadHeaderCrc</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError12BadHeaderCrcE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Header CRC32 check failed. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError13BadPayloadCrcE">
+<span id="_CPPv3N13ValidateError13BadPayloadCrcE"></span><span id="_CPPv2N13ValidateError13BadPayloadCrcE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa6253bb6bdc01a9ee19e380d30df455d3"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadPayloadCrc</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError13BadPayloadCrcE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Payload CRC32 check failed. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError23UnsupportedBootProtocolE">
+<span id="_CPPv3N13ValidateError23UnsupportedBootProtocolE"></span><span id="_CPPv2N13ValidateError23UnsupportedBootProtocolE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa88259410a65b3b40b424ef872bde7606"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UnsupportedBootProtocol</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError23UnsupportedBootProtocolE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">boot_protocol</span></code> is not <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError12UnknownFlagsE">
+<span id="_CPPv3N13ValidateError12UnknownFlagsE"></span><span id="_CPPv2N13ValidateError12UnknownFlagsE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaab4b63a9103ee8f7675f94ee018d6626d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UnknownFlags</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError12UnknownFlagsE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">flags</span></code> contains bits not in <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_KNOWN_FLAGS</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError13MissingKernelE">
+<span id="_CPPv3N13ValidateError13MissingKernelE"></span><span id="_CPPv2N13ValidateError13MissingKernelE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa348a21293c21fbdf369cdc3eca2a5126"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MissingKernel</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError13MissingKernelE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">kernel_size</span></code> is zero. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError10MissingDtbE">
+<span id="_CPPv3N13ValidateError10MissingDtbE"></span><span id="_CPPv2N13ValidateError10MissingDtbE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa1e73cf3d45873ff2eda750958ab4b8de"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MissingDtb</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError10MissingDtbE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">dtb_size</span></code> is zero. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError13BadInitrdFlagE">
+<span id="_CPPv3N13ValidateError13BadInitrdFlagE"></span><span id="_CPPv2N13ValidateError13BadInitrdFlagE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa1c4607cb632ce8c22e4369dbb59ddcef"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadInitrdFlag</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError13BadInitrdFlagE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">INITRD_PRESENT</span></code> flag is inconsistent with <code class="docutils literal notranslate"><span class="pre">initrd_size</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError15BadKernelOffsetE">
+<span id="_CPPv3N13ValidateError15BadKernelOffsetE"></span><span id="_CPPv2N13ValidateError15BadKernelOffsetE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa91a999f06d39f491773e849fe2b9ef29"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadKernelOffset</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError15BadKernelOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">kernel_offset</span></code> is not <code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_HEADER_SIZE</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError12BadDtbOffsetE">
+<span id="_CPPv3N13ValidateError12BadDtbOffsetE"></span><span id="_CPPv2N13ValidateError12BadDtbOffsetE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa5298b186b5639faf77e3dc5848cf7397"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadDtbOffset</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError12BadDtbOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">dtb_offset</span></code> is not 4 KiB aligned. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError15BadInitrdOffsetE">
+<span id="_CPPv3N13ValidateError15BadInitrdOffsetE"></span><span id="_CPPv2N13ValidateError15BadInitrdOffsetE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa4fe587af319be530aec5f2a24e535e4e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadInitrdOffset</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError15BadInitrdOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">initrd_offset</span></code> is not 4 KiB aligned. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError14BadTotalLayoutE">
+<span id="_CPPv3N13ValidateError14BadTotalLayoutE"></span><span id="_CPPv2N13ValidateError14BadTotalLayoutE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa3b7bd75482c5f54f3b88840683c7addb"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BadTotalLayout</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError14BadTotalLayoutE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Component offsets/sizes do not sum to <code class="docutils literal notranslate"><span class="pre">total_size</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError20ComponentOutOfBoundsE">
+<span id="_CPPv3N13ValidateError20ComponentOutOfBoundsE"></span><span id="_CPPv2N13ValidateError20ComponentOutOfBoundsE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa7faede0a3804c1c14068e02468376e6b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ComponentOutOfBounds</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError20ComponentOutOfBoundsE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>A component range extends past <code class="docutils literal notranslate"><span class="pre">total_size</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13ValidateError19GuestLayoutOverflowE">
+<span id="_CPPv3N13ValidateError19GuestLayoutOverflowE"></span><span id="_CPPv2N13ValidateError19GuestLayoutOverflowE"></span><span class="target" id="group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa552097056978afb6ecf07612acce2df9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestLayoutOverflow</span></span></span><a class="headerlink" href="#_CPPv4N13ValidateError19GuestLayoutOverflowE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Components do not fit in the fixed guest RAM layout. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv49LoadError">
+<span id="_CPPv39LoadError"></span><span id="_CPPv29LoadError"></span><span class="target" id="group__core_1ga47ee4cd66fb13791dbafbe97881d20ef"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">LoadError</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><a class="headerlink" href="#_CPPv49LoadError" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Error codes returned by loadLinuxGuest(). </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError4NoneE">
+<span id="_CPPv3N9LoadError4NoneE"></span><span id="_CPPv2N9LoadError4NoneE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efa6adf97f83acf6453d4a6a4b1070f3754"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">None</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError4NoneE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>No error; guest loaded successfully. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError22MissingFirmwarePackageE">
+<span id="_CPPv3N9LoadError22MissingFirmwarePackageE"></span><span id="_CPPv2N9LoadError22MissingFirmwarePackageE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efaef07dbfbc5e495ecab6345573fec29c9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MissingFirmwarePackage</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError22MissingFirmwarePackageE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><code class="docutils literal notranslate"><a class="reference internal" href="#structMemoryMap_1a1375e0034f3b4fa12d54423f491a5f07"><span class="std std-ref"><span class="pre">MemoryMap::bootPackageBase</span></span></a></code> or <code class="docutils literal notranslate"><span class="pre">bootPackageSize</span></code> is zero. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError14InvalidPackageE">
+<span id="_CPPv3N9LoadError14InvalidPackageE"></span><span id="_CPPv2N9LoadError14InvalidPackageE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efa6dba360f142b6e915ea14e9a6cead9d5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">InvalidPackage</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError14InvalidPackageE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Package validation failed; see <code class="docutils literal notranslate"><span class="pre">validateError</span></code> for detail. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError19GuestLayoutOverflowE">
+<span id="_CPPv3N9LoadError19GuestLayoutOverflowE"></span><span id="_CPPv2N9LoadError19GuestLayoutOverflowE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efa552097056978afb6ecf07612acce2df9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestLayoutOverflow</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError19GuestLayoutOverflowE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>IPA layout calculation failed for the validated package. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError24GuestRamAllocationFailedE">
+<span id="_CPPv3N9LoadError24GuestRamAllocationFailedE"></span><span id="_CPPv2N9LoadError24GuestRamAllocationFailedE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efac0a517c08eb5dd0547248843ebffcef2"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestRamAllocationFailed</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError24GuestRamAllocationFailedE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>PMM could not allocate a contiguous 256 MiB block. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9LoadError19GuestDtbPatchFailedE">
+<span id="_CPPv3N9LoadError19GuestDtbPatchFailedE"></span><span id="_CPPv2N9LoadError19GuestDtbPatchFailedE"></span><span class="target" id="group__core_1gga47ee4cd66fb13791dbafbe97881d20efa84d85b6254151a62a5af804ee058c2c0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestDtbPatchFailed</span></span></span><a class="headerlink" href="#_CPPv4N9LoadError19GuestDtbPatchFailedE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest DTB placeholder patching failed. </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv48parseDtb9uintptr_t">
@@ -254,7 +427,7 @@
 <dd class="field-odd"><p><strong>dtb</strong> – Physical address of the DTB blob passed in at boot. </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Parsed <a class="reference internal" href="#structMemoryMap"><span class="std std-ref">MemoryMap</span></a>. The returned map has <code class="docutils literal notranslate"><span class="pre">isValid</span></code> set only when the main memory region was found and decoded successfully. </p>
+<dd class="field-even"><p>Parsed <a class="reference internal" href="#structMemoryMap"><span class="std std-ref">MemoryMap</span></a>. <code class="docutils literal notranslate"><span class="pre">isValid</span></code> is set only when the main memory region was found and decoded successfully. <code class="docutils literal notranslate"><span class="pre">bootPackageBase</span></code> and <code class="docutils literal notranslate"><span class="pre">bootPackageSize</span></code> are populated from the <code class="docutils literal notranslate"><span class="pre">/chosen/linux,initrd-start</span></code> and <code class="docutils literal notranslate"><span class="pre">/chosen/linux,initrd-end</span></code> properties when present (the Raspberry Pi firmware writes these after loading the guest package). </p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,6 +444,257 @@
 </dd></dl>
 
 </div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageViewE">
+<span id="_CPPv3N7bootpkg11PackageViewE"></span><span id="_CPPv2N7bootpkg11PackageViewE"></span><span id="bootpkg::PackageView"></span><span class="target" id="structbootpkg_1_1PackageView"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PackageView</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageViewE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;bootpkg.h&gt;</em></div>
+<p>Decoded view of a validated v1 package header. </p>
+<p>Populated by validate() when the package passes all checks. Offsets are byte offsets from the start of the firmware-loaded region. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView9totalSizeE">
+<span id="_CPPv3N7bootpkg11PackageView9totalSizeE"></span><span id="_CPPv2N7bootpkg11PackageView9totalSizeE"></span><span id="bootpkg::PackageView::totalSize__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a4001fd1a6c2d97c10f2c5de29f6ec219"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">totalSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView9totalSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Total firmware-loaded byte count. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView12bootProtocolE">
+<span id="_CPPv3N7bootpkg11PackageView12bootProtocolE"></span><span id="_CPPv2N7bootpkg11PackageView12bootProtocolE"></span><span id="bootpkg::PackageView::bootProtocol__uint32_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a0a87568d171fffb79d5443db6c03c4ad"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bootProtocol</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView12bootProtocolE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Boot protocol identifier (e.g. </p>
+<p><code class="docutils literal notranslate"><span class="pre">HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64</span></code>). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView5flagsE">
+<span id="_CPPv3N7bootpkg11PackageView5flagsE"></span><span id="_CPPv2N7bootpkg11PackageView5flagsE"></span><span id="bootpkg::PackageView::flags__uint32_t"></span><span class="target" id="structbootpkg_1_1PackageView_1aa366909f6e2d4ca9e0b7ae4063272f4f"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">flags</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView5flagsE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Package modifier flags. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView12kernelOffsetE">
+<span id="_CPPv3N7bootpkg11PackageView12kernelOffsetE"></span><span id="_CPPv2N7bootpkg11PackageView12kernelOffsetE"></span><span id="bootpkg::PackageView::kernelOffset__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a8ac7d013f4882c2c39f58f5e672a6c82"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernelOffset</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView12kernelOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Byte offset of the kernel component from the package start. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView10kernelSizeE">
+<span id="_CPPv3N7bootpkg11PackageView10kernelSizeE"></span><span id="_CPPv2N7bootpkg11PackageView10kernelSizeE"></span><span id="bootpkg::PackageView::kernelSize__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a5691d155fad302391e733f2c0984540e"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernelSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView10kernelSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the kernel component. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView9dtbOffsetE">
+<span id="_CPPv3N7bootpkg11PackageView9dtbOffsetE"></span><span id="_CPPv2N7bootpkg11PackageView9dtbOffsetE"></span><span id="bootpkg::PackageView::dtbOffset__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a070049a06efd614334253db98b57a32c"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbOffset</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView9dtbOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Byte offset of the guest DTB component. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView7dtbSizeE">
+<span id="_CPPv3N7bootpkg11PackageView7dtbSizeE"></span><span id="_CPPv2N7bootpkg11PackageView7dtbSizeE"></span><span id="bootpkg::PackageView::dtbSize__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a019e2f5c41ecddc1c61bfa8d20f1db54"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView7dtbSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the guest DTB component. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView12initrdOffsetE">
+<span id="_CPPv3N7bootpkg11PackageView12initrdOffsetE"></span><span id="_CPPv2N7bootpkg11PackageView12initrdOffsetE"></span><span id="bootpkg::PackageView::initrdOffset__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1ac24647e7b97605ab4681299feddb2d01"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initrdOffset</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView12initrdOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Byte offset of the initrd component, or zero if absent. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView10initrdSizeE">
+<span id="_CPPv3N7bootpkg11PackageView10initrdSizeE"></span><span id="_CPPv2N7bootpkg11PackageView10initrdSizeE"></span><span id="bootpkg::PackageView::initrdSize__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1a161ac6d1fb4ce44bbdec12830d9306ad"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initrdSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView10initrdSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the initrd component, or zero if absent. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView11entryOffsetE">
+<span id="_CPPv3N7bootpkg11PackageView11entryOffsetE"></span><span id="_CPPv2N7bootpkg11PackageView11entryOffsetE"></span><span id="bootpkg::PackageView::entryOffset__uint64_t"></span><span class="target" id="structbootpkg_1_1PackageView_1adb277d8c44c406c1b420621121a19bea"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">entryOffset</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView11entryOffsetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Entry point offset from the kernel load IPA. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11PackageView7buildIdE">
+<span id="_CPPv3N7bootpkg11PackageView7buildIdE"></span><span id="_CPPv2N7bootpkg11PackageView7buildIdE"></span><span id="bootpkg::PackageView::buildId__cCP"></span><span class="target" id="structbootpkg_1_1PackageView_1a60db93938bbd6e1a750eb9c66695c53a"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">buildId</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11PackageView7buildIdE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>NUL-terminated build identifier string from the header, or empty string. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayoutE">
+<span id="_CPPv3N7bootpkg11GuestLayoutE"></span><span id="_CPPv2N7bootpkg11GuestLayoutE"></span><span id="bootpkg::GuestLayout"></span><span class="target" id="structbootpkg_1_1GuestLayout"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GuestLayout</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayoutE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;bootpkg.h&gt;</em></div>
+<p>Resolved guest IPA layout for a validated v1 package. </p>
+<p>Computed by calculateGuestLayout() from a <a class="reference internal" href="#structbootpkg_1_1PackageView"><span class="std std-ref">PackageView</span></a>. All addresses are guest IPAs within the fixed 256 MiB guest RAM region. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout12guestIpaBaseE">
+<span id="_CPPv3N7bootpkg11GuestLayout12guestIpaBaseE"></span><span id="_CPPv2N7bootpkg11GuestLayout12guestIpaBaseE"></span><span id="bootpkg::GuestLayout::guestIpaBase__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1ac190482fb50d514e0c248bdb046b8d9f"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guestIpaBase</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout12guestIpaBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest IPA base (always <code class="docutils literal notranslate"><span class="pre">GUEST_IPA_BASE</span></code> in v1). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout12guestRamSizeE">
+<span id="_CPPv3N7bootpkg11GuestLayout12guestRamSizeE"></span><span id="_CPPv2N7bootpkg11GuestLayout12guestRamSizeE"></span><span id="bootpkg::GuestLayout::guestRamSize__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a32f04fcb36c92a38cae9ba5ac26c9749"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guestRamSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout12guestRamSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Total guest RAM size (always <code class="docutils literal notranslate"><span class="pre">GUEST_RAM_SIZE</span></code> in v1). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout9kernelIpaE">
+<span id="_CPPv3N7bootpkg11GuestLayout9kernelIpaE"></span><span id="_CPPv2N7bootpkg11GuestLayout9kernelIpaE"></span><span id="bootpkg::GuestLayout::kernelIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a8332f8d8d605ab8203bc9de9e09e7af5"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernelIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout9kernelIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>IPA at which the kernel Image is loaded. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout10kernelSizeE">
+<span id="_CPPv3N7bootpkg11GuestLayout10kernelSizeE"></span><span id="_CPPv2N7bootpkg11GuestLayout10kernelSizeE"></span><span id="bootpkg::GuestLayout::kernelSize__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a4eab649b296e0e63d441cfea9252e680"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernelSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout10kernelSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the kernel component. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout8entryIpaE">
+<span id="_CPPv3N7bootpkg11GuestLayout8entryIpaE"></span><span id="_CPPv2N7bootpkg11GuestLayout8entryIpaE"></span><span id="bootpkg::GuestLayout::entryIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a4146a5468889fd863eed6e88ceb27418"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">entryIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout8entryIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest entry IPA (<code class="docutils literal notranslate"><span class="pre">kernelIpa</span> <span class="pre">+</span> <span class="pre">entryOffset</span></code>). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout6dtbIpaE">
+<span id="_CPPv3N7bootpkg11GuestLayout6dtbIpaE"></span><span id="_CPPv2N7bootpkg11GuestLayout6dtbIpaE"></span><span id="bootpkg::GuestLayout::dtbIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a31371fa541cb222beb9979b90deba843"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout6dtbIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>IPA at which the guest DTB is placed. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout7dtbSizeE">
+<span id="_CPPv3N7bootpkg11GuestLayout7dtbSizeE"></span><span id="_CPPv2N7bootpkg11GuestLayout7dtbSizeE"></span><span id="bootpkg::GuestLayout::dtbSize__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1aac24e5029952006e78a92148f8485ada"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout7dtbSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the guest DTB component. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout9initrdIpaE">
+<span id="_CPPv3N7bootpkg11GuestLayout9initrdIpaE"></span><span id="_CPPv2N7bootpkg11GuestLayout9initrdIpaE"></span><span id="bootpkg::GuestLayout::initrdIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1a629c5a342b39d5e5344b6a5a7d38001d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initrdIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout9initrdIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>IPA at which the initrd is placed, or zero if absent. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11GuestLayout10initrdSizeE">
+<span id="_CPPv3N7bootpkg11GuestLayout10initrdSizeE"></span><span id="_CPPv2N7bootpkg11GuestLayout10initrdSizeE"></span><span id="bootpkg::GuestLayout::initrdSize__uint64_t"></span><span class="target" id="structbootpkg_1_1GuestLayout_1af334e3299c9e78efccc3d8a792005869"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initrdSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11GuestLayout10initrdSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the initrd, or zero if absent. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuestE">
+<span id="_CPPv3N7bootpkg11LoadedGuestE"></span><span id="_CPPv2N7bootpkg11LoadedGuestE"></span><span id="bootpkg::LoadedGuest"></span><span class="target" id="structbootpkg_1_1LoadedGuest"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">LoadedGuest</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuestE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;bootpkg.h&gt;</em></div>
+<p>Hypervisor-facing descriptor for a successfully loaded Linux guest. </p>
+<p>Returned by loadLinuxGuest() and consumed by <a class="reference internal" href="#classVm_1ad0a4fe48e6ff208a2bbeac91516ad190"><span class="std std-ref">Vm::init()</span></a> to configure stage-2 mappings and seed the vCPU entry state. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuest14guestRamHostPaE">
+<span id="_CPPv3N7bootpkg11LoadedGuest14guestRamHostPaE"></span><span id="_CPPv2N7bootpkg11LoadedGuest14guestRamHostPaE"></span><span id="bootpkg::LoadedGuest::guestRamHostPa__uint64_t"></span><span class="target" id="structbootpkg_1_1LoadedGuest_1a7aa86e8604463cdc7fc8f87403809010"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guestRamHostPa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuest14guestRamHostPaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Host physical base of the allocated guest RAM block. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuest12guestIpaBaseE">
+<span id="_CPPv3N7bootpkg11LoadedGuest12guestIpaBaseE"></span><span id="_CPPv2N7bootpkg11LoadedGuest12guestIpaBaseE"></span><span id="bootpkg::LoadedGuest::guestIpaBase__uint64_t"></span><span class="target" id="structbootpkg_1_1LoadedGuest_1a6280f3a5d751f641a73ad8b47b35d7d1"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guestIpaBase</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuest12guestIpaBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest IPA base (mirrors <code class="docutils literal notranslate"><a class="reference internal" href="#structbootpkg_1_1GuestLayout_1ac190482fb50d514e0c248bdb046b8d9f"><span class="std std-ref"><span class="pre">GuestLayout::guestIpaBase</span></span></a></code>). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuest12guestRamSizeE">
+<span id="_CPPv3N7bootpkg11LoadedGuest12guestRamSizeE"></span><span id="_CPPv2N7bootpkg11LoadedGuest12guestRamSizeE"></span><span id="bootpkg::LoadedGuest::guestRamSize__uint64_t"></span><span class="target" id="structbootpkg_1_1LoadedGuest_1aea70367072cf1f23ce7eaf66af2986e5"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guestRamSize</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuest12guestRamSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the guest RAM allocation. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuest8entryIpaE">
+<span id="_CPPv3N7bootpkg11LoadedGuest8entryIpaE"></span><span id="_CPPv2N7bootpkg11LoadedGuest8entryIpaE"></span><span id="bootpkg::LoadedGuest::entryIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1LoadedGuest_1aaf440fc7a3d0afe6bf8ed6b087250f74"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">entryIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuest8entryIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest IPA of the first instruction executed by the vCPU. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg11LoadedGuest6dtbIpaE">
+<span id="_CPPv3N7bootpkg11LoadedGuest6dtbIpaE"></span><span id="_CPPv2N7bootpkg11LoadedGuest6dtbIpaE"></span><span id="bootpkg::LoadedGuest::dtbIpa__uint64_t"></span><span class="target" id="structbootpkg_1_1LoadedGuest_1a3cf2bf73ac0d2e65880eeb4abfab2eed"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbIpa</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg11LoadedGuest6dtbIpaE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Guest IPA of the DTB passed to Linux in x0. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg14ValidateResultE">
+<span id="_CPPv3N7bootpkg14ValidateResultE"></span><span id="_CPPv2N7bootpkg14ValidateResultE"></span><span id="bootpkg::ValidateResult"></span><span class="target" id="structbootpkg_1_1ValidateResult"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ValidateResult</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg14ValidateResultE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;bootpkg.h&gt;</em></div>
+<p>Result of a validate() call. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg14ValidateResult7isValidE">
+<span id="_CPPv3N7bootpkg14ValidateResult7isValidE"></span><span id="_CPPv2N7bootpkg14ValidateResult7isValidE"></span><span id="bootpkg::ValidateResult::isValid__b"></span><span class="target" id="structbootpkg_1_1ValidateResult_1a2aa2d2690359646f719ec50b7ebb68dd"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isValid</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg14ValidateResult7isValidE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>True only when validation succeeded and <code class="docutils literal notranslate"><span class="pre">package</span></code> is populated. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg14ValidateResult5errorE">
+<span id="_CPPv3N7bootpkg14ValidateResult5errorE"></span><span id="_CPPv2N7bootpkg14ValidateResult5errorE"></span><span id="bootpkg::ValidateResult::error__ValidateError"></span><span class="target" id="structbootpkg_1_1ValidateResult_1a76f9846852214d579f5f2d77fbb1d54c"></span><a class="reference internal" href="#_CPPv413ValidateError" title="ValidateError"><span class="n"><span class="pre">ValidateError</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg14ValidateResult5errorE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>First validation error encountered, or <code class="docutils literal notranslate"><a class="reference internal" href="#group__core_1gga5ad559d683f1c8e24da261e96b52c8eaa6adf97f83acf6453d4a6a4b1070f3754"><span class="std std-ref"><span class="pre">ValidateError::None</span></span></a></code>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg14ValidateResult7packageE">
+<span id="_CPPv3N7bootpkg14ValidateResult7packageE"></span><span id="_CPPv2N7bootpkg14ValidateResult7packageE"></span><span id="bootpkg::ValidateResult::package__PackageView"></span><span class="target" id="structbootpkg_1_1ValidateResult_1a3e4b9b114ddb9a5ea3ee79be3a12a5b9"></span><a class="reference internal" href="#_CPPv4N7bootpkg11PackageViewE" title="bootpkg::PackageView"><span class="n"><span class="pre">PackageView</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">package</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg14ValidateResult7packageE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Decoded package metadata; valid only when <code class="docutils literal notranslate"><span class="pre">isValid</span></code> is true. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg10LoadResultE">
+<span id="_CPPv3N7bootpkg10LoadResultE"></span><span id="_CPPv2N7bootpkg10LoadResultE"></span><span id="bootpkg::LoadResult"></span><span class="target" id="structbootpkg_1_1LoadResult"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">LoadResult</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg10LoadResultE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;bootpkg.h&gt;</em></div>
+<p>Result of a loadLinuxGuest() call. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg10LoadResult8isLoadedE">
+<span id="_CPPv3N7bootpkg10LoadResult8isLoadedE"></span><span id="_CPPv2N7bootpkg10LoadResult8isLoadedE"></span><span id="bootpkg::LoadResult::isLoaded__b"></span><span class="target" id="structbootpkg_1_1LoadResult_1a3b6b94b68b33afc5b2a4e7aadd35ae64"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isLoaded</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg10LoadResult8isLoadedE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>True only when the guest was loaded and <code class="docutils literal notranslate"><span class="pre">guest</span></code> is populated. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg10LoadResult5errorE">
+<span id="_CPPv3N7bootpkg10LoadResult5errorE"></span><span id="_CPPv2N7bootpkg10LoadResult5errorE"></span><span id="bootpkg::LoadResult::error__LoadError"></span><span class="target" id="structbootpkg_1_1LoadResult_1aa6a6701aefa9116b7676f23d456b6f48"></span><a class="reference internal" href="#_CPPv49LoadError" title="LoadError"><span class="n"><span class="pre">LoadError</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg10LoadResult5errorE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>High-level load error, or <code class="docutils literal notranslate"><a class="reference internal" href="#group__core_1gga47ee4cd66fb13791dbafbe97881d20efa6adf97f83acf6453d4a6a4b1070f3754"><span class="std std-ref"><span class="pre">LoadError::None</span></span></a></code>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg10LoadResult13validateErrorE">
+<span id="_CPPv3N7bootpkg10LoadResult13validateErrorE"></span><span id="_CPPv2N7bootpkg10LoadResult13validateErrorE"></span><span id="bootpkg::LoadResult::validateError__ValidateError"></span><span class="target" id="structbootpkg_1_1LoadResult_1a05b9f8b7371c958ce7bc3ef84f67bb10"></span><a class="reference internal" href="#_CPPv413ValidateError" title="ValidateError"><span class="n"><span class="pre">ValidateError</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">validateError</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg10LoadResult13validateErrorE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Validation error when <code class="docutils literal notranslate"><span class="pre">error</span></code> is <code class="docutils literal notranslate"><a class="reference internal" href="#group__core_1gga47ee4cd66fb13791dbafbe97881d20efa6dba360f142b6e915ea14e9a6cead9d5"><span class="std std-ref"><span class="pre">LoadError::InvalidPackage</span></span></a></code>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7bootpkg10LoadResult5guestE">
+<span id="_CPPv3N7bootpkg10LoadResult5guestE"></span><span id="_CPPv2N7bootpkg10LoadResult5guestE"></span><span id="bootpkg::LoadResult::guest__LoadedGuest"></span><span class="target" id="structbootpkg_1_1LoadResult_1ad311c896f9d94e77525d1d514c9ca4b4"></span><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuestE" title="bootpkg::LoadedGuest"><span class="n"><span class="pre">LoadedGuest</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">guest</span></span></span><a class="headerlink" href="#_CPPv4N7bootpkg10LoadResult5guestE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Loaded guest descriptor; valid only when <code class="docutils literal notranslate"><span class="pre">isLoaded</span></code> is true. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv49MemoryMap">
 <span id="_CPPv39MemoryMap"></span><span id="_CPPv29MemoryMap"></span><span id="MemoryMap"></span><span class="target" id="structMemoryMap"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MemoryMap</span></span></span><a class="headerlink" href="#_CPPv49MemoryMap" title="Link to this definition">¶</a><br /></dt>
@@ -317,6 +741,20 @@
 </dd></dl>
 
 <dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap15bootPackageBaseE">
+<span id="_CPPv3N9MemoryMap15bootPackageBaseE"></span><span id="_CPPv2N9MemoryMap15bootPackageBaseE"></span><span id="MemoryMap::bootPackageBase__uint64_t"></span><span class="target" id="structMemoryMap_1a1375e0034f3b4fa12d54423f491a5f07"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bootPackageBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap15bootPackageBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Base PA of the firmware-loaded guest package, from <code class="docutils literal notranslate"><span class="pre">/chosen/linux,initrd-start</span></code>. </p>
+<p>Zero if absent. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap15bootPackageSizeE">
+<span id="_CPPv3N9MemoryMap15bootPackageSizeE"></span><span id="_CPPv2N9MemoryMap15bootPackageSizeE"></span><span id="MemoryMap::bootPackageSize__uint64_t"></span><span class="target" id="structMemoryMap_1a11da4af8744cbfe9d76d41edbd55c6c9"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bootPackageSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap15bootPackageSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Size in bytes of the firmware-loaded guest package (<code class="docutils literal notranslate"><span class="pre">initrd-end</span></code> minus <code class="docutils literal notranslate"><span class="pre">initrd-start</span></code>). </p>
+<p>Zero if absent. </p>
+</dd></dl>
+
+<dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7isValidE">
 <span id="_CPPv3N9MemoryMap7isValidE"></span><span id="_CPPv2N9MemoryMap7isValidE"></span><span id="MemoryMap::isValid__b"></span><span class="target" id="structMemoryMap_1a494534b75d3b6b977f5859945fa235b6"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isValid</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7isValidE" title="Link to this definition">¶</a><br /></dt>
 <dd><p>True only if all fields were successfully parsed. </p>
@@ -331,60 +769,6 @@
 <section id="memory-management">
 <h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
 <p>Boot-time physical memory discovery and contiguous page allocation.</p>
-<dl>
-<dt class="sig sig-object cpp">
-<span class="target" id="group__mm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Memory</span> <span class="pre">Management</span></span></dt>
-<dd><p>Physical memory discovery and page allocation at EL2. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv44initv">
-<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mm_1ga83b00a9895c7c87c491d6e056db89413"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Initialise the kernel heap. </p>
-<p>Must be called once during boot, after <code class="docutils literal notranslate"><a class="reference internal" href="#group__pmm_1ga8d5301b0f488dc893d7d2318d0fabcdd"><span class="std std-ref"><span class="pre">pmm::init()</span></span></a></code> and before any code path that allocates dynamic objects. Subsequent calls re-arm the heap; the existing slab/large bookkeeping is reset. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv410allocTablev">
-<span id="_CPPv310allocTablev"></span><span id="_CPPv210allocTablev"></span><span id="allocTable"></span><span class="target" id="group__mm_1ga882e3d6c8efb90b42856b3666b0206df"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">allocTable</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410allocTablev" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Allocate a zeroed 4 KiB table from the PMM. </p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Pointer to the fresh table. Never returns null — halts on allocation failure so a missing page does not silently produce bogus translations. </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig">
-<span id="_CPPv34walkP8uint64_t8uint64_tRK10WalkConfig"></span><span id="_CPPv24walkP8uint64_t8uint64_tRK10WalkConfig"></span><span id="walk__uint64_tP.uint64_t.WalkConfigCR"></span><span class="target" id="group__mm_1gab583ad8eb31d4df6643cfd75df45e7c1"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">walk</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">root</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">WalkConfig</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Walk a multi-level translation table and return the L2 entry. </p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> – Root table pointer (stage-1 L0 or stage-2 L1). </p></li>
-<li><p><strong>addr</strong> – Address to resolve (VA for stage-1, IPA for stage-2). </p></li>
-<li><p><strong>cfg</strong> – Starting level and allocation behaviour. </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pointer to the L2 entry covering <code class="docutils literal notranslate"><span class="pre">addr</span></code>, or nullptr when allocOnMiss is false and an intermediate table is absent. </p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-<dl class="cpp struct">
-<dt class="sig sig-object cpp" id="_CPPv4N9PageTable10WalkConfigE">
-<span id="_CPPv3N9PageTable10WalkConfigE"></span><span id="_CPPv2N9PageTable10WalkConfigE"></span><span id="PageTable::WalkConfig"></span><span class="target" id="structPageTable_1_1WalkConfig"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WalkConfig</span></span></span><a class="headerlink" href="#_CPPv4N9PageTable10WalkConfigE" title="Link to this definition">¶</a><br /></dt>
-<dd><div class="docutils container">
-<em>#include &lt;pageTable.h&gt;</em></div>
-<p>Walker configuration: where to start and whether to grow the table on a missing intermediate entry. </p>
-<p><code class="docutils literal notranslate"><span class="pre">startLevel</span> <span class="pre">==</span> <span class="pre">0</span></code> corresponds to stage-1 with T0SZ=16 (48-bit VA). <code class="docutils literal notranslate"><span class="pre">startLevel</span> <span class="pre">==</span> <span class="pre">1</span></code> corresponds to stage-2 with T0SZ=32 (32-bit IPA). Both walks terminate at the L2 entry; callers map 2 MiB blocks. </p>
-</dd></dl>
-
-</dd></dl>
-
 <section id="pmm">
 <h3>PMM<a class="headerlink" href="#pmm" title="Link to this heading">¶</a></h3>
 <p>Physical page allocator using the buddy allocation algorithm.</p>
@@ -453,9 +837,24 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp">
-<span class="target" id="group__mmu_1ga60db85779e3b8168a290247fb19e742c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv44initv">
+<span id="_CPPv34initv"></span><span id="_CPPv24initv"></span><span id="init"></span><span class="target" id="group__mmu_1ga60db85779e3b8168a290247fb19e742c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44initv" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Build EL2 translation tables and enable stage-1 translation. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv46paToVa8uint64_t">
+<span id="_CPPv36paToVa8uint64_t"></span><span id="_CPPv26paToVa8uint64_t"></span><span id="paToVa__uint64_t"></span><span class="target" id="group__mmu_1ga49d79f59c0c200cb7bab9cd9ffa70562"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">paToVa</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv46paToVa8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Convert a host physical address to an EL2-accessible pointer. </p>
+<p>HyperBerry currently uses an identity direct map for RAM. Keeping this helper at the boundary avoids spreading that assumption through loaders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pa</strong> – Host physical address. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>EL2 virtual address for the same byte. </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="cpp function">
@@ -516,13 +915,14 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu4initE8uint64_t8uint64_t">
-<span id="_CPPv3N8GuestMmu4initE8uint64_t8uint64_t"></span><span id="_CPPv2N8GuestMmu4initE8uint64_t8uint64_t"></span><span id="GuestMmu::init__uint64_t.uint64_t"></span><span class="target" id="classGuestMmu_1a475d0e02c502dfae8386603dee8dd9b1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Allocate the stage-2 root table, program VTCR_EL2, and identity-map a contiguous IPA range in 2 MiB blocks. </p>
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu4initE8uint64_t8uint64_t8uint64_t">
+<span id="_CPPv3N8GuestMmu4initE8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv2N8GuestMmu4initE8uint64_t8uint64_t8uint64_t"></span><span id="GuestMmu::init__uint64_t.uint64_t.uint64_t"></span><span class="target" id="classGuestMmu_1a51051acadb015b02095f8bbae545f6b3"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">hostPaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Allocate the stage-2 root table, program VTCR_EL2, and map a contiguous guest IPA range to host physical memory. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ipaBase</strong> – Start of the identity-mapped region. </p></li>
+<li><p><strong>ipaBase</strong> – Start of the guest IPA region. </p></li>
+<li><p><strong>hostPaBase</strong> – Start of the backing host physical region. </p></li>
 <li><p><strong>sizeBytes</strong> – Size of the region (must be 2 MiB aligned). </p></li>
 </ul>
 </dd>
@@ -566,6 +966,10 @@
 
 </dd></dl>
 
+</section>
+<section id="heap">
+<h3>Heap<a class="headerlink" href="#heap" title="Link to this heading">¶</a></h3>
+<p>PMM-backed kernel heap lifecycle used by global C++ allocation.</p>
 </section>
 <section id="page-tables">
 <h3>Page Tables<a class="headerlink" href="#page-tables" title="Link to this heading">¶</a></h3>
@@ -872,36 +1276,26 @@
 </section>
 <section id="vm">
 <h3>VM<a class="headerlink" href="#vm" title="Link to this heading">¶</a></h3>
-<p>Per-guest container that owns one stage-2 MMU context and one guest vCPU.
-The public API currently consists of:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Vm::init(ipaBase,</span> <span class="pre">sizeBytes,</span> <span class="pre">vmid,</span> <span class="pre">guestEntry)</span></code> to build stage-2
-mappings and seed first-entry guest CPU state.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Vm::run()</span></code> to commit the VM’s stage-2 context and enter the guest.</p></li>
-</ul>
-<dl>
-<dt class="sig sig-object cpp">
-<span class="target" id="group__vm"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Virtual</span> <span class="pre">Machine</span></span></dt>
-<dd><p>Per-guest VM container owning stage-2 translation and vCPU state. </p>
-</dd></dl>
-
+<p>Per-guest container that owns one stage-2 MMU context and one guest vCPU.</p>
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv42Vm">
 <span id="_CPPv32Vm"></span><span id="_CPPv22Vm"></span><span id="Vm"></span><span class="target" id="classVm"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Vm</span></span></span><a class="headerlink" href="#_CPPv42Vm" title="Link to this definition">¶</a><br /></dt>
 <dd><div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t">
-<span id="_CPPv3N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="_CPPv2N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"></span><span id="Vm::init__cCP.uint64_t.uint64_t.uint8_t.uint64_t"></span><span class="target" id="classVm_1a3178250dc72c78df7f1a67abf51f11ec"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestEntry</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t">
+<span id="_CPPv3N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t"></span><span id="_CPPv2N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t"></span><span id="Vm::init__cCP.uint64_t.uint64_t.uint64_t.uint8_t.uint64_t.uint64_t"></span><span class="target" id="classVm_1ad0a4fe48e6ff208a2bbeac91516ad190"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipaBase</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestRamHostPa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeBytes</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestEntry</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestDtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Build this VM’s stage-2 mappings and seed its vCPU. </p>
 <p>Order is significant: stage-2 tables are constructed first so they are in place before the vCPU’s first entry. VTTBR_EL2 / HCR_EL2.VM are committed in <a class="reference internal" href="#classVm_1a394e95f04ac39065da4356dc86d27cce"><span class="std std-ref">run()</span></a>, after vCPU state is seeded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ipaBase</strong> – Guest IPA base identity-mapped to matching PA. </p></li>
-<li><p><strong>sizeBytes</strong> – Size of the identity-mapped region. </p></li>
+<li><p><strong>ipaBase</strong> – Guest IPA base. </p></li>
+<li><p><strong>guestRamHostPa</strong> – Host physical base backing guest RAM. </p></li>
+<li><p><strong>sizeBytes</strong> – Size of the guest RAM region. </p></li>
 <li><p><strong>vmid</strong> – Non-zero VMID (unique across live VMs). </p></li>
 <li><p><strong>guestEntry</strong> – Guest IPA at which to resume on first <code class="docutils literal notranslate"><span class="pre">eret</span></code>. </p></li>
+<li><p><strong>guestDtb</strong> – Guest IPA of the Linux device tree blob. </p></li>
 </ul>
 </dd>
 </dl>
@@ -915,6 +1309,12 @@ mappings and seed first-entry guest CPU state.</p></li>
 <p class="admonition-title">Note</p>
 <p>Does not return; the guest runs forever or traps back via the exception path, which is owned by vcpu.S / exceptions.S. </p>
 </div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2Vm7getNameEv">
+<span id="_CPPv3NK2Vm7getNameEv"></span><span id="_CPPv2NK2Vm7getNameEv"></span><span id="Vm::getNameC"></span><span class="target" id="classVm_1a14c2d60b5e11de896a6fed730d4e36e2"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getName</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2Vm7getNameEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the guest kernel name passed to <a class="reference internal" href="#classVm_1ad0a4fe48e6ff208a2bbeac91516ad190"><span class="std std-ref">init()</span></a>. </p>
 </dd></dl>
 
 </div>
@@ -932,13 +1332,13 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dt class="sig sig-object cpp">
 <span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">UART</span> <span class="pre">Driver</span></span></dt>
 <dd><p>PL011 UART driver for early debug output. </p>
-<p>Supports both the QEMU virt machine and physical Raspberry Pi 5 hardware, with the UART base selected from the active platform definition at compile time. </p>
+<p>Supports both the QEMU virt machine and physical Raspberry Pi 5 hardware, with the UART base selected from the active BSP definition at compile time. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
 <dl class="cpp enum-class">
 <dt class="sig sig-object cpp" id="_CPPv48UART_REG">
 <span id="_CPPv38UART_REG"></span><span id="_CPPv28UART_REG"></span><span class="target" id="group__drivers__uart_1ga420d6f42b420a39140ea427f1a3d3558"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_REG</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><a class="headerlink" href="#_CPPv48UART_REG" title="Link to this definition">¶</a><br /></dt>
-<dd><p>PL011 register offsets from Platform::kUartBase. </p>
+<dd><p>PL011 register offsets from b::UartBase. </p>
 <p><em>Values:</em></p>
 <dl class="cpp enumerator">
 <dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2DRE">
@@ -1202,32 +1602,32 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 <p>Human-readable register dump for exception diagnostics. </p>
 </section>
 </section>
-<section id="platform">
-<h2>Platform<a class="headerlink" href="#platform" title="Link to this heading">¶</a></h2>
+<section id="bsp">
+<h2>BSP<a class="headerlink" href="#bsp" title="Link to this heading">¶</a></h2>
 <p>Compile-time board constants selected by the active target. This is a
 top-level hardware description group, not part of the freestanding helper
 library.</p>
 <section id="selection-wrapper">
 <h3>Selection Wrapper<a class="headerlink" href="#selection-wrapper" title="Link to this heading">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">platform_def.h</span></code> picks exactly one board definition based on the build:
-<code class="docutils literal notranslate"><span class="pre">PLATFORM_QEMU</span></code> or <code class="docutils literal notranslate"><span class="pre">PLATFORM_RPI5</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bsp.h</span></code> picks exactly one board definition based on the build:
+<code class="docutils literal notranslate"><span class="pre">BSP_QEMU</span></code> or <code class="docutils literal notranslate"><span class="pre">BSP_RPI5</span></code>.</p>
 </section>
 <section id="qemu-virt">
 <h3>QEMU virt<a class="headerlink" href="#qemu-virt" title="Link to this heading">¶</a></h3>
 <p>Base addresses exposed today:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kUartBase</span> <span class="pre">=</span> <span class="pre">0x09000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralBase</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralSize</span> <span class="pre">=</span> <span class="pre">0x38000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::UartBase</span> <span class="pre">=</span> <span class="pre">0x09000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioBase</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioSize</span> <span class="pre">=</span> <span class="pre">0x38000000</span></code></p></li>
 </ul>
 </section>
 <section id="raspberry-pi-5">
 <h3>Raspberry Pi 5<a class="headerlink" href="#raspberry-pi-5" title="Link to this heading">¶</a></h3>
 <p>Base addresses exposed today:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kUartBase</span> <span class="pre">=</span> <span class="pre">0x107D001000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralBase</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Platform::kPeripheralSize</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::UartBase</span> <span class="pre">=</span> <span class="pre">0x107D001000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioBase</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioSize</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -1282,8 +1682,87 @@ library.</p>
             <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#core">Core</a><ul>
+<li><a class="reference internal" href="#_CPPv413ValidateError"><code class="docutils literal notranslate"><span class="pre">ValidateError</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError4NoneE"><code class="docutils literal notranslate"><span class="pre">None</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError11NullPackageE"><code class="docutils literal notranslate"><span class="pre">NullPackage</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError8TooSmallE"><code class="docutils literal notranslate"><span class="pre">TooSmall</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError8BadMagicE"><code class="docutils literal notranslate"><span class="pre">BadMagic</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError10BadVersionE"><code class="docutils literal notranslate"><span class="pre">BadVersion</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError13BadHeaderSizeE"><code class="docutils literal notranslate"><span class="pre">BadHeaderSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError12BadTotalSizeE"><code class="docutils literal notranslate"><span class="pre">BadTotalSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError12BadHeaderCrcE"><code class="docutils literal notranslate"><span class="pre">BadHeaderCrc</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError13BadPayloadCrcE"><code class="docutils literal notranslate"><span class="pre">BadPayloadCrc</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError23UnsupportedBootProtocolE"><code class="docutils literal notranslate"><span class="pre">UnsupportedBootProtocol</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError12UnknownFlagsE"><code class="docutils literal notranslate"><span class="pre">UnknownFlags</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError13MissingKernelE"><code class="docutils literal notranslate"><span class="pre">MissingKernel</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError10MissingDtbE"><code class="docutils literal notranslate"><span class="pre">MissingDtb</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError13BadInitrdFlagE"><code class="docutils literal notranslate"><span class="pre">BadInitrdFlag</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError15BadKernelOffsetE"><code class="docutils literal notranslate"><span class="pre">BadKernelOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError12BadDtbOffsetE"><code class="docutils literal notranslate"><span class="pre">BadDtbOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError15BadInitrdOffsetE"><code class="docutils literal notranslate"><span class="pre">BadInitrdOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError14BadTotalLayoutE"><code class="docutils literal notranslate"><span class="pre">BadTotalLayout</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError20ComponentOutOfBoundsE"><code class="docutils literal notranslate"><span class="pre">ComponentOutOfBounds</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N13ValidateError19GuestLayoutOverflowE"><code class="docutils literal notranslate"><span class="pre">GuestLayoutOverflow</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv49LoadError"><code class="docutils literal notranslate"><span class="pre">LoadError</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N9LoadError4NoneE"><code class="docutils literal notranslate"><span class="pre">None</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9LoadError22MissingFirmwarePackageE"><code class="docutils literal notranslate"><span class="pre">MissingFirmwarePackage</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9LoadError14InvalidPackageE"><code class="docutils literal notranslate"><span class="pre">InvalidPackage</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9LoadError19GuestLayoutOverflowE"><code class="docutils literal notranslate"><span class="pre">GuestLayoutOverflow</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9LoadError24GuestRamAllocationFailedE"><code class="docutils literal notranslate"><span class="pre">GuestRamAllocationFailed</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9LoadError19GuestDtbPatchFailedE"><code class="docutils literal notranslate"><span class="pre">GuestDtbPatchFailed</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#_CPPv48parseDtb9uintptr_t"><code class="docutils literal notranslate"><span class="pre">parseDtb()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv45hmain9uintptr_t"><code class="docutils literal notranslate"><span class="pre">hmain()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageViewE"><code class="docutils literal notranslate"><span class="pre">bootpkg::PackageView</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView9totalSizeE"><code class="docutils literal notranslate"><span class="pre">totalSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView12bootProtocolE"><code class="docutils literal notranslate"><span class="pre">bootProtocol</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView5flagsE"><code class="docutils literal notranslate"><span class="pre">flags</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView12kernelOffsetE"><code class="docutils literal notranslate"><span class="pre">kernelOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView10kernelSizeE"><code class="docutils literal notranslate"><span class="pre">kernelSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView9dtbOffsetE"><code class="docutils literal notranslate"><span class="pre">dtbOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView7dtbSizeE"><code class="docutils literal notranslate"><span class="pre">dtbSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView12initrdOffsetE"><code class="docutils literal notranslate"><span class="pre">initrdOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView10initrdSizeE"><code class="docutils literal notranslate"><span class="pre">initrdSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView11entryOffsetE"><code class="docutils literal notranslate"><span class="pre">entryOffset</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11PackageView7buildIdE"><code class="docutils literal notranslate"><span class="pre">buildId</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayoutE"><code class="docutils literal notranslate"><span class="pre">bootpkg::GuestLayout</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout12guestIpaBaseE"><code class="docutils literal notranslate"><span class="pre">guestIpaBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout12guestRamSizeE"><code class="docutils literal notranslate"><span class="pre">guestRamSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout9kernelIpaE"><code class="docutils literal notranslate"><span class="pre">kernelIpa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout10kernelSizeE"><code class="docutils literal notranslate"><span class="pre">kernelSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout8entryIpaE"><code class="docutils literal notranslate"><span class="pre">entryIpa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout6dtbIpaE"><code class="docutils literal notranslate"><span class="pre">dtbIpa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout7dtbSizeE"><code class="docutils literal notranslate"><span class="pre">dtbSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout9initrdIpaE"><code class="docutils literal notranslate"><span class="pre">initrdIpa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11GuestLayout10initrdSizeE"><code class="docutils literal notranslate"><span class="pre">initrdSize</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuestE"><code class="docutils literal notranslate"><span class="pre">bootpkg::LoadedGuest</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuest14guestRamHostPaE"><code class="docutils literal notranslate"><span class="pre">guestRamHostPa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuest12guestIpaBaseE"><code class="docutils literal notranslate"><span class="pre">guestIpaBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuest12guestRamSizeE"><code class="docutils literal notranslate"><span class="pre">guestRamSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuest8entryIpaE"><code class="docutils literal notranslate"><span class="pre">entryIpa</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg11LoadedGuest6dtbIpaE"><code class="docutils literal notranslate"><span class="pre">dtbIpa</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg14ValidateResultE"><code class="docutils literal notranslate"><span class="pre">bootpkg::ValidateResult</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg14ValidateResult7isValidE"><code class="docutils literal notranslate"><span class="pre">isValid</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg14ValidateResult5errorE"><code class="docutils literal notranslate"><span class="pre">error</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg14ValidateResult7packageE"><code class="docutils literal notranslate"><span class="pre">package</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg10LoadResultE"><code class="docutils literal notranslate"><span class="pre">bootpkg::LoadResult</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg10LoadResult8isLoadedE"><code class="docutils literal notranslate"><span class="pre">isLoaded</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg10LoadResult5errorE"><code class="docutils literal notranslate"><span class="pre">error</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg10LoadResult13validateErrorE"><code class="docutils literal notranslate"><span class="pre">validateError</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7bootpkg10LoadResult5guestE"><code class="docutils literal notranslate"><span class="pre">guest</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#_CPPv49MemoryMap"><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7memBaseE"><code class="docutils literal notranslate"><span class="pre">memBase</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7memSizeE"><code class="docutils literal notranslate"><span class="pre">memSize</span></code></a></li>
@@ -1291,16 +1770,14 @@ library.</p>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7atfSizeE"><code class="docutils literal notranslate"><span class="pre">atfSize</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbBaseE"><code class="docutils literal notranslate"><span class="pre">dtbBase</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbSizeE"><code class="docutils literal notranslate"><span class="pre">dtbSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap15bootPackageBaseE"><code class="docutils literal notranslate"><span class="pre">bootPackageBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap15bootPackageSizeE"><code class="docutils literal notranslate"><span class="pre">bootPackageSize</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N9MemoryMap7isValidE"><code class="docutils literal notranslate"><span class="pre">isValid</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
-<li><a class="reference internal" href="#_CPPv44initv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv410allocTablev"><code class="docutils literal notranslate"><span class="pre">allocTable()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv44walkP8uint64_t8uint64_tRK10WalkConfig"><code class="docutils literal notranslate"><span class="pre">walk()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N9PageTable10WalkConfigE"><code class="docutils literal notranslate"><span class="pre">PageTable::WalkConfig</span></code></a></li>
 <li><a class="reference internal" href="#pmm">PMM</a><ul>
 <li><a class="reference internal" href="#_CPPv44initRK9MemoryMap"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410allocPages8uint32_t"><code class="docutils literal notranslate"><span class="pre">allocPages()</span></code></a></li>
@@ -1309,12 +1786,14 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#mmu">MMU</a><ul>
+<li><a class="reference internal" href="#_CPPv44initv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv46paToVa8uint64_t"><code class="docutils literal notranslate"><span class="pre">paToVa()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv48mapRange8uint64_t8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">mapRange()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410unmapRange8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">unmapRange()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv411tlbFlushAllv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAll()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410tlbFlushVa8uint64_t"><code class="docutils literal notranslate"><span class="pre">tlbFlushVa()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv48GuestMmu"><code class="docutils literal notranslate"><span class="pre">GuestMmu</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu8mapBlockE8uint64_t8uint64_tb"><code class="docutils literal notranslate"><span class="pre">mapBlock()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu6enableE7uint8_t"><code class="docutils literal notranslate"><span class="pre">enable()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu16tlbFlushAllGuestEv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAllGuest()</span></code></a></li>
@@ -1322,6 +1801,7 @@ library.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#heap">Heap</a></li>
 <li><a class="reference internal" href="#page-tables">Page Tables</a><ul>
 <li><a class="reference internal" href="#_CPPv414pte_next_table8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_next_table()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv412pte_is_valid8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_valid()</span></code></a></li>
@@ -1378,8 +1858,9 @@ library.</p>
 </li>
 <li><a class="reference internal" href="#vm">VM</a><ul>
 <li><a class="reference internal" href="#_CPPv42Vm"><code class="docutils literal notranslate"><span class="pre">Vm</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t7uint8_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N2Vm3runEv"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2Vm7getNameEv"><code class="docutils literal notranslate"><span class="pre">getName()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1436,7 +1917,7 @@ library.</p>
 <li><a class="reference internal" href="#registerdump">registerDump()</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#platform">Platform</a><ul>
+<li><a class="reference internal" href="#bsp">BSP</a><ul>
 <li><a class="reference internal" href="#selection-wrapper">Selection Wrapper</a></li>
 <li><a class="reference internal" href="#qemu-virt">QEMU virt</a></li>
 <li><a class="reference internal" href="#raspberry-pi-5">Raspberry Pi 5</a></li>
