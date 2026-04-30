@@ -5,6 +5,10 @@ inputs:
   kernel:
     description: Path to the kernel image to boot.
     required: true
+  initrd:
+    description: Optional initrd/guest boot package to pass to QEMU.
+    required: false
+    default: ""
   log:
     description: Path to the QEMU serial log file.
     required: true
@@ -21,5 +25,6 @@ runs:
       run: |
         python3 "$GITHUB_ACTION_PATH/run_qemu_integration.py" \
           --kernel "${{ inputs.kernel }}" \
+          --initrd "${{ inputs.initrd }}" \
           --log "${{ inputs.log }}" \
           --timeout "${{ inputs.timeout }}"
