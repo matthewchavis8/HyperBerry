@@ -14,6 +14,7 @@
 #include "core/vm/vm.h"
 #include "lib/panic/panic.h"
 #include "uart.h"
+#include "drivers/gic/gic.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
 
@@ -55,6 +56,10 @@ extern "C" void hmain(uintptr_t dtb) {
   Uart::println("[HostMmu] Attempting to bring up host MMU");
   HostMmu::init();
   Uart::println("[HostMmu] Successfully host MMU is brought up");
+
+  Uart::println("[GIC] Attempting to bring up GICv2");
+  Gic::init();
+  Uart::println("[GIC] Successfully brought up GICv2");
   
 #ifdef INTEGRATION_TEST
   TestRunner::setBootContext(memoryMap);

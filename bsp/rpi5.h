@@ -11,6 +11,7 @@
 
 namespace b {
 inline constexpr uint64_t UartBase   = 0x107D001000ULL;
+inline constexpr uint64_t GicBase    = 0x107fff8000ULL;
 inline constexpr uint64_t HvMmioBase = 0x107D000000ULL;
 inline constexpr uint64_t HvMmioSize = 0x200000000ULL;
 

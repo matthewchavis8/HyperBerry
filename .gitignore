@@ -18,3 +18,4 @@ boot/*.hvgbp
 skills-lock.json
 /TODO.md
 .worktrees/
+tools/FVP

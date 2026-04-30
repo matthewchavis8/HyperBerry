@@ -11,6 +11,7 @@
 
 namespace b {
 inline constexpr uint64_t UartBase   = 0x09000000ULL;
+inline constexpr uint64_t GicBase    = 0x08000000;
 inline constexpr uint64_t HvMmioBase = 0x08000000ULL;
 inline constexpr uint64_t HvMmioSize = 0x38000000ULL;
 
@@ -30,4 +31,3 @@ inline constexpr size_t GuestMmioCount = sizeof(GuestMmio) / sizeof(GuestMmio[0]
 }  // namespace b
 
 #endif  // !__BSP_QEMU_H__
-
