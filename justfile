@@ -56,5 +56,13 @@ test-unit:
   cmake --build --preset unit-tests
   ctest --preset unit-tests
 
+guestpkg KERNEL DTB OUT="boot/guest-qemu.hvgbp" INITRD="" BUILD_ID="":
+  cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
+    --kernel {{ KERNEL }} \
+    --dtb {{ DTB }} \
+    --out {{ OUT }} \
+    {{ if INITRD != "" { "--initrd " + INITRD } else { "" } }} \
+    {{ if BUILD_ID != "" { "--build-id " + BUILD_ID } else { "" } }}
+
 clean:
   rm -rf build/

@@ -191,6 +191,34 @@ minicom -b 115200 -D /dev/ttyUSB0   # Example
 minicom -b 115200 -D /dev/ttyACM0   # Example
 ```
 
+## Building Guest Boot Packages (`.hvgbp`)
+
+HyperBerry expects a firmware-loaded guest package (`.hvgbp`) for Linux guest boot.
+Use the Rust CLI at `tools/mkguestpkg` to build it from a kernel `Image` and guest DTB.
+This package is required because HyperBerry consumes one firmware-provided blob at boot
+that bundles guest kernel + DTB (+ optional initrd) with offsets/CRC metadata the loader validates.
+
+```sh
+cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
+  --kernel path/to/Image \
+  --dtb path/to/guest.dtb \
+  --out boot/guest-qemu.hvgbp
+```
+
+Or use the `just` wrapper:
+
+```sh
+just guestpkg path/to/Image path/to/guest.dtb
+```
+
+Optional initrd + build id:
+
+```sh
+just guestpkg path/to/Image path/to/guest.dtb boot/guest-qemu.hvgbp path/to/rootfs.cpio.gz my-build-id
+```
+
+For ABI/layout details, see `docs/GUEST_BOOT_PACKAGE.md`.
+
 ## Testing
 
 HyperBerry has two test paths:
