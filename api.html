@@ -1317,6 +1317,12 @@
 <dd><p>Return the guest kernel name passed to <a class="reference internal" href="#classVm_1ad0a4fe48e6ff208a2bbeac91516ad190"><span class="std std-ref">init()</span></a>. </p>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK2Vm7getVmIdEv">
+<span id="_CPPv3NK2Vm7getVmIdEv"></span><span id="_CPPv2NK2Vm7getVmIdEv"></span><span id="Vm::getVmIdC"></span><span class="target" id="classVm_1a80ab64f262b23e64739e2478fa92c42c"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getVmId</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK2Vm7getVmIdEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Return the guest vm ID passed to <a class="reference internal" href="#classVm_1ad0a4fe48e6ff208a2bbeac91516ad190"><span class="std std-ref">init()</span></a>. </p>
+</dd></dl>
+
 </div>
 </dd></dl>
 
@@ -1324,13 +1330,13 @@
 </section>
 <section id="drivers">
 <h2>Drivers<a class="headerlink" href="#drivers" title="Link to this heading">¶</a></h2>
-<section id="uart-driver">
-<h3>UART Driver<a class="headerlink" href="#uart-driver" title="Link to this heading">¶</a></h3>
+<section id="uart">
+<h3>Uart<a class="headerlink" href="#uart" title="Link to this heading">¶</a></h3>
 <p>PL011 UART driver for early debug output. Supports QEMU virt and
 physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dl>
 <dt class="sig sig-object cpp">
-<span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">UART</span> <span class="pre">Driver</span></span></dt>
+<span class="target" id="group__drivers__uart"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Uart</span></span></dt>
 <dd><p>PL011 UART driver for early debug output. </p>
 <p>Supports both the QEMU virt machine and physical Raspberry Pi 5 hardware, with the UART base selected from the active BSP definition at compile time. </p>
 <div class="breathe-sectiondef docutils container">
@@ -1338,7 +1344,7 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <dl class="cpp enum-class">
 <dt class="sig sig-object cpp" id="_CPPv48UART_REG">
 <span id="_CPPv38UART_REG"></span><span id="_CPPv28UART_REG"></span><span class="target" id="group__drivers__uart_1ga420d6f42b420a39140ea427f1a3d3558"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UART_REG</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><a class="headerlink" href="#_CPPv48UART_REG" title="Link to this definition">¶</a><br /></dt>
-<dd><p>PL011 register offsets from b::UartBase. </p>
+<dd><p>PL011 register offsets from b::UART_BASE. </p>
 <p><em>Values:</em></p>
 <dl class="cpp enumerator">
 <dt class="sig sig-object cpp" id="_CPPv4N8UART_REG2DRE">
@@ -1466,6 +1472,147 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 </dd></dl>
 
 </div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="gic">
+<h3>Gic<a class="headerlink" href="#gic" title="Link to this heading">¶</a></h3>
+<p>ARM GICv2 Distributor and CPU Interface driver.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__gic"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Gic</span></span></dt>
+<dd><p>ARM GICv2 Distributor and CPU Interface driver. </p>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv43Gic">
+<span id="_CPPv33Gic"></span><span id="_CPPv23Gic"></span><span id="Gic"></span><span class="target" id="classGic"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Gic</span></span></span><a class="headerlink" href="#_CPPv43Gic" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;gic.h&gt;</em></div>
+<p>GICv2 Distributor and CPU Interface access helpers. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic4initEv">
+<span id="_CPPv3N3Gic4initEv"></span><span id="_CPPv2N3Gic4initEv"></span><span id="Gic::init"></span><span class="target" id="classGic_1a7f726e1a7c394fcfbff427a539d78bb6"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic4initEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Initialize the GICD and GICC. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Must be called once before any interrupt management. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic9enableIrqE8uint32_t">
+<span id="_CPPv3N3Gic9enableIrqE8uint32_t"></span><span id="_CPPv2N3Gic9enableIrqE8uint32_t"></span><span id="Gic::enableIrq__uint32_t"></span><span class="target" id="classGic_1ae5196dbdf1dcaa51f603afacb9352868"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enableIrq</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic9enableIrqE8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Enable a physical interrupt at the Distributor. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> – GIC interrupt ID (SPI, PPI, or SGI). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic10disableIrqE8uint32_t">
+<span id="_CPPv3N3Gic10disableIrqE8uint32_t"></span><span id="_CPPv2N3Gic10disableIrqE8uint32_t"></span><span id="Gic::disableIrq__uint32_t"></span><span class="target" id="classGic_1a77de58e38e85811230f15fa571e305bd"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">disableIrq</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic10disableIrqE8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Disable a physical interrupt at the Distributor. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> – GIC interrupt ID. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic6ackIrqEv">
+<span id="_CPPv3N3Gic6ackIrqEv"></span><span id="_CPPv2N3Gic6ackIrqEv"></span><span id="Gic::ackIrq"></span><span class="target" id="classGic_1a9b1c23e54c6e481190e148e407c3648b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N3Gic6IrqAckE" title="Gic::IrqAck"><span class="n"><span class="pre">IrqAck</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ackIrq</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic6ackIrqEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Acknowledge the highest-priority pending interrupt via GICC_IAR. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Acknowledgement token plus decoded interrupt ID. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic6endIrqE6IrqAck">
+<span id="_CPPv3N3Gic6endIrqE6IrqAck"></span><span id="_CPPv2N3Gic6endIrqE6IrqAck"></span><span id="Gic::endIrq__IrqAck"></span><span class="target" id="classGic_1a3e2d43563bee6cfe0af32eef2e42b3d7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">endIrq</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N3Gic6IrqAckE" title="Gic::IrqAck"><span class="n"><span class="pre">IrqAck</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">irq</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic6endIrqE6IrqAck" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Signal end-of-interrupt by writing GICC_EOIR. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>irq</strong> – Acknowledgement token returned by <a class="reference internal" href="#classGic_1a9b1c23e54c6e481190e148e407c3648b"><span class="std std-ref">ackIrq()</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic9injectIrqE8uint32_t8uint32_t">
+<span id="_CPPv3N3Gic9injectIrqE8uint32_t8uint32_t"></span><span id="_CPPv2N3Gic9injectIrqE8uint32_t8uint32_t"></span><span id="Gic::injectIrq__uint32_t.uint32_t"></span><span class="target" id="classGic_1a7d6b69ebdb288a0c68c4f13794776207"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">injectIrq</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">virtId</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic9injectIrqE8uint32_t8uint32_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Inject a virtual interrupt into a guest via a GICH List Register. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>virtId</strong> – Virtual interrupt ID to present to the guest. </p></li>
+<li><p><strong>id</strong> – Physical interrupt ID backing the virtual interrupt. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0 on success, -1 if no free List Register is available. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic13hasPendingIrqEv">
+<span id="_CPPv3N3Gic13hasPendingIrqEv"></span><span id="_CPPv2N3Gic13hasPendingIrqEv"></span><span id="Gic::hasPendingIrq"></span><span class="target" id="classGic_1a71798d8f808cc207fd0dcc7955f65e4c"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hasPendingIrq</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic13hasPendingIrqEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Check whether any virtual interrupt is pending in the GICH. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">true</span></code> if at least one virtual interrupt is pending. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic13enableMainIrqEb">
+<span id="_CPPv3N3Gic13enableMainIrqEb"></span><span id="_CPPv2N3Gic13enableMainIrqEb"></span><span id="Gic::enableMainIrq__b"></span><span class="target" id="classGic_1aa87f329a1373ac490ed0cb3334849730"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enableMainIrq</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">isEnable</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic13enableMainIrqEb" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Enable or disable the CPU Interface via GICC_CTLR. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>isEnable</strong> – <code class="docutils literal notranslate"><span class="pre">true</span></code> to enable, <code class="docutils literal notranslate"><span class="pre">false</span></code> to disable. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic16setPriorityLevelE8uint32_t7uint8_t">
+<span id="_CPPv3N3Gic16setPriorityLevelE8uint32_t7uint8_t"></span><span id="_CPPv2N3Gic16setPriorityLevelE8uint32_t7uint8_t"></span><span id="Gic::setPriorityLevel__uint32_t.uint8_t"></span><span class="target" id="classGic_1aae557c5bf2abb86f7472663bc3975983"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setPriorityLevel</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">id</span></span>, <span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">priority</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic16setPriorityLevelE8uint32_t7uint8_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Set the priority level for a physical interrupt. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – GIC interrupt ID to configure. </p></li>
+<li><p><strong>priority</strong> – Priority value (0 = highest, 255 = lowest). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic8cpuResetEv">
+<span id="_CPPv3N3Gic8cpuResetEv"></span><span id="_CPPv2N3Gic8cpuResetEv"></span><span id="Gic::cpuReset"></span><span class="target" id="classGic_1abef790475fa6f4e9658463990d510d18"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cpuReset</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3Gic8cpuResetEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Reset the GICC to its power-on state for this CPU. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N3Gic6IrqAckE">
+<span id="_CPPv3N3Gic6IrqAckE"></span><span id="_CPPv2N3Gic6IrqAckE"></span><span id="Gic::IrqAck"></span><span class="target" id="structGic_1_1IrqAck"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IrqAck</span></span></span><a class="headerlink" href="#_CPPv4N3Gic6IrqAckE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;gic.h&gt;</em></div>
+</dd></dl>
+
 </dd></dl>
 
 </dd></dl>
@@ -1616,18 +1763,26 @@ library.</p>
 <h3>QEMU virt<a class="headerlink" href="#qemu-virt" title="Link to this heading">¶</a></h3>
 <p>Base addresses exposed today:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">b::UartBase</span> <span class="pre">=</span> <span class="pre">0x09000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioBase</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioSize</span> <span class="pre">=</span> <span class="pre">0x38000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::UART_BASE</span> <span class="pre">=</span> <span class="pre">0x09000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_DISTRIBUTOR_BASE</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_CPU_BASE</span> <span class="pre">=</span> <span class="pre">0x08010000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_HV_BASE</span> <span class="pre">=</span> <span class="pre">0x08030000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_VCPU_BASE</span> <span class="pre">=</span> <span class="pre">0x08040000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x08000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x38000000</span></code></p></li>
 </ul>
 </section>
 <section id="raspberry-pi-5">
 <h3>Raspberry Pi 5<a class="headerlink" href="#raspberry-pi-5" title="Link to this heading">¶</a></h3>
 <p>Base addresses exposed today:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">b::UartBase</span> <span class="pre">=</span> <span class="pre">0x107D001000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioBase</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">b::HvMmioSize</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::UART_BASE</span> <span class="pre">=</span> <span class="pre">0x107D001000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_DISTRIBUTOR_BASE</span> <span class="pre">=</span> <span class="pre">0x107fff9000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_CPU_BASE</span> <span class="pre">=</span> <span class="pre">0x107fffa000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_HV_BASE</span> <span class="pre">=</span> <span class="pre">0x107fffc000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_VCPU_BASE</span> <span class="pre">=</span> <span class="pre">0x107fffe000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -1861,6 +2016,7 @@ library.</p>
 <li><a class="reference internal" href="#_CPPv4N2Vm4initEPKc8uint64_t8uint64_t8uint64_t7uint8_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N2Vm3runEv"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4NK2Vm7getNameEv"><code class="docutils literal notranslate"><span class="pre">getName()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK2Vm7getVmIdEv"><code class="docutils literal notranslate"><span class="pre">getVmId()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1868,7 +2024,7 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>
-<li><a class="reference internal" href="#uart-driver">UART Driver</a><ul>
+<li><a class="reference internal" href="#uart">Uart</a><ul>
 <li><a class="reference internal" href="#_CPPv48UART_REG"><code class="docutils literal notranslate"><span class="pre">UART_REG</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N8UART_REG2DRE"><code class="docutils literal notranslate"><span class="pre">DR</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8UART_REG2FRE"><code class="docutils literal notranslate"><span class="pre">FR</span></code></a></li>
@@ -1886,6 +2042,23 @@ library.</p>
 <li><a class="reference internal" href="#_CPPv4N4Uart5printEPKc"><code class="docutils literal notranslate"><span class="pre">print()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart4putcEKc"><code class="docutils literal notranslate"><span class="pre">putc()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N4Uart8writeHexE8uint64_t"><code class="docutils literal notranslate"><span class="pre">writeHex()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#gic">Gic</a><ul>
+<li><a class="reference internal" href="#_CPPv43Gic"><code class="docutils literal notranslate"><span class="pre">Gic</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N3Gic4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic9enableIrqE8uint32_t"><code class="docutils literal notranslate"><span class="pre">enableIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic10disableIrqE8uint32_t"><code class="docutils literal notranslate"><span class="pre">disableIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic6ackIrqEv"><code class="docutils literal notranslate"><span class="pre">ackIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic6endIrqE6IrqAck"><code class="docutils literal notranslate"><span class="pre">endIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic9injectIrqE8uint32_t8uint32_t"><code class="docutils literal notranslate"><span class="pre">injectIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic13hasPendingIrqEv"><code class="docutils literal notranslate"><span class="pre">hasPendingIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic13enableMainIrqEb"><code class="docutils literal notranslate"><span class="pre">enableMainIrq()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic16setPriorityLevelE8uint32_t7uint8_t"><code class="docutils literal notranslate"><span class="pre">setPriorityLevel()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic8cpuResetEv"><code class="docutils literal notranslate"><span class="pre">cpuReset()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3Gic6IrqAckE"><code class="docutils literal notranslate"><span class="pre">Gic::IrqAck</span></code></a></li>
 </ul>
 </li>
 </ul>
