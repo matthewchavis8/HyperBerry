@@ -244,7 +244,7 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
 } // namespace uart::detail
 
 /**
- * @brief PL011 register offsets from @ref b::UartBase.
+ * @brief PL011 register offsets from @ref b::UART_BASE.
  * @ingroup drivers_uart
  */
 enum class UART_REG : uint8_t {

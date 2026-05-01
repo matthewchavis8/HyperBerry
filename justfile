@@ -12,7 +12,7 @@ qemu MODE="debug":
   @echo "[LOG] Virtual Raspberry PI5 has succesfully been built and flash"
   cmake --build --preset {{ MODE }} --target run
 
-rpi5 MODE="release" SD_DEV="/dev/sdb1":
+rpi5 MODE="release" SD_DEV="/dev/sdd1":
   cmake --preset {{ MODE }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
   @echo "[LOG] build {{ MODE }} directory"
 
@@ -41,7 +41,7 @@ docs-clean:
   rm -rf docs/_doxygen
   rm -rf docs/_build
 
-test-integration BOARD="qemu" SD_DEV="/dev/sdb1":
+test-integration BOARD="qemu" SD_DEV="/dev/sdd1":
   cmake --preset integration-test -DBOARD={{ BOARD }} {{ if BOARD == "rpi5" { "-DSD_MOUNT=/mnt/sdcard" } else { "" } }}
   cmake --build --preset integration-test
 

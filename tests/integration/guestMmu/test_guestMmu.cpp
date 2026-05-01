@@ -113,7 +113,7 @@ static bool test_init_maps_guest_ram_blocks() {
 }
 
 static bool test_init_maps_board_mmio_as_device() {
-  if (b::GuestMmioCount == 0)
+  if (b::GUEST_MMIO_COUNT == 0)
     return true;
 
   GuestMmu mmu;
@@ -123,7 +123,7 @@ static bool test_init_maps_board_mmio_as_device() {
 
   mmu.init(kGuestIpaBase, hostPa, kGuestSize);
 
-  const b::MmioRange& range = b::GuestMmio[0];
+  const b::MmioRange& range = b::GUEST_MMIO[0];
   uint64_t* entry = walkStage2L2(rootTable(mmu), range.ipa);
   bool mapped = entry != nullptr && *entry == deviceStage2Descriptor(range.pa);
 

@@ -15,6 +15,7 @@ add_executable(hyperberry_unit_tests
 
   dtb/test_dtb.cpp
   uart/test_uart_format.cpp
+  gic/test_gic.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
 
   bootpkg/test_bootpkg.cpp

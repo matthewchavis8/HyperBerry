@@ -175,9 +175,13 @@ QEMU virt
 
 Base addresses exposed today:
 
-- ``b::UartBase = 0x09000000``
-- ``b::HvMmioBase = 0x08000000``
-- ``b::HvMmioSize = 0x38000000``
+- ``b::UART_BASE = 0x09000000``
+- ``b::GIC_DISTRIBUTOR_BASE = 0x08000000``
+- ``b::GIC_CPU_BASE = 0x08010000``
+- ``b::GIC_HV_BASE = 0x08030000``
+- ``b::GIC_VCPU_BASE = 0x08040000``
+- ``b::HV_MMIO_BASE = 0x08000000``
+- ``b::HV_MMIO_SIZE = 0x38000000``
 
 .. doxygenfile:: qemu.h
    :project: HyperBerry
@@ -188,9 +192,13 @@ Raspberry Pi 5
 
 Base addresses exposed today:
 
-- ``b::UartBase = 0x107D001000``
-- ``b::HvMmioBase = 0x107D000000``
-- ``b::HvMmioSize = 0x200000000``
+- ``b::UART_BASE = 0x107D001000``
+- ``b::GIC_DISTRIBUTOR_BASE = 0x107fff9000``
+- ``b::GIC_CPU_BASE = 0x107fffa000``
+- ``b::GIC_HV_BASE = 0x107fffc000``
+- ``b::GIC_VCPU_BASE = 0x107fffe000``
+- ``b::HV_MMIO_BASE = 0x107D000000``
+- ``b::HV_MMIO_SIZE = 0x200000000``
 
 .. doxygenfile:: rpi5.h
    :project: HyperBerry

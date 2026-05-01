@@ -48,9 +48,9 @@ namespace HostMmu {
     mapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
     Uart::println("[HostMmu] Mapping HV MMIO space");
-    mapRange(b::HvMmioBase,
-             b::HvMmioBase,
-             b::HvMmioSize,
+    mapRange(b::HV_MMIO_BASE,
+             b::HV_MMIO_BASE,
+             b::HV_MMIO_SIZE,
              PTE_DEVICE);
 
     Uart::println("[HostMmu] Programming TTBR0");
