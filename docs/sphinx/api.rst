@@ -84,13 +84,22 @@ Per-guest container that owns one stage-2 MMU context and one guest vCPU.
 Drivers
 -------
 
-UART Driver
-~~~~~~~~~~~
+Uart
+~~~~
 
 PL011 UART driver for early debug output. Supports QEMU virt and
 physical Raspberry Pi 5 targets via a compile-time base address.
 
 .. doxygengroup:: drivers_uart
+   :project: HyperBerry
+   :members:
+
+Gic
+~~~
+
+ARM GICv2 Distributor and CPU Interface driver.
+
+.. doxygengroup:: gic
    :project: HyperBerry
    :members:
 

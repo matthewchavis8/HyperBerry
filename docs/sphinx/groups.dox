@@ -49,13 +49,19 @@
  */
 
 /**
- * @defgroup drivers_uart UART Driver
+ * @defgroup drivers_uart Uart
  * @ingroup drivers
  * @brief PL011 UART driver for early debug output.
  *
  * Supports both the QEMU virt machine and physical Raspberry Pi 5
  * hardware, with the UART base selected from the active BSP
  * definition at compile time.
+ */
+
+/**
+ * @defgroup gic Gic
+ * @ingroup drivers
+ * @brief ARM GICv2 Distributor and CPU Interface driver.
  */
 
 /**

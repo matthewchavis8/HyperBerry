@@ -1,7 +1,7 @@
 /**
  * @file gic.h
  * @brief ARM GICv2 Distributor and CPU Interface driver.
- * @ingroup drivers_gic
+ * @ingroup gic
  *
  * Call @ref Gic::init() once during platform bring-up before enabling IRQs.
  */
@@ -13,16 +13,10 @@
 
 /**
  * @brief GICv2 Distributor and CPU Interface access helpers.
- * @ingroup drivers_gic
+ * @ingroup gic
  */
 class Gic {
     private:
-        /**
-         * @brief Convert a physical GIC register address into a volatile 32-bit pointer.
-         *
-         * @param REG Absolute memory-mapped register address.
-         * @return Pointer suitable for 32-bit MMIO access.
-         */
         static volatile uint32_t* reg(const uintptr_t REG);
 
         /**

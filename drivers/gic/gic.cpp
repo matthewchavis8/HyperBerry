@@ -311,12 +311,6 @@ void Gic::init() {
     cpuInit();
 }
 
-/**
-* @brief Convert a GIC register address to a volatile MMIO pointer.
-*
-* @param REG Absolute memory-mapped register address.
-* @return Pointer suitable for 32-bit volatile MMIO access.
-*/
 volatile uint32_t* Gic::reg(const uintptr_t REG) {
     return reinterpret_cast<volatile uint32_t*>(REG);
 }
