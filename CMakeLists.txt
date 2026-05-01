@@ -71,6 +71,7 @@ if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/guestMmu)
   add_subdirectory(tests/integration/bootpkg)
   add_subdirectory(tests/integration/vcpu)
+  add_subdirectory(tests/integration/gic)
 endif()
 
 add_executable(${ELF}
@@ -94,6 +95,7 @@ if(INTEGRATION_TEST)
     TestGuestMmu
     TestBootPkg
     TestVcpu
+    TestGic
     -Wl,--no-whole-archive
   )
 endif()

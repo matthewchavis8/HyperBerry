@@ -59,8 +59,8 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
   }
 
   Uart::println("[GuestMmu] Mapping guest MMIO");
-  for (size_t rangeIndex {}; rangeIndex < b::GuestMmioCount; ++rangeIndex) {
-    const b::MmioRange& range = b::GuestMmio[rangeIndex];
+  for (size_t rangeIndex {}; rangeIndex < b::GUEST_MMIO_COUNT; ++rangeIndex) {
+    const b::MmioRange& range = b::GUEST_MMIO[rangeIndex];
     for (uint64_t off {}; off < range.size; off += SIZE_2MB) {
       mapBlock(range.ipa + off, range.pa + off, true);
     }

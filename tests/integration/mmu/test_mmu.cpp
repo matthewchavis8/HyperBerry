@@ -59,8 +59,8 @@ static bool test_hv_identity_mapping_present() {
 }
 
 static bool test_peripheral_mapping_present() {
-  return entryMatches(walkToL2Entry(b::HvMmioBase),
-                      b::HvMmioBase,
+  return entryMatches(walkToL2Entry(b::HV_MMIO_BASE),
+                      b::HV_MMIO_BASE,
                       PTE_DEVICE);
 }
 

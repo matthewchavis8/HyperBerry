@@ -15,7 +15,7 @@ namespace {
         // configuration, and software-generated interrupts.
         namespace Dist {
             // Base address of the distributor register frame.
-            constexpr uintptr_t BASE = b::GicBase + 0x00000;
+            constexpr uintptr_t BASE = b::GIC_DISTRIBUTOR_BASE;
 
             // Enables and disables distributor forwarding.
             constexpr uintptr_t CTLR       = BASE + 0x000;
@@ -53,7 +53,7 @@ namespace {
         // end-of-interrupt signaling to the running CPU.
         namespace Cpu {
             // Base address of the physical CPU interface register frame.
-            constexpr uintptr_t BASE = b::GicBase + 0x10000;
+            constexpr uintptr_t BASE = b::GIC_CPU_BASE;
 
             // Enables and disables CPU interface signaling.
             constexpr uintptr_t CTLR  = BASE + 0x000;
@@ -82,7 +82,7 @@ namespace {
         // the virtual list registers used to present interrupts to a guest.
         namespace Hv {
             // Base address of the hypervisor interface register frame.
-            constexpr uintptr_t BASE = b::GicBase + 0x30000;
+            constexpr uintptr_t BASE = b::GIC_HV_BASE;
 
             // Controls virtual CPU interface operation.
             constexpr uintptr_t HCR   = BASE + 0x000;
@@ -136,7 +136,7 @@ namespace {
         // mask, complete, and inspect virtual interrupts
         namespace Vcpu {
             // Base address of the virtual CPU interface register frame
-            constexpr uint64_t BASE  = b::GicBase + 0x40000;
+            constexpr uint64_t BASE  = b::GIC_VCPU_BASE;
 
             // Enables and disables the guest-visible virtual CPU interface
             constexpr uintptr_t CTLR  = 0x000;
@@ -296,7 +296,7 @@ void Gic::init() {
 
     // Route all SPIs to CPU0
     for (uint32_t i{32}; i < numOfSpis; i += 4) {
-        *reg(GicReg::Dist::ITARGETSR + i * 4) = 0x01010101;
+        *reg(GicReg::Dist::ITARGETSR + i) = 0x01010101;
     }
 
     // All SPis are level triggered
