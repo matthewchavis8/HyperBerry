@@ -16,6 +16,5 @@ boot/*.hvgbp
 .codex
 .agents
 skills-lock.json
-/TODO.md
 .worktrees/
 tools/FVP

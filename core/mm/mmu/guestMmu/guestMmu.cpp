@@ -10,8 +10,8 @@
 #include "guestMmu.h"
 
 namespace {
-  constexpr uint32_t kStage2StartLevel = 1;   // T0SZ=32 -> start at L1 since the guest is 32 bit for now
-  constexpr uint64_t kStage2T0sz       = 32;
+  constexpr uint32_t kStage2StartLevel = 1;   // 40-bit IPA with 4 KiB granules starts at L1.
+  constexpr uint64_t kStage2T0sz       = 24;  // 64 - 24 = 40-bit IPA space for high RPI5 MMIO.
 
   constexpr PageTable::WalkConfig kStage2Walk {
     kStage2StartLevel,
@@ -32,6 +32,27 @@ namespace {
          | S2PTE_S2AP_RW
          | memAttr
          | xn;
+  }
+
+  uint64_t buildStage2PageDescriptor(uint64_t pa, bool isDevice) {
+    return buildStage2BlockDescriptor(pa, isDevice) | PTE_TABLE;
+  }
+
+  uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
+    uint64_t* l2 = PageTable::walk(root, ipa, kStage2Walk);
+    if (l2 == nullptr)
+      return nullptr;
+
+    if (!pte_is_valid(*l2)) {
+      uint64_t* l3 = PageTable::allocTable();
+      *l2 = reinterpret_cast<uint64_t>(l3) | PTE_VALID | PTE_TABLE;
+    }
+
+    if (!pte_is_table(*l2))
+      return nullptr;
+
+    uint64_t* l3 = pte_next_table(*l2);
+    return &l3[L3_INDEX(ipa)];
   }
 }
 
@@ -66,6 +87,14 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
     }
   }
 
+  Uart::println("[GuestMmu] Mapping guest page MMIO");
+  for (size_t rangeIndex {}; rangeIndex < b::GUEST_MMIO_PAGE_COUNT; ++rangeIndex) {
+    const b::MmioRange& range = b::GUEST_MMIO_PAGES[rangeIndex];
+    for (uint64_t off {}; off < range.size; off += SIZE_4KB) {
+      mapPage(range.ipa + off, range.pa + off, true);
+    }
+  }
+
   Uart::println("[GuestMmu] init finished");
 }
 
@@ -76,6 +105,15 @@ void GuestMmu::mapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
     return;
   }
   *pte = buildStage2BlockDescriptor(pa, isDevice);
+}
+
+void GuestMmu::mapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
+  uint64_t* pte = walkL3(m_rootTable, ipa);
+  if (!pte) {
+    Uart::println("[ERROR] GuestMmu::mapPage walk failed");
+    return;
+  }
+  *pte = buildStage2PageDescriptor(pa, isDevice);
 }
 
 void GuestMmu::enable(uint8_t vmid) {

@@ -24,8 +24,8 @@ TEST(GuestMmu, XnSitsInBits54Through53) {
   EXPECT_EQ(S2PTE_XN_ALL,  2ULL << 53);
 }
 
-TEST(GuestMmu, Vtcr32BitIpaMatchesT0szMask) {
-  EXPECT_EQ(VTCR_T0SZ(32), 32ULL);
+TEST(GuestMmu, Vtcr40BitIpaMatchesT0szMask) {
+  EXPECT_EQ(VTCR_T0SZ(24), 24ULL);
   EXPECT_EQ(VTCR_T0SZ(64), 0ULL);  // masked to 6 bits.
 }
 

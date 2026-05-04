@@ -190,7 +190,7 @@ if (BOARD STREQUAL "qemu")
     COMMAND qemu-system-aarch64
       -machine virt,virtualization=on,gic-version=2
       -cpu cortex-a76
-      -m 4G
+      -m 8G
       -nographic
       -kernel ${CMAKE_BINARY_DIR}/kernel8.img
       -initrd ${QEMU_GUEST_PACKAGE}
