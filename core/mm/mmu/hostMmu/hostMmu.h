@@ -37,7 +37,10 @@
 
 // Hypervisor VA layout.
 #define HV_VA_BASE 0x0ULL
-#define HV_VA_SIZE SIZE_8GB
+// Raspberry Pi firmware can place the guest package above the 8 GiB RAM
+// boundary on 8 GiB boards. Keep the early EL2 identity map wide enough for
+// that firmware-loaded package while the boot loader still assumes PA == VA.
+#define HV_VA_SIZE SIZE_16GB
 
 namespace HostMmu {
   /**

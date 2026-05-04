@@ -27,6 +27,7 @@
 #define SIZE_2MB 0x200000ULL
 #define SIZE_1GB 0x40000000ULL
 #define SIZE_8GB 0x200000000ULL
+#define SIZE_16GB 0x400000000ULL
 
 // Table-index extraction from an address.
 #define L0_INDEX(addr) (((addr) >> 39) & 0x1FFULL)
@@ -57,7 +58,7 @@ namespace PageTable {
    * @ingroup mm
    *
    * `startLevel == 0` corresponds to stage-1 with T0SZ=16 (48-bit VA).
-   * `startLevel == 1` corresponds to stage-2 with T0SZ=32 (32-bit IPA).
+   * `startLevel == 1` corresponds to stage-2 mappings that start at L1.
    * Both walks terminate at the L2 entry; callers map 2 MiB blocks.
    */
   struct WalkConfig {

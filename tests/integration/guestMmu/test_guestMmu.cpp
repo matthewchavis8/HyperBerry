@@ -81,7 +81,7 @@ static bool test_init_programs_vtcr_el2() {
   asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
   pmm::freePages(hostPa, 9);
 
-  uint64_t expected = VTCR_T0SZ(32)
+  uint64_t expected = VTCR_T0SZ(24)
                     | VTCR_SL0_L1
                     | VTCR_TG0_4K
                     | VTCR_SH0_IS

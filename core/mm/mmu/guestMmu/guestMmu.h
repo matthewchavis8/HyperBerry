@@ -71,6 +71,15 @@ public:
   void mapBlock(uint64_t ipa, uint64_t pa, bool isDevice);
 
   /**
+   * @brief Install one 4 KiB stage-2 page descriptor.
+   * @param ipa      Intermediate physical address (4 KiB aligned).
+   * @param pa       Target physical address (4 KiB aligned).
+   * @param isDevice True selects device-nGnRnE memory attributes,
+   *                 false selects normal write-back cacheable memory.
+   */
+  void mapPage(uint64_t ipa, uint64_t pa, bool isDevice);
+
+  /**
    * @brief Commit this stage-2 context: program VTTBR_EL2 with @p vmid,
    *        flush stage-2 TLB, and set HCR_EL2.VM=1.
    * @param vmid Non-zero VMID. Each live VM must have a unique VMID.
