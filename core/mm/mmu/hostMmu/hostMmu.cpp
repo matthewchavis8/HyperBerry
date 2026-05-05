@@ -13,11 +13,13 @@ namespace {
 
   constexpr PageTable::WalkConfig kStage1Walk {
     0,
+    0x1FFULL,
     true,
   };
 
   constexpr PageTable::WalkConfig kStage1Lookup {
     0,
+    0x1FFULL,
     false,
   };
 }

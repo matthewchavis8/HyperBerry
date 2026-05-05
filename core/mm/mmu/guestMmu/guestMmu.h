@@ -29,6 +29,7 @@
 
 // VTCR_EL2 field builders.
 #define VTCR_T0SZ(n)    ((uint64_t)(n) & 0x3FULL)
+#define VTCR_SL0_L0     (0b10ULL << 6)
 #define VTCR_SL0_L1     (0b01ULL << 6)
 #define VTCR_TG0_4K     (0b00ULL << 14)
 #define VTCR_SH0_IS     (0b11ULL << 12)
