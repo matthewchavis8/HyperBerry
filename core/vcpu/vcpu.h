@@ -140,15 +140,12 @@ struct HvContext {
  * via the VCPU_*_OFFSET constants above. Fields below the
  * "asm contract line" comment are free to reorder.
  *
- * All data is private; the class exposes methods for every operation
- * a caller might need. This preserves standard-layout (all non-static
- * data members share the same access specifier) while hiding the raw
- * register arrays from normal C++ callers.
+ * Layout-critical data is public so low-level trap routing can pass
+ * register state directly to dispatch modules without copying. Keep all
+ * data members in this single access group to preserve standard-layout.
  */
 class Vcpu {
-private:
-  friend struct VcpuLayoutAccess;
-
+public:
   hv::array<uint64_t, 31> m_gpr;
   uint64_t   m_spEl0;
   El2State   m_el2State;
@@ -156,7 +153,6 @@ private:
   HvContext  m_hvCtx;
   uint32_t   m_vcpuId;
 
-public:
   /**
    * @brief Initialise this vCPU for first entry into EL1.
    *

@@ -21,17 +21,17 @@ static TestExceptionState vecBarState;
  * and we are always in AArch64 at EL2.
  */
 extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
-    ExceptionContext* ctx = reinterpret_cast<ExceptionContext*>(frame);
+    uint64_t* ctx = reinterpret_cast<uint64_t*>(frame);
 
     vecBarState.isCalled = true;
     // Store the exception syndrome register to see what triggered the crash
     vecBarState.esr      = esr;
-    // Capture exception link register before advancing
-    vecBarState.elr      = ctx->elr;
+    // ELR/SPSR live after x0-x30 in the saved exception frame.
+    vecBarState.elr      = ctx[31];
     // Grab the first non volatile register to make sure allignment or stack corruption did not occur
-    vecBarState.gpr19    = ctx->gpr[19]; 
+    vecBarState.gpr19    = ctx[19];
     // Skip the faulting BRK so eret resumes at the next instruction.
-    ctx->elr += 4;
+    ctx[31] += 4;
 }
 
 // Symbol defined from test_vectors.S

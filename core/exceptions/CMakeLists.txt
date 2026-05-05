@@ -1,3 +1,5 @@
+add_subdirectory(hvc)
+
 add_library(Exceptions
   STATIC
   exceptions.cpp
@@ -5,5 +7,6 @@ add_library(Exceptions
 
 target_link_libraries(Exceptions
   PRIVATE
+  Hvc
   Uart
 )
