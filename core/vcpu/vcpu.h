@@ -11,7 +11,7 @@
 #ifndef __VCPU_H__
 #define __VCPU_H__
 
-// General-purpose register offsets (from GpRegs base)
+// General-purpose register offsets (from Vcpu::m_gpr base)
 #define VCPU_GPREG_X0     0x000
 #define VCPU_GPREG_X1     0x008
 #define VCPU_GPREG_X2     0x010
@@ -110,14 +110,6 @@ static constexpr size_t regIdx(size_t off) {
 }
 
 /**
- * @brief General-purpose register file: x0–x30, sp_el0.
- * @ingroup vcpu
- */
-struct GpRegs {
-  hv::array<uint64_t, 32> regs;
-} __attribute__((aligned(16)));
-
-/**
  * @brief EL2 exception-return state: elr_el2, spsr_el2.
  * @ingroup vcpu
  */
@@ -157,7 +149,8 @@ class Vcpu {
 private:
   friend struct VcpuLayoutAccess;
 
-  GpRegs     m_gpRegs;
+  hv::array<uint64_t, 31> m_gpr;
+  uint64_t   m_spEl0;
   El2State   m_el2State;
   El1SysRegs m_el1SysRegs;
   HvContext  m_hvCtx;
@@ -233,7 +226,9 @@ public:
 } __attribute__((aligned(128)));
 
 struct VcpuLayoutAccess {
-  static constexpr uint64_t gpRegsOffset() { return __builtin_offsetof(Vcpu, m_gpRegs); }
+  static constexpr uint64_t gprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
+
+  static constexpr uint64_t spEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
   
   static constexpr uint64_t hvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
 
@@ -245,14 +240,14 @@ struct VcpuLayoutAccess {
 // Fail Loudly
 static_assert(__is_standard_layout(Vcpu),
   "Vcpu must be standard-layout so .S can rely on member offsets");
-static_assert(sizeof(GpRegs) == VCPU_GPREGS_SIZE,
-  "GpRegs size drifted from the asm-visible GPR layout");
 static_assert(sizeof(El2State) == VCPU_EL2STATE_SIZE,
   "El2State size drifted from the asm-visible EL2 layout");
 static_assert(sizeof(El1SysRegs) == VCPU_EL1SYSREGS_SIZE,
   "El1SysRegs size drifted from the asm-visible EL1 sysreg layout");
-static_assert(VcpuLayoutAccess::gpRegsOffset() == VCPU_GPREGS_OFFSET,
-  "m_gpRegs offset drifted from VCPU_GPREGS_OFFSET");
+static_assert(VcpuLayoutAccess::gprOffset() == VCPU_GPREGS_OFFSET,
+  "m_gpr offset drifted from VCPU_GPREGS_OFFSET");
+static_assert(VcpuLayoutAccess::spEl0Offset() == VCPU_GPREG_SP_EL0,
+  "m_spEl0 offset drifted from VCPU_GPREG_SP_EL0");
 static_assert(VcpuLayoutAccess::el2StateOffset() == VCPU_EL2STATE_OFFSET,
   "m_el2State offset drifted from VCPU_EL2STATE_OFFSET");
 static_assert(VcpuLayoutAccess::el1SysRegsOffset() == VCPU_EL1REGS_OFFSET,

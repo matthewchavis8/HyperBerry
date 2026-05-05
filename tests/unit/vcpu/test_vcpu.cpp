@@ -39,13 +39,19 @@ void Vcpu::skipInstruction() {
 }
 
 uint64_t Vcpu::getGpReg(uint64_t off) const {
-  return m_gpRegs.regs[regIdx(off)];
+  if (off == VCPU_GPREG_SP_EL0)
+    return m_spEl0;
+  return m_gpr[regIdx(off)];
 }
 
 void Vcpu::setGpReg(uint64_t off, uint64_t val) {
   if (off == VCPU_GPREG_X0)
     gVcpuSetX0Cap = val;
-  m_gpRegs.regs[regIdx(off)] = val;
+  if (off == VCPU_GPREG_SP_EL0) {
+    m_spEl0 = val;
+    return;
+  }
+  m_gpr[regIdx(off)] = val;
 }
 
 void Vcpu::saveEl1SysRegs() {}
@@ -68,7 +74,8 @@ TEST(Vcpu, IsStandardLayout) {
 }
 
 TEST(Vcpu, SubStructOffsetsMatchAsmContract) {
-  EXPECT_EQ(VcpuLayoutAccess::gpRegsOffset(), VCPU_GPREGS_OFFSET);
+  EXPECT_EQ(VcpuLayoutAccess::gprOffset(), VCPU_GPREGS_OFFSET);
+  EXPECT_EQ(VcpuLayoutAccess::spEl0Offset(), VCPU_GPREG_SP_EL0);
   EXPECT_EQ(VcpuLayoutAccess::el2StateOffset(), VCPU_EL2STATE_OFFSET);
   EXPECT_EQ(VcpuLayoutAccess::el1SysRegsOffset(), VCPU_EL1REGS_OFFSET);
   EXPECT_GE(sizeof(Vcpu), VCPU_SIZEOF);
@@ -81,7 +88,7 @@ TEST(Vcpu, InitSeedsEntrypointInElr) {
   EXPECT_EQ(vcpu.getElr(), 0x40000000ULL);
 }
 
-TEST(Vcpu, InitZeroesGpRegs) {
+TEST(Vcpu, InitZeroesGprs) {
   Vcpu vcpu;
   vcpu.setGpReg(VCPU_GPREG_X5, 0xDEADBEEFULL);
 
