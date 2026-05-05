@@ -82,7 +82,7 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
       Uart::println("[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}",
                     exceptionClass,
                     esr);
-      break;
+      hv_panic("[Guest] unhandled lower-EL sync exception");
   }
 }
 

@@ -26,7 +26,7 @@ uint64_t* walkStage2L2(uint64_t* root, uint64_t ipa) {
   if (!root)
     return nullptr;
 
-  uint64_t l1Entry = root[L1_INDEX(ipa)];
+  uint64_t l1Entry = root[(ipa >> 30) & 0x3FFULL];
   if (!pte_is_table(l1Entry))
     return nullptr;
 

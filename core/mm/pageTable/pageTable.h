@@ -58,11 +58,13 @@ namespace PageTable {
    * @ingroup mm
    *
    * `startLevel == 0` corresponds to stage-1 with T0SZ=16 (48-bit VA).
-   * `startLevel == 1` corresponds to stage-2 mappings that start at L1.
+   * `startLevel == 1` corresponds to 40-bit stage-2 with two concatenated
+   * L1 root tables — those use a 10-bit root index, set via @ref rootIndexMask.
    * Both walks terminate at the L2 entry; callers map 2 MiB blocks.
    */
   struct WalkConfig {
     uint32_t startLevel;
+    uint64_t rootIndexMask;  // Mask for the start-level index (e.g. 0x1FF or 0x3FF for concatenated stage-2).
     bool     allocOnMiss;
   };
 
@@ -74,6 +76,16 @@ namespace PageTable {
    *         produce bogus translations.
    */
   uint64_t* allocTable();
+
+  /**
+   * @brief Clean a range from the data cache to PoC.
+   * @ingroup mm
+   *
+   * Real hardware page-table walkers are not obliged to observe dirty cache
+   * lines produced by EL2 stores before the corresponding maintenance and
+   * barriers complete. QEMU often hides this class of bug.
+   */
+  void cleanDataCacheRange(const void* addr, size_t size);
 
   /**
    * @brief Walk a multi-level translation table and return the L2 entry.
