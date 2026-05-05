@@ -67,11 +67,17 @@ void Vcpu::setGuestSp(uint64_t sp) {
 }
 
 uint64_t Vcpu::getGpReg(uint64_t off) const {
-  return m_gpRegs.regs[regIdx(off)];
+  if (off == VCPU_GPREG_SP_EL0)
+    return m_spEl0;
+  return m_gpr[regIdx(off)];
 }
 
 void Vcpu::setGpReg(uint64_t off, uint64_t val) {
-  m_gpRegs.regs[regIdx(off)] = val;
+  if (off == VCPU_GPREG_SP_EL0) {
+    m_spEl0 = val;
+    return;
+  }
+  m_gpr[regIdx(off)] = val;
 }
 
 #define VCPU_SAVE_EL1(name, off) do {                                     \

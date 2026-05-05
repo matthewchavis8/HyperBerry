@@ -85,6 +85,11 @@ _start:
     stp   xzr, xzr, [x0], #16
     b     .Lbss_loop
 .Lbss_done:
+    // Use SP_EL2 for all hypervisor C++ and exception handling.
+    mov   x0, #1
+    msr   SPSel, x0
+    isb
+
     // Set up EL2 stack and enter hypervisor.
     ldr   x0, =__stack_end
     mov   sp, x0

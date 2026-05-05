@@ -52,6 +52,8 @@ vcpu_enter:
     ldp     x26, x27, [x0, #VCPU_GPREG_X26]
     ldp     x28, x29, [x0, #VCPU_GPREG_X28]
     ldr     x30,      [x0, #VCPU_GPREG_LR]
+    ldr     x2,       [x0, #VCPU_GPREG_SP_EL0]
+    msr     sp_el0, x2
     ldp     x0,  x1,  [x0, #VCPU_GPREG_X0]  // clobbers base — must be last
 
     eret
@@ -89,6 +91,8 @@ vcpu_exit:
     stp     x26, x27, [x2, #VCPU_GPREG_X26]
     stp     x28, x29, [x2, #VCPU_GPREG_X28]
     str     x30,      [x2, #VCPU_GPREG_LR]
+    mrs     x3, sp_el0
+    str     x3,       [x2, #VCPU_GPREG_SP_EL0]
 
     mrs     x0, tpidr_el2
     add     x1, x0, #VCPU_EL2STATE_OFFSET
@@ -138,6 +142,8 @@ vcpu_exit:
     stp     x26, x27, [x2, #VCPU_GPREG_X26]
     stp     x28, x29, [x2, #VCPU_GPREG_X28]
     str     x30,      [x2, #VCPU_GPREG_LR]
+    mrs     x3, sp_el0
+    str     x3,       [x2, #VCPU_GPREG_SP_EL0]
     mrs     x0, tpidr_el2
     add     x1, x0, #VCPU_EL2STATE_OFFSET
     mrs     x2, elr_el2
