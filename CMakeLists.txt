@@ -28,7 +28,7 @@ if(BUILD_TESTING)
 endif()
 
 # Build option for targets
-set(BOARD "rpi5" CACHE STRING "Target Board [rpi5 | qemu]")
+set(BOARD "rpi5" CACHE STRING "Target Board [rpi5 | qemu | fvp]")
 
 if (BOARD STREQUAL "rpi5")
   message(STATUS "Building for target: Raspberry Pi 5")
@@ -40,6 +40,11 @@ elseif (BOARD STREQUAL "qemu")
   set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/qemu/linker.ld)
   set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/qemu/boot.S)
   add_compile_definitions(BSP_QEMU)
+elseif (BOARD STREQUAL "fvp")
+  message(STATUS "Building for target: Arm FVP Base RevC-2xAEMvA")
+  set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/fvp/linker.ld)
+  set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/fvp/boot.S)
+  add_compile_definitions(BSP_FVP)
 else ()
   message(STATUS "[ERROR] unknown board detected={BOARD}")
 endif()
@@ -224,5 +229,71 @@ if (BOARD STREQUAL "rpi5")
 
     DEPENDS hyperberry.elf
     COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
+  )
+endif()
+
+if (BOARD STREQUAL "fvp")
+  set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
+      CACHE FILEPATH "Path to the FVP Base RevC binary")
+
+  find_program(DTC      dtc      REQUIRED)
+  find_program(FDTPUT   fdtput   REQUIRED)
+  find_program(CARGO_CMD cargo   REQUIRED)
+
+  set(FVP_HOST_DTS      "${CMAKE_SOURCE_DIR}/boot/host-fvp.dts")
+  set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/host-fvp.dtb")
+  set(FVP_GUEST_DTS     "${CMAKE_SOURCE_DIR}/boot/guest-fvp.dts")
+  set(FVP_GUEST_DTB     "${CMAKE_BINARY_DIR}/guest-fvp.dtb")
+  set(FVP_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
+      CACHE FILEPATH "Guest Linux kernel Image for FVP")
+  set(FVP_GUEST_PACKAGE "${CMAKE_BINARY_DIR}/host-fvp.hvgbp")
+
+  add_custom_command(
+    OUTPUT ${FVP_GUEST_DTB}
+    COMMAND ${DTC} -I dts -O dtb -o ${FVP_GUEST_DTB} ${FVP_GUEST_DTS}
+    DEPENDS ${FVP_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/guest-base.dtsi
+    COMMENT "[LOG] Compiling guest-fvp.dtb"
+  )
+
+  add_custom_command(
+    OUTPUT  ${FVP_GUEST_PACKAGE}
+    COMMAND ${CARGO_CMD} build --release --manifest-path
+              ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
+    COMMAND ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg
+              --kernel ${FVP_GUEST_KERNEL}
+              --dtb    ${FVP_GUEST_DTB}
+              --out    ${FVP_GUEST_PACKAGE}
+    DEPENDS ${FVP_GUEST_KERNEL} ${FVP_GUEST_DTB}
+    COMMENT "[LOG] Building host-fvp.hvgbp"
+  )
+
+  add_custom_command(
+    OUTPUT ${FVP_HOST_DTB}
+    COMMAND ${DTC} -I dts -O dtb -o ${FVP_HOST_DTB} ${FVP_HOST_DTS}
+    COMMAND python3 -c
+      "import os,sys,subprocess; sz=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0','0x90000000']); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end','0x0',hex(0x90000000+sz)])"
+      ${FVP_GUEST_PACKAGE} ${FDTPUT} ${FVP_HOST_DTB}
+    DEPENDS ${FVP_HOST_DTS} ${FVP_GUEST_PACKAGE}
+    COMMENT "[LOG] Compiling host-fvp.dtb and patching /chosen initrd range"
+    VERBATIM
+  )
+  add_custom_target(fvp_host_dtb DEPENDS ${FVP_HOST_DTB})
+  add_dependencies(${ELF} fvp_host_dtb)
+
+  add_custom_target(run
+    COMMAND ${FVP_BIN}
+      -a $<TARGET_FILE:${ELF}>
+      --data ${FVP_HOST_DTB}@0x88000000
+      --data ${FVP_GUEST_PACKAGE}@0x90000000
+      -C bp.secure_memory=0
+      -C cluster0.NUM_CORES=1
+      -C cluster1.NUM_CORES=0
+      -C bp.vis.disable_visualisation=1
+      -C bp.terminal_0.start_telnet=0
+      -C bp.pl011_uart0.out_file=-
+      -C bp.pl011_uart0.unbuffered_output=1
+      -C cache_state_modelled=0
+    DEPENDS hyperberry.elf fvp_host_dtb ${FVP_GUEST_PACKAGE}
+    COMMENT "[LOG] Launching HyperBerry on Arm FVP Base RevC"
   )
 endif()

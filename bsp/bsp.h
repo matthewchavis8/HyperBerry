@@ -14,8 +14,10 @@
 #include "bsp/qemu.h"
 #elif defined(BSP_RPI5)
 #include "bsp/rpi5.h"
+#elif defined(BSP_FVP)
+#include "bsp/fvp.h"
 #else
-#error "Unsupported BSP. Define BSP_QEMU or BSP_RPI5."
+#error "Unsupported BSP. Define BSP_QEMU, BSP_RPI5, or BSP_FVP."
 #endif
 
 #endif  // !__BSP_H__
