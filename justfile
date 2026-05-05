@@ -12,6 +12,13 @@ qemu MODE="debug":
   @echo "[LOG] Virtual Raspberry PI5 has succesfully been built and flash"
   cmake --build --preset {{ MODE }} --target run
 
+fvp MODE="debug":
+  cmake --preset {{ MODE }} -DBOARD=fvp
+  @echo "[LOG] build {{ MODE }} directory"
+  cmake --build --preset {{ MODE }}
+  @echo "[LOG] HyperBerry FVP image built"
+  cmake --build --preset {{ MODE }} --target run
+
 rpi5 MODE="release" SD_DEV="/dev/sdd1":
   cmake --preset {{ MODE }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
   @echo "[LOG] build {{ MODE }} directory"
