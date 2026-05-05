@@ -945,6 +945,21 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu7mapPageE8uint64_t8uint64_tb">
+<span id="_CPPv3N8GuestMmu7mapPageE8uint64_t8uint64_tb"></span><span id="_CPPv2N8GuestMmu7mapPageE8uint64_t8uint64_tb"></span><span id="GuestMmu::mapPage__uint64_t.uint64_t.b"></span><span class="target" id="classGuestMmu_1a38b29d5b2659013161b894b125b567dc"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapPage</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">isDevice</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu7mapPageE8uint64_t8uint64_tb" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Install one 4 KiB stage-2 page descriptor. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ipa</strong> – Intermediate physical address (4 KiB aligned). </p></li>
+<li><p><strong>pa</strong> – Target physical address (4 KiB aligned). </p></li>
+<li><p><strong>isDevice</strong> – True selects device-nGnRnE memory attributes, false selects normal write-back cacheable memory. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N8GuestMmu6enableE7uint8_t">
 <span id="_CPPv3N8GuestMmu6enableE7uint8_t"></span><span id="_CPPv2N8GuestMmu6enableE7uint8_t"></span><span id="GuestMmu::enable__uint8_t"></span><span class="target" id="classGuestMmu_1afdb9ecf0bb59b4eaf675810aef979c21"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">enable</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vmid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8GuestMmu6enableE7uint8_t" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Commit this stage-2 context: program VTTBR_EL2 with <code class="docutils literal notranslate"><span class="pre">vmid</span></code>, flush stage-2 TLB, and set HCR_EL2.VM=1. </p>
@@ -1078,36 +1093,6 @@
 <dt class="sig sig-object cpp">
 <span class="target" id="group__exceptions"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Exception</span> <span class="pre">Handling</span></span></dt>
 <dd><p>EL2 exception vector table, context save/restore, and handler stubs. </p>
-<dl class="cpp struct">
-<dt class="sig sig-object cpp" id="_CPPv416ExceptionContext">
-<span id="_CPPv316ExceptionContext"></span><span id="_CPPv216ExceptionContext"></span><span id="ExceptionContext"></span><span class="target" id="structExceptionContext"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ExceptionContext</span></span></span><a class="headerlink" href="#_CPPv416ExceptionContext" title="Link to this definition">¶</a><br /></dt>
-<dd><div class="docutils container">
-<em>#include &lt;exceptions.h&gt;</em></div>
-<p>Saved CPU state at the moment an exception is taken. </p>
-<p>Populated by the <code class="docutils literal notranslate"><span class="pre">save_context</span></code> macro in exceptions.S. The layout must match the assembly stack frame exactly: gpr[0..30] at offsets 0-240, elr at 248, spsr at 256. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext3gprE">
-<span id="_CPPv3N16ExceptionContext3gprE"></span><span id="_CPPv2N16ExceptionContext3gprE"></span><span id="ExceptionContext::gpr__hv::array:uint64_t.31:"></span><span class="target" id="structExceptionContext_1ac27a76108e83ee229770f052e733e1bb"></span><span class="n"><span class="pre">hv</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">31</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3gprE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>General-purpose registers x0-x30. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext3elrE">
-<span id="_CPPv3N16ExceptionContext3elrE"></span><span id="_CPPv2N16ExceptionContext3elrE"></span><span id="ExceptionContext::elr__uint64_t"></span><span class="target" id="structExceptionContext_1a609696423ce7d193264df78f172e607d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext3elrE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Exception Link Register (ELR_EL2). </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N16ExceptionContext4spsrE">
-<span id="_CPPv3N16ExceptionContext4spsrE"></span><span id="_CPPv2N16ExceptionContext4spsrE"></span><span id="ExceptionContext::spsr__uint64_t"></span><span class="target" id="structExceptionContext_1af8fbd60b1d1decbdfb0d70c194b64432"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">spsr</span></span></span><a class="headerlink" href="#_CPPv4N16ExceptionContext4spsrE" title="Link to this definition">¶</a><br /></dt>
-<dd><p>Saved Program Status Register (SPSR_EL2). </p>
-</dd></dl>
-
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -1121,14 +1106,6 @@
 <dt class="sig sig-object cpp">
 <span class="target" id="group__vcpu"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Virtual</span> <span class="pre">CPU</span></span></dt>
 <dd><p>Guest CPU context, EL1 register save/restore, and guest entry glue. </p>
-<dl class="cpp struct">
-<dt class="sig sig-object cpp" id="_CPPv46GpRegs">
-<span id="_CPPv36GpRegs"></span><span id="_CPPv26GpRegs"></span><span id="GpRegs"></span><span class="target" id="structGpRegs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GpRegs</span></span></span><a class="headerlink" href="#_CPPv46GpRegs" title="Link to this definition">¶</a><br /></dt>
-<dd><div class="docutils container">
-<em>#include &lt;vcpu.h&gt;</em></div>
-<p>General-purpose register file: x0–x30, sp_el0. </p>
-</dd></dl>
-
 <dl class="cpp struct">
 <dt class="sig sig-object cpp" id="_CPPv48El2State">
 <span id="_CPPv38El2State"></span><span id="_CPPv28El2State"></span><span id="El2State"></span><span class="target" id="structEl2State"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">El2State</span></span></span><a class="headerlink" href="#_CPPv48El2State" title="Link to this definition">¶</a><br /></dt>
@@ -1152,7 +1129,7 @@
 <em>#include &lt;vcpu.h&gt;</em></div>
 <p>Per-guest virtual CPU context. </p>
 <p>Layout-critical: the first three sub-structs are indexed from vcpu.S via the VCPU_*_OFFSET constants above. Fields below the “asm contract line” comment are free to reorder.</p>
-<p>All data is private; the class exposes methods for every operation a caller might need. This preserves standard-layout (all non-static data members share the same access specifier) while hiding the raw register arrays from normal C++ callers. </p>
+<p>Layout-critical data is public so low-level trap routing can pass register state directly to dispatch modules without copying. Keep all data members in this single access group to preserve standard-layout. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -1955,6 +1932,7 @@ library.</p>
 <li><a class="reference internal" href="#_CPPv48GuestMmu"><code class="docutils literal notranslate"><span class="pre">GuestMmu</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu4initE8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu8mapBlockE8uint64_t8uint64_tb"><code class="docutils literal notranslate"><span class="pre">mapBlock()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8GuestMmu7mapPageE8uint64_t8uint64_tb"><code class="docutils literal notranslate"><span class="pre">mapPage()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu6enableE7uint8_t"><code class="docutils literal notranslate"><span class="pre">enable()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N8GuestMmu16tlbFlushAllGuestEv"><code class="docutils literal notranslate"><span class="pre">tlbFlushAllGuest()</span></code></a></li>
 </ul>
@@ -1983,20 +1961,11 @@ library.</p>
 <li><a class="reference internal" href="#c.L3_INDEX"><code class="docutils literal notranslate"><span class="pre">L3_INDEX</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#exception-handling">Exception Handling</a><ul>
-<li><a class="reference internal" href="#_CPPv416ExceptionContext"><code class="docutils literal notranslate"><span class="pre">ExceptionContext</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N16ExceptionContext3gprE"><code class="docutils literal notranslate"><span class="pre">gpr</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N16ExceptionContext3elrE"><code class="docutils literal notranslate"><span class="pre">elr</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N16ExceptionContext4spsrE"><code class="docutils literal notranslate"><span class="pre">spsr</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a class="reference internal" href="#exception-handling">Exception Handling</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#virtualization">Virtualization</a><ul>
 <li><a class="reference internal" href="#vcpu">vCPU</a><ul>
-<li><a class="reference internal" href="#_CPPv46GpRegs"><code class="docutils literal notranslate"><span class="pre">GpRegs</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv48El2State"><code class="docutils literal notranslate"><span class="pre">El2State</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410El1SysRegs"><code class="docutils literal notranslate"><span class="pre">El1SysRegs</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv44Vcpu"><code class="docutils literal notranslate"><span class="pre">Vcpu</span></code></a><ul>
