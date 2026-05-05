@@ -28,18 +28,12 @@ TEST(EsrEc, LowBitsDoNotAffectEc) {
   EXPECT_EQ(getEsrEc((0x16ULL << 26) | 0xABCDULL), getEsrEc(0x16ULL << 26));
 }
 
-TEST(ExceptionContext, GprAtOffset0) {
-  EXPECT_EQ(offsetof(ExceptionContext, gpr), 0ULL);
+TEST(ExceptionContext, Stores31GeneralPurposeRegisters) {
+  ExceptionContext ctx {};
+
+  EXPECT_EQ(ctx.size(), 31ULL);
 }
 
-TEST(ExceptionContext, ElrAt31Times8) {
-  EXPECT_EQ(offsetof(ExceptionContext, elr), 31 * 8ULL);
-}
-
-TEST(ExceptionContext, SpsrAt32Times8) {
-  EXPECT_EQ(offsetof(ExceptionContext, spsr), 32 * 8ULL);
-}
-
-TEST(ExceptionContext, SizeIs33Times8) {
-  EXPECT_EQ(sizeof(ExceptionContext), 33 * 8ULL);
+TEST(ExceptionContext, SizeIs31Times8) {
+  EXPECT_EQ(sizeof(ExceptionContext), 31 * 8ULL);
 }

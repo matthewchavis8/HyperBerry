@@ -10,20 +10,6 @@
 #include <stdint.h>
 #include "lib/array/array.h"
 
-/**
- * @brief Saved CPU state at the moment an exception is taken.
- * @ingroup exceptions
- *
- * Populated by the @c save_context macro in exceptions.S.
- * The layout must match the assembly stack frame exactly:
- * gpr[0..30] at offsets 0-240, elr at 248, spsr at 256.
- */
-struct ExceptionContext {
-  hv::array<uint64_t, 31> gpr;  /**< General-purpose registers x0-x30. */
-  uint64_t elr;                  /**< Exception Link Register (ELR_EL2). */
-  uint64_t spsr;                 /**< Saved Program Status Register (SPSR_EL2). */
-};
-
 // ESR_EL2.EC — exception class field [31:26]
 enum class EsrEc : uint64_t {
   Unknown        = 0x00,
@@ -65,6 +51,8 @@ enum class EsrEc : uint64_t {
   VectorCatch     = 0x3A,
   BrkAarch64      = 0x3C,
 };
+
+using ExceptionContext = hv::array<uint64_t, 31>;
 
 inline EsrEc getEsrEc(uint64_t esr) {
   return static_cast<EsrEc>((esr >> 26) & 0x3F);
