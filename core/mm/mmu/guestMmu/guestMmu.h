@@ -10,6 +10,8 @@
 #ifndef __GUEST_MMU_H__
 #define __GUEST_MMU_H__
 
+#include "core/mm/pmm/pmm.h"
+#include "lib/memory/unique_ptr.h"
 #include "core/mm/pageTable/pageTable.h"
 
 // Stage-2 access permissions [7:6] (flat RWX, no EL0/EL1 split).
@@ -49,8 +51,16 @@
  */
 class GuestMmu {
 private:
-  uint64_t* m_rootTable;
-  uint8_t   m_vmid;
+  struct Stage2RootDeleter {
+    void operator()(uint64_t* table) const noexcept {
+      if (table)
+        pmm::freePages(reinterpret_cast<uint64_t>(table), 1);
+    }
+  };
+
+  uint64_t                                    m_rootTable {};  // Mirror of the owned root table for layout-sensitive tests.
+  uint8_t                                     m_vmid {};
+  hv::unique_ptr<uint64_t, Stage2RootDeleter> m_rootTableOwner;
 
 public:
   /**

@@ -26,7 +26,7 @@ void Vcpu::init(uint64_t entrypoint) {
   m_el1SysRegs.regs[regIdx(VCPU_SCTLR_EL1)] = 0;
 }
 
-uint64_t Vcpu::getElr() const {
+uint64_t Vcpu::getElr() const noexcept {
   return m_el2State.regs[regIdx(VCPU_ELR_EL2)];
 }
 
@@ -38,7 +38,7 @@ void Vcpu::skipInstruction() {
   setPc(getElr() + 4);
 }
 
-uint64_t Vcpu::getGpReg(uint64_t off) const {
+uint64_t Vcpu::getGpReg(uint64_t off) const noexcept {
   if (off == VCPU_GPREG_SP_EL0)
     return m_spEl0;
   return m_gpr[regIdx(off)];

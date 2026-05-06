@@ -8,6 +8,7 @@
 
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pmm/pmm.h"
+#include "lib/memory/unique_ptr.h"
 #include "lib/strings/strings.h"
 
 #include <stddef.h>
@@ -146,6 +147,13 @@ bool rangeInBounds(uint64_t offset, uint64_t componentSize, uint64_t totalSize) 
     return false;
   return offset + componentSize <= totalSize;
 }
+
+struct GuestRamDeleter {
+  void operator()(uint8_t* guestRam) const noexcept {
+    if (guestRam)
+      pmm::freePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
+  }
+};
 
 uint32_t crc32Update(uint32_t crc, uint8_t byte) {
   crc ^= byte;
@@ -470,6 +478,9 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
   if (guestRamHostPa == 0)
     return loadFail(LoadError::GuestRamAllocationFailed);
 
+  hv::unique_ptr<uint8_t, GuestRamDeleter> guestRam(
+      reinterpret_cast<uint8_t*>(guestRamHostPa));
+
   copyToGuest(guestRamHostPa, layout.kernelIpa,
               packageBytes + validated.package.kernelOffset,
               validated.package.kernelSize);
@@ -495,6 +506,7 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
   result.guest.guestRamSize = layout.guestRamSize;
   result.guest.entryIpa = layout.entryIpa;
   result.guest.dtbIpa = layout.dtbIpa;
+  (void)guestRam.release();
   return result;
 }
 
