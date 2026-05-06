@@ -3,8 +3,8 @@
  * @brief Linker script for QEMU virt machine (Cortex-A76, 4 GB).
  *
  * Memory layout: RAM starts at 0x40000000 (QEMU virt load address).
- * Defines text, rodata, data, bss, stack (4 MB), heap (64 MB),
- * and uncached (1 MB) regions.
+ * Defines text, rodata, data, bss, stack (4 MB), and uncached (1 MB)
+ * regions.
  */
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
@@ -73,15 +73,6 @@ SECTIONS {
     __stack_end = __stack_start + (1024 * 1024) * 4;
   } > RAM
   __stack_size = __stack_end - __stack_start;
-
-  /* 64MB heap region for Hypervisor */
-  .heap : ALIGN(0x1000) {
-    __heap_start = .;
-    . = . + (1024 * 1024) * 64;
-    . = ALIGN(0x1000);
-    __heap_end = .;
-  } > RAM
-  __heap_size = __heap_end - __heap_start;
 
   /* 1MB uncached region for Hypervisor */
   .uncached_space : ALIGN(0x1000) {

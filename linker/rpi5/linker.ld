@@ -3,8 +3,8 @@
  * @brief Linker script for Raspberry Pi 5 hardware (8 GB).
  *
  * Memory layout: firmware loads kernel8.img to 0x00200000.
- * Defines text, rodata, data, bss, stack (4 MB), heap (64 MB),
- * and uncached (1 MB) regions. First 32 KB reserved.
+ * Defines text, rodata, data, bss, stack (4 MB), and uncached (1 MB)
+ * regions. First 32 KB reserved.
  */
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
@@ -74,16 +74,6 @@ SECTIONS {
     __stack_end = __stack_start + (1024 * 1024) * 4;
   } > RAM
   __stack_size = __stack_end - __stack_start;
-
-  /* 64MB heap region for Hypervisor */
-  /*TODO: This will need to be removed since the buddy allocator once it is set up will handle heap allocation*/
-  .heap : ALIGN(0x1000) {
-    __heap_start = .;
-    . = . + (1024 * 1024) * 64;
-    . = ALIGN(0x1000);
-    __heap_end = .;
-  } > RAM
-  __heap_size = __heap_end - __heap_start;
 
   /* 1MB uncached region for Hypervisor */
   .uncached_space : ALIGN(0x1000) {
