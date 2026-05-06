@@ -32,7 +32,7 @@ Internal reference for goals, roadmap, and design decisions. The README is the s
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5
 
 ### Phase 3 — Interrupt Virtualization
-- [ ] GIC distributor and CPU interface initialization
+- [x] GIC distributor and CPU interface initialization
 - [ ] Virtual interrupt injection via List Registers
 - [ ] Route physical interrupts to the correct guest
 - [ ] Write tutorial articles for writing a type 1 hypervisor for the RPI5

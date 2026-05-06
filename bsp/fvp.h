@@ -30,12 +30,14 @@ struct MmioRange {
   uint64_t size;
 };
 
+// TODO: Replace amgic numbers down here
 inline constexpr hv::array<MmioRange, 3> GUEST_MMIO = {{
-  {0x2F000000ULL, 0x2F000000ULL, MMIO_REGION_SIZE},
-  {0x2F200000ULL, 0x2F200000ULL, MMIO_REGION_SIZE},
-  {0x1C000000ULL, 0x1C000000ULL, MMIO_REGION_SIZE},
+  {GIC_BASE, GIC_BASE, MMIO_REGION_SIZE},
+  {0x2F200000ULL, 0x2F200000ULL, MMIO_REGION_SIZE}, // TODO: replace magic numbers not sure what these map to
+  {0x1C000000ULL, 0x1C000000ULL, MMIO_REGION_SIZE}, // TODO: Same here replace magic numbers
 }};
 
+// Guest kernels see the rpi5 UART baseaddress so we just catch them and route to Uart
 inline constexpr hv::array<MmioRange, 1> GUEST_MMIO_PAGES = {{
   {0x107D001000ULL, UART_BASE, MMIO_PAGE_SIZE},
 }};
