@@ -3,9 +3,9 @@
  * @brief Selects the active board support package constant set at compile time.
  * @ingroup bsp
  *
- * The build chooses exactly one target BSP via BSP_QEMU or BSP_RPI5. This
- * wrapper exposes a stable include path for code that needs board constants
- * without caring which board is active.
+ * The build chooses exactly one target BSP via BSP_QEMU, BSP_RPI5, or BSP_FVP.
+ * This wrapper exposes a stable include path for code that needs board
+ * constants without caring which board is active.
  */
 #ifndef __BSP_H__
 #define __BSP_H__
@@ -21,4 +21,3 @@
 #endif
 
 #endif  // !__BSP_H__
-

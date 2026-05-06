@@ -3,7 +3,7 @@
  * @brief Freestanding move/forward primitives and minimal type traits.
  * @ingroup lib
  *
- * Provides the small subset of @c <utility> and @c <type_traits> that the
+ * Provides the small subset of @c \<utility\> and @c \<type_traits\> that the
  * hypervisor's smart pointers and containers need, without relying on a
  * hosted C++ standard library.
  */

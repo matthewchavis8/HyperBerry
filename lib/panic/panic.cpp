@@ -9,7 +9,7 @@
 #include "lib/registerDump/registerDump.h"
 #include "core/exceptions/exceptions.h"
 
-/**
+/*
  * @brief Print panic diagnostics and stop execution permanently.
  * @ingroup lib
  * @param msg Optional panic message to print.
@@ -30,7 +30,7 @@
   }
 }
 
-/**
+/*
  * @brief Print panic diagnostics and stop execution permanently.
  * @ingroup lib
  * @param msg Optional panic message to print.

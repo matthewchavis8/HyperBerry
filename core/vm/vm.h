@@ -30,6 +30,7 @@ public:
    * are in place before the vCPU's first entry. VTTBR_EL2 /
    * HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
    *
+   * @param name           Guest kernel or VM name retained for diagnostics.
    * @param ipaBase        Guest IPA base.
    * @param guestRamHostPa Host physical base backing guest RAM.
    * @param sizeBytes      Size of the guest RAM region.

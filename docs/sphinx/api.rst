@@ -60,6 +60,27 @@ EL2 exception vector table, context save/restore, and handler stubs.
    :project: HyperBerry
    :members:
 
+Hypercalls
+~~~~~~~~~~
+
+AArch64 HVC dispatch for lower-EL guest exits. The guest-provided SMCCC
+function ID is read from ``x0``; supported standard-service calls are currently
+handled as PSCI requests.
+
+.. doxygenfile:: hvc.h
+   :project: HyperBerry
+   :sections: enum typedef func
+
+SMCCC
+~~~~~
+
+Function-ID field definitions, Owner Entity Numbers, standard return codes, and
+small helpers used by HVC dispatch.
+
+.. doxygennamespace:: SMCCC
+   :project: HyperBerry
+   :members:
+
 Virtualization
 --------------
 
@@ -164,7 +185,7 @@ Selection Wrapper
 ~~~~~~~~~~~~~~~~~
 
 ``bsp.h`` picks exactly one board definition based on the build:
-``BSP_QEMU`` or ``BSP_RPI5``.
+``BSP_QEMU``, ``BSP_RPI5``, or ``BSP_FVP``.
 
 .. doxygenfile:: bsp.h
    :project: HyperBerry
@@ -201,5 +222,27 @@ Base addresses exposed today:
 - ``b::HV_MMIO_SIZE = 0x200000000``
 
 .. doxygenfile:: rpi5.h
+   :project: HyperBerry
+   :sections: var
+
+Arm FVP Base RevC
+~~~~~~~~~~~~~~~~~
+
+Base addresses exposed today:
+
+- ``b::HOST_DTB_BASE = 0x88000000``
+- ``b::UART_BASE = 0x1C090000``
+- ``b::GIC_DISTRIBUTOR_BASE = 0x2F000000``
+- ``b::GIC_CPU_BASE = 0x2C000000``
+- ``b::GIC_HV_BASE = 0x2C010000``
+- ``b::GIC_VCPU_BASE = 0x2C02F000``
+- ``b::HV_MMIO_BASE = 0x2F000000``
+- ``b::HV_MMIO_SIZE = 0x00200000``
+- ``b::PLATFORM_MMIO_BASE = 0x1C000000``
+- ``b::PLATFORM_MMIO_SIZE = 0x00200000``
+- ``b::GIC_ITS_MMIO_BASE = 0x2F200000``
+- ``b::GIC_ITS_MMIO_SIZE = 0x00200000``
+
+.. doxygenfile:: fvp.h
    :project: HyperBerry
    :sections: var
