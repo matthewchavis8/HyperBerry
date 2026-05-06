@@ -12,11 +12,15 @@
 
 namespace b {
 inline constexpr uint64_t UART_BASE             = 0x107D001000ULL;
+
 inline constexpr uint64_t GIC_BASE              = 0x107fff8000ULL;
 inline constexpr uint64_t GIC_DISTRIBUTOR_BASE  = 0x107fff9000ULL;
 inline constexpr uint64_t GIC_CPU_BASE          = 0x107fffa000ULL;
 inline constexpr uint64_t GIC_HV_BASE           = 0x107fffc000ULL;
 inline constexpr uint64_t GIC_VCPU_BASE         = 0x107fffe000ULL;
+
+inline constexpr uint64_t TIMER_BASE            = 0x107c003000ULL;
+
 inline constexpr uint64_t HV_MMIO_BASE          = 0x107D000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE          = 0x200000000ULL;
 

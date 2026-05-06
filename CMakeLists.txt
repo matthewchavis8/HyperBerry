@@ -115,6 +115,7 @@ target_link_libraries(${ELF}
   Core
   Uart
   Gic
+  Timer
   Exceptions
   Pmm
   Heap

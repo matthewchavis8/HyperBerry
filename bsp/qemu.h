@@ -12,16 +12,19 @@
 
 namespace b {
 inline constexpr uint64_t UART_BASE             = 0x09000000ULL;
+
 inline constexpr uint64_t GIC_BASE              = 0x08000000ULL;
 inline constexpr uint64_t GIC_DISTRIBUTOR_BASE  = 0x08000000ULL;
 inline constexpr uint64_t GIC_CPU_BASE          = 0x08010000ULL;
 inline constexpr uint64_t GIC_HV_BASE           = 0x08030000ULL;
 inline constexpr uint64_t GIC_VCPU_BASE         = 0x08040000ULL;
+
 inline constexpr uint64_t HV_MMIO_BASE          = 0x08000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE          = 0x38000000ULL;
-
 inline constexpr uint64_t MMIO_REGION_SIZE      = 0x00200000ULL;
 inline constexpr uint64_t MMIO_PAGE_SIZE        = 0x00001000ULL;
+
+inline constexpr uint64_t TIMER_BASE            = 0x107c003000ULL;
 
 struct MmioRange {
   uint64_t ipa;
