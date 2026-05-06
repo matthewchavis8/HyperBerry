@@ -13,18 +13,21 @@
 namespace b {
 inline constexpr uint64_t HOST_DTB_BASE         = 0x88000000ULL;
 inline constexpr uint64_t UART_BASE             = 0x1C090000ULL;
+
 inline constexpr uint64_t GIC_BASE              = 0x2F000000ULL;
 inline constexpr uint64_t GIC_DISTRIBUTOR_BASE  = 0x2F000000ULL;
 inline constexpr uint64_t GIC_CPU_BASE          = 0x2C000000ULL;
 inline constexpr uint64_t GIC_HV_BASE           = 0x2C010000ULL;
 inline constexpr uint64_t GIC_VCPU_BASE         = 0x2C02F000ULL;
+inline constexpr uint64_t GIC_ITS_MMIO_BASE     = 0x2F200000ULL;
+inline constexpr uint64_t GIC_ITS_MMIO_SIZE     = 0x00200000ULL;
+
+inline constexpr uint64_t TIMER_BASE            = 0x107c003000ULL;
+
 inline constexpr uint64_t HV_MMIO_BASE          = 0x2F000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE          = 0x00200000ULL;
 inline constexpr uint64_t PLATFORM_MMIO_BASE    = 0x1C000000ULL;
 inline constexpr uint64_t PLATFORM_MMIO_SIZE    = 0x00200000ULL;
-inline constexpr uint64_t GIC_ITS_MMIO_BASE     = 0x2F200000ULL;
-inline constexpr uint64_t GIC_ITS_MMIO_SIZE     = 0x00200000ULL;
-
 inline constexpr uint64_t MMIO_REGION_SIZE      = 0x00200000ULL;
 inline constexpr uint64_t MMIO_PAGE_SIZE        = 0x00001000ULL;
 
