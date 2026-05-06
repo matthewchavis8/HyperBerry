@@ -6,7 +6,7 @@
 
 #include "strings.h"
 
-/**
+/*
  * @brief Copy a byte range from one memory region to another.
  * @ingroup lib
  * @param dest Destination buffer.
@@ -25,7 +25,7 @@ extern "C" void* memcpy(void* dest, const void* src, size_t n) {
   return dest;
 }
 
-/**
+/*
  * @brief Fill a memory region with a repeated byte value.
  * @ingroup lib
  * @param dest Destination buffer.

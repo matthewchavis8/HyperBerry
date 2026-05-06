@@ -71,6 +71,18 @@
  */
 
 /**
+ * @defgroup hypercalls Hypercalls
+ * @ingroup exceptions
+ * @brief AArch64 HVC dispatch for guest hypervisor calls and PSCI requests.
+ */
+
+/**
+ * @defgroup smccc SMCCC
+ * @ingroup hypercalls
+ * @brief Arm SMCCC function-ID fields, owner numbers, and return codes.
+ */
+
+/**
  * @defgroup lib HV Library
  * @ingroup hypervisor
  * @brief Freestanding C++ utility headers with no standard library dependency.
