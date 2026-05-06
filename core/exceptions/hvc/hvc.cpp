@@ -77,7 +77,6 @@ HvcResult handleHvcAarch64(ExceptionContext& gpr) {
 
     default:
       Uart::println("[Guest][HVC] Unsupported call ID={:x}", callId);
-      gpr[0] = SMCCC::NOT_SUPPORTED;
       return HvcResult::Unhandled;
   }
 }

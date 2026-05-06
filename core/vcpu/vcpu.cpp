@@ -5,8 +5,8 @@
  */
 
 #include "vcpu.h"
-#include "drivers/uart/uart.h"
 #include "lib/strings/strings.h"
+#include "lib/panic/panic.h"
 
 // EL1h, DAIF all masked: guest wakes with interrupts disabled
 static constexpr uint64_t SPSR_EL1H_ALL_MASKED =
@@ -21,19 +21,15 @@ static constexpr uint64_t SCTLR_SA_BIT = (1ULL << 3);
 static constexpr uint64_t SCTLR_I_BIT  = (1ULL << 12);
 
 extern "C" void vcpu_restore_el1_sysregs(Vcpu* vcpu) {
-  if (vcpu == nullptr) {
-    Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
-    for (;;) asm volatile("wfe"); // TODO: Add a generic panic handler soon
-  }
+  if (vcpu == nullptr)
+    hv_panic("[VCPU] nullptr passed to vcpu_restore_el1_sysregs");
   
   vcpu->restoreEl1SysRegs();
 }
 
 extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
-  if (vcpu == nullptr) {
-    Uart::println("[ERROR] nullptr passed to vcpu_restore_el1_sysregs");
-    for (;;) asm volatile("wfe"); // TODO: Add a generic panic handler soon
-  }
+  if (vcpu == nullptr)
+    hv_panic("[VCPU] nullptr passed to vcpu_save_el1_sysregs");
   
   vcpu->saveEl1SysRegs();
 }
