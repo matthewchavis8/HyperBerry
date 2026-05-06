@@ -50,10 +50,10 @@ public:
   void run();
   
   /** @brief Return the guest kernel name passed to @ref init(). */
-  const char* getName() const;
+  [[nodiscard]] const char* getName() const noexcept;
   
   /** @brief Return the guest vm ID passed to @ref init(). */
-  uint8_t getVmId() const;
+  [[nodiscard]] uint8_t getVmId() const noexcept;
 };
 
 #endif  // !__VM_H__

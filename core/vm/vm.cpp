@@ -32,6 +32,6 @@ void Vm::run() {
   vcpu_enter(&m_vcpu);
 }
 
-[[nodiscard]] const char* Vm::getName() const { return m_name; }
+[[nodiscard]] const char* Vm::getName() const noexcept { return m_name; }
 
-[[nodiscard]] uint8_t Vm::getVmId() const { return m_vmid; }
+[[nodiscard]] uint8_t Vm::getVmId() const noexcept { return m_vmid; }
