@@ -62,14 +62,6 @@ SECTIONS {
   } > RAM
   __stack_size = __stack_end - __stack_start;
 
-  .heap : ALIGN(0x1000) {
-    __heap_start = .;
-    . = . + (1024 * 1024) * 64;
-    . = ALIGN(0x1000);
-    __heap_end = .;
-  } > RAM
-  __heap_size = __heap_end - __heap_start;
-
   .uncached_space : ALIGN(0x1000) {
     __uncached_space_start = .;
     . = . + (1024 * 1024);
