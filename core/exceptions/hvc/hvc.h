@@ -20,6 +20,6 @@ enum class HvcResult : uint64_t {
 
 using ExceptionContext = hv::array<uint64_t, 31>;
 
-HvcResult handleHvcAarch64(ExceptionContext& regs);
+HvcResult handleHvcAarch64(ExceptionContext& gpr);
 
 #endif // __HVC_H__

@@ -20,6 +20,10 @@ inline constexpr uint64_t GIC_HV_BASE           = 0x2C010000ULL;
 inline constexpr uint64_t GIC_VCPU_BASE         = 0x2C02F000ULL;
 inline constexpr uint64_t HV_MMIO_BASE          = 0x2F000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE          = 0x00200000ULL;
+inline constexpr uint64_t PLATFORM_MMIO_BASE    = 0x1C000000ULL;
+inline constexpr uint64_t PLATFORM_MMIO_SIZE    = 0x00200000ULL;
+inline constexpr uint64_t GIC_ITS_MMIO_BASE     = 0x2F200000ULL;
+inline constexpr uint64_t GIC_ITS_MMIO_SIZE     = 0x00200000ULL;
 
 inline constexpr uint64_t MMIO_REGION_SIZE      = 0x00200000ULL;
 inline constexpr uint64_t MMIO_PAGE_SIZE        = 0x00001000ULL;
@@ -30,11 +34,10 @@ struct MmioRange {
   uint64_t size;
 };
 
-// TODO: Replace amgic numbers down here
 inline constexpr hv::array<MmioRange, 3> GUEST_MMIO = {{
-  {GIC_BASE, GIC_BASE, MMIO_REGION_SIZE},
-  {0x2F200000ULL, 0x2F200000ULL, MMIO_REGION_SIZE}, // TODO: replace magic numbers not sure what these map to
-  {0x1C000000ULL, 0x1C000000ULL, MMIO_REGION_SIZE}, // TODO: Same here replace magic numbers
+  {GIC_BASE, GIC_BASE, MMIO_REGION_SIZE}, // GIC distributor + CPU interface window
+  {GIC_ITS_MMIO_BASE, GIC_ITS_MMIO_BASE, GIC_ITS_MMIO_SIZE}, // GIC ITS window
+  {PLATFORM_MMIO_BASE, PLATFORM_MMIO_BASE, PLATFORM_MMIO_SIZE}, // Platform peripheral window (includes PL011 UART)
 }};
 
 // Guest kernels see the rpi5 UART baseaddress so we just catch them and route to Uart
