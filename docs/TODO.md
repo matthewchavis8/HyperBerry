@@ -1,5 +1,5 @@
 # TODO
- - boot files like the dts, dtb, dts these beed to be organized into sub folders
+ - .dts/dtsi files need to be moved into their own folders
 
  - Add ARM generic timer virtualization.
  - Add multi-guest scheduling.
