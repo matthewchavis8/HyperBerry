@@ -53,6 +53,10 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_compile_options(
   -ffreestanding
+  -fno-exceptions
+  -fno-rtti
+  -fno-threadsafe-statics
+  -fno-asynchronous-unwind-tables
   -nostdinc++
   -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
 )
@@ -127,13 +131,8 @@ target_link_libraries(${ELF}
 
 target_compile_options(${ELF}
   PRIVATE
-  -ffreestanding
-  -fno-exceptions
-  -fno-rtti
-  -fno-threadsafe-statics
   -fno-common
   -fno-builtin
-  -fno-asynchronous-unwind-tables
   -ffunction-sections
   -fdata-sections
   -Wall

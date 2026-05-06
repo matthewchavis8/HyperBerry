@@ -179,7 +179,7 @@ public:
   void restoreEl1SysRegs();
 
   /** @brief Return the saved guest PC (ELR_EL2). */
-  uint64_t getElr() const;
+  [[nodiscard]] uint64_t getElr() const noexcept;
 
   /** @brief Overwrite the saved guest PC (ELR_EL2). */
   void setPc(uint64_t pc);
@@ -194,7 +194,7 @@ public:
    * @brief Read a saved GPR by offset.
    * @param off One of the VCPU_GPREG_* constants.
    */
-  uint64_t getGpReg(uint64_t off) const;
+  [[nodiscard]] uint64_t getGpReg(uint64_t off) const noexcept;
 
   /**
    * @brief Write a saved GPR by offset.
@@ -204,7 +204,7 @@ public:
   void setGpReg(uint64_t off, uint64_t val);
 
   /** @brief Opaque vCPU identifier assigned by the scheduler. */
-  uint32_t getId() const { return m_vcpuId; }
+  [[nodiscard]] uint32_t getId() const noexcept { return m_vcpuId; }
 
   /** @brief Set the vCPU identifier (scheduler-only). */
   void setId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
@@ -213,7 +213,7 @@ public:
    * @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
    * @note Returns nullptr on hosted (non-AArch64) builds.
    */
-  static Vcpu* getCurrentVcpu();
+  [[nodiscard]] static Vcpu* getCurrentVcpu();
 
   /**
    * @brief Stub scheduler entry. Replaced by real scheduler later.

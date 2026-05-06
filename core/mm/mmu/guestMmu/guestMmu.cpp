@@ -79,8 +79,9 @@ namespace {
 
 void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
   Uart::println("[GuestMmu] init called");
-  m_rootTable = allocStage2RootTable();
-  Uart::println("[GuestMmu] root table={}", m_rootTable);
+  m_rootTableOwner.reset(allocStage2RootTable());
+  m_rootTable = reinterpret_cast<uint64_t>(m_rootTableOwner.get());
+  Uart::println("[GuestMmu] root table={}", m_rootTableOwner.get());
 
   uint64_t vtcr = VTCR_T0SZ(kStage2T0sz)
                 | VTCR_SL0_L1
@@ -121,7 +122,7 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
 }
 
 void GuestMmu::mapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
-  uint64_t* pte = PageTable::walk(m_rootTable, ipa, kStage2Walk);
+  uint64_t* pte = PageTable::walk(m_rootTableOwner.get(), ipa, kStage2Walk);
   if (!pte) {
     Uart::println("[ERROR] GuestMmu::mapBlock walk failed");
     return;
@@ -131,7 +132,7 @@ void GuestMmu::mapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
 }
 
 void GuestMmu::mapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
-  uint64_t* pte = walkL3(m_rootTable, ipa);
+  uint64_t* pte = walkL3(m_rootTableOwner.get(), ipa);
   if (!pte) {
     Uart::println("[ERROR] GuestMmu::mapPage walk failed");
     return;
@@ -143,7 +144,7 @@ void GuestMmu::mapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
 void GuestMmu::enable(uint8_t vmid) {
   m_vmid = vmid;
 
-  uint64_t rootPa = (uint64_t)(uintptr_t)m_rootTable;
+  uint64_t rootPa = (uint64_t)(uintptr_t)m_rootTableOwner.get();
   uint64_t vttbr  = ((uint64_t)vmid << 48) | (rootPa & PTE_ADDR_MASK);
 
   // Drain page-table stores to PoC before the PTW can ever read VTTBR.

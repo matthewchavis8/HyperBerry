@@ -282,6 +282,8 @@ uint64_t allocPages(uint32_t order) {
   return gAllocPagesReturn;
 }
 
+void freePages(uint64_t /*addr*/, uint32_t /*order*/) {}
+
 } // namespace pmm
 
 TEST(BootPkg, ValidPackageWithInitrdParsesMetadata) {
