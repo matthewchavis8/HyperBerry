@@ -1096,6 +1096,231 @@
 </dd></dl>
 
 </section>
+<section id="hypercalls">
+<h3>Hypercalls<a class="headerlink" href="#hypercalls" title="Link to this heading">¶</a></h3>
+<p>AArch64 HVC dispatch for lower-EL guest exits. The guest-provided SMCCC
+function ID is read from <code class="docutils literal notranslate"><span class="pre">x0</span></code>; supported standard-service calls are currently
+handled as PSCI requests.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv49HvcResult">
+<span id="_CPPv39HvcResult"></span><span id="_CPPv29HvcResult"></span><span class="target" id="hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51c"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HvcResult</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><a class="headerlink" href="#_CPPv49HvcResult" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Result returned after dispatching a guest HVC call. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult7HandledE">
+<span id="_CPPv3N9HvcResult7HandledE"></span><span id="_CPPv2N9HvcResult7HandledE"></span><span class="target" id="hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51ca827211270de454ea3e0df8f57995efed"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Handled</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult7HandledE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>The call was handled and the guest can resume. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult9UnhandledE">
+<span id="_CPPv3N9HvcResult9UnhandledE"></span><span id="_CPPv2N9HvcResult9UnhandledE"></span><span class="target" id="hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51ca6fe9e16b804e1ce4ac5868be60615007"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Unhandled</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult9UnhandledE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>The call was recognized as an HVC exit but is not implemented. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult4HaltE">
+<span id="_CPPv3N9HvcResult4HaltE"></span><span id="_CPPv2N9HvcResult4HaltE"></span><span class="target" id="hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51ca4558f7fa8f5356a88a53347ad89babde"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Halt</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult4HaltE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>The guest requested shutdown, such as PSCI SYSTEM_OFF. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult5ResetE">
+<span id="_CPPv3N9HvcResult5ResetE"></span><span id="_CPPv2N9HvcResult5ResetE"></span><span class="target" id="hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51ca526d688f37a86d3c3f27d0c5016eb71d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Reset</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult5ResetE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>The guest requested reset, such as PSCI SYSTEM_RESET. </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv416ExceptionContext">
+<span id="_CPPv316ExceptionContext"></span><span id="_CPPv216ExceptionContext"></span><span class="target" id="hvc_8h_1a971e5c2f3f8291902bff6d684b81465e"></span><span class="k"><span class="pre">using</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ExceptionContext</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">hv</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE" title="hv::array"><span class="n"><span class="pre">array</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">31</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv416ExceptionContext" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416handleHvcAarch64R16ExceptionContext">
+<span id="_CPPv316handleHvcAarch64R16ExceptionContext"></span><span id="_CPPv216handleHvcAarch64R16ExceptionContext"></span><span id="handleHvcAarch64__ExceptionContextR"></span><span class="target" id="hvc_8h_1aee9cd80107be36cf4da211bd76270f25"></span><a class="reference internal" href="#_CPPv49HvcResult" title="HvcResult"><span class="n"><span class="pre">HvcResult</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">handleHvcAarch64</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv416ExceptionContext" title="ExceptionContext"><span class="n"><span class="pre">ExceptionContext</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">gpr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416handleHvcAarch64R16ExceptionContext" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Dispatch an AArch64 HVC call from the guest register context. </p>
+<p>The function ID is read from <code class="docutils literal notranslate"><span class="pre">x0</span></code> in the saved general-purpose register array. Supported standard-service calls are routed to the local PSCI handler; unsupported owners return <a class="reference internal" href="#hvc_8h_1afc4fef8c3a658e25551d2b76ebf8c51ca6fe9e16b804e1ce4ac5868be60615007"><span class="std std-ref">HvcResult::Unhandled</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gpr</strong> – Saved guest registers x0-x30. Return values are written back into this array using the <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> register convention. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dispatch status describing whether the guest can resume or must stop. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</section>
+<section id="smccc">
+<h3>SMCCC<a class="headerlink" href="#smccc" title="Link to this heading">¶</a></h3>
+<p>Function-ID field definitions, Owner Entity Numbers, standard return codes, and
+small helpers used by HVC dispatch.</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45SMCCC">
+<span id="_CPPv35SMCCC"></span><span id="_CPPv25SMCCC"></span><span id="SMCCC"></span><span class="target" id="namespaceSMCCC"></span><span class="k"><span class="pre">namespace</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SMCCC</span></span></span><a class="headerlink" href="#_CPPv45SMCCC" title="Link to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function-ID fields, owner numbers, return codes, and helpers. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC8getOwnerE8uint64_t">
+<span id="_CPPv3N5SMCCC8getOwnerE8uint64_t"></span><span id="_CPPv2N5SMCCC8getOwnerE8uint64_t"></span><span id="SMCCC::getOwner__uint64_tCE"></span><span class="target" id="namespaceSMCCC_1afb8cf4af20f9e34261c0b5c207ed2054"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getOwner</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">funcId</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5SMCCC8getOwnerE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Extract the Owner Entity Number from an <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>funcId</strong> – Raw <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID from x0. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Owner Entity Number field. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC10isFastCallE8uint64_t">
+<span id="_CPPv3N5SMCCC10isFastCallE8uint64_t"></span><span id="_CPPv2N5SMCCC10isFastCallE8uint64_t"></span><span id="SMCCC::isFastCall__uint64_tCE"></span><span class="target" id="namespaceSMCCC_1ac7aaaa3c09492fb50499c05cb1061f4e"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isFastCall</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">funcId</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5SMCCC10isFastCallE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Check whether an <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID uses the fast-call type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>funcId</strong> – Raw <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID from x0. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>true when the call type is <a class="reference internal" href="#namespaceSMCCC_1afdc12b4cd936d0a349601fa830e16251"><span class="std std-ref">SMCCC::TYPE_FAST</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9OEN_SHIFTE">
+<span id="_CPPv3N5SMCCC9OEN_SHIFTE"></span><span id="_CPPv2N5SMCCC9OEN_SHIFTE"></span><span id="SMCCC::OEN_SHIFT__uint32_t"></span><span class="target" id="namespaceSMCCC_1aa776d136a73f8dda354730129cb6e346"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OEN_SHIFT</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">24</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9OEN_SHIFTE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>OEN field start bit in an <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC8OEN_MASKE">
+<span id="_CPPv3N5SMCCC8OEN_MASKE"></span><span id="_CPPv2N5SMCCC8OEN_MASKE"></span><span id="SMCCC::OEN_MASK__uint32_t"></span><span class="target" id="namespaceSMCCC_1aa3962addb7865c978b4c4e5d50914b82"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OEN_MASK</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x3F</span></span><a class="headerlink" href="#_CPPv4N5SMCCC8OEN_MASKE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>OEN field mask after shifting. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC10TYPE_SHIFTE">
+<span id="_CPPv3N5SMCCC10TYPE_SHIFTE"></span><span id="_CPPv2N5SMCCC10TYPE_SHIFTE"></span><span id="SMCCC::TYPE_SHIFT__uint32_t"></span><span class="target" id="namespaceSMCCC_1a5a9161e7b9518f6cd927784ecf538e11"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE_SHIFT</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">31</span></span><a class="headerlink" href="#_CPPv4N5SMCCC10TYPE_SHIFTE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Call-type field start bit in an <a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> function ID. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9TYPE_MASKE">
+<span id="_CPPv3N5SMCCC9TYPE_MASKE"></span><span id="_CPPv2N5SMCCC9TYPE_MASKE"></span><span id="SMCCC::TYPE_MASK__uint32_t"></span><span class="target" id="namespaceSMCCC_1a3213682219bff7454b69048606c0a4e0"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE_MASK</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0x1</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9TYPE_MASKE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Call-type field mask after shifting. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC13TYPE_YIELDINGE">
+<span id="_CPPv3N5SMCCC13TYPE_YIELDINGE"></span><span id="_CPPv2N5SMCCC13TYPE_YIELDINGE"></span><span id="SMCCC::TYPE_YIELDING__uint32_t"></span><span class="target" id="namespaceSMCCC_1a5e89ef4581883237d5b9b8dd3ebb4ce8"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE_YIELDING</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5SMCCC13TYPE_YIELDINGE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Yielding call type. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9TYPE_FASTE">
+<span id="_CPPv3N5SMCCC9TYPE_FASTE"></span><span id="_CPPv2N5SMCCC9TYPE_FASTE"></span><span id="SMCCC::TYPE_FAST__uint32_t"></span><span class="target" id="namespaceSMCCC_1afdc12b4cd936d0a349601fa830e16251"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TYPE_FAST</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9TYPE_FASTE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Fast call type. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC10OWNER_ARCHE">
+<span id="_CPPv3N5SMCCC10OWNER_ARCHE"></span><span id="_CPPv2N5SMCCC10OWNER_ARCHE"></span><span id="SMCCC::OWNER_ARCH__uint32_t"></span><span class="target" id="namespaceSMCCC_1a8cf9050967b55b4fc3e82aa1dc21214b"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_ARCH</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5SMCCC10OWNER_ARCHE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Architecture service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9OWNER_CPUE">
+<span id="_CPPv3N5SMCCC9OWNER_CPUE"></span><span id="_CPPv2N5SMCCC9OWNER_CPUE"></span><span id="SMCCC::OWNER_CPU__uint32_t"></span><span class="target" id="namespaceSMCCC_1a64a72195d560e1db95e585fcb11d2322"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_CPU</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9OWNER_CPUE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>CPU service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9OWNER_SIPE">
+<span id="_CPPv3N5SMCCC9OWNER_SIPE"></span><span id="_CPPv2N5SMCCC9OWNER_SIPE"></span><span id="SMCCC::OWNER_SIP__uint32_t"></span><span class="target" id="namespaceSMCCC_1a3c4e27c302e84f332179542daaa74869"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_SIP</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9OWNER_SIPE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Silicon Partner service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC9OWNER_OEME">
+<span id="_CPPv3N5SMCCC9OWNER_OEME"></span><span id="_CPPv2N5SMCCC9OWNER_OEME"></span><span id="SMCCC::OWNER_OEM__uint32_t"></span><span class="target" id="namespaceSMCCC_1a0fd3f4dcca1db35b7db7cfebc36e46dd"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_OEM</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">3</span></span><a class="headerlink" href="#_CPPv4N5SMCCC9OWNER_OEME" title="Link to this definition">¶</a><br /></dt>
+<dd><p>OEM service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC14OWNER_STANDARDE">
+<span id="_CPPv3N5SMCCC14OWNER_STANDARDE"></span><span id="_CPPv2N5SMCCC14OWNER_STANDARDE"></span><span id="SMCCC::OWNER_STANDARD__uint32_t"></span><span class="target" id="namespaceSMCCC_1ae9b8fac1e3f433742efe35f58da67f6d"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_STANDARD</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">4</span></span><a class="headerlink" href="#_CPPv4N5SMCCC14OWNER_STANDARDE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Standard service owner number, used here for PSCI. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC18OWNER_STANDARD_HYPE">
+<span id="_CPPv3N5SMCCC18OWNER_STANDARD_HYPE"></span><span id="_CPPv2N5SMCCC18OWNER_STANDARD_HYPE"></span><span id="SMCCC::OWNER_STANDARD_HYP__uint32_t"></span><span class="target" id="namespaceSMCCC_1ac537e6a52060cd9a4cd8132a8e79ac2e"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_STANDARD_HYP</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">5</span></span><a class="headerlink" href="#_CPPv4N5SMCCC18OWNER_STANDARD_HYPE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Standard hypervisor service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC16OWNER_VENDOR_HYPE">
+<span id="_CPPv3N5SMCCC16OWNER_VENDOR_HYPE"></span><span id="_CPPv2N5SMCCC16OWNER_VENDOR_HYPE"></span><span id="SMCCC::OWNER_VENDOR_HYP__uint32_t"></span><span class="target" id="namespaceSMCCC_1a3316ed6d6e2b231bf10c6501acc1c9c9"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_VENDOR_HYP</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">6</span></span><a class="headerlink" href="#_CPPv4N5SMCCC16OWNER_VENDOR_HYPE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Vendor hypervisor service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC17OWNER_TRUSTED_APPE">
+<span id="_CPPv3N5SMCCC17OWNER_TRUSTED_APPE"></span><span id="_CPPv2N5SMCCC17OWNER_TRUSTED_APPE"></span><span id="SMCCC::OWNER_TRUSTED_APP__uint32_t"></span><span class="target" id="namespaceSMCCC_1aee3812ad6813bbb31a6fe0ee801252c8"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_TRUSTED_APP</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">48</span></span><a class="headerlink" href="#_CPPv4N5SMCCC17OWNER_TRUSTED_APPE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Trusted Application service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC16OWNER_TRUSTED_OSE">
+<span id="_CPPv3N5SMCCC16OWNER_TRUSTED_OSE"></span><span id="_CPPv2N5SMCCC16OWNER_TRUSTED_OSE"></span><span id="SMCCC::OWNER_TRUSTED_OS__uint32_t"></span><span class="target" id="namespaceSMCCC_1a65617296f85a8523ee0223fab2098ec0"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">OWNER_TRUSTED_OS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">50</span></span><a class="headerlink" href="#_CPPv4N5SMCCC16OWNER_TRUSTED_OSE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Trusted OS service owner number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC7SUCCESSE">
+<span id="_CPPv3N5SMCCC7SUCCESSE"></span><span id="_CPPv2N5SMCCC7SUCCESSE"></span><span id="SMCCC::SUCCESS__int32_t"></span><span class="target" id="namespaceSMCCC_1a9ef6aaa54b394a412267198b80b4ba2a"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SUCCESS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5SMCCC7SUCCESSE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> success return code. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC13NOT_SUPPORTEDE">
+<span id="_CPPv3N5SMCCC13NOT_SUPPORTEDE"></span><span id="_CPPv2N5SMCCC13NOT_SUPPORTEDE"></span><span id="SMCCC::NOT_SUPPORTED__int32_t"></span><span class="target" id="namespaceSMCCC_1a29af4b563053c9c17bc08967f737cb51"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NOT_SUPPORTED</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5SMCCC13NOT_SUPPORTEDE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> unsupported-function return code. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC12NOT_REQUIREDE">
+<span id="_CPPv3N5SMCCC12NOT_REQUIREDE"></span><span id="_CPPv2N5SMCCC12NOT_REQUIREDE"></span><span id="SMCCC::NOT_REQUIRED__int32_t"></span><span class="target" id="namespaceSMCCC_1af5a7199488c2ea587446db33b934246d"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NOT_REQUIRED</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">2</span></span><a class="headerlink" href="#_CPPv4N5SMCCC12NOT_REQUIREDE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> not-required return code. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5SMCCC17INVALID_PARAMETERE">
+<span id="_CPPv3N5SMCCC17INVALID_PARAMETERE"></span><span id="_CPPv2N5SMCCC17INVALID_PARAMETERE"></span><span id="SMCCC::INVALID_PARAMETER__int32_t"></span><span class="target" id="namespaceSMCCC_1ab0b2e4a2d4366a007c18ed3e4945cdc6"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">INVALID_PARAMETER</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">3</span></span><a class="headerlink" href="#_CPPv4N5SMCCC17INVALID_PARAMETERE" title="Link to this definition">¶</a><br /></dt>
+<dd><p><a class="reference internal" href="#namespaceSMCCC"><span class="std std-ref">SMCCC</span></a> invalid-parameter return code. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
 </section>
 <section id="virtualization">
 <h2>Virtualization<a class="headerlink" href="#virtualization" title="Link to this heading">¶</a></h2>
@@ -1272,6 +1497,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Guest kernel or VM name retained for diagnostics. </p></li>
 <li><p><strong>ipaBase</strong> – Guest IPA base. </p></li>
 <li><p><strong>guestRamHostPa</strong> – Host physical base backing guest RAM. </p></li>
 <li><p><strong>sizeBytes</strong> – Size of the guest RAM region. </p></li>
@@ -1609,6 +1835,14 @@ physical Raspberry Pi 5 targets via a compile-time base address.</p>
 <p>Fatal exception reporting for unrecoverable EL2 errors.</p>
 <p><code class="docutils literal notranslate"><span class="pre">hv_panic()</span></code> prints an error message, emits a full exception register dump,
 and halts the current CPU indefinitely.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48hv_panicPKc">
+<span id="_CPPv38hv_panicPKc"></span><span id="_CPPv28hv_panicPKc"></span><span id="hv_panic__cCP"></span><span class="target" id="panic_8h_1a6e65561eb35e4cde21ffb90a21ddfbd5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hv_panic</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48hv_panicPKc" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
 </section>
 <section id="memory-primitives">
 <h3>Memory Primitives<a class="headerlink" href="#memory-primitives" title="Link to this heading">¶</a></h3>
@@ -1739,7 +1973,7 @@ library.</p>
 <section id="selection-wrapper">
 <h3>Selection Wrapper<a class="headerlink" href="#selection-wrapper" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">bsp.h</span></code> picks exactly one board definition based on the build:
-<code class="docutils literal notranslate"><span class="pre">BSP_QEMU</span></code> or <code class="docutils literal notranslate"><span class="pre">BSP_RPI5</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">BSP_QEMU</span></code>, <code class="docutils literal notranslate"><span class="pre">BSP_RPI5</span></code>, or <code class="docutils literal notranslate"><span class="pre">BSP_FVP</span></code>.</p>
 </section>
 <section id="qemu-virt">
 <h3>QEMU virt<a class="headerlink" href="#qemu-virt" title="Link to this heading">¶</a></h3>
@@ -1765,6 +1999,24 @@ library.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_VCPU_BASE</span> <span class="pre">=</span> <span class="pre">0x107fffe000</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x107D000000</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x200000000</span></code></p></li>
+</ul>
+</section>
+<section id="arm-fvp-base-revc">
+<h3>Arm FVP Base RevC<a class="headerlink" href="#arm-fvp-base-revc" title="Link to this heading">¶</a></h3>
+<p>Base addresses exposed today:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HOST_DTB_BASE</span> <span class="pre">=</span> <span class="pre">0x88000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::UART_BASE</span> <span class="pre">=</span> <span class="pre">0x1C090000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_DISTRIBUTOR_BASE</span> <span class="pre">=</span> <span class="pre">0x2F000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_CPU_BASE</span> <span class="pre">=</span> <span class="pre">0x2C000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_HV_BASE</span> <span class="pre">=</span> <span class="pre">0x2C010000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_VCPU_BASE</span> <span class="pre">=</span> <span class="pre">0x2C02F000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x2F000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::HV_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x00200000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::PLATFORM_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x1C000000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::PLATFORM_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x00200000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_ITS_MMIO_BASE</span> <span class="pre">=</span> <span class="pre">0x2F200000</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b::GIC_ITS_MMIO_SIZE</span> <span class="pre">=</span> <span class="pre">0x00200000</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -1962,6 +2214,45 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#exception-handling">Exception Handling</a></li>
+<li><a class="reference internal" href="#hypercalls">Hypercalls</a><ul>
+<li><a class="reference internal" href="#_CPPv49HvcResult"><code class="docutils literal notranslate"><span class="pre">HvcResult</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N9HvcResult7HandledE"><code class="docutils literal notranslate"><span class="pre">Handled</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9HvcResult9UnhandledE"><code class="docutils literal notranslate"><span class="pre">Unhandled</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9HvcResult4HaltE"><code class="docutils literal notranslate"><span class="pre">Halt</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9HvcResult5ResetE"><code class="docutils literal notranslate"><span class="pre">Reset</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv416ExceptionContext"><code class="docutils literal notranslate"><span class="pre">ExceptionContext</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv416handleHvcAarch64R16ExceptionContext"><code class="docutils literal notranslate"><span class="pre">handleHvcAarch64()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#smccc">SMCCC</a><ul>
+<li><a class="reference internal" href="#_CPPv45SMCCC"><code class="docutils literal notranslate"><span class="pre">SMCCC</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC8getOwnerE8uint64_t"><code class="docutils literal notranslate"><span class="pre">getOwner()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC10isFastCallE8uint64_t"><code class="docutils literal notranslate"><span class="pre">isFastCall()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9OEN_SHIFTE"><code class="docutils literal notranslate"><span class="pre">OEN_SHIFT</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC8OEN_MASKE"><code class="docutils literal notranslate"><span class="pre">OEN_MASK</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC10TYPE_SHIFTE"><code class="docutils literal notranslate"><span class="pre">TYPE_SHIFT</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9TYPE_MASKE"><code class="docutils literal notranslate"><span class="pre">TYPE_MASK</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC13TYPE_YIELDINGE"><code class="docutils literal notranslate"><span class="pre">TYPE_YIELDING</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9TYPE_FASTE"><code class="docutils literal notranslate"><span class="pre">TYPE_FAST</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC10OWNER_ARCHE"><code class="docutils literal notranslate"><span class="pre">OWNER_ARCH</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9OWNER_CPUE"><code class="docutils literal notranslate"><span class="pre">OWNER_CPU</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9OWNER_SIPE"><code class="docutils literal notranslate"><span class="pre">OWNER_SIP</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC9OWNER_OEME"><code class="docutils literal notranslate"><span class="pre">OWNER_OEM</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC14OWNER_STANDARDE"><code class="docutils literal notranslate"><span class="pre">OWNER_STANDARD</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC18OWNER_STANDARD_HYPE"><code class="docutils literal notranslate"><span class="pre">OWNER_STANDARD_HYP</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC16OWNER_VENDOR_HYPE"><code class="docutils literal notranslate"><span class="pre">OWNER_VENDOR_HYP</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC17OWNER_TRUSTED_APPE"><code class="docutils literal notranslate"><span class="pre">OWNER_TRUSTED_APP</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC16OWNER_TRUSTED_OSE"><code class="docutils literal notranslate"><span class="pre">OWNER_TRUSTED_OS</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC7SUCCESSE"><code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC13NOT_SUPPORTEDE"><code class="docutils literal notranslate"><span class="pre">NOT_SUPPORTED</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC12NOT_REQUIREDE"><code class="docutils literal notranslate"><span class="pre">NOT_REQUIRED</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N5SMCCC17INVALID_PARAMETERE"><code class="docutils literal notranslate"><span class="pre">INVALID_PARAMETER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#virtualization">Virtualization</a><ul>
@@ -2041,7 +2332,10 @@ library.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#hv-library">HV Library</a><ul>
-<li><a class="reference internal" href="#panic">Panic</a></li>
+<li><a class="reference internal" href="#panic">Panic</a><ul>
+<li><a class="reference internal" href="#_CPPv48hv_panicPKc"><code class="docutils literal notranslate"><span class="pre">hv_panic()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#memory-primitives">Memory Primitives</a></li>
 <li><a class="reference internal" href="#array">Array</a><ul>
 <li><a class="reference internal" href="#_CPPv4I0_6size_tEN2hv5arrayE"><code class="docutils literal notranslate"><span class="pre">hv::array</span></code></a><ul>
@@ -2069,6 +2363,7 @@ library.</p>
 <li><a class="reference internal" href="#selection-wrapper">Selection Wrapper</a></li>
 <li><a class="reference internal" href="#qemu-virt">QEMU virt</a></li>
 <li><a class="reference internal" href="#raspberry-pi-5">Raspberry Pi 5</a></li>
+<li><a class="reference internal" href="#arm-fvp-base-revc">Arm FVP Base RevC</a></li>
 </ul>
 </li>
 </ul>
