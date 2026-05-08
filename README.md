@@ -203,7 +203,7 @@ that bundles guest kernel + DTB (+ optional initrd) with offsets/CRC metadata th
 cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --kernel path/to/Image \
   --dtb path/to/guest.dtb \
-  --out boot/guest-qemu.hvgbp
+  --out boot/profiles/guest-qemu.hvgbp
 ```
 
 Or use the `just` wrapper:
@@ -215,7 +215,7 @@ just guestpkg path/to/Image path/to/guest.dtb
 Optional initrd + build id:
 
 ```sh
-just guestpkg path/to/Image path/to/guest.dtb boot/guest-qemu.hvgbp path/to/rootfs.cpio.gz my-build-id
+just guestpkg path/to/Image path/to/guest.dtb boot/profiles/guest-qemu.hvgbp path/to/rootfs.cpio.gz my-build-id
 ```
 
 For ABI/layout details, see `docs/GUEST_BOOT_PACKAGE.md`.

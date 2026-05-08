@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/run-qemu-integration
         with:
           kernel: build/integration-test/kernel8.img
-          initrd: boot/guest-qemu.hvgbp
+          initrd: boot/profiles/guest-qemu.hvgbp
           log: build/integration-test/qemu.log
       - name: Upload QEMU serial logs
         if: failure()
