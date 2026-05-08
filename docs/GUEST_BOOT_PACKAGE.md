@@ -150,7 +150,7 @@ cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --kernel path/to/Image \
   --dtb path/to/guest.dtb \
   --initrd path/to/rootfs.cpio.gz \
-  --out boot/guest.hvgbp \
+  --out boot/profiles/guest.hvgbp \
   --build-id buildroot-aarch64-minimal
 ```
 
@@ -160,10 +160,10 @@ Kernel + DTB only:
 cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
   --kernel path/to/Image \
   --dtb path/to/guest.dtb \
-  --out boot/guest.hvgbp
+  --out boot/profiles/guest.hvgbp
 ```
 
-Generated `.hvgbp` files are ignored by git (`boot/*.hvgbp` in `.gitignore`). Do not commit them.
+Generated `.hvgbp` files belong under `boot/profiles/`.
 
 ## V1 Limitations
 
