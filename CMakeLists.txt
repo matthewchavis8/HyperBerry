@@ -172,9 +172,9 @@ add_custom_command(
 if (BOARD STREQUAL "qemu")
   set(QEMU_GUEST_KERNEL "${CMAKE_SOURCE_DIR}/Image"
       CACHE FILEPATH "Guest Linux kernel Image for QEMU")
-  set(QEMU_GUEST_DTB    "${CMAKE_SOURCE_DIR}/boot/guest-qemu.dtb"
+  set(QEMU_GUEST_DTB    "${CMAKE_SOURCE_DIR}/boot/dtb/guest-qemu.dtb"
       CACHE FILEPATH "Guest DTB for QEMU")
-  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/guest-qemu.hvgbp"
+  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/profiles/guest-qemu.hvgbp"
       CACHE STRING "QEMU guest boot package")
 
   find_program(CARGO_CMD cargo REQUIRED)
@@ -214,19 +214,19 @@ if (BOARD STREQUAL "rpi5")
       ${CMAKE_BINARY_DIR}/kernel8.img
       ${SD_MOUNT}/kernel8.img
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/start4.elf
+      ${CMAKE_SOURCE_DIR}/boot/rpi5/start4.elf
       ${SD_MOUNT}/start4.elf
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/bcm2712-rpi-5-b.dtb
+      ${CMAKE_SOURCE_DIR}/boot/rpi5/bcm2712-rpi-5-b.dtb
       ${SD_MOUNT}/bcm2712-rpi-5-b.dtb
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/config.txt
+      ${CMAKE_SOURCE_DIR}/boot/rpi5/config.txt
       ${SD_MOUNT}/config.txt
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/fixup4.dat
+      ${CMAKE_SOURCE_DIR}/boot/rpi5/fixup4.dat
       ${SD_MOUNT}/fixup4.dat
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/guest.hvgbp
+      ${CMAKE_SOURCE_DIR}/boot/profiles/guest.hvgbp
       ${SD_MOUNT}/guest.hvgbp
 
     DEPENDS hyperberry.elf
@@ -242,9 +242,9 @@ if (BOARD STREQUAL "fvp")
   find_program(FDTPUT   fdtput   REQUIRED)
   find_program(CARGO_CMD cargo   REQUIRED)
 
-  set(FVP_HOST_DTS      "${CMAKE_SOURCE_DIR}/boot/host-fvp.dts")
+  set(FVP_HOST_DTS      "${CMAKE_SOURCE_DIR}/boot/dts/host-fvp.dts")
   set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/host-fvp.dtb")
-  set(FVP_GUEST_DTS     "${CMAKE_SOURCE_DIR}/boot/guest-fvp.dts")
+  set(FVP_GUEST_DTS     "${CMAKE_SOURCE_DIR}/boot/dts/guest-fvp.dts")
   set(FVP_GUEST_DTB     "${CMAKE_BINARY_DIR}/guest-fvp.dtb")
   set(FVP_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
       CACHE FILEPATH "Guest Linux kernel Image for FVP")
@@ -253,7 +253,7 @@ if (BOARD STREQUAL "fvp")
   add_custom_command(
     OUTPUT ${FVP_GUEST_DTB}
     COMMAND ${DTC} -I dts -O dtb -o ${FVP_GUEST_DTB} ${FVP_GUEST_DTS}
-    DEPENDS ${FVP_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/guest-base.dtsi
+    DEPENDS ${FVP_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
     COMMENT "[LOG] Compiling guest-fvp.dtb"
   )
 
