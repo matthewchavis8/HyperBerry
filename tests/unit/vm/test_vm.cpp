@@ -84,7 +84,7 @@ TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
   resetCaptures();
   Vm vm;
   vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x80000ULL, 0x1FF000ULL);
+          0x200000ULL, 0x1FF000ULL);
 
   EXPECT_EQ(gGuestMmuInitIpa,  0x0ULL);
   EXPECT_EQ(gGuestMmuInitHostPa, 0x40000000ULL);
@@ -95,16 +95,16 @@ TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
   resetCaptures();
   Vm vm;
   vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x80000ULL, 0x1FF000ULL);
+          0x200000ULL, 0x1FF000ULL);
 
-  EXPECT_EQ(gVcpuInitEntryCap, 0x80000ULL);
+  EXPECT_EQ(gVcpuInitEntryCap, 0x200000ULL);
 }
 
 TEST(Vm, InitSeedsLinuxDtbInX0) {
   resetCaptures();
   Vm vm;
   vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x80000ULL, 0x1FF000ULL);
+          0x200000ULL, 0x1FF000ULL);
 
   EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
   EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
@@ -114,7 +114,7 @@ TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
   resetCaptures();
   Vm vm;
   vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2,
-          0x80000ULL, 0x1FF000ULL);
+          0x200000ULL, 0x1FF000ULL);
   vm.run();
 
   EXPECT_EQ(gGuestMmuEnableVmid, 2);

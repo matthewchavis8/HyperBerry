@@ -99,7 +99,7 @@ absolute guest addresses.
 ```text
 guest IPA base:    0x00000000
 guest RAM size:    256 MiB
-kernel Image IPA:  0x00080000
+kernel Image IPA:  0x00200000
 initrd IPA:        top of RAM minus initrd size, 2 MiB aligned downward
 guest DTB IPA:     below initrd, 64 KiB aligned downward
 entry IPA:         kernel Image IPA + entry_offset

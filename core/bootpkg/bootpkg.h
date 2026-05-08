@@ -39,7 +39,7 @@ static constexpr uint64_t GUEST_IPA_BASE = 0x0ULL;
 /** @brief Fixed guest RAM allocation size (256 MiB) for all v1 Linux guests. */
 static constexpr uint64_t GUEST_RAM_SIZE = 256ULL * 1024ULL * 1024ULL;
 /** @brief IPA at which the Linux kernel Image is loaded inside guest RAM. */
-static constexpr uint64_t LINUX_KERNEL_LOAD_IPA = 0x80000ULL;
+static constexpr uint64_t LINUX_KERNEL_LOAD_IPA = 0x200000ULL;
 
 /**
  * @brief Decoded view of a validated v1 package header.
