@@ -44,7 +44,15 @@ inline constexpr hv::array<MmioRange, 1> GUEST_MMIO = {{
   {UART_BASE, UART_BASE, MMIO_REGION_SIZE},
 }};
 
-inline constexpr hv::array<MmioRange, 0> GUEST_MMIO_PAGES = {{}};
+// TODO: Quick passthrough of the real GIC distributor + CPU interface so a
+// single guest can boot Linux on RPi5. This exposes the physical GIC directly
+// and is unsafe for multi-guest. Replace with a proper vGIC: passthrough GICV
+// as the guest's CPU interface (advertised via guest DTB) and either trap+
+// emulate GICD or use the hardware GIC-400 virt extensions. GIC_HV / GIC_VCPU
+// must remain unmapped from the guest.
+inline constexpr hv::array<MmioRange, 1> GUEST_MMIO_PAGES = {{
+  {GIC_DISTRIBUTOR_BASE, GIC_DISTRIBUTOR_BASE, 0x3000ULL},  // GICD (4K) + GICC (8K)
+}};
 
 inline constexpr size_t GUEST_MMIO_COUNT = GUEST_MMIO.size();
 inline constexpr size_t GUEST_MMIO_PAGE_COUNT = GUEST_MMIO_PAGES.size();
