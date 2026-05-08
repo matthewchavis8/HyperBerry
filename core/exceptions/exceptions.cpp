@@ -51,7 +51,6 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
                     vcpu->m_gpr[0]);
       {
         HvcResult result = handleHvcAarch64(vcpu->m_gpr);
-        vcpu->skipInstruction();
 
         switch (result) {
           case HvcResult::Handled:
