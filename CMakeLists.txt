@@ -81,6 +81,7 @@ if(INTEGRATION_TEST)
   add_subdirectory(tests/integration/bootpkg)
   add_subdirectory(tests/integration/vcpu)
   add_subdirectory(tests/integration/gic)
+  add_subdirectory(tests/integration/timer)
 endif()
 
 add_executable(${ELF}
@@ -105,6 +106,7 @@ if(INTEGRATION_TEST)
     TestBootPkg
     TestVcpu
     TestGic
+    TestTimer
     -Wl,--no-whole-archive
   )
 endif()
