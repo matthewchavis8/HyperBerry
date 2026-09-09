@@ -1,62 +1,160 @@
-HeaderFilterRegex: '.*'
-
+#
+# HyperBerry clang-tidy configuration.
+#
+# Broad check families are enabled and then narrowed. Two groups of exclusions:
+# the general ones (noise in any codebase) and a bare-metal EL2 block for checks
+# that are structurally incompatible with hypervisor code.
+#
+---
 Checks: >
   -*,
-  clang-analyzer-*,
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  cert-*,
+  -cert-err58-cpp,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-const-cast,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-union-access,
+  google-*,
+  -google-readability-todo,
+  -google-runtime-references,
+  hicpp-*,
+  -hicpp-avoid-c-arrays,
+  -hicpp-no-array-decay,
+  -hicpp-signed-bitwise,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
   performance-*,
   readability-*,
-  portability-*,
-  misc-redundant-expression,
-  misc-unused-alias-decls,
-  modernize-use-nullptr,
-  modernize-use-override,
-  modernize-loop-convert,
-  modernize-use-emplace,
-  modernize-make-unique,
-  modernize-make-shared,
-  -bugprone-easily-swappable-parameters,
-  -readability-magic-numbers,
-  -readability-avoid-const-params-in-decls,
   -readability-identifier-length,
-  -performance-avoid-endl,
-  -misc-non-private-member-variables-in-classes,
-  -misc-use-anonymous-namespace,
-  -misc-no-recursion,
-  -readability-braces-around-statements,
-  -readability-identifier-naming,
+  -readability-magic-numbers,
+  -readability-uppercase-literal-suffix,
+  -hicpp-no-assembler,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-macro-to-enum,
+  -modernize-macro-to-enum,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -performance-no-int-to-ptr,
+  -misc-use-anonymous-namespace
 
-WarningsAsErrors: ""
-FormatStyle: file
+# Rationale for the bare-metal EL2 exclusions above, in the same order:
+#   hicpp-no-assembler .............. inline asm is the job at EL2
+#   cppcoreguidelines-macro-usage ... VCPU_GPREG_* offsets are #included by vcpu.S
+#   *-macro-to-enum ................. same; those offsets cannot become enums
+#   avoid-do-while .................. do {} while (0) is the multi-statement macro idiom
+#   unchecked-container-access ...... fires on every operator[]; no bounds-checked
+#                                     alternative exists in a freestanding build
+#   performance-no-int-to-ptr ....... MMIO register access is integer-to-pointer by nature
+#   misc-use-anonymous-namespace .... file-static functions are the local convention
 
 CheckOptions:
+# Types and classes: UpperCamelCase
   - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
     value: CamelCase
   - key: readability-identifier-naming.EnumCase
     value: CamelCase
-  - key: readability-identifier-naming.EnumConstantCase
-    value: UPPER_CASE
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+
+
+# Namespaces are unconstrained: SMCCC and PSCI are acronyms, PageTable is not.
+  - key: readability-identifier-naming.NamespaceCase
+    value: aNy_CasE
+
+
+# Functions and methods, public or not: lowerCamelCase
   - key: readability-identifier-naming.FunctionCase
     value: camelBack
-  - key: readability-identifier-naming.MemberCase
+  - key: readability-identifier-naming.PublicMethodCase
     value: camelBack
-  - key: readability-identifier-naming.MemberPrefix
-    value: m_
+  - key: readability-identifier-naming.PrivateMethodCase
+    value: camelBack
+  - key: readability-identifier-naming.ProtectedMethodCase
+    value: camelBack
   - key: readability-identifier-naming.ParameterCase
     value: camelBack
   - key: readability-identifier-naming.VariableCase
     value: camelBack
-  - key: readability-identifier-naming.MacroDefinitionCase
-    value: UPPER_CASE
+  - key: readability-identifier-naming.LocalVariableCase
+    value: camelBack
+
+
+# The m_ prefix marks non-public state; public members carry no prefix.
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: 'm_'
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: 'm_'
+  - key: readability-identifier-naming.PublicMemberCase
+    value: camelBack
+
+
+# Constants, including enumerators and locals: UPPER_CASE
   - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
   - key: readability-identifier-naming.IgnoreMainLikeFunctions
     value: 1
 
+# Braces may be omitted only when the whole statement fits on the if line,
+# matching AllowShortIfStatementsOnASingleLine in .clang-format.
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: 1
+  - key: hicpp-braces-around-statements.ShortStatementLines
+    value: 1
+  - key: google-readability-braces-around-statements.ShortStatementLines
+    value: 1
+
+# Function size limits
+  - key: readability-function-size.LineThreshold
+    value: 150
+  - key: readability-function-size.StatementThreshold
+    value: 100
+  - key: readability-function-size.BranchThreshold
+    value: 25
+  - key: readability-function-size.ParameterThreshold
+    value: 8
   - key: readability-function-cognitive-complexity.Threshold
-    value: "30"
+    value: 30
+
+
+# Misc
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  - key: bugprone-assert-side-effect.AssertMacros
+    value: 'assert,Assert'
+  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: true
   - key: modernize-loop-convert.MinConfidence
     value: reasonable
-  - key: modernize-use-nullptr.NullMacros
-    value: "NULL"
+
+HeaderFilterRegex: '(arch|boot|bsp|core|drivers|lib|tests)/.*\.h$'
+WarningsAsErrors: ''
+FormatStyle: file
