@@ -73,3 +73,33 @@ guestpkg KERNEL DTB OUT="boot/profiles/guest-qemu.hvgbp" INITRD="" BUILD_ID="":
 
 clean:
   rm -rf build/
+
+# --- Style ---
+
+# Format every tracked C++ source in place.
+fmt:
+  git ls-files '*.cpp' '*.h' | xargs clang-format --style=file -i
+  @echo "[LOG] clang-format applied"
+
+# Fail if anything is not formatted. This is the CI gate.
+fmt-check:
+  git ls-files '*.cpp' '*.h' | xargs clang-format --style=file --dry-run -Werror
+  @echo "[LOG] formatting is clean"
+
+# Run clang-tidy over the whole tree using the debug compile database.
+tidy:
+  cmake --preset debug -DBOARD=qemu
+  run-clang-tidy -p build/debug -quiet '^.*/(arch|boot|bsp|core|drivers|lib|tests)/.*\.cpp$'
+
+# Run clang-tidy only over lines changed against main.
+tidy-diff BASE="origin/main":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  diff_py=$(ls /opt/homebrew/opt/llvm/share/clang/clang-tidy-diff.py \
+               /usr/lib/llvm-*/share/clang/clang-tidy-diff.py 2>/dev/null | head -1)
+  test -n "$diff_py" || { echo "[ERR] clang-tidy-diff.py not found" >&2; exit 1; }
+  git diff -U0 "{{ BASE }}"...HEAD | python3 "$diff_py" -p1 -path build/debug -quiet
+
+# Write the full format + tidy violation report to build/lint/.
+lint-report:
+  scripts/lint-report.sh
