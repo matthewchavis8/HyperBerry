@@ -14,8 +14,8 @@
  * @return Always true if control reaches the end of the function.
  */
 static bool test_tx_doesnt_hang() {
-  Uart::putc('A');
-  return true;
+    Uart::putc('A');
+    return true;
 }
 
 /**
@@ -23,8 +23,8 @@ static bool test_tx_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_tx_string_doesnt_hang() {
-  Uart::print("I have no mouth and I must scream");
-  return true;
+    Uart::print("I have no mouth and I must scream");
+    return true;
 }
 
 /**
@@ -37,9 +37,9 @@ static bool test_tx_string_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_init_doesnt_hang() {
-  Uart::init();
-  Uart::putc('I');
-  return true;
+    Uart::init();
+    Uart::putc('I');
+    return true;
 }
 
 /**
@@ -50,8 +50,8 @@ static bool test_init_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_doesnt_hang() {
-  Uart::writeHex(0xDEADBEEFCAFEBABEULL);
-  return true;
+    Uart::writeHex(0xDEADBEEFCAFEBABEULL);
+    return true;
 }
 
 /**
@@ -59,8 +59,8 @@ static bool test_write_hex_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_zero_doesnt_hang() {
-  Uart::writeHex(0x0ULL);
-  return true;
+    Uart::writeHex(0x0ULL);
+    return true;
 }
 
 /**
@@ -68,8 +68,8 @@ static bool test_write_hex_zero_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_max_doesnt_hang() {
-  Uart::writeHex(0xFFFFFFFFFFFFFFFFULL);
-  return true;
+    Uart::writeHex(0xFFFFFFFFFFFFFFFFULL);
+    return true;
 }
 
 /**
@@ -77,19 +77,19 @@ static bool test_write_hex_max_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_formatted_print_doesnt_hang() {
-  Uart::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
-  return true;
+    Uart::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
+    return true;
 }
 
 /** Static case table for the UART hardware integration suite. */
 static const TestCase uart_hw_cases[] = {
-    {"test_tx_doesnt_hang\n",           test_tx_doesnt_hang},
-    {"test_tx_string_doesnt_hang\n",    test_tx_string_doesnt_hang},
-    {"test_init_doesnt_hang\n",         test_init_doesnt_hang},
-    {"test_write_hex_doesnt_hang\n",    test_write_hex_doesnt_hang},
-    {"test_write_hex_zero_doesnt_hang\n", test_write_hex_zero_doesnt_hang},
-    {"test_write_hex_max_doesnt_hang\n",  test_write_hex_max_doesnt_hang},
-    {"test_formatted_print_doesnt_hang\n", test_formatted_print_doesnt_hang},
+    { "test_tx_doesnt_hang\n", test_tx_doesnt_hang },
+    { "test_tx_string_doesnt_hang\n", test_tx_string_doesnt_hang },
+    { "test_init_doesnt_hang\n", test_init_doesnt_hang },
+    { "test_write_hex_doesnt_hang\n", test_write_hex_doesnt_hang },
+    { "test_write_hex_zero_doesnt_hang\n", test_write_hex_zero_doesnt_hang },
+    { "test_write_hex_max_doesnt_hang\n", test_write_hex_max_doesnt_hang },
+    { "test_formatted_print_doesnt_hang\n", test_formatted_print_doesnt_hang },
 };
 
 /** UART integration test suite auto-registered into `.hyperberry_tests`. */

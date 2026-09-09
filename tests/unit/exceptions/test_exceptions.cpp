@@ -5,35 +5,36 @@
 #include "core/exceptions/exceptions.h"
 
 TEST(EsrEc, HvcAarch64) {
-  EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HvcAarch64);
+    EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HvcAarch64);
 }
 
 TEST(EsrEc, SmcAarch64) {
-  EXPECT_EQ(getEsrEc(0x17ULL << 26), EsrEc::SmcAarch64);
+    EXPECT_EQ(getEsrEc(0x17ULL << 26), EsrEc::SmcAarch64);
 }
 
 TEST(EsrEc, DataAbortLower) {
-  EXPECT_EQ(getEsrEc(0x24ULL << 26), EsrEc::DataAbortLower);
+    EXPECT_EQ(getEsrEc(0x24ULL << 26), EsrEc::DataAbortLower);
 }
 
 TEST(EsrEc, Unknown) {
-  EXPECT_EQ(getEsrEc(0), EsrEc::Unknown);
+    EXPECT_EQ(getEsrEc(0), EsrEc::Unknown);
 }
 
 TEST(EsrEc, MasksCorrectly) {
-  EXPECT_EQ(getEsrEc((0x3FULL << 26) | 0xFFFF), EsrEc(0x3F)); // 0x3F = max 6-bit EC value (EC field is bits [31:26])
+    EXPECT_EQ(getEsrEc((0x3FULL << 26) | 0xFFFF),
+            EsrEc(0x3F)); // 0x3F = max 6-bit EC value (EC field is bits [31:26])
 }
 
 TEST(EsrEc, LowBitsDoNotAffectEc) {
-  EXPECT_EQ(getEsrEc((0x16ULL << 26) | 0xABCDULL), getEsrEc(0x16ULL << 26));
+    EXPECT_EQ(getEsrEc((0x16ULL << 26) | 0xABCDULL), getEsrEc(0x16ULL << 26));
 }
 
 TEST(ExceptionContext, Stores31GeneralPurposeRegisters) {
-  ExceptionContext ctx {};
+    ExceptionContext ctx {};
 
-  EXPECT_EQ(ctx.size(), 31ULL);
+    EXPECT_EQ(ctx.size(), 31ULL);
 }
 
 TEST(ExceptionContext, SizeIs31Times8) {
-  EXPECT_EQ(sizeof(ExceptionContext), 31 * 8ULL);
+    EXPECT_EQ(sizeof(ExceptionContext), 31 * 8ULL);
 }

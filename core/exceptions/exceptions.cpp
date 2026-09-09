@@ -21,83 +21,83 @@
 // Hypervisor EL2 exception handlers
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-  hv_panic("[HV sync] was triggered", ctx);
+    hv_panic("[HV sync] was triggered", ctx);
 }
 
 extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-  hv_panic("[HV irq] was triggered", ctx);
+    hv_panic("[HV irq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-  hv_panic("[HV fiq] was triggered", ctx);
+    hv_panic("[HV fiq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-  hv_panic("[HV SError] was triggered", ctx);
+    hv_panic("[HV SError] was triggered", ctx);
 }
 
 extern "C" void handle_unhandled(ExceptionContext& ctx) {
-  hv_panic("[HV mysterious exception?] was triggered", ctx);
+    hv_panic("[HV mysterious exception?] was triggered", ctx);
 }
 
 // Guest Exception Handlers
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
-  EsrEc exceptionClass = getEsrEc(esr);
+    EsrEc exceptionClass = getEsrEc(esr);
 
-  switch (exceptionClass) {
+    switch (exceptionClass) {
+        case EsrEc::HvcAarch64:
+            Uart::println(
+                    "[Guest][HVC] Handling HVC call from guest, call ID={:x}", vcpu->m_gpr[0]);
+            {
+                HvcResult result = handleHvcAarch64(vcpu->m_gpr);
 
-    case EsrEc::HvcAarch64:
-      Uart::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
-                    vcpu->m_gpr[0]);
-      {
-        HvcResult result = handleHvcAarch64(vcpu->m_gpr);
+                switch (result) {
+                    case HvcResult::Handled:
+                    case HvcResult::Unhandled:
+                        vcpu_enter(vcpu);
+                        break;
 
-        switch (result) {
-          case HvcResult::Handled:
-          case HvcResult::Unhandled:
-            vcpu_enter(vcpu);
+                    case HvcResult::Halt:
+                        hv_panic("[HVC] guest requested halt");
+
+                    case HvcResult::Reset:
+                        hv_panic("[HVC] guest requested reset");
+                }
+            }
             break;
 
-          case HvcResult::Halt:
-            hv_panic("[HVC] guest requested halt");
-
-          case HvcResult::Reset:
-            hv_panic("[HVC] guest requested reset");
-        }
-      }
-      break;
-
-    case EsrEc::SmcAarch64:
-      Uart::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
+        case EsrEc::SmcAarch64:
+            Uart::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
                     vcpu->getGpReg(VCPU_GPREG_X0));
-      vcpu->skipInstruction();
-      break;
+            vcpu->skipInstruction();
+            break;
 
-    case EsrEc::DataAbortLower: {
-      hv_panic("[DataAbortLower] unhandled");
+        case EsrEc::DataAbortLower: {
+            hv_panic("[DataAbortLower] unhandled");
+        }
+
+        default:
+            Uart::println(
+                    "[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}", exceptionClass, esr);
+            hv_panic("[Guest] unhandled lower-EL sync exception");
     }
-
-    default:
-      Uart::println("[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}",
-                    exceptionClass,
-                    esr);
-      hv_panic("[Guest] unhandled lower-EL sync exception");
-  }
 }
 
 extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t esr) {
-  (void) esr; // Unused for now will add some debugging later
-  vcpu_enter(vcpu);
+    (void)esr; // Unused for now will add some debugging later
+    vcpu_enter(vcpu);
 }
 
 extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t esr) {
-  (void) esr;
-  vcpu_enter(vcpu);
+    (void)esr;
+    vcpu_enter(vcpu);
 }
 
 extern "C" void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr) {
-  (void) vcpu;
-  (void) esr;
-  Uart::println("[Guest EL SError] was triggered");
-  for (;;) { asm volatile("wfe"); }
+    (void)vcpu;
+    (void)esr;
+    Uart::println("[Guest EL SError] was triggered");
+    for (;;) {
+        asm volatile("wfe");
+    }
 }

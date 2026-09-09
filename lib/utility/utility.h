@@ -18,9 +18,18 @@
 namespace hv {
 
 /** @brief Strip a reference qualifier from @p T. */
-template <typename T> struct removeReference        { using type = T; };
-template <typename T> struct removeReference<T&>    { using type = T; };
-template <typename T> struct removeReference<T&&>   { using type = T; };
+template <typename T>
+struct removeReference {
+    using type = T;
+};
+template <typename T>
+struct removeReference<T&> {
+    using type = T;
+};
+template <typename T>
+struct removeReference<T&&> {
+    using type = T;
+};
 
 template <typename T>
 using removeReferenceT = typename removeReference<T>::type;
@@ -28,7 +37,7 @@ using removeReferenceT = typename removeReference<T>::type;
 /** @brief Cast @p t to an rvalue reference, enabling move semantics. */
 template <typename T>
 constexpr removeReferenceT<T>&& move(T&& t) noexcept {
-  return static_cast<removeReferenceT<T>&&>(t);
+    return static_cast<removeReferenceT<T>&&>(t);
 }
 
 /**
@@ -37,7 +46,7 @@ constexpr removeReferenceT<T>&& move(T&& t) noexcept {
  */
 template <typename T>
 constexpr T&& forward(removeReferenceT<T>& t) noexcept {
-  return static_cast<T&&>(t);
+    return static_cast<T&&>(t);
 }
 
 /**
@@ -46,18 +55,18 @@ constexpr T&& forward(removeReferenceT<T>& t) noexcept {
  */
 template <typename T>
 constexpr T&& forward(removeReferenceT<T>&& t) noexcept {
-  return static_cast<T&&>(t);
+    return static_cast<T&&>(t);
 }
 
 /** @brief Swap two values using move semantics. */
 template <typename T>
 constexpr void swap(T& a, T& b) noexcept {
-  T tmp = hv::move(a);
-  a     = hv::move(b);
-  b     = hv::move(tmp);
+    T tmp = hv::move(a);
+    a = hv::move(b);
+    b = hv::move(tmp);
 }
 
-}
+} // namespace hv
 
 #endif // __cplusplus
 #endif // __UTILITY_H__

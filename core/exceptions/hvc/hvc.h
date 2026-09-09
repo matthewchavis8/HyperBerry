@@ -15,14 +15,14 @@
  * @brief Result returned after dispatching a guest HVC call.
  */
 enum class HvcResult : uint64_t {
-  /** The call was handled and the guest can resume. */
-  Handled,
-  /** The call was recognized as an HVC exit but is not implemented. */
-  Unhandled,
-  /** The guest requested shutdown, such as PSCI SYSTEM_OFF. */
-  Halt,
-  /** The guest requested reset, such as PSCI SYSTEM_RESET. */
-  Reset,
+    /** The call was handled and the guest can resume. */
+    Handled,
+    /** The call was recognized as an HVC exit but is not implemented. */
+    Unhandled,
+    /** The guest requested shutdown, such as PSCI SYSTEM_OFF. */
+    Halt,
+    /** The guest requested reset, such as PSCI SYSTEM_RESET. */
+    Reset,
 };
 
 using ExceptionContext = hv::array<uint64_t, 31>;

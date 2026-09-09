@@ -21,15 +21,15 @@
  * hypervisor before the MMU and dynamic allocation are available.
  */
 struct alignas(16) MemoryMap {
-  uint64_t memBase;  /**< Base physical address of the main RAM region.       */
-  uint64_t memSize;  /**< Size in bytes of the main RAM region.               */
-  uint64_t atfBase;  /**< Base physical address of the TF-A reserved region.  */
-  uint64_t atfSize;  /**< Size in bytes of the TF-A reserved region.          */
-  uint64_t dtbBase;  /**< Base physical address of the DTB blob.              */
-  uint64_t dtbSize;  /**< Total size in bytes of the DTB blob.                */
-  uint64_t bootPackageBase; /**< Base PA of the firmware-loaded guest package, from `/chosen/linux,initrd-start`. Zero if absent. */
-  uint64_t bootPackageSize; /**< Size in bytes of the firmware-loaded guest package (`initrd-end` minus `initrd-start`). Zero if absent. */
-  bool     isValid;    /**< True only if all fields were successfully parsed.   */
+    uint64_t memBase;         ///< Base physical address of the main RAM region.
+    uint64_t memSize;         ///< Size in bytes of the main RAM region.
+    uint64_t atfBase;         ///< Base physical address of the TF-A reserved region.
+    uint64_t atfSize;         ///< Size in bytes of the TF-A reserved region.
+    uint64_t dtbBase;         ///< Base physical address of the DTB blob.
+    uint64_t dtbSize;         ///< Total size in bytes of the DTB blob.
+    uint64_t bootPackageBase; ///< Base PA of the firmware-loaded guest package; zero if absent.
+    uint64_t bootPackageSize; ///< Size of the firmware-loaded guest package; zero if absent.
+    bool isValid;             ///< True only if all fields were successfully parsed.
 };
 
 /**

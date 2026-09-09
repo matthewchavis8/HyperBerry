@@ -31,23 +31,25 @@ extern uint64_t gVcpuSetX0Cap;
 // GuestMmu capture globals
 // ---------------------------------------------------------------------------
 
-static uint64_t gGuestMmuInitIpa      = 0xDEADDEADDEADDEADULL;
-static uint64_t gGuestMmuInitHostPa   = 0xDEADDEADDEADDEADULL;
-static uint64_t gGuestMmuInitSize     = 0xDEADDEADDEADDEADULL;
-static uint8_t  gGuestMmuEnableVmid   = 0xFF;
+static uint64_t gGuestMmuInitIpa = 0xDEADDEADDEADDEADULL;
+static uint64_t gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
+static uint64_t gGuestMmuInitSize = 0xDEADDEADDEADDEADULL;
+static uint8_t gGuestMmuEnableVmid = 0xFF;
 
 // ---------------------------------------------------------------------------
 // GuestMmu stubs
 // ---------------------------------------------------------------------------
 
-void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) { // NOLINT(readability-convert-member-functions-to-static)
-  gGuestMmuInitIpa    = ipaBase;
-  gGuestMmuInitHostPa = hostPaBase;
-  gGuestMmuInitSize   = sizeBytes;
+void GuestMmu::init(uint64_t ipaBase,
+        uint64_t hostPaBase,
+        uint64_t sizeBytes) { // NOLINT(readability-convert-member-functions-to-static)
+    gGuestMmuInitIpa = ipaBase;
+    gGuestMmuInitHostPa = hostPaBase;
+    gGuestMmuInitSize = sizeBytes;
 }
 
 void GuestMmu::enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
-  gGuestMmuEnableVmid = vmid;
+    gGuestMmuEnableVmid = vmid;
 }
 
 void GuestMmu::mapBlock(uint64_t /*ipa*/, uint64_t /*pa*/, bool /*isDevice*/) {}
@@ -67,13 +69,13 @@ extern "C" void vcpu_enter(Vcpu* /*vcpu*/) {}
 // ---------------------------------------------------------------------------
 
 static void resetCaptures() {
-  gGuestMmuInitIpa    = 0xDEADDEADDEADDEADULL;
-  gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
-  gGuestMmuInitSize   = 0xDEADDEADDEADDEADULL;
-  gGuestMmuEnableVmid = 0xFF;
-  gVcpuInitEntryCap   = 0xDEADDEADDEADDEADULL;
-  gVcpuSetGuestSpCap  = 0xDEADDEADDEADDEADULL;
-  gVcpuSetX0Cap       = 0xDEADDEADDEADDEADULL;
+    gGuestMmuInitIpa = 0xDEADDEADDEADDEADULL;
+    gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
+    gGuestMmuInitSize = 0xDEADDEADDEADDEADULL;
+    gGuestMmuEnableVmid = 0xFF;
+    gVcpuInitEntryCap = 0xDEADDEADDEADDEADULL;
+    gVcpuSetGuestSpCap = 0xDEADDEADDEADDEADULL;
+    gVcpuSetX0Cap = 0xDEADDEADDEADDEADULL;
 }
 
 // ---------------------------------------------------------------------------
@@ -81,41 +83,37 @@ static void resetCaptures() {
 // ---------------------------------------------------------------------------
 
 TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
-  resetCaptures();
-  Vm vm;
-  vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x200000ULL, 0x1FF000ULL);
+    resetCaptures();
+    Vm vm;
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
 
-  EXPECT_EQ(gGuestMmuInitIpa,  0x0ULL);
-  EXPECT_EQ(gGuestMmuInitHostPa, 0x40000000ULL);
-  EXPECT_EQ(gGuestMmuInitSize, 0x200000ULL);
+    EXPECT_EQ(gGuestMmuInitIpa, 0x0ULL);
+    EXPECT_EQ(gGuestMmuInitHostPa, 0x40000000ULL);
+    EXPECT_EQ(gGuestMmuInitSize, 0x200000ULL);
 }
 
 TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
-  resetCaptures();
-  Vm vm;
-  vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x200000ULL, 0x1FF000ULL);
+    resetCaptures();
+    Vm vm;
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
 
-  EXPECT_EQ(gVcpuInitEntryCap, 0x200000ULL);
+    EXPECT_EQ(gVcpuInitEntryCap, 0x200000ULL);
 }
 
 TEST(Vm, InitSeedsLinuxDtbInX0) {
-  resetCaptures();
-  Vm vm;
-  vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1,
-          0x200000ULL, 0x1FF000ULL);
+    resetCaptures();
+    Vm vm;
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
 
-  EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
-  EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
+    EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
+    EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
 }
 
 TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
-  resetCaptures();
-  Vm vm;
-  vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2,
-          0x200000ULL, 0x1FF000ULL);
-  vm.run();
+    resetCaptures();
+    Vm vm;
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL);
+    vm.run();
 
-  EXPECT_EQ(gGuestMmuEnableVmid, 2);
+    EXPECT_EQ(gGuestMmuEnableVmid, 2);
 }

@@ -12,36 +12,36 @@
  * @brief Flattened Device Tree token values used in the structure block.
  */
 enum class FDT : uint32_t {
-  MAGIC      = 0xD00DFEED,
-  BEGIN_NODE = 1,
-  END_NODE   = 2,
-  PROP       = 3,
-  NOP        = 4,
-  END        = 9,
+    MAGIC = 0xD00DFEED,
+    BEGIN_NODE = 1,
+    END_NODE = 2,
+    PROP = 3,
+    NOP = 4,
+    END = 9,
 };
 
 /**
  * @brief On-wire DTB header layout.
  */
 struct FdtHeader {
-  uint32_t magic;
-  uint32_t totalSize;
-  uint32_t structOff;
-  uint32_t stringsOff;
-  uint32_t memRsvMapOff;
-  uint32_t version;
-  uint32_t lastCompVersion;
-  uint32_t bootCpuId;
-  uint32_t sizeStrings;
-  uint32_t sizeStructs;
+    uint32_t magic;
+    uint32_t totalSize;
+    uint32_t structOff;
+    uint32_t stringsOff;
+    uint32_t memRsvMapOff;
+    uint32_t version;
+    uint32_t lastCompVersion;
+    uint32_t bootCpuId;
+    uint32_t sizeStrings;
+    uint32_t sizeStructs;
 };
 
 /**
  * @brief DTB property record header.
  */
 struct FdtProp {
-  uint32_t dataLen;
-  uint32_t nameOff;
+    uint32_t dataLen;
+    uint32_t nameOff;
 };
 
 /**
@@ -50,7 +50,7 @@ struct FdtProp {
  * @return Native-endian 32-bit value.
  */
 static inline uint32_t be32(uint32_t byte) {
-  return __builtin_bswap32(byte);
+    return __builtin_bswap32(byte);
 }
 
 /**
@@ -59,7 +59,7 @@ static inline uint32_t be32(uint32_t byte) {
  * @return Native-endian 64-bit value.
  */
 static inline uint64_t be64(uint64_t byte) {
-  return __builtin_bswap64(byte);
+    return __builtin_bswap64(byte);
 }
 
 /**
@@ -69,25 +69,23 @@ static inline uint64_t be64(uint64_t byte) {
  * @return True when both strings contain the same characters.
  */
 static bool strEq(const char* str1, const char* str2) {
-  while (*str1 && *str2) {
-    if (*str1 != *str2)
-      return false;
-    str1++;
-    str2++;
-  }
+    while (*str1 && *str2) {
+        if (*str1 != *str2) return false;
+        str1++;
+        str2++;
+    }
 
-  return *str1 == *str2;
+    return *str1 == *str2;
 }
 
 static bool strStartsWith(const char* str, const char* prefix) {
-  while (*prefix) {
-    if (*str != *prefix)
-      return false;
-    str++;
-    prefix++;
-  }
+    while (*prefix) {
+        if (*str != *prefix) return false;
+        str++;
+        prefix++;
+    }
 
-  return true;
+    return true;
 }
 
 /**
@@ -101,19 +99,18 @@ static bool strStartsWith(const char* str, const char* prefix) {
  * widening accesses on Device-nGnRnE memory before the MMU is enabled.
  */
 static void readReg64(const volatile uint32_t* data, uint64_t& base, uint64_t& size) {
-  base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
-  size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
+    base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
+    size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
 }
 
 static uint64_t readU64Cells(const volatile uint32_t* data) {
-  return (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
+    return (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
 }
 
 static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLen) {
-  if (dataLen >= 8)
-    return readU64Cells(data);
+    if (dataLen >= 8) return readU64Cells(data);
 
-  return static_cast<uint64_t>(be32(data[0]));
+    return static_cast<uint64_t>(be32(data[0]));
 }
 
 /**
@@ -123,10 +120,10 @@ static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLe
  * @return Pointer rounded up to the next 32-bit boundary.
  */
 static const uint32_t* alignUp(const uint8_t* ptr, uint32_t bytes) {
-  uintptr_t addr = (uintptr_t)(ptr + bytes);
-  addr = (addr + 3) & ~(uintptr_t)3;
+    uintptr_t addr = (uintptr_t)(ptr + bytes);
+    addr = (addr + 3) & ~(uintptr_t)3;
 
-  return reinterpret_cast<const uint32_t*>(addr);
+    return reinterpret_cast<const uint32_t*>(addr);
 }
 
 // All DTB pointers use volatile to prevent the compiler from widening
@@ -134,128 +131,119 @@ static const uint32_t* alignUp(const uint8_t* ptr, uint32_t bytes) {
 // the DTB resides in Device-nGnRnE memory where natural alignment must be
 // respected, and the DTB format only guarantees 4-byte alignment.
 MemoryMap parseDtb(uintptr_t dtb) {
-  MemoryMap map = {};
+    MemoryMap map = {};
 
-  if (dtb == 0)
-    return map;
+    if (dtb == 0) return map;
 
-  const volatile FdtHeader* hdr =
-    reinterpret_cast<const volatile FdtHeader*>(dtb);
+    const volatile FdtHeader* hdr = reinterpret_cast<const volatile FdtHeader*>(dtb);
 
-  if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC))
-    return map;
+    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return map;
 
-  map.dtbBase = dtb;
-  map.dtbSize = be32(hdr->totalSize);
+    map.dtbBase = dtb;
+    map.dtbSize = be32(hdr->totalSize);
 
-  const volatile uint32_t* structs =
-    reinterpret_cast<const volatile uint32_t*>(dtb + be32(hdr->structOff));
-  const char* strings =
-    reinterpret_cast<const char*>(dtb + be32(hdr->stringsOff));
+    const volatile uint32_t* structs =
+            reinterpret_cast<const volatile uint32_t*>(dtb + be32(hdr->structOff));
+    const char* strings = reinterpret_cast<const char*>(dtb + be32(hdr->stringsOff));
 
-  bool foundMem = false;
-  bool foundAtf = false;
+    bool foundMem = false;
+    bool foundAtf = false;
 
-  bool inReservedMemory = false;
-  bool inMemory = false;
-  bool inAtf = false;
-  bool inChosen = false;
+    bool inReservedMemory = false;
+    bool inMemory = false;
+    bool inAtf = false;
+    bool inChosen = false;
 
-  int depth {};
+    int depth {};
 
-  const volatile uint32_t* tok = structs;
+    const volatile uint32_t* tok = structs;
 
-  while (true) {
-    uint32_t token = be32(*tok);
-    tok++;
+    while (true) {
+        uint32_t token = be32(*tok);
+        tok++;
 
-    switch (static_cast<FDT>(token)) {
+        switch (static_cast<FDT>(token)) {
+            case FDT::BEGIN_NODE: {
+                const char* name = reinterpret_cast<const char*>(const_cast<const uint32_t*>(tok));
+                const uint8_t* nameB =
+                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(tok));
 
-      case FDT::BEGIN_NODE: {
-        const char* name =
-          reinterpret_cast<const char*>(const_cast<const uint32_t*>(tok));
-        const uint8_t* nameB =
-          reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(tok));
+                // depth == 1: inside root "/", entering a top-level node
+                if (depth == 1) {
+                    inMemory = strStartsWith(name, "memory");
+                    inReservedMemory = strEq(name, "reserved-memory");
+                    inChosen = strEq(name, "chosen");
+                    // depth == 2: inside reserved-memory, entering a child node
+                } else if (depth == 2 && inReservedMemory) {
+                    inAtf = strEq(name, "atf") || strEq(name, "bl31") || strEq(name, "secmon") ||
+                            strEq(name, "optee") || strEq(name, "tee");
+                }
 
-        // depth == 1: inside root "/", entering a top-level node
-        if (depth == 1) {
-          inMemory         = strStartsWith(name, "memory");
-          inReservedMemory = strEq(name, "reserved-memory");
-          inChosen         = strEq(name, "chosen");
-        // depth == 2: inside reserved-memory, entering a child node
-        } else if (depth == 2 && inReservedMemory) {
-          inAtf = strEq(name, "atf") || strEq(name, "bl31") ||
-                  strEq(name, "secmon") || strEq(name, "optee") ||
-                  strEq(name, "tee");
+                uint32_t nameLen {};
+                while (nameB[nameLen] != 0)
+                    nameLen++;
+
+                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(nameB, nameLen + 1));
+                depth++;
+                break;
+            }
+
+            case FDT::END_NODE: {
+                depth--;
+                if (depth == 1) {
+                    inMemory = false;
+                    inReservedMemory = false;
+                    inChosen = false;
+                } else if (depth == 2) {
+                    inAtf = false;
+                }
+
+                if (foundMem && foundAtf) goto done;
+                break;
+            }
+
+            case FDT::PROP: {
+                uint32_t dataLen = be32(tok[0]);
+                uint32_t nameOff = be32(tok[1]);
+                const char* propName = strings + nameOff;
+                const volatile uint32_t* propData = tok + 2; // skip dataLen + nameOff
+
+                if (strEq(propName, "reg") && dataLen >= 16) {
+                    if (inMemory && !foundMem) {
+                        readReg64(propData, map.memBase, map.memSize);
+                        foundMem = true;
+                    } else if (inAtf && !foundAtf) {
+                        readReg64(propData, map.atfBase, map.atfSize);
+                        foundAtf = true;
+                    }
+                } else if (inChosen && dataLen >= 4) {
+                    if (strEq(propName, "linux,initrd-start")) {
+                        map.bootPackageBase = readInitrdAddress(propData, dataLen);
+                    } else if (strEq(propName, "linux,initrd-end")) {
+                        uint64_t end = readInitrdAddress(propData, dataLen);
+                        if (end > map.bootPackageBase)
+                            map.bootPackageSize = end - map.bootPackageBase;
+                    }
+                }
+
+                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(
+                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(propData)),
+                        dataLen));
+                break;
+            }
+
+            case FDT::NOP:
+                break;
+
+            case FDT::END:
+                goto done;
+
+            default:
+                return map;
         }
-
-        uint32_t nameLen {};
-        while (nameB[nameLen] != 0)
-          nameLen++;
-
-        tok = reinterpret_cast<const volatile uint32_t*>(
-          alignUp(nameB, nameLen + 1));
-        depth++;
-        break;
-      }
-
-      case FDT::END_NODE: {
-        depth--;
-        if (depth == 1) {
-          inMemory = false;
-          inReservedMemory = false;
-          inChosen = false;
-        } else if (depth == 2) {
-          inAtf = false;
-        }
-
-        if (foundMem && foundAtf)
-          goto done;
-        break;
-      }
-
-      case FDT::PROP: {
-        uint32_t        dataLen  = be32(tok[0]);
-        uint32_t        nameOff  = be32(tok[1]);
-        const char*     propName = strings + nameOff;
-        const volatile uint32_t* propData = tok + 2;  // skip dataLen + nameOff
-
-        if (strEq(propName, "reg") && dataLen >= 16) {
-          if (inMemory && !foundMem) {
-            readReg64(propData, map.memBase, map.memSize);
-            foundMem = true;
-          } else if (inAtf && !foundAtf) {
-            readReg64(propData, map.atfBase, map.atfSize);
-            foundAtf = true;
-          }
-        } else if (inChosen && dataLen >= 4) {
-          if (strEq(propName, "linux,initrd-start")) {
-            map.bootPackageBase = readInitrdAddress(propData, dataLen);
-          } else if (strEq(propName, "linux,initrd-end")) {
-            uint64_t end = readInitrdAddress(propData, dataLen);
-            if (end > map.bootPackageBase)
-              map.bootPackageSize = end - map.bootPackageBase;
-          }
-        }
-
-        tok = reinterpret_cast<const volatile uint32_t*>(
-          alignUp(reinterpret_cast<const uint8_t*>(
-            const_cast<const uint32_t*>(propData)), dataLen));
-        break;
-      }
-
-      case FDT::NOP:
-        break;
-
-      case FDT::END:
-        goto done;
-
-      default:
-        return map;
     }
-  }
 
 done:
-  map.isValid = foundMem;
-  return map;
+    map.isValid = foundMem;
+    return map;
 }
