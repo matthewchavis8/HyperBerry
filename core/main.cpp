@@ -33,59 +33,58 @@
  *          address — falling off the end of hmain() is undefined behaviour.
  */
 extern "C" void hmain(uintptr_t dtb) {
-  Uart::init();
-  Uart::println("[UART] UART intialized");
+    Uart::init();
+    Uart::println("[UART] UART intialized");
 
-  Uart::println("[DTB] Attempting to parse device tree blob");
-  MemoryMap memoryMap = parseDtb(dtb);
-  Uart::println("[DTB] Succesfully parsed device tree blob");
+    Uart::println("[DTB] Attempting to parse device tree blob");
+    MemoryMap memoryMap = parseDtb(dtb);
+    Uart::println("[DTB] Succesfully parsed device tree blob");
 
-  if (!memoryMap.isValid)
-    hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
- 
-  Uart::println("[PMM] Attempting to bring up PMM");
-  pmm::init(memoryMap);
-  Uart::println("[PMM] Successfully brought up PMM");
+    if (!memoryMap.isValid) hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
 
-  Uart::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
+    Uart::println("[PMM] Attempting to bring up PMM");
+    pmm::init(memoryMap);
+    Uart::println("[PMM] Successfully brought up PMM");
 
-  Uart::println("[HEAP] Attempting to bring up kernel heap");
-  hv::heap::init();
-  Uart::println("[HEAP] Successfully brought up kernel heap");
+    Uart::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
 
-  Uart::println("[HostMmu] Attempting to bring up host MMU");
-  HostMmu::init();
-  Uart::println("[HostMmu] Successfully host MMU is brought up");
+    Uart::println("[HEAP] Attempting to bring up kernel heap");
+    hv::heap::init();
+    Uart::println("[HEAP] Successfully brought up kernel heap");
 
-  Uart::println("[GIC] Attempting to bring up GICv2");
-  Gic::init();
-  Uart::println("[GIC] Successfully brought up GICv2");
-  
+    Uart::println("[HostMmu] Attempting to bring up host MMU");
+    HostMmu::init();
+    Uart::println("[HostMmu] Successfully host MMU is brought up");
+
+    Uart::println("[GIC] Attempting to bring up GICv2");
+    Gic::init();
+    Uart::println("[GIC] Successfully brought up GICv2");
+
 #ifdef INTEGRATION_TEST
-  TestRunner::setBootContext(memoryMap);
-  TestRunner::run_all();
+    TestRunner::setBootContext(memoryMap);
+    TestRunner::run_all();
 #else
 
-  Uart::println("[BootPkg] Attempting to load Linux guest package");
-  bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
-  if (!loaded.isLoaded) {
-    hv_panic("[ERROR][VM] Failed to spin up Linux VM");
-  }
-  Uart::println("[BootPkg] Linux guest package loaded");
+    Uart::println("[BootPkg] Attempting to load Linux guest package");
+    bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
+    if (!loaded.isLoaded) {
+        hv_panic("[ERROR][VM] Failed to spin up Linux VM");
+    }
+    Uart::println("[BootPkg] Linux guest package loaded");
 
-  Vm guest;
-  const char* guestName = "Linux VM";
-  guest.init(guestName,
-             loaded.guest.guestIpaBase,
-             loaded.guest.guestRamHostPa,
-             loaded.guest.guestRamSize,
-             1,
-             loaded.guest.entryIpa,
-             loaded.guest.dtbIpa);
+    Vm guest;
+    const char* guestName = "Linux VM";
+    guest.init(guestName,
+            loaded.guest.guestIpaBase,
+            loaded.guest.guestRamHostPa,
+            loaded.guest.guestRamSize,
+            1,
+            loaded.guest.entryIpa,
+            loaded.guest.dtbIpa);
 
-  Uart::println("[VM] Bringing up guest:{}", guest.getName());
-  Uart::println("[VM] {} Intialized", guest.getName());
-  Uart::println("[VM] Guest Kernel running");
-  guest.run();
+    Uart::println("[VM] Bringing up guest:{}", guest.getName());
+    Uart::println("[VM] {} Intialized", guest.getName());
+    Uart::println("[VM] Guest Kernel running");
+    guest.run();
 #endif
 }

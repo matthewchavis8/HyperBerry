@@ -20,4 +20,4 @@
 #error "Unsupported BSP. Define BSP_QEMU, BSP_RPI5, or BSP_FVP."
 #endif
 
-#endif  // !__BSP_H__
+#endif // !__BSP_H__

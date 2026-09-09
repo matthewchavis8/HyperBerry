@@ -9,47 +9,48 @@
 #include <stdint.h>
 
 volatile uint32_t* Uart::reg(UART_REG reg) {
-  return reinterpret_cast<volatile uint32_t*>(b::UART_BASE + static_cast<uint64_t>(reg));
+    return reinterpret_cast<volatile uint32_t*>(b::UART_BASE + static_cast<uint64_t>(reg));
 }
 
 void Uart::init() {
-  // clear all stale interrupts
-  *reg(UART_REG::ICR) = 0x7FF;
+    // clear all stale interrupts
+    *reg(UART_REG::ICR) = 0x7FF;
 
-  // Enable UART, TXE, RXE
-  *reg(UART_REG::CR) = (1 << 0) | (1 << 8) | (1 << 9);
+    // Enable UART, TXE, RXE
+    *reg(UART_REG::CR) = (1 << 0) | (1 << 8) | (1 << 9);
 }
 
 void Uart::putc(const char ch) {
-  // Flag Register bit mask
-  constexpr uint32_t FR_TXFF = (1 << 5);
+    // Flag Register bit mask
+    constexpr uint32_t FR_TXFF = (1 << 5);
 
-  // Spin while TX FIFO is full
-  while ((*reg(UART_REG::FR) & FR_TXFF) != 0U) {}
+    // Spin while TX FIFO is full
+    while ((*reg(UART_REG::FR) & FR_TXFF) != 0U) {
+    }
 
-  *reg(UART_REG::DR) = static_cast<uint32_t>(static_cast<uint8_t>(ch));
+    *reg(UART_REG::DR) = static_cast<uint32_t>(static_cast<uint8_t>(ch));
 }
 
 void Uart::println(const char* str) {
-  uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
+    uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
 
-  putc('\r');
-  putc('\n');
+    putc('\r');
+    putc('\n');
 }
 
-void Uart::print(const char *str) {
-  uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
+void Uart::print(const char* str) {
+    uart::detail::writeCString([](char ch) { Uart::putc(ch); }, str);
 }
 
 void Uart::writeHex(uint64_t val) {
-  char buff[16];
+    char buff[16];
 
-  for (int i{15}; i >= 0; i--) {
-    buff[i] = hex[val & 0xF];
-    val >>= 4;
-  }
+    for (int i { 15 }; i >= 0; i--) {
+        buff[i] = hex[val & 0xF];
+        val >>= 4;
+    }
 
-  for (int i{}; i < 16; i++) {
-    putc(buff[i]);
-  }
+    for (int i {}; i < 16; i++) {
+        putc(buff[i]);
+    }
 }

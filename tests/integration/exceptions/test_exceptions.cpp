@@ -25,11 +25,12 @@ extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
 
     vecBarState.isCalled = true;
     // Store the exception syndrome register to see what triggered the crash
-    vecBarState.esr      = esr;
+    vecBarState.esr = esr;
     // ELR/SPSR live after x0-x30 in the saved exception frame.
-    vecBarState.elr      = ctx[31];
-    // Grab the first non volatile register to make sure allignment or stack corruption did not occur
-    vecBarState.gpr19    = ctx[19];
+    vecBarState.elr = ctx[31];
+    // Grab the first non volatile register to make sure allignment or stack corruption did not
+    // occur
+    vecBarState.gpr19 = ctx[19];
     // Skip the faulting BRK so eret resumes at the next instruction.
     ctx[31] += 4;
 }
@@ -45,28 +46,22 @@ extern "C" char test_vectors[];
  * sees the new table before any exception can fire.
  */
 class VbarGuard {
-  private:
+private:
     uint64_t m_saved;
 
-  public:
+public:
     VbarGuard() {
         asm volatile("mrs %0, vbar_el2" : "=r"(m_saved));
         uint64_t test_vbar = reinterpret_cast<uint64_t>(test_vectors);
-        asm volatile(
-            "msr vbar_el2, %0\n"
-            "isb"
-            :: "r"(test_vbar)
-            : "memory"
-        );
+        asm volatile("msr vbar_el2, %0\n"
+                     "isb" ::"r"(test_vbar)
+                : "memory");
     }
 
     ~VbarGuard() {
-        asm volatile(
-            "msr vbar_el2, %0\n"
-            "isb"
-            :: "r"(m_saved)
-            : "memory"
-        );
+        asm volatile("msr vbar_el2, %0\n"
+                     "isb" ::"r"(m_saved)
+                : "memory");
     }
 };
 
@@ -126,11 +121,9 @@ static bool test_brk_elr_points_to_brk() {
     VbarGuard guard;
 
     uint64_t brk_addr;
-    asm volatile(
-        "adr %0, 1f\n"
-        "1: brk #0\n"
-        : "=r"(brk_addr)
-    );
+    asm volatile("adr %0, 1f\n"
+                 "1: brk #0\n"
+            : "=r"(brk_addr));
 
     return vecBarState.elr == brk_addr;
 }
@@ -146,24 +139,22 @@ static bool test_context_gpr_preserved() {
     vecBarState = {};
     VbarGuard guard;
 
-    asm volatile(
-        "mov x19, #0xBEEF\n"
-        "brk #0\n"
-        ::: "x19"
-    );
+    asm volatile("mov x19, #0xBEEF\n"
+                 "brk #0\n" ::
+                         : "x19");
 
     return vecBarState.gpr19 == 0xBEEF;
 }
 
 
 static const TestCase kCases[] = {
-    {"vbar_aligned",           test_vbar_aligned},
-    {"brk_fires_handler",      test_brk_fires_handler},
-    {"brk_esr_ec_correct",     test_brk_esr_ec_correct},
-    {"brk_elr_points_to_brk",  test_brk_elr_points_to_brk},
-    {"context_gpr_preserved",  test_context_gpr_preserved},
+    { "vbar_aligned", test_vbar_aligned },
+    { "brk_fires_handler", test_brk_fires_handler },
+    { "brk_esr_ec_correct", test_brk_esr_ec_correct },
+    { "brk_elr_points_to_brk", test_brk_elr_points_to_brk },
+    { "context_gpr_preserved", test_context_gpr_preserved },
 };
 
-static const TestSuite kSuite = {"ExceptionHarness", kCases, 5};
+static const TestSuite kSuite = { "ExceptionHarness", kCases, 5 };
 
 REGISTER_SUITE(kSuite);

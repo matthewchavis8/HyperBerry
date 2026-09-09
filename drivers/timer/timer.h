@@ -11,14 +11,14 @@
  * handler must forward IRQ (26) firings to handleIrq().
  */
 class Timer {
-  private:
-    uint64_t m_frequency{};
-    uint64_t m_intervalTicks{};
-    uint64_t m_lastArmTicks{};
+private:
+    uint64_t m_frequency {};
+    uint64_t m_intervalTicks {};
+    uint64_t m_lastArmTicks {};
     void (*m_callback)(void*) { nullptr };
-    void* m_ctx           { nullptr };
+    void* m_ctx { nullptr };
 
-  public:
+public:
     /** GIC PPI line wired to the ARM generic hypervisor physical timer. */
     static constexpr uint32_t IRQ = 26U;
 

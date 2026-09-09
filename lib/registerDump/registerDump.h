@@ -31,66 +31,65 @@
  *       only -- not suitable for production logging.
  */
 inline void registerDump(ExceptionContext& ctx) {
-  uint64_t esr  {};
-  uint64_t far  {};
-  uint64_t elr  {};
-  uint64_t spsr {};
+    uint64_t esr {};
+    uint64_t far {};
+    uint64_t elr {};
+    uint64_t spsr {};
 
-  asm volatile("mrs %0, esr_el2"  : "=r"(esr));
-  asm volatile("mrs %0, far_el2"  : "=r"(far));
-  asm volatile("mrs %0, elr_el2"  : "=r"(elr));
-  asm volatile("mrs %0, spsr_el2" : "=r"(spsr));
+    asm volatile("mrs %0, esr_el2" : "=r"(esr));
+    asm volatile("mrs %0, far_el2" : "=r"(far));
+    asm volatile("mrs %0, elr_el2" : "=r"(elr));
+    asm volatile("mrs %0, spsr_el2" : "=r"(spsr));
 
-  uint32_t ec  = (esr >> 26) & 0x3F;
-  uint32_t iss = esr & 0xFFFFFF;
+    uint32_t ec = (esr >> 26) & 0x3F;
+    uint32_t iss = esr & 0xFFFFFF;
 
-  Uart::println("==========[EXCEPTION DUMP]============");
-  // ESR
-  Uart::print("ESR_EL2(Syndrome): 0x");
-  Uart::writeHex(esr);
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  Uart::print("EC(Class):         0x");
-  Uart::writeHex(static_cast<uint64_t>(ec));
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  Uart::print("ISS(Subclass):     0x");
-  Uart::writeHex(static_cast<uint64_t>(iss));
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  // System Registers
-  Uart::print("ELR_EL2(Return):   0x");
-  Uart::writeHex(elr);
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  Uart::print("SPSR(Status):      0x");
-  Uart::writeHex(spsr);
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  Uart::print("FAR_EL2(Fault):    0x");
-  Uart::writeHex(far);
-  Uart::putc('\r');
-  Uart::putc('\n');
-
-  for (size_t i{}; i < 31; i++) {
-    Uart::putc('x');
-    if (i >= 10) {
-      Uart::putc('0' + static_cast<char>(i / 10));
-    }
-    Uart::putc('0' + static_cast<char>(i % 10));
-    Uart::print(i < 10 ? ":  0x" : ": 0x");
-    Uart::writeHex(ctx[i]);
+    Uart::println("==========[EXCEPTION DUMP]============");
+    // ESR
+    Uart::print("ESR_EL2(Syndrome): 0x");
+    Uart::writeHex(esr);
     Uart::putc('\r');
-  Uart::putc('\n');
-  }
-  Uart::println("======================================");
+    Uart::putc('\n');
+
+    Uart::print("EC(Class):         0x");
+    Uart::writeHex(static_cast<uint64_t>(ec));
+    Uart::putc('\r');
+    Uart::putc('\n');
+
+    Uart::print("ISS(Subclass):     0x");
+    Uart::writeHex(static_cast<uint64_t>(iss));
+    Uart::putc('\r');
+    Uart::putc('\n');
+
+    // System Registers
+    Uart::print("ELR_EL2(Return):   0x");
+    Uart::writeHex(elr);
+    Uart::putc('\r');
+    Uart::putc('\n');
+
+    Uart::print("SPSR(Status):      0x");
+    Uart::writeHex(spsr);
+    Uart::putc('\r');
+    Uart::putc('\n');
+
+    Uart::print("FAR_EL2(Fault):    0x");
+    Uart::writeHex(far);
+    Uart::putc('\r');
+    Uart::putc('\n');
+
+    for (size_t i {}; i < 31; i++) {
+        Uart::putc('x');
+        if (i >= 10) {
+            Uart::putc('0' + static_cast<char>(i / 10));
+        }
+        Uart::putc('0' + static_cast<char>(i % 10));
+        Uart::print(i < 10 ? ":  0x" : ": 0x");
+        Uart::writeHex(ctx[i]);
+        Uart::putc('\r');
+        Uart::putc('\n');
+    }
+    Uart::println("======================================");
 }
 
 #endif // __cplusplus
 #endif // !__REGISTERDUMP_H__
-

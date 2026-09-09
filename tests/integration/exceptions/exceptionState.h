@@ -12,10 +12,10 @@
 #include <stdint.h>
 
 struct TestExceptionState {
-    bool     isCalled;    ///< Handler was entered
-    uint64_t esr;       ///< Raw ESR_EL2 value
-    uint64_t elr;       ///< ELR_EL2 *before* the +4 advance
-    uint64_t gpr19;     ///< Stores the x19 register for testing
+    bool isCalled;  ///< Handler was entered
+    uint64_t esr;   ///< Raw ESR_EL2 value
+    uint64_t elr;   ///< ELR_EL2 *before* the +4 advance
+    uint64_t gpr19; ///< Stores the x19 register for testing
 };
 
 

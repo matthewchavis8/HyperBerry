@@ -17,43 +17,47 @@
 
 class Vm {
 private:
-  const char* m_name = "";
-  GuestMmu    m_guestMmu;
-  Vcpu        m_vcpu;
-  uint8_t     m_vmid;
+    const char* m_name = "";
+    GuestMmu m_guestMmu;
+    Vcpu m_vcpu;
+    uint8_t m_vmid;
 
 public:
-  /**
-   * @brief Build this VM's stage-2 mappings and seed its vCPU.
-   *
-   * Order is significant: stage-2 tables are constructed first so they
-   * are in place before the vCPU's first entry. VTTBR_EL2 /
-   * HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
-   *
-   * @param name           Guest kernel or VM name retained for diagnostics.
-   * @param ipaBase        Guest IPA base.
-   * @param guestRamHostPa Host physical base backing guest RAM.
-   * @param sizeBytes      Size of the guest RAM region.
-   * @param vmid           Non-zero VMID (unique across live VMs).
-   * @param guestEntry     Guest IPA at which to resume on first @c eret.
-   * @param guestDtb       Guest IPA of the Linux device tree blob.
-   */
-  void init(const char* name, uint64_t ipaBase, uint64_t guestRamHostPa,
-            uint64_t sizeBytes, uint8_t vmid, uint64_t guestEntry,
+    /**
+     * @brief Build this VM's stage-2 mappings and seed its vCPU.
+     *
+     * Order is significant: stage-2 tables are constructed first so they
+     * are in place before the vCPU's first entry. VTTBR_EL2 /
+     * HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
+     *
+     * @param name           Guest kernel or VM name retained for diagnostics.
+     * @param ipaBase        Guest IPA base.
+     * @param guestRamHostPa Host physical base backing guest RAM.
+     * @param sizeBytes      Size of the guest RAM region.
+     * @param vmid           Non-zero VMID (unique across live VMs).
+     * @param guestEntry     Guest IPA at which to resume on first @c eret.
+     * @param guestDtb       Guest IPA of the Linux device tree blob.
+     */
+    void init(const char* name,
+            uint64_t ipaBase,
+            uint64_t guestRamHostPa,
+            uint64_t sizeBytes,
+            uint8_t vmid,
+            uint64_t guestEntry,
             uint64_t guestDtb);
 
-  /**
-   * @brief Enable stage-2 and enter the guest.
-   * @note Does not return; the guest runs forever or traps back via
-   *       the exception path, which is owned by vcpu.S / exceptions.S.
-   */
-  void run();
-  
-  /** @brief Return the guest kernel name passed to @ref init(). */
-  [[nodiscard]] const char* getName() const noexcept;
-  
-  /** @brief Return the guest vm ID passed to @ref init(). */
-  [[nodiscard]] uint8_t getVmId() const noexcept;
+    /**
+     * @brief Enable stage-2 and enter the guest.
+     * @note Does not return; the guest runs forever or traps back via
+     *       the exception path, which is owned by vcpu.S / exceptions.S.
+     */
+    void run();
+
+    /** @brief Return the guest kernel name passed to @ref init(). */
+    [[nodiscard]] const char* getName() const noexcept;
+
+    /** @brief Return the guest vm ID passed to @ref init(). */
+    [[nodiscard]] uint8_t getVmId() const noexcept;
 };
 
-#endif  // !__VM_H__
+#endif // !__VM_H__

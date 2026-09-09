@@ -21,20 +21,20 @@ inline constexpr char hex[] = "0123456789ABCDEF";
 
 namespace uart::detail {
 
-template<typename T>
+template <typename T>
 struct AlwaysFalse {
     static constexpr bool kValue = false;
 };
 
-template<typename T>
+template <typename T>
 inline constexpr bool kIsPointer = false;
-template<typename T>
+template <typename T>
 inline constexpr bool kIsPointer<T*> = true;
 
-template<typename T>
+template <typename T>
 inline constexpr bool kIsSigned = static_cast<T>(-1) < static_cast<T>(0);
 
-template<typename Writer>
+template <typename Writer>
 inline void writeCString(Writer&& writer, const char* str) {
     if (str == nullptr) {
         str = "(null)";
@@ -45,7 +45,7 @@ inline void writeCString(Writer&& writer, const char* str) {
     }
 }
 
-template<typename Writer>
+template <typename Writer>
 inline void writeUnsignedDecimal(Writer&& writer, uint64_t value) {
     if (value == 0U) {
         writer('0');
@@ -65,7 +65,7 @@ inline void writeUnsignedDecimal(Writer&& writer, uint64_t value) {
     }
 }
 
-template<typename Writer>
+template <typename Writer>
 inline void writeSignedDecimal(Writer&& writer, int64_t value) {
     if (value < 0) {
         writer('-');
@@ -77,7 +77,7 @@ inline void writeSignedDecimal(Writer&& writer, int64_t value) {
     writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
 }
 
-template<typename Writer>
+template <typename Writer>
 inline void writeUnsignedHex(Writer&& writer, uint64_t value) {
     writer('0');
     writer('x');
@@ -100,26 +100,25 @@ inline void writeUnsignedHex(Writer&& writer, uint64_t value) {
     }
 }
 
-template<typename Writer, typename T>
+template <typename Writer, typename T>
 inline void writeValue(Writer&& writer, T value) {
     if constexpr (__is_same(T, decltype(nullptr)))
-      writeUnsignedHex(writer, 0U);
+        writeUnsignedHex(writer, 0U);
     else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
-      writeCString(writer, value);
+        writeCString(writer, value);
     else if constexpr (kIsPointer<T>)
-      writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+        writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     else if constexpr (__is_same(T, bool))
-      writeCString(writer, value ? "true" : "false");
+        writeCString(writer, value ? "true" : "false");
     else if constexpr (__is_same(T, char))
         writer(value);
     else if constexpr (__is_integral(T)) {
         if constexpr (kIsSigned<T>)
-          writeSignedDecimal(writer, static_cast<int64_t>(value));
+            writeSignedDecimal(writer, static_cast<int64_t>(value));
         else
-          writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
-    }
-    else
-      static_assert(AlwaysFalse<T>::kValue, "Unsupported UART format type");
+            writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
+    } else
+        static_assert(AlwaysFalse<T>::kValue, "Unsupported UART format type");
 }
 
 enum class FormatStep : uint8_t {
@@ -138,11 +137,11 @@ struct FormatResult {
     FormatSpec spec;
 };
 
-template<typename Writer>
+template <typename Writer>
 inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
     if (fmt == nullptr) {
         writeCString(writer, "(null)");
-        return {FormatStep::End, FormatSpec::Default};
+        return { FormatStep::End, FormatSpec::Default };
     }
 
     while (*fmt != '\0') {
@@ -155,16 +154,16 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
 
             if (fmt[1] == '}') {
                 fmt += 2;
-                return {FormatStep::Placeholder, FormatSpec::Default};
+                return { FormatStep::Placeholder, FormatSpec::Default };
             }
 
             if (fmt[1] == ':' && (fmt[2] == 'x' || fmt[2] == 'X') && fmt[3] == '}') {
                 fmt += 4;
-                return {FormatStep::Placeholder, FormatSpec::Hex};
+                return { FormatStep::Placeholder, FormatSpec::Hex };
             }
 
             writeCString(writer, "[invalid format]");
-            return {FormatStep::Invalid, FormatSpec::Default};
+            return { FormatStep::Invalid, FormatSpec::Default };
         }
 
         if (*fmt == '}') {
@@ -175,16 +174,16 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
             }
 
             writeCString(writer, "[invalid format]");
-            return {FormatStep::Invalid, FormatSpec::Default};
+            return { FormatStep::Invalid, FormatSpec::Default };
         }
 
         writer(*fmt++);
     }
 
-    return {FormatStep::End, FormatSpec::Default};
+    return { FormatStep::End, FormatSpec::Default };
 }
 
-template<typename Writer, typename T>
+template <typename Writer, typename T>
 inline void writeHexValue(Writer&& writer, T value) {
     if constexpr (__is_same(T, decltype(nullptr))) {
         writeUnsignedHex(writer, 0U);
@@ -201,7 +200,7 @@ inline void writeHexValue(Writer&& writer, T value) {
     }
 }
 
-template<typename Writer, typename T>
+template <typename Writer, typename T>
 inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
     if (spec == FormatSpec::Hex) {
         if constexpr (__is_enum(T)) {
@@ -219,14 +218,14 @@ inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
     }
 }
 
-template<typename Writer>
+template <typename Writer>
 inline void formatToSink(Writer&& writer, const char* fmt) {
     if (writeUntilPlaceholder(writer, fmt).step == FormatStep::Placeholder) {
         writeCString(writer, "[missing arg]");
     }
 }
 
-template<typename Writer, typename T, typename... Rest>
+template <typename Writer, typename T, typename... Rest>
 inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest) {
     const FormatResult result = writeUntilPlaceholder(writer, fmt);
 
@@ -248,13 +247,13 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
  * @ingroup drivers_uart
  */
 enum class UART_REG : uint8_t {
-    DR   = 0x00,
-    FR   = 0x18,
+    DR = 0x00,
+    FR = 0x18,
     IBRD = 0x24,
     FBRD = 0x28,
     LCRH = 0x2C,
-    CR   = 0x30,
-    ICR  = 0x44,
+    CR = 0x30,
+    ICR = 0x44,
 };
 
 /**
@@ -264,7 +263,7 @@ enum class UART_REG : uint8_t {
  *
  */
 class Uart {
-  private:
+private:
     /**
      * @brief returns the register address for UART PL011
      *
@@ -274,7 +273,7 @@ class Uart {
      * */
     static volatile uint32_t* reg(UART_REG reg);
 
-  public:
+public:
     /**
      * @brief Initialize the PL011 UART.
      *
@@ -290,13 +289,13 @@ class Uart {
      */
     static void println(const char* str);
 
-    template<typename... Args>
+    template <typename... Args>
     static void println(const char* fmt, Args... args) {
         print(fmt, args...);
         putc('\r');
         putc('\n');
     }
-    
+
     /**
      * @brief Transmit a null-terminated string.
      * @param str Pointer to the null-terminated string to send.
@@ -305,7 +304,7 @@ class Uart {
      */
     static void print(const char* str);
 
-    template<typename... Args>
+    template <typename... Args>
     static void print(const char* fmt, Args... args) {
         uart::detail::formatToSink([](char ch) { Uart::putc(ch); }, fmt, args...);
     }
