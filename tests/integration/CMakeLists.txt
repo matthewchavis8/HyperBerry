@@ -1,5 +1,6 @@
-add_library(Tests${BSP_SUFFIX}
-  STATIC
+# Board-agnostic suites. A board that needs a different implementation drops a
+# file of the same basename in tests/bsp/<board>/ and it wins.
+set(SHARED_TESTS
   uart/test_uart.cpp
   exceptions/test_exceptions.cpp
   exceptions/test_vectors.S
@@ -14,6 +15,34 @@ add_library(Tests${BSP_SUFFIX}
   gic/guest_payload.S
   timer/test_timer.cpp
   timer/test_vectors.S
+)
+
+file(GLOB BSP_TESTS CONFIGURE_DEPENDS
+  ${CMAKE_SOURCE_DIR}/tests/bsp/${BSP_BOARD}/*.cpp
+  ${CMAKE_SOURCE_DIR}/tests/bsp/${BSP_BOARD}/*.S
+)
+
+set(BSP_TEST_NAMES "")
+foreach(src IN LISTS BSP_TESTS)
+  get_filename_component(base ${src} NAME)
+  list(APPEND BSP_TEST_NAMES ${base})
+  message(STATUS "  ${BSP_BOARD}: board-specific test ${base}")
+endforeach()
+
+set(TEST_SOURCES "")
+foreach(src IN LISTS SHARED_TESTS)
+  get_filename_component(base ${src} NAME)
+  if(base IN_LIST BSP_TEST_NAMES)
+    message(STATUS "  ${BSP_BOARD}: ${base} overridden by tests/bsp/${BSP_BOARD}/")
+  else()
+    list(APPEND TEST_SOURCES ${src})
+  endif()
+endforeach()
+
+add_library(Tests${BSP_SUFFIX}
+  STATIC
+  ${TEST_SOURCES}
+  ${BSP_TESTS}
 )
 
 target_include_directories(Tests${BSP_SUFFIX}
