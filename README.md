@@ -62,7 +62,7 @@ HyperBerry/
 ├── core/           # Hypervisor core
 ├── drivers/        # Software device drivers
 ├── lib/            # C++ utility headers
-├── tests/          # Board-neutral test infrastructure
+├── tests/          # integration/ (board-neutral), bsp/<board>/ (board-specific), unit/
 ├── docs/           # extra docs
 ├── CMakeLists.txt
 └── justfile        # Quick command runner

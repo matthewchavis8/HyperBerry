@@ -34,6 +34,10 @@ just test-integration rpi5          # flash and run on Raspberry Pi 5
 just test-integration rpi5 /dev/sdX1  # specify SD card partition
 ```
 
+Board-specific test sources live in `tests/bsp/<board>/`. A file there whose
+basename matches one in `tests/integration/` replaces it for that board only;
+any other file is simply added to that board's test image.
+
 The `debug` preset sets `BUILD_INTEGRATION=ON`, which adds a `hyperberry-<board>-test` image per board alongside the normal one. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::run_all()` instead of the normal hypervisor path.
 
 That recipe maps to:
