@@ -1,0 +1,30 @@
+add_library(Tests${BSP_SUFFIX}
+  STATIC
+  uart/test_uart.cpp
+  exceptions/test_exceptions.cpp
+  exceptions/test_vectors.S
+  pmm/test_pmm.cpp
+  mmu/test_mmu.cpp
+  guestMmu/test_guestMmu.cpp
+  bootpkg/test_bootpkg.cpp
+  vcpu/test_vcpu.cpp
+  vcpu/test_vectors.S
+  gic/test_gic.cpp
+  gic/test_vectors.S
+  gic/guest_payload.S
+  timer/test_timer.cpp
+  timer/test_vectors.S
+)
+
+target_include_directories(Tests${BSP_SUFFIX}
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(Tests${BSP_SUFFIX}
+  PRIVATE
+  Virt${BSP_SUFFIX}
+  Mm${BSP_SUFFIX}
+  Drivers${BSP_SUFFIX}
+  Lib${BSP_SUFFIX}
+)

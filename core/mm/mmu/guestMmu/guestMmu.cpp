@@ -4,7 +4,7 @@
  * @ingroup mmu
  */
 
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include "core/mm/pageTable/pageTable.h"
 #include "core/mm/pmm/pmm.h"
 #include "drivers/uart/uart.h"

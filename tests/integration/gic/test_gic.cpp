@@ -3,7 +3,7 @@
  * @brief Hardware-backed integration tests for the GICv2 driver.
  */
 
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include "core/exceptions/exceptions.h"
 #include "core/vcpu/vcpu.h"
 #include "drivers/gic/gic.h"
@@ -267,6 +267,7 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: Vcpu::init");
     Vcpu vcpu;
     vcpu.init(reinterpret_cast<uint64_t>(test_gic_guest_entry));
+    vcpu.setGpReg(VCPU_GPREG_X0, b::GIC_VCPU_BASE);
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.setGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 

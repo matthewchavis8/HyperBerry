@@ -56,14 +56,13 @@ still in progress, and the current layout is documented in
 
 ```
 HyperBerry/
-├── arch/           # AArch64 boot assembly and board-specific startup
-├── bsp/            # Active board constants selected by the build
+├── arch/           # Shared AArch64 assembly (vectors, exceptions, vcpu)
+├── bsp/            # One folder per board: constants, boot.S, linker.ld, dts, firmware
 ├── cmake/          # Cross-compilation toolchain and CMake configuration
 ├── core/           # Hypervisor core
 ├── drivers/        # Software device drivers
 ├── lib/            # C++ utility headers
-├── linker/         # Board-specific linker scripts and memory layouts
-├── tests/          # Test infrastructure
+├── tests/          # Board-neutral test infrastructure
 ├── docs/           # extra docs
 ├── CMakeLists.txt
 └── justfile        # Quick command runner
@@ -94,6 +93,7 @@ The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (r
 
 | Command                                  | Description                                |
 |------------------------------------------|--------------------------------------------|
+| `just build (debug/release)`            | Build every board's image                  |
 | `just qemu (debug/release)`              | Build and run in QEMU                      |
 | `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5           |
 | `just test-unit`                         | Build and run hosted GoogleTest unit tests |
@@ -114,9 +114,9 @@ just qemu release  # release build
 
 ```sh
 # 1. Configure
-cmake --preset debug -DBOARD=qemu
+cmake --preset debug
 
-# 2. Build
+# 2. Build all boards (image at build/debug/qemu/kernel8.img)
 cmake --build --preset debug
 
 # 3. Spin up virtual RPI5 with hyperBerry image
@@ -125,7 +125,7 @@ qemu-system-aarch64 \
   -cpu cortex-a76 \
   -m 4G \
   -nographic \
-  -kernel build/debug/kernel8.img
+  -kernel build/debug/qemu/kernel8.img
 ```
 
 UART output prints directly to the terminal. Exit QEMU with `Ctrl-A X`.
@@ -146,20 +146,20 @@ just rpi5 release /dev/sdX1        # specify a different partition
 
 ```sh
 # 1. Configure
-cmake --preset release -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
+cmake --preset release
 
-# 2. Build
+# 2. Build all boards (image at build/release/rpi5/kernel8.img)
 cmake --build --preset release
 
 # 3. Mount and flash
 sudo mkdir -p /mnt/sdcard
 sudo mount -o uid=$(id -u),gid=$(id -g) /dev/sda1 /mnt/sdcard
 
-cp build/release/kernel8.img       /mnt/sdcard/
-cp boot/start4.elf                 /mnt/sdcard/
-cp boot/bcm2712-rpi-5-b.dtb        /mnt/sdcard/
-cp boot/config.txt                 /mnt/sdcard/
-cp boot/fixup4.dat                 /mnt/sdcard/
+cp build/release/rpi5/kernel8.img        /mnt/sdcard/
+cp bsp/rpi5/firmware/start4.elf          /mnt/sdcard/
+cp bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb /mnt/sdcard/
+cp bsp/rpi5/firmware/config.txt          /mnt/sdcard/
+cp bsp/rpi5/firmware/fixup4.dat          /mnt/sdcard/
 
 sudo umount /mnt/sdcard
 ```
@@ -235,7 +235,7 @@ just test-integration qemu
 just test-integration rpi5 /dev/sdX1
 ```
 
-The integration test build uses the `integration-test` CMake preset, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
+The integration test build uses the `integration-<board>` CMake presets, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
 
 ## AI Use Declaration
 

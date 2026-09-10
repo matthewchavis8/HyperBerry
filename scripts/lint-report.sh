@@ -21,7 +21,7 @@ mkdir -p "$OUT"
 
 if [ ! -f "$DB/compile_commands.json" ]; then
   echo "[LOG] $DB/compile_commands.json missing, configuring the debug preset"
-  cmake --preset debug -DBOARD=qemu >/dev/null || {
+  cmake --preset debug >/dev/null || {
     echo "[ERR] cmake configure failed; cannot run clang-tidy" >&2
     exit 1
   }

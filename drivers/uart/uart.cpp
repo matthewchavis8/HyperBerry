@@ -5,7 +5,7 @@
  */
 
 #include "uart.h"
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include <stdint.h>
 
 volatile uint32_t* Uart::reg(UART_REG reg) {

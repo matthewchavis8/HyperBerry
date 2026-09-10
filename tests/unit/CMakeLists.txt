@@ -31,11 +31,7 @@ add_executable(hyperberry_unit_tests
 target_include_directories(hyperberry_unit_tests
   PRIVATE
   ${CMAKE_SOURCE_DIR}
-)
-
-target_compile_definitions(hyperberry_unit_tests
-  PRIVATE
-  BSP_QEMU
+  ${CMAKE_SOURCE_DIR}/bsp/qemu
 )
 
 target_compile_options(hyperberry_unit_tests
@@ -62,11 +58,11 @@ add_executable(hyperberry_heap_tests
 target_include_directories(hyperberry_heap_tests
   PRIVATE
   ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/bsp/qemu
 )
 
 target_compile_definitions(hyperberry_heap_tests
   PRIVATE
-  BSP_QEMU
   HEAP_TESTING_BUILD
 )
 

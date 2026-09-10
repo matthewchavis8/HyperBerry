@@ -4,7 +4,7 @@
  */
 
 #include "gic.h"
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include <stdint.h>
 
 namespace {

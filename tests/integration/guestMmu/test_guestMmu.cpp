@@ -3,7 +3,7 @@
  * @brief Integration tests for live EL2 stage-2 MMU state.
  */
 
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include "core/mm/mmu/guestMmu/guestMmu.h"
 #include "core/mm/pmm/pmm.h"
 #include "tests/integration/suite.h"

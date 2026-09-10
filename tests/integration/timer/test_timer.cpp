@@ -4,7 +4,7 @@
  */
 
 #include "core/exceptions/exceptions.h"
-#include "bsp/bsp.h"
+#include "bsp.h"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "drivers/uart/uart.h"

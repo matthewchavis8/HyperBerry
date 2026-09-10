@@ -17,20 +17,20 @@ jobs:
       - name: Set up CI toolchain
         uses: ./.github/actions/setup-ci
       - name: Configure QEMU integration tests
-        run: cmake --preset integration-test -DBOARD=qemu
+        run: cmake --preset debug
       - name: Build QEMU integration tests
-        run: cmake --build --preset integration-test
+        run: cmake --build --preset debug --target hyperberry-qemu-test
       - name: Build guest boot package
-        run: cmake --build --preset integration-test --target guest_pkg
+        run: cmake --build --preset debug --target guest_pkg
       - name: Run QEMU integration tests
         uses: ./.github/actions/run-qemu-integration
         with:
-          kernel: build/integration-test/kernel8.img
+          kernel: build/debug/qemu/integration/kernel8.img
           initrd: boot/profiles/guest-qemu.hvgbp
-          log: build/integration-test/qemu.log
+          log: build/debug/qemu/integration/qemu.log
       - name: Upload QEMU serial logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: qemu-serial-logs
-          path: build/integration-test/*.log
+          path: build/debug/qemu/integration/*.log
