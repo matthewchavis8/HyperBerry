@@ -1,7 +1,7 @@
 /**
- * @file boot.S
+ * @file bsp/rpi5/boot.S
  * @brief EL2 hypervisor bootstrap for Raspberry Pi 5 hardware (Cortex-A76).
- * @ingroup core
+ * @ingroup bsp
  *
  * @par Boot Sequence
  * 1. **Core parking** — MPIDR_EL1 is read and all non-zero cores are

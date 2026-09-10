@@ -1,3 +1,9 @@
+/**
+ * @file bsp/fvp/dts/host-fvp.dts
+ * @brief Host device tree handed to EL2 on the Arm FVP_Base_RevC-2xAEMvA model.
+ * @ingroup bsp
+ */
+
 /dts-v1/;
 
 / {

@@ -1,6 +1,7 @@
 /**
- * @file linker.ld
+ * @file bsp/qemu/linker.ld
  * @brief Linker script for QEMU virt machine (Cortex-A76, 4 GB).
+ * @ingroup bsp
  *
  * Memory layout: RAM starts at 0x40000000 (QEMU virt load address).
  * Defines text, rodata, data, bss, stack (4 MB), and uncached (1 MB)

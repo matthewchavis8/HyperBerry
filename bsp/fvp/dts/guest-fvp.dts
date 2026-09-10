@@ -1,8 +1,11 @@
+/**
+ * @file bsp/fvp/dts/guest-fvp.dts
+ * @brief Guest device tree for the Arm FVP_Base_RevC-2xAEMvA model.
+ * @ingroup bsp
+ */
+
 /dts-v1/;
 /include/ "guest-base.dtsi"
-
-// Arm FVP Base RevC-2xAEMvA
-// UART: 0x1c090000  GIC: GICD 0x2f000000 / GICR 0x2f100000
 
 / {
 	interrupt-parent = <&gic>;

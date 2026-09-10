@@ -1,8 +1,11 @@
+/**
+ * @file bsp/rpi5/dts/guest-rpi5.dts
+ * @brief Guest device tree for Raspberry Pi 5 (BCM2712).
+ * @ingroup bsp
+ */
+
 /dts-v1/;
 /include/ "guest-base.dtsi"
-
-// Physical Raspberry Pi 5 (BCM2712)
-// UART: 0x107d001000  GIC-400: GICD 0x107fff9000
 
 / {
 	interrupt-parent = <&gic>;

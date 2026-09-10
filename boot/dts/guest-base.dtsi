@@ -1,6 +1,11 @@
-// Common guest DTS nodes shared across all boards.
-// Board-specific files must include this and add an interrupt-controller,
-// serial console, and clock nodes.
+/**
+ * @file boot/dts/guest-base.dtsi
+ * @brief Common guest device tree nodes shared across all boards.
+ * @ingroup bsp
+ *
+ * Board-specific files include this and add an interrupt-controller,
+ * serial console, and clock nodes.
+ */
 
 / {
 	compatible = "linux,dummy-virt";

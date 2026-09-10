@@ -1,8 +1,11 @@
+/**
+ * @file bsp/qemu/dts/guest-qemu.dts
+ * @brief Guest device tree for the QEMU `virt` machine.
+ * @ingroup bsp
+ */
+
 /dts-v1/;
 /include/ "guest-base.dtsi"
-
-// QEMU virt machine (-machine virt,gic-version=2)
-// UART: 0x09000000  GIC: GICD 0x08000000 / GICC 0x08010000
 
 / {
 	interrupt-parent = <&gic>;
