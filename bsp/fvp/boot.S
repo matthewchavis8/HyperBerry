@@ -1,7 +1,7 @@
 /**
- * @file boot.S
+ * @file bsp/fvp/boot.S
  * @brief EL2 hypervisor bootstrap for Arm FVP Base RevC-2xAEMvA.
- * @ingroup core
+ * @ingroup bsp
  *
  * @par Boot Sequence
  * 1. Park non-zero MPIDR cores in a wfe loop.

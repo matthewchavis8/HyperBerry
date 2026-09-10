@@ -1,6 +1,7 @@
 /**
- * @file linker.ld
+ * @file bsp/fvp/linker.ld
  * @brief Linker script for Arm FVP Base RevC-2xAEMvA.
+ * @ingroup bsp
  *
  * Memory layout: DRAM0 starts at 0x80000000 (FVP Base RevC). FVP loads
  * ELF segments directly via -a, so no TEXT_OFFSET skew is applied.
