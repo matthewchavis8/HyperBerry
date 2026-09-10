@@ -27,27 +27,15 @@ if(BUILD_TESTING)
   return()
 endif()
 
-# Build option for targets
-set(BOARD "rpi5" CACHE STRING "Target Board [rpi5 | qemu | fvp]")
 
-if (BOARD STREQUAL "rpi5")
-  message(STATUS "Building for target: Raspberry Pi 5")
-  set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/rpi5/linker.ld)
-  set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/rpi5/boot.S)
-  add_compile_definitions(BSP_RPI5)
-elseif (BOARD STREQUAL "qemu")
-  message(STATUS "Building for target: Virtualized Raspberry Pi 5 in QEMU")
-  set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/qemu/linker.ld)
-  set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/qemu/boot.S)
-  add_compile_definitions(BSP_QEMU)
-elseif (BOARD STREQUAL "fvp")
-  message(STATUS "Building for target: Arm FVP Base RevC-2xAEMvA")
-  set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/fvp/linker.ld)
-  set(BOOT_S        ${CMAKE_SOURCE_DIR}/arch/aarch64/fvp/boot.S)
-  add_compile_definitions(BSP_FVP)
-else ()
-  message(STATUS "[ERROR] unknown board detected={BOARD}")
-endif()
+# One configure builds every board. Each produces its own image under
+# ${CMAKE_BINARY_DIR}/<board>/; flashing picks the one it needs.
+set(SUPPORTED_BOARDS rpi5 qemu fvp)
+set(BOARD_DESC_rpi5 "Raspberry Pi 5")
+set(BOARD_DESC_qemu "Virtualized Raspberry Pi 5 in QEMU")
+set(BOARD_DESC_fvp  "Arm FVP Base RevC-2xAEMvA")
+
+option(BUILD_INTEGRATION "Also build the per-board integration images" ON)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -61,198 +49,190 @@ add_compile_options(
   -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
 )
 
-option(INTEGRATION_TEST "Build with integration test suite linked in" OFF)
-
-if(INTEGRATION_TEST)
-  add_compile_definitions(INTEGRATION_TEST)
-endif()
-
-# add modules
-add_subdirectory(core)
-add_subdirectory(drivers)
-add_subdirectory(lib)
-
-if(INTEGRATION_TEST)
-  add_subdirectory(tests/integration/uart)
-  add_subdirectory(tests/integration/exceptions)
-  add_subdirectory(tests/integration/pmm)
-  add_subdirectory(tests/integration/mmu)
-  add_subdirectory(tests/integration/guestMmu)
-  add_subdirectory(tests/integration/bootpkg)
-  add_subdirectory(tests/integration/vcpu)
-  add_subdirectory(tests/integration/gic)
-  add_subdirectory(tests/integration/timer)
-endif()
-
-add_executable(${ELF}
-  ${BOOT_S}
+set(HB_ARCH_SOURCES
   ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
   ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
   ${CMAKE_SOURCE_DIR}/arch/aarch64/vcpu.S
 )
 
-if(INTEGRATION_TEST)
-  target_sources(${ELF} PRIVATE
-    tests/integration/suite.cpp
+# Subsystem libraries, in layering order: each may depend only on those below.
+set(HB_SUBSYSTEMS Virt Mm Drivers Lib)
+
+# Build one hypervisor image. `core` is the core variant to link (Core or
+# CoreTest); `outdir` receives kernel8.img.
+function(hb_add_image name core outdir)
+  add_executable(${name} ${BSP_DIR}/boot.S ${HB_ARCH_SOURCES})
+
+  target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${BSP_DIR})
+
+  if(core STREQUAL "CoreTest")
+    target_sources(${name} PRIVATE ${CMAKE_SOURCE_DIR}/tests/integration/suite.cpp)
+    target_compile_definitions(${name} PRIVATE INTEGRATION_TEST)
+
+    # Test suites self-register, so nothing references them at link time.
+    target_link_libraries(${name} PRIVATE
+      -Wl,--whole-archive Tests${BSP_SUFFIX} -Wl,--no-whole-archive)
+  endif()
+
+  set(libs ${core}${BSP_SUFFIX})
+  foreach(m IN LISTS HB_SUBSYSTEMS)
+    list(APPEND libs ${m}${BSP_SUFFIX})
+  endforeach()
+  target_link_libraries(${name} PRIVATE ${libs})
+
+  target_compile_options(${name} PRIVATE
+    -fno-common
+    -fno-builtin
+    -ffunction-sections
+    -fdata-sections
+    -Wall
+    -Wextra
+    $<$<CONFIG:Debug>:-O0 -g3 -gdwarf-4>
+    $<$<CONFIG:Release>:-Os -DNDEBUG>
   )
 
-  target_link_libraries(${ELF} PRIVATE
-    -Wl,--whole-archive
-    TestExceptions
-    TestUart
-    TestPmm
-    TestMmu
-    TestGuestMmu
-    TestBootPkg
-    TestVcpu
-    TestGic
-    TestTimer
-    -Wl,--no-whole-archive
+  target_link_options(${name} PRIVATE -T${BSP_DIR}/linker.ld -nostdlib -static)
+  if(CMAKE_HOST_APPLE)
+    target_link_options(${name} PRIVATE -fuse-ld=lld)
+  endif()
+
+  set_target_properties(${name} PROPERTIES
+    LINK_DEPENDS             ${BSP_DIR}/linker.ld
+    RUNTIME_OUTPUT_DIRECTORY ${outdir}
   )
-endif()
 
-# link libs
-target_link_libraries(${ELF}
-  PRIVATE
-  Core
-  Uart
-  Gic
-  Timer
-  Exceptions
-  Pmm
-  Heap
-  PageTable
-  HostMmu
-  GuestMmu
-  Dtb
-  BootPkg
-  Vcpu
-  Vm
-  Panic
-  Strings
-)
+  add_custom_command(TARGET ${name} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${name}> ${outdir}/kernel8.img
+    COMMENT "[LOG] Generating ${outdir}/kernel8.img"
+  )
+endfunction()
 
-target_compile_options(${ELF}
-  PRIVATE
-  -fno-common
-  -fno-builtin
-  -ffunction-sections
-  -fdata-sections
-  -Wall
-  -Wextra
-  $<$<CONFIG:Debug>:-O0 -g3 -gdwarf-4>
-  $<$<CONFIG:Release>:-Os -DNDEBUG>
-)
+foreach(board IN LISTS SUPPORTED_BOARDS)
+  message(STATUS "Board: ${board} (${BOARD_DESC_${board}})")
 
-target_link_options(${ELF}
-  PRIVATE
-  -T${LINKER_SCRIPT}
-  -nostdlib
-  -static
-)
+  set(BSP_BOARD  ${board})
+  set(BSP_SUFFIX -${board})
+  set(BSP_DIR    ${CMAKE_SOURCE_DIR}/bsp/${board})
+  set(BOARD_OUT  ${CMAKE_BINARY_DIR}/${board})
 
-if(CMAKE_HOST_APPLE)
-  target_link_options(${ELF} PRIVATE -fuse-ld=lld)
-endif()
+  # bsp/<board> on the include path is what selects the board's constants.
+  # There is no BSP_* macro.
+  set_directory_properties(PROPERTIES
+    INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR};${BSP_DIR}")
 
-set_target_properties(${ELF}
-  PROPERTIES
-  LINK_DEPENDS ${LINKER_SCRIPT}
-)
+  add_subdirectory(lib     lib-${board})
+  add_subdirectory(drivers drivers-${board})
+  add_subdirectory(core    core-${board})
 
-add_custom_command(
-  TARGET ${ELF} POST_BUILD
-  COMMAND ${CMAKE_OBJCOPY} -O binary
-    $<TARGET_FILE:${ELF}>
-    ${CMAKE_BINARY_DIR}/kernel8.img
-    COMMENT "[LOG] Generating Kernel Image"
-)
+  hb_add_image(hyperberry-${board} Core ${BOARD_OUT})
 
-# QEMU run target
-if (BOARD STREQUAL "qemu")
-  set(QEMU_GUEST_KERNEL "${CMAKE_SOURCE_DIR}/Image"
-      CACHE FILEPATH "Guest Linux kernel Image for QEMU")
-  set(QEMU_GUEST_DTB    "${CMAKE_SOURCE_DIR}/boot/dtb/guest-qemu.dtb"
-      CACHE FILEPATH "Guest DTB for QEMU")
-  set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/profiles/guest-qemu.hvgbp"
-      CACHE STRING "QEMU guest boot package")
+  if(BUILD_INTEGRATION)
+    add_subdirectory(tests/integration tests-${board})
+    hb_add_image(hyperberry-${board}-test CoreTest ${BOARD_OUT}/integration)
+  endif()
+endforeach()
 
-  find_program(CARGO_CMD cargo REQUIRED)
+# ---------------------------------------------------------------------------
+# Run / flash targets. Host tools are looked up without REQUIRED so a missing
+# dtc or cargo disables one board's run target instead of failing the build.
+# ---------------------------------------------------------------------------
+find_program(CARGO_CMD cargo)
+find_program(DTC       dtc)
+find_program(FDTPUT    fdtput)
 
+set(MKGUESTPKG ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg)
+
+# --- qemu -------------------------------------------------------------------
+set(QEMU_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
+    CACHE FILEPATH "Guest Linux kernel Image for QEMU")
+set(QEMU_GUEST_DTB     "${CMAKE_SOURCE_DIR}/boot/dtb/guest-qemu.dtb"
+    CACHE FILEPATH "Guest DTB for QEMU")
+set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/profiles/guest-qemu.hvgbp"
+    CACHE STRING "QEMU guest boot package")
+
+if(CARGO_CMD)
   add_custom_command(
     OUTPUT  ${QEMU_GUEST_PACKAGE}
     COMMAND ${CARGO_CMD} build --release --manifest-path
               ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
-    COMMAND ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg
+    COMMAND ${MKGUESTPKG}
               --kernel ${QEMU_GUEST_KERNEL}
               --dtb    ${QEMU_GUEST_DTB}
               --out    ${QEMU_GUEST_PACKAGE}
     DEPENDS ${QEMU_GUEST_KERNEL} ${QEMU_GUEST_DTB}
     COMMENT "[LOG] Building guest-qemu.hvgbp"
   )
-
   add_custom_target(guest_pkg DEPENDS ${QEMU_GUEST_PACKAGE})
 
-  add_custom_target(run
+  add_custom_target(run-qemu
     COMMAND qemu-system-aarch64
       -machine virt,virtualization=on,gic-version=2
       -cpu cortex-a76
       -m 8G
       -nographic
-      -kernel ${CMAKE_BINARY_DIR}/kernel8.img
+      -kernel ${CMAKE_BINARY_DIR}/qemu/kernel8.img
       -initrd ${QEMU_GUEST_PACKAGE}
-    DEPENDS hyperberry.elf guest_pkg
+    DEPENDS hyperberry-qemu guest_pkg
     COMMENT "[LOG] Launching HyperBerry in QEMU"
   )
+
+  if(BUILD_INTEGRATION)
+    add_custom_target(run-qemu-test
+      COMMAND qemu-system-aarch64
+        -machine virt,virtualization=on,gic-version=2
+        -cpu cortex-a76
+        -m 8G
+        -nographic
+        -kernel ${CMAKE_BINARY_DIR}/qemu/integration/kernel8.img
+        -initrd ${QEMU_GUEST_PACKAGE}
+      DEPENDS hyperberry-qemu-test guest_pkg
+      COMMENT "[LOG] Running HyperBerry integration suite in QEMU"
+    )
+  endif()
+else()
+  message(STATUS "cargo not found - run-qemu disabled")
 endif()
 
-if (BOARD STREQUAL "rpi5")
-  set(SD_MOUNT "/mnt/sdcard" CACHE STRING "SD card mount point")
+# --- rpi5 -------------------------------------------------------------------
+set(SD_MOUNT "/mnt/sdcard" CACHE STRING "SD card mount point")
+set(RPI5_FW  ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware)
 
-  add_custom_target(run
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_BINARY_DIR}/kernel8.img
-      ${SD_MOUNT}/kernel8.img
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/rpi5/start4.elf
-      ${SD_MOUNT}/start4.elf
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/rpi5/bcm2712-rpi-5-b.dtb
-      ${SD_MOUNT}/bcm2712-rpi-5-b.dtb
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/rpi5/config.txt
-      ${SD_MOUNT}/config.txt
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/rpi5/fixup4.dat
-      ${SD_MOUNT}/fixup4.dat
-    COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/boot/profiles/guest.hvgbp
-      ${SD_MOUNT}/guest.hvgbp
+add_custom_target(flash-rpi5
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_BINARY_DIR}/rpi5/kernel8.img       ${SD_MOUNT}/kernel8.img
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${RPI5_FW}/start4.elf                      ${SD_MOUNT}/start4.elf
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${RPI5_FW}/bcm2712-rpi-5-b.dtb             ${SD_MOUNT}/bcm2712-rpi-5-b.dtb
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${RPI5_FW}/config.txt                      ${SD_MOUNT}/config.txt
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${RPI5_FW}/fixup4.dat                      ${SD_MOUNT}/fixup4.dat
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_SOURCE_DIR}/boot/profiles/guest.hvgbp ${SD_MOUNT}/guest.hvgbp
+  DEPENDS hyperberry-rpi5
+  COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
+)
 
-    DEPENDS hyperberry.elf
-    COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
-  )
-endif()
+# --- fvp --------------------------------------------------------------------
+set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
+    CACHE FILEPATH "Path to the FVP Base RevC binary")
 
-if (BOARD STREQUAL "fvp")
-  set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
-      CACHE FILEPATH "Path to the FVP Base RevC binary")
-
-  find_program(DTC      dtc      REQUIRED)
-  find_program(FDTPUT   fdtput   REQUIRED)
-  find_program(CARGO_CMD cargo   REQUIRED)
-
-  set(FVP_HOST_DTS      "${CMAKE_SOURCE_DIR}/boot/dts/host-fvp.dts")
-  set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/host-fvp.dtb")
-  set(FVP_GUEST_DTS     "${CMAKE_SOURCE_DIR}/boot/dts/guest-fvp.dts")
-  set(FVP_GUEST_DTB     "${CMAKE_BINARY_DIR}/guest-fvp.dtb")
+if(DTC AND FDTPUT AND CARGO_CMD)
+  set(FVP_DIR           ${CMAKE_SOURCE_DIR}/bsp/fvp)
+  set(FVP_HOST_DTS      "${FVP_DIR}/dts/host-fvp.dts")
+  set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/fvp/host-fvp.dtb")
+  set(FVP_GUEST_DTS     "${FVP_DIR}/dts/guest-fvp.dts")
+  set(FVP_GUEST_DTB     "${CMAKE_BINARY_DIR}/fvp/guest-fvp.dtb")
   set(FVP_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
       CACHE FILEPATH "Guest Linux kernel Image for FVP")
-  set(FVP_GUEST_PACKAGE "${CMAKE_BINARY_DIR}/host-fvp.hvgbp")
+  set(FVP_GUEST_PACKAGE "${CMAKE_BINARY_DIR}/fvp/host-fvp.hvgbp")
 
   add_custom_command(
     OUTPUT ${FVP_GUEST_DTB}
-    COMMAND ${DTC} -I dts -O dtb -o ${FVP_GUEST_DTB} ${FVP_GUEST_DTS}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/fvp
+    COMMAND ${DTC} -I dts -O dtb -i ${CMAKE_SOURCE_DIR}/boot/dts
+            -o ${FVP_GUEST_DTB} ${FVP_GUEST_DTS}
     DEPENDS ${FVP_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
     COMMENT "[LOG] Compiling guest-fvp.dtb"
   )
@@ -261,7 +241,7 @@ if (BOARD STREQUAL "fvp")
     OUTPUT  ${FVP_GUEST_PACKAGE}
     COMMAND ${CARGO_CMD} build --release --manifest-path
               ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
-    COMMAND ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg
+    COMMAND ${MKGUESTPKG}
               --kernel ${FVP_GUEST_KERNEL}
               --dtb    ${FVP_GUEST_DTB}
               --out    ${FVP_GUEST_PACKAGE}
@@ -279,12 +259,13 @@ if (BOARD STREQUAL "fvp")
     COMMENT "[LOG] Compiling host-fvp.dtb and patching /chosen initrd range"
     VERBATIM
   )
-  add_custom_target(fvp_host_dtb DEPENDS ${FVP_HOST_DTB})
-  add_dependencies(${ELF} fvp_host_dtb)
 
-  add_custom_target(run
+  add_custom_target(fvp_host_dtb DEPENDS ${FVP_HOST_DTB})
+  add_dependencies(hyperberry-fvp fvp_host_dtb)
+
+  add_custom_target(run-fvp
     COMMAND ${FVP_BIN}
-      -a $<TARGET_FILE:${ELF}>
+      -a $<TARGET_FILE:hyperberry-fvp>
       --data ${FVP_HOST_DTB}@0x88000000
       --data ${FVP_GUEST_PACKAGE}@0x90000000
       -C bp.secure_memory=0
@@ -295,7 +276,9 @@ if (BOARD STREQUAL "fvp")
       -C bp.pl011_uart0.out_file=-
       -C bp.pl011_uart0.unbuffered_output=1
       -C cache_state_modelled=0
-    DEPENDS hyperberry.elf fvp_host_dtb ${FVP_GUEST_PACKAGE}
+    DEPENDS hyperberry-fvp fvp_host_dtb ${FVP_GUEST_PACKAGE}
     COMMENT "[LOG] Launching HyperBerry on Arm FVP Base RevC"
   )
+else()
+  message(STATUS "dtc/fdtput/cargo not all found - run-fvp disabled")
 endif()

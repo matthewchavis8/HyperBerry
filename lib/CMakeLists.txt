@@ -1,2 +1,11 @@
-add_subdirectory(panic)
-add_subdirectory(strings)
+add_library(Lib${BSP_SUFFIX}
+  STATIC
+  panic/panic.cpp
+  strings/strings.cpp
+)
+
+target_include_directories(Lib${BSP_SUFFIX}
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/panic
+  ${CMAKE_CURRENT_SOURCE_DIR}/strings
+)

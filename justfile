@@ -3,38 +3,31 @@
 default:
   @just --list
 
-qemu MODE="debug":
-  cmake --preset {{ MODE }} -DBOARD=qemu
-  @echo "[LOG] build {{ MODE }} directory"
+# Build every board's image (one configure, one build).
+build MODE="debug":
+  cmake --preset {{ MODE }}
   cmake --build --preset {{ MODE }}
-  @echo "[LOG] HyperBerry Image has been created"
+  @echo "[LOG] images under build/{{ MODE }}/<board>/kernel8.img"
 
-  @echo "[LOG] Virtual Raspberry PI5 has succesfully been built and flash"
-  cmake --build --preset {{ MODE }} --target run
+qemu MODE="debug":
+  cmake --preset {{ MODE }}
+  cmake --build --preset {{ MODE }} --target run-qemu
 
 fvp MODE="debug":
-  cmake --preset {{ MODE }} -DBOARD=fvp
-  @echo "[LOG] build {{ MODE }} directory"
-  cmake --build --preset {{ MODE }}
-  @echo "[LOG] HyperBerry FVP image built"
-  cmake --build --preset {{ MODE }} --target run
+  cmake --preset {{ MODE }}
+  cmake --build --preset {{ MODE }} --target run-fvp
 
 rpi5 MODE="release" SD_DEV="/dev/sdd1":
-  cmake --preset {{ MODE }} -DBOARD=rpi5 -DSD_MOUNT=/mnt/sdcard
-  @echo "[LOG] build {{ MODE }} directory"
-
-  cmake --build --preset {{ MODE }}
-  @echo "[LOG] HyperBerry Image has been created"
+  cmake --preset {{ MODE }}
+  cmake --build --preset {{ MODE }} --target hyperberry-rpi5
 
   @echo "[LOG] Mounting SD Card for flashing"
   sudo mkdir -p /mnt/sdcard
   sudo mount -o uid=$(id -u),gid=$(id -g) {{ SD_DEV }} /mnt/sdcard
-  @echo "[LOG] Succesfully mounted SD Card for flashing"
 
-  cmake --build --preset {{ MODE }} --target run
+  cmake --build --preset {{ MODE }} --target flash-rpi5
   sync
   sudo umount /mnt/sdcard
-  @echo "[LOG] SD card flashing is done unmounting SD card"
   @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
 
 docs:
@@ -48,15 +41,17 @@ docs-clean:
   rm -rf docs/_doxygen
   rm -rf docs/_build
 
-test-integration BOARD="qemu" SD_DEV="/dev/sdd1":
-  cmake --preset integration-test -DBOARD={{ BOARD }} {{ if BOARD == "rpi5" { "-DSD_MOUNT=/mnt/sdcard" } else { "" } }}
-  cmake --build --preset integration-test
+test-integration BOARD="qemu":
+  cmake --preset debug
+  cmake --build --preset debug --target hyperberry-{{ BOARD }}-test
+  cmake --build --preset debug --target run-{{ BOARD }}-test 2>&1 \
+    | tee build/debug/{{ BOARD }}/integration/qemu.log
 
-  {{ if BOARD == "rpi5" { "sudo mkdir -p /mnt/sdcard" } else { "" } }}
-  {{ if BOARD == "rpi5" { "sudo mount -o uid=$(id -u),gid=$(id -g) " + SD_DEV + " /mnt/sdcard" } else { "" } }}
-  cmake --build --preset integration-test --target run 2>&1 | tee build/integration-test/qemu.log
-  {{ if BOARD == "rpi5" { "sync" } else { "" } }}
-  {{ if BOARD == "rpi5" { "sudo umount /mnt/sdcard" } else { "" } }}
+# Point clangd at the build compile database.
+compile-db:
+  cmake --preset debug
+  ln -sf build/debug/compile_commands.json compile_commands.json
+  @echo "[LOG] compile_commands.json linked"
 
 test-unit:
   cmake --preset unit-tests
@@ -88,7 +83,7 @@ fmt-check:
 
 # Run clang-tidy over the whole tree using the debug compile database.
 tidy:
-  cmake --preset debug -DBOARD=qemu
+  cmake --preset debug
   run-clang-tidy -p build/debug -quiet '^.*/(arch|boot|bsp|core|drivers|lib|tests)/.*\.cpp$'
 
 # Run clang-tidy only over lines changed against main.

@@ -34,14 +34,14 @@ just test-integration rpi5          # flash and run on Raspberry Pi 5
 just test-integration rpi5 /dev/sdX1  # specify SD card partition
 ```
 
-The `integration-test` CMake preset inherits from `debug` and sets `INTEGRATION_TEST=ON`. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::run_all()` instead of the normal hypervisor path.
+The `debug` preset sets `BUILD_INTEGRATION=ON`, which adds a `hyperberry-<board>-test` image per board alongside the normal one. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::run_all()` instead of the normal hypervisor path.
 
 That recipe maps to:
 
 ```sh
-cmake --preset integration-test -DBOARD=qemu
-cmake --build --preset integration-test
-cmake --build --preset integration-test --target run
+cmake --preset debug
+cmake --build --preset debug --target hyperberry-qemu-test
+cmake --build --preset debug --target run-qemu-test
 ```
 
 For Raspberry Pi 5, `just` also mounts `/mnt/sdcard`, flashes the generated `kernel8.img` plus firmware files, then unmounts the card again.

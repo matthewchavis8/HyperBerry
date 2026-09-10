@@ -1,5 +1,5 @@
 /**
- * @file qemu.h
+ * @file bsp/qemu/bsp.h
  * @brief BSP constants for the QEMU `virt` machine.
  * @ingroup bsp
  */
@@ -23,8 +23,6 @@ inline constexpr uint64_t HV_MMIO_BASE = 0x08000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE = 0x38000000ULL;
 inline constexpr uint64_t MMIO_REGION_SIZE = 0x00200000ULL;
 inline constexpr uint64_t MMIO_PAGE_SIZE = 0x00001000ULL;
-
-inline constexpr uint64_t TIMER_BASE = 0x107c003000ULL;
 
 struct MmioRange {
     uint64_t ipa;

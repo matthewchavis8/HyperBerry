@@ -7,34 +7,32 @@
   },
   "configurePresets": [
     {
-      "name": "debug",
-      "displayName": "Debug",
+      "name": "base",
+      "hidden": true,
       "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/aarch64-toolchain.cmake",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug - all boards",
+      "inherits": "base",
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/aarch64-toolchain.cmake",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "BUILD_INTEGRATION": "ON"
       }
     },
     {
       "name": "release",
-      "displayName": "Release",
-      "generator": "Unix Makefiles",
+      "displayName": "Release - all boards",
+      "inherits": "base",
       "binaryDir": "${sourceDir}/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/aarch64-toolchain.cmake",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-      }
-    },
-    {
-      "name": "integration-test",
-      "displayName": "Integration Tests (bare-metal, TAP)",
-      "inherits": "debug",
-      "binaryDir": "${sourceDir}/build/integration-test",
-      "cacheVariables": {
-        "INTEGRATION_TEST": "ON"
+        "BUILD_INTEGRATION": "OFF"
       }
     },
     {
@@ -60,10 +58,6 @@
     {
       "name": "release",
       "configurePreset": "release"
-    },
-    {
-      "name": "integration-test",
-      "configurePreset": "integration-test"
     },
     {
       "name": "unit-tests",

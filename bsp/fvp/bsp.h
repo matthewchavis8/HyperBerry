@@ -1,5 +1,5 @@
 /**
- * @file fvp.h
+ * @file bsp/fvp/bsp.h
  * @brief BSP constants for the Arm FVP_Base_RevC-2xAEMvA model.
  * @ingroup bsp
  */
@@ -21,8 +21,6 @@ inline constexpr uint64_t GIC_HV_BASE = 0x2C010000ULL;
 inline constexpr uint64_t GIC_VCPU_BASE = 0x2C02F000ULL;
 inline constexpr uint64_t GIC_ITS_MMIO_BASE = 0x2F200000ULL;
 inline constexpr uint64_t GIC_ITS_MMIO_SIZE = 0x00200000ULL;
-
-inline constexpr uint64_t TIMER_BASE = 0x107c003000ULL;
 
 inline constexpr uint64_t HV_MMIO_BASE = 0x2F000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE = 0x00200000ULL;

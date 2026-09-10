@@ -3,14 +3,7 @@
  * @brief Minimal EL1 payload used by the GIC integration test.
  */
 
-#if defined(BSP_QEMU)
-#define GICV_BASE 0x08040000
-#elif defined(BSP_RPI5)
-#define GICV_BASE 0x107fffe000
-#else
-#error "Unsupported BSP for GIC guest payload"
-#endif
-
+// x0 holds the GICV base at entry; stashed because the IRQ handler reuses x0.
 #define GICV_IAR  0x00c
 #define GICV_EOIR 0x010
 
@@ -21,6 +14,9 @@
 .global test_gic_guest_vectors
 
 test_gic_guest_entry:
+    ldr     x1, =test_gic_guest_gicv_base
+    str     x0, [x1]
+
     ldr     x0, =test_gic_guest_vectors
     msr     vbar_el1, x0
     isb
@@ -68,7 +64,8 @@ test_gic_guest_irq:
     ldr     x3, =test_gic_guest_progress
     movz    w4, #1
     str     w4, [x3]
-    ldr     x1, =GICV_BASE
+    ldr     x1, =test_gic_guest_gicv_base
+    ldr     x1, [x1]
     movz    w4, #2
     str     w4, [x3]
     ldr     w0, [x1, #GICV_IAR]
@@ -115,6 +112,11 @@ GUEST_UNHANDLED test_gic_guest_unhandled_402, 0x402
 GUEST_UNHANDLED test_gic_guest_unhandled_403, 0x403
 
 .section .bss.test_gic_guest_payload
+.balign 8
+.global test_gic_guest_gicv_base
+test_gic_guest_gicv_base:
+    .dword 0
+
 .balign 4
 .global test_gic_guest_progress
 test_gic_guest_progress:
