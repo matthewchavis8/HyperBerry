@@ -17,6 +17,7 @@
 #include "drivers/gic/gic.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
+#include "dtb/dtbVerify.h"
 
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
@@ -41,6 +42,8 @@ extern "C" void hmain(uintptr_t dtb) {
     Uart::println("[DTB] Succesfully parsed device tree blob");
 
     if (!memoryMap.isValid) hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
+
+    verifyBspAgainstDtb(dtb);
 
     Uart::println("[PMM] Attempting to bring up PMM");
     pmm::init(memoryMap);

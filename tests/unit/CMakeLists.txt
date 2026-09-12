@@ -32,6 +32,7 @@ target_include_directories(hyperberry_unit_tests
   PRIVATE
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/bsp/qemu
+  ${CMAKE_BINARY_DIR}/qemu/generated
 )
 
 target_compile_options(hyperberry_unit_tests
@@ -59,6 +60,7 @@ target_include_directories(hyperberry_heap_tests
   PRIVATE
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/bsp/qemu
+  ${CMAKE_BINARY_DIR}/qemu/generated
 )
 
 target_compile_definitions(hyperberry_heap_tests

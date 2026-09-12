@@ -9,6 +9,27 @@ set(ELF hyperberry.elf)
 
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX ASM C)
 
+# Generate a board's assembler-safe address defines from its host device tree.
+function(hb_generate_regs board dtb outdir)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/bspgen/bspgen.py
+            --dtb ${dtb} --board ${board} --out ${outdir}/regs.inc
+    RESULT_VARIABLE rc
+    OUTPUT_VARIABLE out
+    ERROR_VARIABLE  out
+  )
+  if(NOT rc EQUAL 0)
+    message(FATAL_ERROR "bspgen failed for ${board}: ${out}")
+  endif()
+  string(STRIP "${out}" out)
+  message(STATUS "  ${out}")
+endfunction()
+
+set(HOST_DTB_rpi5 ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb)
+set(HOST_DTB_qemu ${CMAKE_SOURCE_DIR}/bsp/qemu/dts/host-qemu.dtb)
+set(HOST_DTB_fvp  ${CMAKE_SOURCE_DIR}/bsp/fvp/dts/host-fvp.dtb)
+
 # Google Test
 option(BUILD_TESTING "Build unit tests" OFF)
 include(CTest)
@@ -22,6 +43,9 @@ if(BUILD_TESTING)
     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
   )
   FetchContent_MakeAvailable(googletest)
+
+  set(UNIT_BSP_GEN ${CMAKE_BINARY_DIR}/qemu/generated)
+  hb_generate_regs(qemu ${HOST_DTB_qemu} ${UNIT_BSP_GEN})
 
   add_subdirectory(tests/unit)
   return()
@@ -37,12 +61,6 @@ set(BOARD_DESC_fvp  "Arm FVP Base RevC-2xAEMvA")
 
 option(BUILD_INTEGRATION "Also build the per-board integration images" ON)
 
-# Host device tree each board's addresses are generated from. rpi5 uses the
-# real firmware blob, qemu a dumpdtb capture, fvp the tree we author.
-set(HOST_DTB_rpi5 ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb)
-set(HOST_DTB_qemu ${CMAKE_SOURCE_DIR}/bsp/qemu/dts/host-qemu.dtb)
-set(HOST_DTB_fvp  ${CMAKE_SOURCE_DIR}/bsp/fvp/dts/host-fvp.dtb)
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
@@ -125,19 +143,7 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
 
   # regs.inc is assembler-safe, so bsp.h and boot.S share one definition of
   # each address instead of both hardcoding a literal.
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/bspgen/bspgen.py
-            --dtb ${HOST_DTB_${board}} --board ${board}
-            --out ${BSP_GEN}/regs.inc
-    RESULT_VARIABLE bspgen_rc
-    OUTPUT_VARIABLE bspgen_out
-    ERROR_VARIABLE  bspgen_out
-  )
-  if(NOT bspgen_rc EQUAL 0)
-    message(FATAL_ERROR "bspgen failed for ${board}: ${bspgen_out}")
-  endif()
-  string(STRIP "${bspgen_out}" bspgen_out)
-  message(STATUS "  ${bspgen_out}")
+  hb_generate_regs(${board} ${HOST_DTB_${board}} ${BSP_GEN})
 
   # bsp/<board> on the include path is what selects the board's constants.
   # There is no BSP_* macro.
