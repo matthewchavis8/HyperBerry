@@ -5,6 +5,7 @@
  */
 
 #include "bootpkg.h"
+#include "core/dtb/fdt.h"
 
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pmm/pmm.h"
@@ -43,28 +44,6 @@ static constexpr uint64_t OFF_BUILD_ID = 88;
 static constexpr uint64_t CHECKSUM_FIELDS_START = OFF_HEADER_CRC32;
 static constexpr uint64_t CHECKSUM_FIELDS_END = OFF_PAYLOAD_CRC32 + sizeof(uint32_t);
 
-enum class FDT : uint32_t {
-    MAGIC = 0xD00DFEED,
-    BEGIN_NODE = 1,
-    END_NODE = 2,
-    PROP = 3,
-    NOP = 4,
-    END = 9,
-};
-
-struct FdtHeader {
-    uint32_t magic;
-    uint32_t totalSize;
-    uint32_t structOff;
-    uint32_t stringsOff;
-    uint32_t memRsvMapOff;
-    uint32_t version;
-    uint32_t lastCompVersion;
-    uint32_t bootCpuId;
-    uint32_t sizeStrings;
-    uint32_t sizeStructs;
-};
-
 uint16_t readLe16(const uint8_t* data, uint64_t off) {
     return static_cast<uint16_t>(data[off]) | static_cast<uint16_t>(data[off + 1] << 8);
 }
@@ -80,10 +59,6 @@ uint64_t readLe64(const uint8_t* data, uint64_t off) {
             (static_cast<uint64_t>(readLe32(data, off + 4)) << 32);
 }
 
-uint32_t be32(uint32_t byte) {
-    return __builtin_bswap32(byte);
-}
-
 void writeBe32(uint8_t* data, uint32_t value) {
     data[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     data[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
@@ -94,32 +69,6 @@ void writeBe32(uint8_t* data, uint32_t value) {
 void writeBe64Cells(uint8_t* data, uint64_t value) {
     writeBe32(data, static_cast<uint32_t>(value >> 32));
     writeBe32(data + 4, static_cast<uint32_t>(value));
-}
-
-bool strEq(const char* str1, const char* str2) {
-    while (*str1 && *str2) {
-        if (*str1 != *str2) return false;
-        str1++;
-        str2++;
-    }
-
-    return *str1 == *str2;
-}
-
-bool strStartsWith(const char* str, const char* prefix) {
-    while (*prefix) {
-        if (*str != *prefix) return false;
-        str++;
-        prefix++;
-    }
-
-    return true;
-}
-
-uint32_t* alignStruct(uint8_t* ptr, uint32_t bytes) {
-    uintptr_t addr = reinterpret_cast<uintptr_t>(ptr + bytes);
-    addr = (addr + 3) & ~(uintptr_t)3;
-    return reinterpret_cast<uint32_t*>(addr);
 }
 
 uint64_t align4k(uint64_t value) {
@@ -224,7 +173,7 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                 while (nameB[nameLen] != 0)
                     nameLen++;
 
-                tok = alignStruct(nameB, nameLen + 1);
+                tok = reinterpret_cast<uint32_t*>(fdtAlign(nameB, nameLen + 1));
                 depth++;
                 break;
             }
@@ -260,7 +209,7 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                     patchedInitrdEnd = true;
                 }
 
-                tok = alignStruct(propData, dataLen);
+                tok = reinterpret_cast<uint32_t*>(fdtAlign(propData, dataLen));
                 break;
             }
 

@@ -5,88 +5,9 @@
  */
 
 #include "dtb.h"
+#include "fdt.h"
 #include "drivers/uart/uart.h"
 #include <stdint.h>
-
-/**
- * @brief Flattened Device Tree token values used in the structure block.
- */
-enum class FDT : uint32_t {
-    MAGIC = 0xD00DFEED,
-    BEGIN_NODE = 1,
-    END_NODE = 2,
-    PROP = 3,
-    NOP = 4,
-    END = 9,
-};
-
-/**
- * @brief On-wire DTB header layout.
- */
-struct FdtHeader {
-    uint32_t magic;
-    uint32_t totalSize;
-    uint32_t structOff;
-    uint32_t stringsOff;
-    uint32_t memRsvMapOff;
-    uint32_t version;
-    uint32_t lastCompVersion;
-    uint32_t bootCpuId;
-    uint32_t sizeStrings;
-    uint32_t sizeStructs;
-};
-
-/**
- * @brief DTB property record header.
- */
-struct FdtProp {
-    uint32_t dataLen;
-    uint32_t nameOff;
-};
-
-/**
- * @brief Convert a 32-bit big-endian DTB field to host endianness.
- * @param byte Raw big-endian value from the DTB.
- * @return Native-endian 32-bit value.
- */
-static inline uint32_t be32(uint32_t byte) {
-    return __builtin_bswap32(byte);
-}
-
-/**
- * @brief Convert a 64-bit big-endian DTB field to host endianness.
- * @param byte Raw big-endian value from the DTB.
- * @return Native-endian 64-bit value.
- */
-static inline uint64_t be64(uint64_t byte) {
-    return __builtin_bswap64(byte);
-}
-
-/**
- * @brief Compare two null-terminated strings for equality.
- * @param str1 First string.
- * @param str2 Second string.
- * @return True when both strings contain the same characters.
- */
-static bool strEq(const char* str1, const char* str2) {
-    while (*str1 && *str2) {
-        if (*str1 != *str2) return false;
-        str1++;
-        str2++;
-    }
-
-    return *str1 == *str2;
-}
-
-static bool strStartsWith(const char* str, const char* prefix) {
-    while (*prefix) {
-        if (*str != *prefix) return false;
-        str++;
-        prefix++;
-    }
-
-    return true;
-}
 
 /**
  * @brief Decode a 64-bit base/size pair from a DTB `reg` property.
@@ -111,19 +32,6 @@ static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLe
     if (dataLen >= 8) return readU64Cells(data);
 
     return static_cast<uint64_t>(be32(data[0]));
-}
-
-/**
- * @brief Advance a byte pointer to the next 4-byte DTB-aligned location.
- * @param ptr Start pointer.
- * @param bytes Number of payload bytes to skip.
- * @return Pointer rounded up to the next 32-bit boundary.
- */
-static const uint32_t* alignUp(const uint8_t* ptr, uint32_t bytes) {
-    uintptr_t addr = (uintptr_t)(ptr + bytes);
-    addr = (addr + 3) & ~(uintptr_t)3;
-
-    return reinterpret_cast<const uint32_t*>(addr);
 }
 
 // All DTB pointers use volatile to prevent the compiler from widening
@@ -183,7 +91,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
                 while (nameB[nameLen] != 0)
                     nameLen++;
 
-                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(nameB, nameLen + 1));
+                tok = reinterpret_cast<const volatile uint32_t*>(fdtAlign(nameB, nameLen + 1));
                 depth++;
                 break;
             }
@@ -226,9 +134,8 @@ MemoryMap parseDtb(uintptr_t dtb) {
                     }
                 }
 
-                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(
-                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(propData)),
-                        dataLen));
+                tok = reinterpret_cast<const volatile uint32_t*>(
+                        fdtAlign(const_cast<const uint32_t*>(propData), dataLen));
                 break;
             }
 
@@ -347,7 +254,7 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                 uint32_t nameLen = 0;
                 while (nameB[nameLen] != 0)
                     nameLen++;
-                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(nameB, nameLen + 1));
+                tok = reinterpret_cast<const volatile uint32_t*>(fdtAlign(nameB, nameLen + 1));
 
                 if (depth < MAX_DEPTH) {
                     // Defaults per the DT spec when a node omits the cells.
@@ -410,9 +317,8 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                     }
                 }
 
-                tok = reinterpret_cast<const volatile uint32_t*>(alignUp(
-                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(propData)),
-                        dataLen));
+                tok = reinterpret_cast<const volatile uint32_t*>(
+                        fdtAlign(const_cast<const uint32_t*>(propData), dataLen));
                 break;
             }
 
