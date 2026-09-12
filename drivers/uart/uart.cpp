@@ -8,8 +8,28 @@
 #include "bsp.h"
 #include <stdint.h>
 
+namespace {
+// Starts at the compile-time BSP value so the early console works before the
+// device tree has been parsed; discovery may repoint it afterwards.
+uint64_t gUartBase = b::UART_BASE;
+} // namespace
+
+void Uart::setBase(uint64_t base) {
+    if (base == gUartBase) return;
+
+    // The frame at the new address has not been enabled yet -- init() ran
+    // against the old one -- so rebinding without re-initialising leaves a
+    // console that silently drops everything.
+    gUartBase = base;
+    init();
+}
+
+uint64_t Uart::base() {
+    return gUartBase;
+}
+
 volatile uint32_t* Uart::reg(UART_REG reg) {
-    return reinterpret_cast<volatile uint32_t*>(b::UART_BASE + static_cast<uint64_t>(reg));
+    return reinterpret_cast<volatile uint32_t*>(gUartBase + static_cast<uint64_t>(reg));
 }
 
 void Uart::init() {

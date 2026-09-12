@@ -282,6 +282,24 @@ public:
     static void init();
 
     /**
+     * @brief Rebind the driver to a base address discovered at runtime.
+     * @ingroup drivers_uart
+     *
+     * The compile-time BSP value backs the early console, which has to work
+     * before the device tree can be read. Once it has been, this repoints the
+     * driver at whatever the tree actually describes.
+     *
+     * @param base CPU-physical base address of the PL011 register frame.
+     */
+    static void setBase(uint64_t base);
+
+    /**
+     * @brief Base address the driver is currently bound to.
+     * @ingroup drivers_uart
+     */
+    static uint64_t base();
+
+    /**
      * @brief Transmit a null-terminated string.
      * @param str Pointer to the null-terminated string to send.
      * @note Each character is sent via putc(), which spins on the
