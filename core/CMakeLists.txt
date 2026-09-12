@@ -27,6 +27,7 @@ target_link_libraries(Virt${BSP_SUFFIX}
 set(HB_CORE_SOURCES
   main.cpp
   dtb/dtb.cpp
+  dtb/dtbVerify.cpp
   bootpkg/bootpkg.cpp
 )
 
