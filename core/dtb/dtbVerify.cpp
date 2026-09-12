@@ -38,6 +38,11 @@ void verifyBspAgainstDtb(uintptr_t dtb) {
     if (!uart.found || uart.regionCount == 0) {
         Uart::println("[DTB][WARN] no PL011 in device tree; cannot verify UART_BASE");
     } else {
+        // Point the driver at what the tree describes. On a matching board
+        // this is the value it already had. It does not rescue a wrong
+        // compile-time base: the early console faults long before this runs,
+        // so a UART mismatch stays undiagnosable without a second channel.
+        Uart::setBase(uart.regions[0].base);
         ok &= check("UART_BASE", b::UART_BASE, uart.regions[0].base);
     }
 
