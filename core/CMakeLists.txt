@@ -28,6 +28,7 @@ set(HB_CORE_SOURCES
   main.cpp
   dtb/dtb.cpp
   dtb/dtbVerify.cpp
+  dtb/dtbMmio.cpp
   bootpkg/bootpkg.cpp
 )
 

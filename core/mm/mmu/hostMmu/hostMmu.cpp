@@ -25,7 +25,7 @@ constexpr PageTable::WalkConfig kStage1Lookup {
 } // namespace
 
 namespace HostMmu {
-void init() {
+void init(const MmioMap& devices) {
     Uart::println("[HostMmu] init called");
     l0_table = PageTable::allocTable();
     Uart::println("[HostMmu] L0 table={}", l0_table);
@@ -45,8 +45,12 @@ void init() {
     Uart::println("[HostMmu] Mapping HV DRAM");
     mapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
-    Uart::println("[HostMmu] Mapping HV MMIO space");
-    mapRange(b::HV_MMIO_BASE, b::HV_MMIO_BASE, b::HV_MMIO_SIZE, PTE_DEVICE);
+    Uart::println("[HostMmu] Mapping {} HV MMIO window(s)", devices.count);
+    for (uint32_t i {}; i < devices.count; ++i) {
+        const MmioWindow& window = devices.windows[i];
+        Uart::println("[HostMmu]   {:x}..{:x}", window.base, window.base + window.size);
+        mapRange(window.base, window.pa, window.size, PTE_DEVICE);
+    }
 
     Uart::println("[HostMmu] Programming TTBR0");
     asm volatile("msr ttbr0_el2, %0" ::"r"((uint64_t)(uintptr_t)l0_table) : "memory");

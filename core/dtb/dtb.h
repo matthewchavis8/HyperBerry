@@ -49,7 +49,7 @@ struct alignas(16) MemoryMap {
 MemoryMap parseDtb(uintptr_t dtb);
 
 /// Maximum `reg` regions recorded per discovered device.
-constexpr uint32_t DT_MAX_REGIONS = 4;
+constexpr uint32_t DT_MAX_REGIONS = 8;
 
 /**
  * @brief One `reg` entry, translated to a CPU-physical address.
@@ -64,7 +64,7 @@ struct DeviceRegion {
  * @brief A device located in the DTB by compatible string.
  * @ingroup core
  */
-struct DeviceNode {
+struct alignas(16) DeviceNode {
     DeviceRegion regions[DT_MAX_REGIONS];
     uint32_t regionCount; ///< Number of regions decoded, capped at DT_MAX_REGIONS.
     bool found;           ///< True when a node matched one of the compatible strings.
@@ -86,5 +86,25 @@ struct DeviceNode {
  * @return The first matching node; @c found is false when none matched.
  */
 DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count);
+
+/**
+ * @brief Locate the PL011 console the hypervisor drives.
+ * @ingroup core
+ *
+ * Wraps @ref dtbFindCompatible with the compatible list for the console, so
+ * that list lives in one place rather than being restated at each call site.
+ */
+DeviceNode dtbFindUart(uintptr_t dtb);
+
+/**
+ * @brief Locate the interrupt controller the hypervisor drives.
+ * @ingroup core
+ *
+ * Matches both the GICv2 programming model names and `arm,gic-v3`. For a
+ * GICv2 tree `regions` is GICD, GICC, GICH, GICV; for GICv3 it is GICD and
+ * the redistributor. Either way the first two regions are the ones a guest
+ * may see and the rest belong to EL2.
+ */
+DeviceNode dtbFindGic(uintptr_t dtb);
 
 #endif // __DTB_H__

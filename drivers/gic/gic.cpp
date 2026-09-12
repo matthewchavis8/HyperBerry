@@ -4,7 +4,7 @@
  */
 
 #include "gic.h"
-#include "bsp.h"
+#include "regs.inc"
 #include <stdint.h>
 
 namespace {
@@ -15,7 +15,7 @@ namespace GicReg {
     // configuration, and software-generated interrupts.
     namespace Dist {
         // Base address of the distributor register frame.
-        constexpr uintptr_t BASE = b::GIC_DISTRIBUTOR_BASE;
+        constexpr uintptr_t BASE = BSP_GIC_DISTRIBUTOR_BASE;
 
         // Enables and disables distributor forwarding.
         constexpr uintptr_t CTLR = BASE + 0x000;
@@ -53,7 +53,7 @@ namespace GicReg {
     // end-of-interrupt signaling to the running CPU.
     namespace Cpu {
         // Base address of the physical CPU interface register frame.
-        constexpr uintptr_t BASE = b::GIC_CPU_BASE;
+        constexpr uintptr_t BASE = BSP_GIC_CPU_BASE;
 
         // Enables and disables CPU interface signaling.
         constexpr uintptr_t CTLR = BASE + 0x000;
@@ -82,7 +82,7 @@ namespace GicReg {
     // the virtual list registers used to present interrupts to a guest.
     namespace Hv {
         // Base address of the hypervisor interface register frame.
-        constexpr uintptr_t BASE = b::GIC_HV_BASE;
+        constexpr uintptr_t BASE = BSP_GIC_HV_BASE;
 
         // Controls virtual CPU interface operation.
         constexpr uintptr_t HCR = BASE + 0x000;
@@ -135,9 +135,6 @@ namespace GicReg {
     // used by the virtual interface page to let a guest acknowledge,
     // mask, complete, and inspect virtual interrupts
     namespace Vcpu {
-        // Base address of the virtual CPU interface register frame
-        constexpr uint64_t BASE = b::GIC_VCPU_BASE;
-
         // Enables and disables the guest-visible virtual CPU interface
         constexpr uintptr_t CTLR = 0x000;
         // Masks virtual interrupts below the configured priority threshold

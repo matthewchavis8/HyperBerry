@@ -13,6 +13,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "lib/memory/unique_ptr.h"
 #include "core/mm/pageTable/pageTable.h"
+#include "core/mm/mmu/mmioMap.h"
 
 // Stage-2 access permissions [7:6] (flat RWX, no EL0/EL1 split).
 #define S2PTE_S2AP_NONE (0b00ULL << 6)
@@ -68,8 +69,11 @@ public:
      * @param ipaBase    Start of the guest IPA region.
      * @param hostPaBase Start of the backing host physical region.
      * @param sizeBytes  Size of the region (must be 2 MiB aligned).
+     * @param devices    Device windows the guest may reach, read out of the
+     *                   guest device tree by the caller. Anything absent here
+     *                   is unreachable from the guest, which is the point.
      */
-    void init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes);
+    void init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
 
     /**
      * @brief Install one 2 MiB stage-2 block descriptor.

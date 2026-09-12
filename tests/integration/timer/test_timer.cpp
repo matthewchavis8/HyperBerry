@@ -4,7 +4,7 @@
  */
 
 #include "core/exceptions/exceptions.h"
-#include "bsp.h"
+#include "regs.inc"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "drivers/uart/uart.h"
@@ -23,7 +23,7 @@ volatile bool gCallbackContextMatched = false;
 
 namespace GicReg {
     namespace Dist {
-        constexpr uintptr_t BASE = b::GIC_DISTRIBUTOR_BASE;
+        constexpr uintptr_t BASE = BSP_GIC_DISTRIBUTOR_BASE;
         constexpr uintptr_t CTLR = BASE + 0x000;
         constexpr uintptr_t IGROUPR = BASE + 0x080;
     } // namespace Dist

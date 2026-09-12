@@ -155,12 +155,10 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
   set(BOARD_OUT  ${CMAKE_BINARY_DIR}/${board})
   set(BSP_GEN    ${CMAKE_BINARY_DIR}/${board}/generated)
 
-  # regs.inc is assembler-safe, so bsp.h and boot.S share one definition of
-  # each address instead of both hardcoding a literal.
   hb_generate_regs(${board} ${HOST_DTB_${board}} ${BSP_GEN})
 
-  # bsp/<board> on the include path is what selects the board's constants.
-  # There is no BSP_* macro.
+  # bsp/<board> and its generated dir on the include path is what selects the
+  # board's constants. There is no board macro.
   set_directory_properties(PROPERTIES
     INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR};${BSP_DIR};${BSP_GEN}")
 
@@ -265,7 +263,7 @@ set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
 if(DTC AND FDTPUT AND CARGO_CMD)
   set(FVP_DIR           ${CMAKE_SOURCE_DIR}/bsp/fvp)
 
-  # Single-source the load addresses with boot.S and bsp.h.
+  # Single-source the load addresses with boot.S.
   file(STRINGS ${FVP_DIR}/platform.inc FVP_HOST_DTB_ADDR
        REGEX "define BSP_HOST_DTB_BASE")
   file(STRINGS ${FVP_DIR}/platform.inc FVP_PKG_ADDR

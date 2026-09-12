@@ -94,6 +94,7 @@ struct LoadedGuest {
     uint64_t guestRamSize;   ///< Size in bytes of the guest RAM allocation.
     uint64_t entryIpa;       ///< Guest IPA of the first instruction executed by the vCPU.
     uint64_t dtbIpa;         ///< Guest IPA of the DTB passed to Linux in x0.
+    uint64_t dtbHostPa;      ///< Host physical address of that same DTB.
 };
 
 /**

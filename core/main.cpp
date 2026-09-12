@@ -18,6 +18,7 @@
 #include "stddef.h"
 #include "dtb/dtb.h"
 #include "dtb/dtbVerify.h"
+#include "dtb/dtbMmio.h"
 
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
@@ -56,7 +57,7 @@ extern "C" void hmain(uintptr_t dtb) {
     Uart::println("[HEAP] Successfully brought up kernel heap");
 
     Uart::println("[HostMmu] Attempting to bring up host MMU");
-    HostMmu::init();
+    HostMmu::init(dtbHostMmio(dtb));
     Uart::println("[HostMmu] Successfully host MMU is brought up");
 
     Uart::println("[GIC] Attempting to bring up GICv2");
@@ -83,7 +84,8 @@ extern "C" void hmain(uintptr_t dtb) {
             loaded.guest.guestRamSize,
             1,
             loaded.guest.entryIpa,
-            loaded.guest.dtbIpa);
+            loaded.guest.dtbIpa,
+            dtbGuestMmio(loaded.guest.dtbHostPa));
 
     Uart::println("[VM] Bringing up guest:{}", guest.getName());
     Uart::println("[VM] {} Intialized", guest.getName());

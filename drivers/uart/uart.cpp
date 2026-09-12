@@ -5,13 +5,13 @@
  */
 
 #include "uart.h"
-#include "bsp.h"
+#include "regs.inc"
 #include <stdint.h>
 
 namespace {
 // Starts at the compile-time BSP value so the early console works before the
 // device tree has been parsed; discovery may repoint it afterwards.
-uint64_t gUartBase = b::UART_BASE;
+uint64_t gUartBase = BSP_UART_BASE;
 } // namespace
 
 void Uart::setBase(uint64_t base) {

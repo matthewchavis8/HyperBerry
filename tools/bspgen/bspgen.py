@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Emit assembler-safe address defines from a board's host device tree.
+"""Emit address defines from a board's host device tree.
 
-The BSP header and boot.S both need peripheral addresses, but a C++ header
-cannot be included from assembly, which is how the same literal ended up
-hardcoded in several places. This reads the board's host DTB and writes a
-regs.inc of plain #defines that both can consume.
+The tree is the source of truth for peripheral addresses, but a few of them are
+needed as compile time constants: the early console has to work before the tree
+has been parsed, and the GIC register tables are constexpr. This reads the
+board's host DTB and writes a regs.inc of plain #defines covering those.
 """
 
 import argparse
@@ -175,8 +175,8 @@ def find(root, compatibles):
 # reg layout differs by GIC architecture version: v2 is
 # GICD/GICC/GICH/GICV, v3 is GICD/GICR with no memory-mapped CPU interface
 # unless the model also exposes the legacy window (extra reg entries).
-GICV2_REGIONS = [("DISTRIBUTOR_BASE", 0), ("CPU_BASE", 1), ("HV_BASE", 2), ("VCPU_BASE", 3)]
-GICV3_REGIONS = [("DISTRIBUTOR_BASE", 0), ("REDISTRIBUTOR_BASE", 1)]
+GICV2_REGIONS = [("DISTRIBUTOR", 0), ("CPU", 1), ("HV", 2), ("VCPU", 3)]
+GICV3_REGIONS = [("DISTRIBUTOR", 0), ("REDISTRIBUTOR", 1)]
 
 GICV2_COMPATIBLE = ["arm,gic-400", "arm,cortex-a15-gic", "arm,gic-v2", "arm,arm11mp-gic"]
 GICV3_COMPATIBLE = ["arm,gic-v3"]
@@ -212,7 +212,9 @@ def main():
         # enclosing block base (GICD - 0x1000), which the DTB does not express.
         for suffix, index in layout:
             if index < len(regions):
-                defines.append((f"BSP_GIC_{suffix}", regions[index][0]))
+                base, size = regions[index]
+                defines.append((f"BSP_GIC_{suffix}_BASE", base))
+                defines.append((f"BSP_GIC_{suffix}_SIZE", size))
 
     uart = find(root, UART_COMPATIBLE)
     if uart is None:
@@ -222,6 +224,7 @@ def main():
         notes.append(f"UART {uart.path} ({', '.join(uart.compatible())})")
         if regions:
             defines.append(("BSP_UART_BASE", regions[0][0]))
+            defines.append(("BSP_UART_SIZE", regions[0][1]))
 
     if not defines:
         raise SystemExit(f"bspgen: nothing extracted from {args.dtb}")
@@ -243,7 +246,7 @@ def main():
         f"#define __BSP_{args.board.upper()}_REGS_INC__",
         "",
     ]
-    lines += [f"#define {name.ljust(width)} {value:#x}" for name, value in defines]
+    lines += [f"#define {name.ljust(width)} {value:#x}ULL" for name, value in defines]
     lines += ["", f"#endif // __BSP_{args.board.upper()}_REGS_INC__", ""]
 
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
