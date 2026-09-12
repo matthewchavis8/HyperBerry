@@ -15,10 +15,13 @@
 		#interrupt-cells = <3>;
 		#address-cells = <0>;
 		interrupt-controller;
+		// GICD and the CPU interface only. GICH and GICV are the
+		// hypervisor's own frames: a guest that reaches GICH programs the
+		// list registers that inject its own interrupts. Stage 2 maps only
+		// what this node declares, so declaring them would be both a lie
+		// and a request to hand them over.
 		reg = <0x10 0x7fff9000 0x0 0x1000
-		       0x10 0x7fffa000 0x0 0x2000
-		       0x10 0x7fffc000 0x0 0x2000
-		       0x10 0x7fffe000 0x0 0x2000>;
+		       0x10 0x7fffa000 0x0 0x2000>;
 	};
 
 	clk_uart: clock {
