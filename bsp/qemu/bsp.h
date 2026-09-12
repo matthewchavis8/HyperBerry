@@ -6,18 +6,19 @@
 #ifndef __BSP_QEMU_H__
 #define __BSP_QEMU_H__
 
+#include "regs.inc"
 #include "lib/array/array.h"
 #include <stddef.h>
 #include <stdint.h>
 
 namespace b {
-inline constexpr uint64_t UART_BASE = 0x09000000ULL;
+inline constexpr uint64_t UART_BASE = BSP_UART_BASE;
 
 inline constexpr uint64_t GIC_BASE = 0x08000000ULL;
-inline constexpr uint64_t GIC_DISTRIBUTOR_BASE = 0x08000000ULL;
-inline constexpr uint64_t GIC_CPU_BASE = 0x08010000ULL;
-inline constexpr uint64_t GIC_HV_BASE = 0x08030000ULL;
-inline constexpr uint64_t GIC_VCPU_BASE = 0x08040000ULL;
+inline constexpr uint64_t GIC_DISTRIBUTOR_BASE = BSP_GIC_DISTRIBUTOR_BASE;
+inline constexpr uint64_t GIC_CPU_BASE = BSP_GIC_CPU_BASE;
+inline constexpr uint64_t GIC_HV_BASE = BSP_GIC_HV_BASE;
+inline constexpr uint64_t GIC_VCPU_BASE = BSP_GIC_VCPU_BASE;
 
 inline constexpr uint64_t HV_MMIO_BASE = 0x08000000ULL;
 inline constexpr uint64_t HV_MMIO_SIZE = 0x38000000ULL;
