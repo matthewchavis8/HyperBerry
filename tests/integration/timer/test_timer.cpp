@@ -4,7 +4,6 @@
  */
 
 #include "core/exceptions/exceptions.h"
-#include "regs.inc"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "drivers/uart/uart.h"
@@ -23,14 +22,13 @@ volatile bool gCallbackContextMatched = false;
 
 namespace GicReg {
     namespace Dist {
-        constexpr uintptr_t BASE = BSP_GIC_DISTRIBUTOR_BASE;
-        constexpr uintptr_t CTLR = BASE + 0x000;
-        constexpr uintptr_t IGROUPR = BASE + 0x080;
+        constexpr uintptr_t CTLR = 0x000;
+        constexpr uintptr_t IGROUPR = 0x080;
     } // namespace Dist
 } // namespace GicReg
 
-volatile uint32_t* reg(uintptr_t addr) {
-    return reinterpret_cast<volatile uint32_t*>(addr);
+volatile uint32_t* distReg(uintptr_t offset) {
+    return reinterpret_cast<volatile uint32_t*>(Gic::distBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -42,12 +40,12 @@ uintptr_t irqReg(uintptr_t base, uint32_t id) {
 }
 
 void configureTimerPpiGroup0() {
-    *reg(irqReg(GicReg::Dist::IGROUPR, Timer::IRQ)) =
-            *reg(irqReg(GicReg::Dist::IGROUPR, Timer::IRQ)) & ~irqBit(Timer::IRQ);
+    *distReg(irqReg(GicReg::Dist::IGROUPR, Timer::IRQ)) =
+            *distReg(irqReg(GicReg::Dist::IGROUPR, Timer::IRQ)) & ~irqBit(Timer::IRQ);
 }
 
 void enableDistributorGroups() {
-    *reg(GicReg::Dist::CTLR) = *reg(GicReg::Dist::CTLR) | 0x3U;
+    *distReg(GicReg::Dist::CTLR) = *distReg(GicReg::Dist::CTLR) | 0x3U;
 }
 
 void spin(uint32_t iterations) {

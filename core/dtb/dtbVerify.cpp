@@ -12,6 +12,7 @@
 #include "dtb.h"
 #include "regs.inc"
 #include "uart.h"
+#include "gic.h"
 #include "panic.h"
 
 namespace {
@@ -58,6 +59,14 @@ void verifyBspAgainstDtb(uintptr_t dtb) {
             ok &= check("GIC_HV_SIZE", BSP_GIC_HV_SIZE, gic.regions[2].size);
             ok &= check("GIC_VCPU_BASE", BSP_GIC_VCPU_BASE, gic.regions[3].base);
             ok &= check("GIC_VCPU_SIZE", BSP_GIC_VCPU_SIZE, gic.regions[3].size);
+            // Point the driver at the frames the tree describes. The compiled
+            // values are checked rather than trusted, so on a matching board
+            // this changes nothing; it means the driver follows the tree if the
+            // panic below is ever relaxed.
+            Gic::setBases(gic.regions[0].base,
+                    gic.regions[1].base,
+                    gic.regions[2].base,
+                    gic.regions[3].base);
         } else {
             Uart::println("[DTB][WARN] GIC exposes {} region(s); CPU/HV/VCPU not described",
                     gic.regionCount);

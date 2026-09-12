@@ -48,7 +48,7 @@ uint32_t encodedLr(uint32_t virtId, uint32_t physId) {
 
 } // namespace
 
-volatile uint32_t* Gic::reg(const uintptr_t /*REG*/) {
+volatile uint32_t* Gic::reg(Frame /*frame*/, uintptr_t /*offset*/) {
     return nullptr;
 }
 
