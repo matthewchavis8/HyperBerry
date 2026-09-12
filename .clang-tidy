@@ -155,6 +155,6 @@ CheckOptions:
   - key: modernize-loop-convert.MinConfidence
     value: reasonable
 
-HeaderFilterRegex: '(arch|boot|bsp|core|drivers|lib|tests)/.*\.h$'
+HeaderFilterRegex: '(boot|bsp|core|drivers|lib|tests)/.*\.h$'
 WarningsAsErrors: ''
 FormatStyle: file

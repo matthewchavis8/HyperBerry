@@ -24,9 +24,9 @@ Run `just fmt-check` and the integration suite before calling anything done.
 ## Layout
 
 ```
-arch/aarch64/        shared assembly only (vectors, exceptions, vcpu)
 bsp/<board>/         everything a board owns: bsp.h, boot.S, linker.ld, dts/, firmware/
-core/                main, dtb, bootpkg, mm/, vcpu, vm, exceptions
+core/                main, dtb, bootpkg, mm/, vcpu, vm, exceptions; each owns its
+                     own entry assembly next to the C++ it pairs with
 drivers/             uart, gic, timer
 lib/                 panic, strings, and header only utilities
 tests/integration/   board neutral suites
@@ -80,8 +80,11 @@ only inside literal identifiers such as `--gc-sections`, `host-fvp.dts` or
 **Say when you are deviating from the plan.** If the work drifts from what was
 agreed, flag it before continuing rather than letting it land quietly.
 
-**Prefer a conversation to a wall of questions.** Ask the one thing that actually
-blocks the work instead of firing off several structured questions at once.
+**Ask rather than guess.** A question costs a line of chat. Going in blindly costs
+a rewrite. Ask whenever the intent is not obvious, and do not worry about the
+question being a dumb one. Keep it a conversation: raise the thing that actually
+blocks the work, in prose, instead of firing off several structured questions at
+once.
 
 **Verify before claiming.** Do not report something as working on the strength of
 a clean build. Run it. If a claim turns out to be wrong, say so plainly and move

@@ -78,7 +78,7 @@ test_gic_exit_sync:
     mrs     x2, tpidr_el2
     str     x0, [x2, #(VCPU_HVCTX_OFFSET + VCPU_HVCTX_EXIT_ESR)]
 
-    // Mirror save_guest_state from arch/aarch64/vcpu.S so the saved Vcpu
+    // Mirror save_guest_state from core/vcpu/vcpu.S so the saved Vcpu
     // reflects the guest's exit-time GPRs.
     mrs     x2, tpidr_el2
     add     x2, x2, #VCPU_GPREGS_OFFSET

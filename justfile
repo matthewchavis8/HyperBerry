@@ -84,7 +84,7 @@ fmt-check:
 # Run clang-tidy over the whole tree using the debug compile database.
 tidy:
   cmake --preset debug
-  run-clang-tidy -p build/debug -quiet '^.*/(arch|boot|bsp|core|drivers|lib|tests)/.*\.cpp$'
+  run-clang-tidy -p build/debug -quiet '^.*/(boot|bsp|core|drivers|lib|tests)/.*\.cpp$'
 
 # Run clang-tidy only over lines changed against main.
 tidy-diff BASE="origin/main":

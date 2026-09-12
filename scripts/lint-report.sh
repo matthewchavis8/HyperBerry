@@ -15,7 +15,7 @@ cd "$ROOT"
 
 OUT="build/lint"
 DB="build/debug"
-SRC_DIRS=(arch boot bsp core drivers lib tests)
+SRC_DIRS=(boot bsp core drivers lib tests)
 
 mkdir -p "$OUT"
 
