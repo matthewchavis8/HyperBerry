@@ -74,10 +74,13 @@ add_compile_options(
   -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
 )
 
-set(HB_ARCH_SOURCES
-  ${CMAKE_SOURCE_DIR}/arch/aarch64/vectors.S
-  ${CMAKE_SOURCE_DIR}/arch/aarch64/exceptions.S
-  ${CMAKE_SOURCE_DIR}/arch/aarch64/vcpu.S
+# Linked into the image rather than into Virt: the vector table is the only
+# thing that references the entry points, so as archive members they would be
+# dropped before KEEP in the linker script ever applied.
+set(HB_ENTRY_SOURCES
+  ${CMAKE_SOURCE_DIR}/core/exceptions/vectors.S
+  ${CMAKE_SOURCE_DIR}/core/exceptions/exceptions.S
+  ${CMAKE_SOURCE_DIR}/core/vcpu/vcpu.S
 )
 
 # Subsystem libraries, in layering order: each may depend only on those below.
@@ -86,7 +89,7 @@ set(HB_SUBSYSTEMS Virt Mm Drivers Lib)
 # Build one hypervisor image. `core` is the core variant to link (Core or
 # CoreTest); `outdir` receives kernel8.img.
 function(hb_add_image name core outdir)
-  add_executable(${name} ${BSP_DIR}/boot.S ${HB_ARCH_SOURCES})
+  add_executable(${name} ${BSP_DIR}/boot.S ${HB_ENTRY_SOURCES})
 
   target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${BSP_DIR} ${BSP_GEN})
 

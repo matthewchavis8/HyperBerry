@@ -56,10 +56,9 @@ still in progress, and the current layout is documented in
 
 ```
 HyperBerry/
-├── arch/           # Shared AArch64 assembly (vectors, exceptions, vcpu)
 ├── bsp/            # One folder per board: constants, boot.S, linker.ld, dts, firmware
 ├── cmake/          # Cross-compilation toolchain and CMake configuration
-├── core/           # Hypervisor core
+├── core/           # Hypervisor core, each subsystem with its own entry assembly
 ├── drivers/        # Software device drivers
 ├── lib/            # C++ utility headers
 ├── tests/          # integration/ (board-neutral), bsp/<board>/ (board-specific), unit/

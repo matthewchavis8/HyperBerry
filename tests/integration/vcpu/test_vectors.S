@@ -47,7 +47,7 @@ test_vcpu_exit_sync:
     mrs     x2, tpidr_el2
     str     x0, [x2, #(VCPU_HVCTX_OFFSET + VCPU_HVCTX_EXIT_ESR)]
 
-    // Mirror save_guest_state from arch/aarch64/vcpu.S so the test exercises
+    // Mirror save_guest_state from core/vcpu/vcpu.S so the test exercises
     // the real Vcpu layout and sysreg-save path before returning to the caller.
     mrs     x2, tpidr_el2
     add     x2, x2, #VCPU_GPREGS_OFFSET

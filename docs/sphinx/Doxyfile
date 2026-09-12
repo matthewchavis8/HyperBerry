@@ -8,7 +8,7 @@ OUTPUT_DIRECTORY       = docs/_doxygen
 CREATE_SUBDIRS         = NO
 
 # Input
-INPUT                  = core/ drivers/ arch/ lib/ bsp/ boot/dts/ docs/sphinx/
+INPUT                  = core/ drivers/ lib/ bsp/ boot/dts/ docs/sphinx/
 FILE_PATTERNS          = *.cpp *.h *.S *.dox *.dts *.dtsi *.ld
 EXTENSION_MAPPING      = dts=C dtsi=C ld=C
 RECURSIVE              = YES
