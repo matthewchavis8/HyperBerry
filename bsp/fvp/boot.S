@@ -15,6 +15,8 @@
  *       the first UART line in this milestone; that is expected.
  */
 
+#include "platform.inc"
+
 .section .text.start
 .global _start
 
@@ -89,7 +91,7 @@ _start:
     msr   vbar_el2, x0
     isb
 
-    ldr   x0, =0x88000000
+    ldr   x0, =BSP_HOST_DTB_BASE
     bl    hmain
 
 .Lblock:

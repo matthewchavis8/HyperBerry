@@ -37,6 +37,13 @@ set(BOARD_DESC_fvp  "Arm FVP Base RevC-2xAEMvA")
 
 option(BUILD_INTEGRATION "Also build the per-board integration images" ON)
 
+# Host device tree each board's addresses are generated from. rpi5 uses the
+# real firmware blob, qemu a dumpdtb capture, fvp the tree we author.
+set(HOST_DTB_rpi5 ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb)
+set(HOST_DTB_qemu ${CMAKE_SOURCE_DIR}/bsp/qemu/dts/host-qemu.dtb)
+set(HOST_DTB_fvp  ${CMAKE_SOURCE_DIR}/bsp/fvp/dts/host-fvp.dtb)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_compile_options(
@@ -63,7 +70,7 @@ set(HB_SUBSYSTEMS Virt Mm Drivers Lib)
 function(hb_add_image name core outdir)
   add_executable(${name} ${BSP_DIR}/boot.S ${HB_ARCH_SOURCES})
 
-  target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${BSP_DIR})
+  target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${BSP_DIR} ${BSP_GEN})
 
   if(core STREQUAL "CoreTest")
     target_sources(${name} PRIVATE ${CMAKE_SOURCE_DIR}/tests/integration/suite.cpp)
@@ -114,11 +121,28 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
   set(BSP_SUFFIX -${board})
   set(BSP_DIR    ${CMAKE_SOURCE_DIR}/bsp/${board})
   set(BOARD_OUT  ${CMAKE_BINARY_DIR}/${board})
+  set(BSP_GEN    ${CMAKE_BINARY_DIR}/${board}/generated)
+
+  # regs.inc is assembler-safe, so bsp.h and boot.S share one definition of
+  # each address instead of both hardcoding a literal.
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/bspgen/bspgen.py
+            --dtb ${HOST_DTB_${board}} --board ${board}
+            --out ${BSP_GEN}/regs.inc
+    RESULT_VARIABLE bspgen_rc
+    OUTPUT_VARIABLE bspgen_out
+    ERROR_VARIABLE  bspgen_out
+  )
+  if(NOT bspgen_rc EQUAL 0)
+    message(FATAL_ERROR "bspgen failed for ${board}: ${bspgen_out}")
+  endif()
+  string(STRIP "${bspgen_out}" bspgen_out)
+  message(STATUS "  ${bspgen_out}")
 
   # bsp/<board> on the include path is what selects the board's constants.
   # There is no BSP_* macro.
   set_directory_properties(PROPERTIES
-    INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR};${BSP_DIR}")
+    INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR};${BSP_DIR};${BSP_GEN}")
 
   add_subdirectory(lib     lib-${board})
   add_subdirectory(drivers drivers-${board})
@@ -220,6 +244,14 @@ set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
 
 if(DTC AND FDTPUT AND CARGO_CMD)
   set(FVP_DIR           ${CMAKE_SOURCE_DIR}/bsp/fvp)
+
+  # Single-source the load addresses with boot.S and bsp.h.
+  file(STRINGS ${FVP_DIR}/platform.inc FVP_HOST_DTB_ADDR
+       REGEX "define BSP_HOST_DTB_BASE")
+  file(STRINGS ${FVP_DIR}/platform.inc FVP_PKG_ADDR
+       REGEX "define BSP_GUEST_PACKAGE_BASE")
+  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_HOST_DTB_ADDR "${FVP_HOST_DTB_ADDR}")
+  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_PKG_ADDR "${FVP_PKG_ADDR}")
   set(FVP_HOST_DTS      "${FVP_DIR}/dts/host-fvp.dts")
   set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/fvp/host-fvp.dtb")
   set(FVP_GUEST_DTS     "${FVP_DIR}/dts/guest-fvp.dts")
@@ -253,8 +285,8 @@ if(DTC AND FDTPUT AND CARGO_CMD)
     OUTPUT ${FVP_HOST_DTB}
     COMMAND ${DTC} -I dts -O dtb -o ${FVP_HOST_DTB} ${FVP_HOST_DTS}
     COMMAND python3 -c
-      "import os,sys,subprocess; sz=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0','0x90000000']); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end','0x0',hex(0x90000000+sz)])"
-      ${FVP_GUEST_PACKAGE} ${FDTPUT} ${FVP_HOST_DTB}
+      "import os,sys,subprocess; sz=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0',sys.argv[4]]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end','0x0',hex(int(sys.argv[4],16)+sz)])"
+      ${FVP_GUEST_PACKAGE} ${FDTPUT} ${FVP_HOST_DTB} ${FVP_PKG_ADDR}
     DEPENDS ${FVP_HOST_DTS} ${FVP_GUEST_PACKAGE}
     COMMENT "[LOG] Compiling host-fvp.dtb and patching /chosen initrd range"
     VERBATIM
@@ -266,8 +298,8 @@ if(DTC AND FDTPUT AND CARGO_CMD)
   add_custom_target(run-fvp
     COMMAND ${FVP_BIN}
       -a $<TARGET_FILE:hyperberry-fvp>
-      --data ${FVP_HOST_DTB}@0x88000000
-      --data ${FVP_GUEST_PACKAGE}@0x90000000
+      --data ${FVP_HOST_DTB}@${FVP_HOST_DTB_ADDR}
+      --data ${FVP_GUEST_PACKAGE}@${FVP_PKG_ADDR}
       -C bp.secure_memory=0
       -C cluster0.NUM_CORES=1
       -C cluster1.NUM_CORES=0
