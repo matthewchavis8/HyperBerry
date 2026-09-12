@@ -116,7 +116,18 @@ function(hb_add_image name core outdir)
     $<$<CONFIG:Release>:-Os -DNDEBUG>
   )
 
-  target_link_options(${name} PRIVATE -T${BSP_DIR}/linker.ld -nostdlib -static)
+  # Makes the -ffunction-sections/-fdata-sections above mean something. It
+  # currently reclaims nothing -- only the empty .text left over from boot.S
+  # and vectors.S, whose real code sits in KEEPt sections -- but keeps dead
+  # code from accumulating silently. The linker scripts KEEP the entry,
+  # vectors and self-registering test section, the only inputs nothing
+  # references by symbol.
+  target_link_options(${name} PRIVATE
+    -T${BSP_DIR}/linker.ld
+    -nostdlib
+    -static
+    -Wl,--gc-sections
+  )
   if(CMAKE_HOST_APPLE)
     target_link_options(${name} PRIVATE -fuse-ld=lld)
   endif()

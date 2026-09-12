@@ -18,13 +18,13 @@ inline constexpr uint64_t UART_BASE = BSP_UART_BASE;
 
 inline constexpr uint64_t GIC_BASE = 0x2F000000ULL;
 inline constexpr uint64_t GIC_DISTRIBUTOR_BASE = BSP_GIC_DISTRIBUTOR_BASE;
-// TODO: bsp/fvp/dts/host-fvp.dts declares arm,gic-v3, whose reg is GICD +
-// GICR with no memory-mapped CPU interface, while drivers/gic is a GICv2
-// driver. These three are hand-written GICv2 addresses that the FVP device
-// tree does not describe, so they cannot be generated and are unverified.
-inline constexpr uint64_t GIC_CPU_BASE = 0x2C000000ULL;
-inline constexpr uint64_t GIC_HV_BASE = 0x2C010000ULL;
-inline constexpr uint64_t GIC_VCPU_BASE = 0x2C02F000ULL;
+inline constexpr uint64_t GIC_CPU_BASE = BSP_GIC_CPU_BASE;
+inline constexpr uint64_t GIC_HV_BASE = BSP_GIC_HV_BASE;
+inline constexpr uint64_t GIC_VCPU_BASE = BSP_GIC_VCPU_BASE;
+// TODO: the ITS is a GICv3 feature, and the host tree now describes the GICv2
+// model HyperBerry actually drives, so this guest window is vestigial. Left in
+// place because removing it changes what the guest sees and cannot be tested
+// without the FVP model; fold into the vGIC work.
 inline constexpr uint64_t GIC_ITS_MMIO_BASE = 0x2F200000ULL;
 inline constexpr uint64_t GIC_ITS_MMIO_SIZE = 0x00200000ULL;
 

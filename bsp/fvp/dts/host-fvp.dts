@@ -61,12 +61,18 @@
         clock-names = "apb_pclk";
     };
 
+    // The model's GIC is GICv3 silicon, but HyperBerry drives it through the
+    // GICv2 programming model: the distributor with affinity routing off, plus
+    // the Base Platform legacy CPU, hypervisor and virtual interfaces. This
+    // node describes that view, because it is the one drivers/gic implements.
     gic: intc@2f000000 {
-        compatible = "arm,gic-v3";
+        compatible = "arm,gic-400";
         #interrupt-cells = <3>;
         interrupt-controller;
-        reg = <0x0 0x2f000000 0x0 0x10000>,
-              <0x0 0x2f100000 0x0 0x200000>;
+        reg = <0x0 0x2f000000 0x0 0x10000>,  // GICD
+              <0x0 0x2c000000 0x0 0x2000>,   // GICC
+              <0x0 0x2c010000 0x0 0x2000>,   // GICH
+              <0x0 0x2c02f000 0x0 0x2000>;   // GICV
     };
 
     timer {
