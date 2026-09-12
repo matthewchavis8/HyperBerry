@@ -187,12 +187,21 @@ set(MKGUESTPKG ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg)
 # --- qemu -------------------------------------------------------------------
 set(QEMU_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
     CACHE FILEPATH "Guest Linux kernel Image for QEMU")
-set(QEMU_GUEST_DTB     "${CMAKE_SOURCE_DIR}/boot/dtb/guest-qemu.dtb"
-    CACHE FILEPATH "Guest DTB for QEMU")
+set(QEMU_GUEST_DTS     "${CMAKE_SOURCE_DIR}/bsp/qemu/dts/guest-qemu.dts")
+set(QEMU_GUEST_DTB     "${CMAKE_BINARY_DIR}/qemu/guest-qemu.dtb")
 set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/profiles/guest-qemu.hvgbp"
     CACHE STRING "QEMU guest boot package")
 
-if(CARGO_CMD)
+if(CARGO_CMD AND DTC)
+  add_custom_command(
+    OUTPUT ${QEMU_GUEST_DTB}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/qemu
+    COMMAND ${DTC} -I dts -O dtb -i ${CMAKE_SOURCE_DIR}/boot/dts
+            -o ${QEMU_GUEST_DTB} ${QEMU_GUEST_DTS}
+    DEPENDS ${QEMU_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
+    COMMENT "[LOG] Compiling guest-qemu.dtb"
+  )
+
   add_custom_command(
     OUTPUT  ${QEMU_GUEST_PACKAGE}
     COMMAND ${CARGO_CMD} build --release --manifest-path
@@ -232,7 +241,7 @@ if(CARGO_CMD)
     )
   endif()
 else()
-  message(STATUS "cargo not found - run-qemu disabled")
+  message(STATUS "cargo/dtc not both found - run-qemu disabled")
 endif()
 
 # --- rpi5 -------------------------------------------------------------------

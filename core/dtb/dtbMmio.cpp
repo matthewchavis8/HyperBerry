@@ -46,13 +46,14 @@ MmioMap dtbGuestMmio(uintptr_t guestDtb) {
     if (!gic.found || gic.regionCount == 0) {
         Uart::println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
     } else {
-        // The first two regions only. A GICv2 tree lists GICD, GICC, GICH and
-        // GICV, and the last two belong to EL2: a guest that can reach GICH
-        // programs its own list registers and injects whatever it likes. Both
-        // guest trees in this repo advertise all four, so the exclusion has to
-        // be enforced here rather than trusted to the tree. A GICv3 tree lists
-        // GICD and the redistributor, which are both guest visible, so the
-        // same first two regions are the right answer there.
+        // The first two regions only: the distributor and the CPU interface.
+        // GICH and GICV belong to EL2, and a guest that can reach GICH
+        // programs the list registers that inject its own interrupts. The
+        // guest trees declare only the two frames a guest may see, so this cap
+        // is a guard against a tree edit reintroducing them rather than a
+        // correction of what they say today. A GICv3 tree lists GICD and the
+        // redistributor, both guest visible, so the same two regions are the
+        // right answer there.
         uint32_t visible = gic.regionCount < 2 ? gic.regionCount : 2;
         for (uint32_t i {}; i < visible; ++i) {
             addOrWarn(map.addPages(gic.regions[i].base, gic.regions[i].base, gic.regions[i].size),
