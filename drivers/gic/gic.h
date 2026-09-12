@@ -17,7 +17,10 @@
  */
 class Gic {
 private:
-    static volatile uint32_t* reg(const uintptr_t REG);
+    /// Which register frame an offset is measured from.
+    enum class Frame { Dist, Cpu, Hv, Vcpu };
+
+    static volatile uint32_t* reg(Frame frame, uintptr_t offset);
 
     /**
      * @brief Initialize the GICC for the current CPU.
@@ -28,6 +31,28 @@ private:
     /** @brief Number of List Registers reported by GICH_VTR. */
     inline static uint32_t m_numLr = 0;
 
+public:
+    /**
+     * @brief Point the driver at the register frames a device tree describes.
+     * @ingroup gic
+     *
+     * The frames start at the values generated from the board's host tree so
+     * that @ref init() works without this being called. Discovery repoints
+     * them at what the firmware tree actually reports, the way
+     * @ref Uart::setBase does for the console.
+     */
+    static void setBases(uint64_t dist, uint64_t cpu, uint64_t hv, uint64_t vcpu);
+
+    /** @brief Base of the distributor frame in use. */
+    [[nodiscard]] static uint64_t distBase();
+
+    /** @brief Base of the hypervisor interface frame in use. */
+    [[nodiscard]] static uint64_t hvBase();
+
+    /** @brief Base of the guest facing virtual CPU interface frame in use. */
+    [[nodiscard]] static uint64_t vcpuBase();
+
+private:
 public:
     struct IrqAck {
         uint32_t iar;

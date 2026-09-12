@@ -3,7 +3,6 @@
  * @brief Hardware-backed integration tests for the GICv2 driver.
  */
 
-#include "regs.inc"
 #include "core/exceptions/exceptions.h"
 #include "core/vcpu/vcpu.h"
 #include "drivers/gic/gic.h"
@@ -24,21 +23,19 @@ constexpr uint32_t kSpuriousIrq = 1023;
 
 namespace GicReg {
     namespace Dist {
-        constexpr uintptr_t BASE = BSP_GIC_DISTRIBUTOR_BASE;
-        constexpr uintptr_t ISPENDR = BASE + 0x200;
-        constexpr uintptr_t ICPENDR = BASE + 0x280;
-        constexpr uintptr_t ISACTIVER = BASE + 0x300;
-        constexpr uintptr_t ICACTIVER = BASE + 0x380;
-        constexpr uintptr_t ITARGETSR = BASE + 0x800;
-        constexpr uintptr_t IGROUPR = BASE + 0x080;
-        constexpr uintptr_t CTLR = BASE + 0x000;
+        constexpr uintptr_t ISPENDR = 0x200;
+        constexpr uintptr_t ICPENDR = 0x280;
+        constexpr uintptr_t ISACTIVER = 0x300;
+        constexpr uintptr_t ICACTIVER = 0x380;
+        constexpr uintptr_t ITARGETSR = 0x800;
+        constexpr uintptr_t IGROUPR = 0x080;
+        constexpr uintptr_t CTLR = 0x000;
     } // namespace Dist
 
     namespace Hv {
-        constexpr uintptr_t BASE = BSP_GIC_HV_BASE;
-        constexpr uintptr_t VTR = BASE + 0x004;
-        constexpr uintptr_t ELSR0 = BASE + 0x030;
-        constexpr uintptr_t ELSR1 = BASE + 0x034;
+        constexpr uintptr_t VTR = 0x004;
+        constexpr uintptr_t ELSR0 = 0x030;
+        constexpr uintptr_t ELSR1 = 0x034;
     } // namespace Hv
 } // namespace GicReg
 
@@ -71,8 +68,12 @@ void trace(const char* msg) {
     Uart::println("[GICDBG] {}", msg);
 }
 
-volatile uint32_t* reg(uintptr_t addr) {
-    return reinterpret_cast<volatile uint32_t*>(addr);
+volatile uint32_t* distReg(uintptr_t offset) {
+    return reinterpret_cast<volatile uint32_t*>(Gic::distBase() + offset);
+}
+
+volatile uint32_t* hvReg(uintptr_t offset) {
+    return reinterpret_cast<volatile uint32_t*>(Gic::hvBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -84,39 +85,39 @@ uintptr_t irqReg(uintptr_t base, uint32_t id) {
 }
 
 uint32_t readElsrBit(uint32_t slot) {
-    uint32_t elsr = *reg(slot < 32 ? GicReg::Hv::ELSR0 : GicReg::Hv::ELSR1);
+    uint32_t elsr = *hvReg(slot < 32 ? GicReg::Hv::ELSR0 : GicReg::Hv::ELSR1);
     return (elsr >> (slot % 32)) & 1U;
 }
 
 uint32_t numListRegisters() {
-    return (*reg(GicReg::Hv::VTR) & 0x3F) + 1;
+    return (*hvReg(GicReg::Hv::VTR) & 0x3F) + 1;
 }
 
 void clearTestSpi() {
-    *reg(irqReg(GicReg::Dist::ICPENDR, kPhysIrq)) = irqBit(kPhysIrq);
-    *reg(irqReg(GicReg::Dist::ICACTIVER, kPhysIrq)) = irqBit(kPhysIrq);
+    *distReg(irqReg(GicReg::Dist::ICPENDR, kPhysIrq)) = irqBit(kPhysIrq);
+    *distReg(irqReg(GicReg::Dist::ICACTIVER, kPhysIrq)) = irqBit(kPhysIrq);
 }
 
 void pendTestSpi() {
-    *reg(irqReg(GicReg::Dist::ISPENDR, kPhysIrq)) = irqBit(kPhysIrq);
+    *distReg(irqReg(GicReg::Dist::ISPENDR, kPhysIrq)) = irqBit(kPhysIrq);
 }
 
 void routeTestSpiToCpu0() {
-    volatile uint8_t* target =
-            reinterpret_cast<volatile uint8_t*>(GicReg::Dist::ITARGETSR + kPhysIrq);
+    volatile uint8_t* target = reinterpret_cast<volatile uint8_t*>(
+            Gic::distBase() + GicReg::Dist::ITARGETSR + kPhysIrq);
     *target = 0x01;
 }
 
 void enableDistributorGroups() {
-    *reg(GicReg::Dist::CTLR) = *reg(GicReg::Dist::CTLR) | 0x3U;
+    *distReg(GicReg::Dist::CTLR) = *distReg(GicReg::Dist::CTLR) | 0x3U;
 }
 
 void configureTestSpiGroup0() {
     // QEMU enters this image in a security state where a software-pended Group 1
     // SPI stays behind HPPIR 1022. Use Group 0 so the physical leg reaches EL2;
     // the LR still uses the driver's HW-bit physical-deactivation path.
-    *reg(irqReg(GicReg::Dist::IGROUPR, kPhysIrq)) =
-            *reg(irqReg(GicReg::Dist::IGROUPR, kPhysIrq)) & ~irqBit(kPhysIrq);
+    *distReg(irqReg(GicReg::Dist::IGROUPR, kPhysIrq)) =
+            *distReg(irqReg(GicReg::Dist::IGROUPR, kPhysIrq)) & ~irqBit(kPhysIrq);
 }
 
 uint64_t installTestVbar() {
@@ -267,7 +268,7 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: Vcpu::init");
     Vcpu vcpu;
     vcpu.init(reinterpret_cast<uint64_t>(test_gic_guest_entry));
-    vcpu.setGpReg(VCPU_GPREG_X0, BSP_GIC_VCPU_BASE);
+    vcpu.setGpReg(VCPU_GPREG_X0, Gic::vcpuBase());
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.setGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
@@ -293,7 +294,7 @@ EndToEndCapture runEndToEnd() {
     capture.guestSawVirtIrq = (vcpu.getGpReg(VCPU_GPREG_X0) & 0x3FFU) == kVirtIrq;
     trace("runEndToEnd: read physical active");
     capture.physicalInactiveAfterEoi =
-            (*reg(irqReg(GicReg::Dist::ISACTIVER, kPhysIrq)) & irqBit(kPhysIrq)) == 0;
+            (*distReg(irqReg(GicReg::Dist::ISACTIVER, kPhysIrq)) & irqBit(kPhysIrq)) == 0;
     trace("runEndToEnd: hasPendingIrq after guest");
     capture.pendingAfterGuest = Gic::hasPendingIrq();
     trace("runEndToEnd: readElsrBit after guest");
