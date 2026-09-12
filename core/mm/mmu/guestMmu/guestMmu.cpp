@@ -4,7 +4,6 @@
  * @ingroup mmu
  */
 
-#include "bsp.h"
 #include "core/mm/pageTable/pageTable.h"
 #include "core/mm/pmm/pmm.h"
 #include "drivers/uart/uart.h"
@@ -69,7 +68,8 @@ uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
 }
 } // namespace
 
-void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
+void GuestMmu::init(
+        uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) {
     Uart::println("[GuestMmu] init called");
     m_rootTableOwner.reset(allocStage2RootTable());
     m_rootTable = reinterpret_cast<uint64_t>(m_rootTableOwner.get());
@@ -87,19 +87,21 @@ void GuestMmu::init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes) {
         mapBlock(ipaBase + off, hostPaBase + off, false);
     }
 
-    Uart::println("[GuestMmu] Mapping guest MMIO");
-    for (size_t rangeIndex {}; rangeIndex < b::GUEST_MMIO_COUNT; ++rangeIndex) {
-        const b::MmioRange& range = b::GUEST_MMIO[rangeIndex];
-        for (uint64_t off {}; off < range.size; off += SIZE_2MB) {
-            mapBlock(range.ipa + off, range.pa + off, true);
-        }
-    }
+    Uart::println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.count);
+    for (uint32_t i {}; i < devices.count; ++i) {
+        const MmioWindow& window = devices.windows[i];
+        Uart::println("[GuestMmu]   ipa {:x}..{:x} -> pa {:x}",
+                window.base,
+                window.base + window.size,
+                window.pa);
 
-    Uart::println("[GuestMmu] Mapping guest page MMIO");
-    for (size_t rangeIndex {}; rangeIndex < b::GUEST_MMIO_PAGE_COUNT; ++rangeIndex) {
-        const b::MmioRange& range = b::GUEST_MMIO_PAGES[rangeIndex];
-        for (uint64_t off {}; off < range.size; off += SIZE_4KB) {
-            mapPage(range.ipa + off, range.pa + off, true);
+        uint64_t granule = window.byPage ? SIZE_4KB : SIZE_2MB;
+        for (uint64_t off {}; off < window.size; off += granule) {
+            if (window.byPage) {
+                mapPage(window.base + off, window.pa + off, true);
+            } else {
+                mapBlock(window.base + off, window.pa + off, true);
+            }
         }
     }
 

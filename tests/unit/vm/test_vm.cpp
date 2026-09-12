@@ -35,6 +35,7 @@ static uint64_t gGuestMmuInitIpa = 0xDEADDEADDEADDEADULL;
 static uint64_t gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
 static uint64_t gGuestMmuInitSize = 0xDEADDEADDEADDEADULL;
 static uint8_t gGuestMmuEnableVmid = 0xFF;
+static uint32_t gGuestMmuInitWindows = 0xFFFFFFFFU;
 
 // ---------------------------------------------------------------------------
 // GuestMmu stubs
@@ -42,10 +43,12 @@ static uint8_t gGuestMmuEnableVmid = 0xFF;
 
 void GuestMmu::init(uint64_t ipaBase,
         uint64_t hostPaBase,
-        uint64_t sizeBytes) { // NOLINT(readability-convert-member-functions-to-static)
+        uint64_t sizeBytes,
+        const MmioMap& devices) { // NOLINT(readability-convert-member-functions-to-static)
     gGuestMmuInitIpa = ipaBase;
     gGuestMmuInitHostPa = hostPaBase;
     gGuestMmuInitSize = sizeBytes;
+    gGuestMmuInitWindows = devices.count;
 }
 
 void GuestMmu::enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
@@ -73,6 +76,7 @@ static void resetCaptures() {
     gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
     gGuestMmuInitSize = 0xDEADDEADDEADDEADULL;
     gGuestMmuEnableVmid = 0xFF;
+    gGuestMmuInitWindows = 0xFFFFFFFFU;
     gVcpuInitEntryCap = 0xDEADDEADDEADDEADULL;
     gVcpuSetGuestSpCap = 0xDEADDEADDEADDEADULL;
     gVcpuSetX0Cap = 0xDEADDEADDEADDEADULL;
@@ -85,17 +89,20 @@ static void resetCaptures() {
 TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
+    MmioMap devices {};
+    devices.addPages(0x09000000ULL, 0x09000000ULL, 0x1000ULL);
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, devices);
 
     EXPECT_EQ(gGuestMmuInitIpa, 0x0ULL);
     EXPECT_EQ(gGuestMmuInitHostPa, 0x40000000ULL);
     EXPECT_EQ(gGuestMmuInitSize, 0x200000ULL);
+    EXPECT_EQ(gGuestMmuInitWindows, 1U);
 }
 
 TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
 
     EXPECT_EQ(gVcpuInitEntryCap, 0x200000ULL);
 }
@@ -103,7 +110,7 @@ TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
 TEST(Vm, InitSeedsLinuxDtbInX0) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL);
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
 
     EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
     EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
@@ -112,7 +119,7 @@ TEST(Vm, InitSeedsLinuxDtbInX0) {
 TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL);
+    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL, MmioMap {});
     vm.run();
 
     EXPECT_EQ(gGuestMmuEnableVmid, 2);

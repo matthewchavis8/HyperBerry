@@ -333,3 +333,25 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
         }
     }
 }
+
+namespace {
+
+const char* const kUartCompatible[] = { "arm,pl011", "brcm,bcm2835-aux-uart" };
+
+const char* const kGicCompatible[] = {
+    "arm,gic-400",
+    "arm,cortex-a15-gic",
+    "arm,gic-v2",
+    "arm,arm11mp-gic",
+    "arm,gic-v3",
+};
+
+} // namespace
+
+DeviceNode dtbFindUart(uintptr_t dtb) {
+    return dtbFindCompatible(dtb, kUartCompatible, 2);
+}
+
+DeviceNode dtbFindGic(uintptr_t dtb) {
+    return dtbFindCompatible(dtb, kGicCompatible, 5);
+}

@@ -42,14 +42,19 @@ targets of the same name.
 
 ## Conventions
 
-**The device tree is the source of truth for addresses.** `tools/bspgen` reads a
-board's host device tree and emits `regs.inc`, which `bsp.h` wraps in constexpr.
-Do not hand write a value the tree already declares. Boot checks the compiled
-values against the firmware tree and panics on a mismatch.
+**The device tree is the source of truth for addresses.** Do not hand write a
+value a tree already declares. Two paths exist. `tools/bspgen` reads a board's
+host device tree and emits `regs.inc` for the handful of addresses that must be
+compile time constants: the early console, which has to work before the tree is
+parsed, and the GIC bases the register tables are built from. Boot checks those
+against the firmware tree and panics on a mismatch. Everything else is read
+from a tree at runtime through `core/dtb`, including the MMIO windows both MMU
+layers map. `bsp/fvp/platform.inc` holds the load addresses, which are the one
+thing a tree genuinely cannot state.
 
-**There is no board macro.** No `BSP_QEMU`, `BSP_RPI5` or `BSP_FVP`. Each board
-ships its own `bsp.h` and the build puts that directory on the include path, so
-code includes `"bsp.h"` and the board selects itself. Never reintroduce an
+**There is no board macro.** No `BSP_QEMU`, `BSP_RPI5` or `BSP_FVP`. The build
+puts `bsp/<board>` and that board's generated directory on the include path, so
+code includes `"regs.inc"` and the board selects itself. Never reintroduce an
 `#ifdef` on the board.
 
 **Board specific test code goes in `tests/bsp/<board>/`.** A file there whose

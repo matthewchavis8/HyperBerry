@@ -37,6 +37,7 @@ public:
      * @param vmid           Non-zero VMID (unique across live VMs).
      * @param guestEntry     Guest IPA at which to resume on first @c eret.
      * @param guestDtb       Guest IPA of the Linux device tree blob.
+     * @param devices        Device windows this guest may reach.
      */
     void init(const char* name,
             uint64_t ipaBase,
@@ -44,7 +45,8 @@ public:
             uint64_t sizeBytes,
             uint8_t vmid,
             uint64_t guestEntry,
-            uint64_t guestDtb);
+            uint64_t guestDtb,
+            const MmioMap& devices);
 
     /**
      * @brief Enable stage-2 and enter the guest.

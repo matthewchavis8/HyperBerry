@@ -14,12 +14,13 @@ void Vm::init(const char* name,
         uint64_t sizeBytes,
         uint8_t vmid,
         uint64_t guestEntry,
-        uint64_t guestDtb) {
+        uint64_t guestDtb,
+        const MmioMap& devices) {
     m_name = name;
     m_vmid = vmid;
 
     Uart::println("[VM] Bringing up Guest MMU");
-    m_guestMmu.init(ipaBase, guestRamHostPa, sizeBytes);
+    m_guestMmu.init(ipaBase, guestRamHostPa, sizeBytes, devices);
     Uart::println("[VM] Bringing up Guest MMU");
 
     Uart::println("[VM] Bringing up Vcpu");

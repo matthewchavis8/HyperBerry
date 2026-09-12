@@ -398,7 +398,8 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
             layout.dtbIpa,
             packageBytes + validated.package.dtbOffset,
             validated.package.dtbSize);
-    void* guestDtb = HostMmu::paToVa(guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE));
+    uint64_t dtbHostPa = guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE);
+    void* guestDtb = HostMmu::paToVa(dtbHostPa);
     if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GuestDtbPatchFailed);
 
     if (validated.package.initrdSize != 0) {
@@ -417,6 +418,7 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
     result.guest.guestRamSize = layout.guestRamSize;
     result.guest.entryIpa = layout.entryIpa;
     result.guest.dtbIpa = layout.dtbIpa;
+    result.guest.dtbHostPa = dtbHostPa;
     (void)guestRam.release();
     return result;
 }

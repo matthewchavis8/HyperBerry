@@ -3,7 +3,7 @@
  * @brief Integration tests for EL2 MMU mappings and runtime APIs.
  */
 
-#include "bsp.h"
+#include "regs.inc"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "tests/integration/suite.h"
 
@@ -53,8 +53,16 @@ static bool test_hv_identity_mapping_present() {
     return entryMatches(walkToL2Entry(HV_VA_BASE), HV_VA_BASE, PTE_NORMAL | PTE_AP_RW);
 }
 
-static bool test_peripheral_mapping_present() {
-    return entryMatches(walkToL2Entry(b::HV_MMIO_BASE), b::HV_MMIO_BASE, PTE_DEVICE);
+static bool test_console_mapped_as_device() {
+    // The window a fixed HV_MMIO range could silently omit, which left EL2
+    // driving its own console through the cacheable self-map.
+    uint64_t block = BSP_UART_BASE & ~(SIZE_2MB - 1);
+    return entryMatches(walkToL2Entry(block), block, PTE_DEVICE);
+}
+
+static bool test_gic_distributor_mapped_as_device() {
+    uint64_t block = BSP_GIC_DISTRIBUTOR_BASE & ~(SIZE_2MB - 1);
+    return entryMatches(walkToL2Entry(block), block, PTE_DEVICE);
 }
 
 static bool test_map_range_installs_block_entry() {
@@ -79,7 +87,8 @@ static bool test_tlb_flush_apis_do_not_hang() {
 static const TestCase kMmuCases[] = {
     { "ttbr0_present_and_page_aligned", test_ttbr0_present_and_page_aligned },
     { "hv_identity_mapping_present", test_hv_identity_mapping_present },
-    { "peripheral_mapping_present", test_peripheral_mapping_present },
+    { "console_mapped_as_device", test_console_mapped_as_device },
+    { "gic_distributor_mapped_as_device", test_gic_distributor_mapped_as_device },
     { "map_range_installs_block_entry", test_map_range_installs_block_entry },
     { "unmap_range_clears_block_entry", test_unmap_range_clears_block_entry },
     { "tlb_flush_apis_do_not_hang", test_tlb_flush_apis_do_not_hang },
@@ -88,7 +97,7 @@ static const TestCase kMmuCases[] = {
 static const TestSuite kMmuSuite = {
     "MmuHarness",
     kMmuCases,
-    6,
+    7,
 };
 
 REGISTER_SUITE(kMmuSuite);

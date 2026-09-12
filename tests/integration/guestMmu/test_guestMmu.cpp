@@ -3,7 +3,7 @@
  * @brief Integration tests for live EL2 stage-2 MMU state.
  */
 
-#include "bsp.h"
+#include "regs.inc"
 #include "core/mm/mmu/guestMmu/guestMmu.h"
 #include "core/mm/pmm/pmm.h"
 #include "tests/integration/suite.h"
@@ -12,6 +12,8 @@ namespace {
 constexpr uint64_t kGuestIpaBase = 0x40000000ULL;
 constexpr uint64_t kGuestSize = SIZE_2MB * 2;
 constexpr uint8_t kTestVmid = 7;
+constexpr uint64_t kDeviceBlockIpa = 0x50000000ULL;
+constexpr uint64_t kDevicePageIpa = 0x51000000ULL;
 
 struct GuestMmuLayout {
     uint64_t* rootTable;
@@ -32,6 +34,14 @@ uint64_t* walkStage2L2(uint64_t* root, uint64_t ipa) {
     return &l2[L2_INDEX(ipa)];
 }
 
+uint64_t* walkStage2L3(uint64_t* root, uint64_t ipa) {
+    uint64_t* l2 = walkStage2L2(root, ipa);
+    if (!l2 || !pte_is_table(*l2)) return nullptr;
+
+    uint64_t* l3 = pte_next_table(*l2);
+    return &l3[L3_INDEX(ipa)];
+}
+
 uint64_t normalStage2Descriptor(uint64_t pa) {
     return (pa & PTE_ADDR_MASK) | PTE_VALID | PTE_BLOCK | PTE_AF | S2PTE_SH_INNER | S2PTE_S2AP_RW |
             S2PTE_MEMATTR_NORMAL_WB | S2PTE_XN_NONE;
@@ -40,6 +50,10 @@ uint64_t normalStage2Descriptor(uint64_t pa) {
 uint64_t deviceStage2Descriptor(uint64_t pa) {
     return (pa & PTE_ADDR_MASK) | PTE_VALID | PTE_BLOCK | PTE_AF | S2PTE_SH_INNER | S2PTE_S2AP_RW |
             S2PTE_MEMATTR_DEVICE_nGnRnE | S2PTE_XN_ALL;
+}
+
+uint64_t devicePageStage2Descriptor(uint64_t pa) {
+    return deviceStage2Descriptor(pa) | PTE_TABLE;
 }
 
 void clearStage2Enable() {
@@ -57,7 +71,7 @@ static bool test_init_programs_vtcr_el2() {
     uint64_t hostPa = pmm::allocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize);
+    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
 
     uint64_t vtcr;
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
@@ -74,7 +88,7 @@ static bool test_init_maps_guest_ram_blocks() {
     uint64_t hostPa = pmm::allocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize);
+    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
     uint64_t* first = walkStage2L2(rootTable(mmu), kGuestIpaBase);
     uint64_t* second = walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB);
 
@@ -86,18 +100,24 @@ static bool test_init_maps_guest_ram_blocks() {
     return mapped;
 }
 
-static bool test_init_maps_board_mmio_as_device() {
-    if (b::GUEST_MMIO_COUNT == 0) return true;
-
+static bool test_init_maps_device_windows() {
     GuestMmu mmu;
     uint64_t hostPa = pmm::allocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize);
+    // One window of each granule. The page path carried no coverage at all
+    // while the windows were a fixed table in a board header.
+    MmioMap devices {};
+    devices.addBlocks(kDeviceBlockIpa, SIZE_2MB);
+    devices.addPages(kDevicePageIpa, BSP_UART_BASE, SIZE_4KB);
 
-    const b::MmioRange& range = b::GUEST_MMIO[0];
-    uint64_t* entry = walkStage2L2(rootTable(mmu), range.ipa);
-    bool mapped = entry != nullptr && *entry == deviceStage2Descriptor(range.pa);
+    mmu.init(kGuestIpaBase, hostPa, kGuestSize, devices);
+
+    uint64_t* block = walkStage2L2(rootTable(mmu), kDeviceBlockIpa);
+    uint64_t* page = walkStage2L3(rootTable(mmu), kDevicePageIpa);
+
+    bool mapped = block != nullptr && *block == deviceStage2Descriptor(kDeviceBlockIpa) &&
+            page != nullptr && *page == devicePageStage2Descriptor(BSP_UART_BASE);
 
     pmm::freePages(hostPa, 9);
     return mapped;
@@ -108,7 +128,7 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
     uint64_t hostPa = pmm::allocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize);
+    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
     mmu.enable(kTestVmid);
 
     uint64_t vttbr;
@@ -128,7 +148,7 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
 static const TestCase kGuestMmuCases[] = {
     { "init_programs_vtcr_el2", test_init_programs_vtcr_el2 },
     { "init_maps_guest_ram_blocks", test_init_maps_guest_ram_blocks },
-    { "init_maps_board_mmio_as_device", test_init_maps_board_mmio_as_device },
+    { "init_maps_device_windows", test_init_maps_device_windows },
     { "enable_programs_vttbr_and_hcr_vm", test_enable_programs_vttbr_and_hcr_vm },
 };
 

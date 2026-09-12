@@ -10,8 +10,8 @@
 #ifndef __HOST_MMU_H__
 #define __HOST_MMU_H__
 
-#include "bsp.h"
 #include "core/mm/pageTable/pageTable.h"
+#include "core/mm/mmu/mmioMap.h"
 
 // Shareability [9:8].
 #define PTE_SH_INNER (3ULL << 8)
@@ -46,8 +46,14 @@ namespace HostMmu {
 /**
  * @brief Build EL2 translation tables and enable stage-1 translation.
  * @ingroup mmu
+ *
+ * @param devices Device windows to map as Device-nGnRnE, read out of the host
+ *                device tree by the caller. These overwrite the normal memory
+ *                blocks the hypervisor self-map lays down first, so a
+ *                peripheral missing from @p devices stays mapped cacheable
+ *                rather than faulting.
  */
-void init();
+void init(const MmioMap& devices);
 
 /**
  * @brief Convert a host physical address to an EL2-accessible pointer.
