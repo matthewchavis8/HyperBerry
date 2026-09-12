@@ -235,11 +235,25 @@ just test-integration qemu
 just test-integration rpi5 /dev/sdX1
 ```
 
-The integration test build uses the `integration-<board>` CMake presets, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
+The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
 
 ## AI Use Declaration
 
-AI tools (aka claude code) were used for **documentation** in this project, including Doxygen comments, Some Tests, README, content, and design notes in this file. All hypervisor implementation code, including assembly, C++, and linker scripts, was written by me. You will prolly see messy code and maybe not the best practice, but hey I am getting the job done and having fun. My view of AI use in college ist that it trades knowledge depth for speed. In industry, that tradeoff makes sense, because of fast paced environments prioritizes delivers, and engineers may be handling mutliple tasks at once. The downside is reduced cognitive engagement when too much if offloaded to AI. I do not see that a inherently negative, just a trade off like everything in software. That is why I choose not to rely heavily on AI here because I am not under strict timing so I can eat the speed cost
+AI tools (claude code) are used heavily here now, for implementation as much as
+documentation: C++, assembly, CMake, host tooling, tests and docs. This section
+used to say AI was limited to documentation and that every line of hypervisor
+code was mine. That stopped being true, and a stale claim in a README is worse
+than an honest one.
+
+My view of the tradeoff has not changed. Leaning on AI trades knowledge depth for
+speed. In industry that makes sense, fast paced teams prioritise delivery and
+engineers juggle several things at once. The cost is less cognitive engagement
+when you offload too much, which I do not think is inherently bad, just a
+tradeoff like everything else in software. What changed is that I now want the
+speed, and I read and review what lands instead of pretending I typed it.
+
+You will probably still find messy code and choices that are not best practice,
+but hey, I am getting the job done and having fun.
 
 ## License
 
