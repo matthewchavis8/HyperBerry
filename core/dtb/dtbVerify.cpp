@@ -24,10 +24,8 @@ const char* const kGicCompatible[] = {
 bool check(const char* what, uint64_t expected, uint64_t actual) {
     if (expected == actual) return true;
 
-    Uart::println("[DTB][MISMATCH] {}: built for {:x}, device tree says {:x}",
-            what,
-            expected,
-            actual);
+    Uart::println(
+            "[DTB][MISMATCH] {}: built for {:x}, device tree says {:x}", what, expected, actual);
     return false;
 }
 
