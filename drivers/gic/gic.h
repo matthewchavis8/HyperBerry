@@ -20,7 +20,7 @@ private:
     /// Which register frame an offset is measured from.
     enum class Frame { Dist, Cpu, Hv, Vcpu };
 
-    static volatile uint32_t* reg(Frame frame, uintptr_t offset);
+    static uintptr_t frameBase(Frame frame);
 
     /**
      * @brief Initialize the GICC for the current CPU.
