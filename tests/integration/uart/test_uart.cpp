@@ -8,13 +8,14 @@
 
 #include "tests/integration/suite.h"
 #include "uart.h"
+#include "lib/log/log.h"
 
 /**
  * @brief Verify that UART transmission can emit at least one byte without stalling.
  * @return Always true if control reaches the end of the function.
  */
 static bool test_tx_doesnt_hang() {
-    Uart::putc('A');
+    Uart::getInstance().putc('A');
     return true;
 }
 
@@ -23,22 +24,7 @@ static bool test_tx_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_tx_string_doesnt_hang() {
-    Uart::print("I have no mouth and I must scream");
-    return true;
-}
-
-/**
- * @brief Verify that init() completes without stalling and leaves UART functional.
- *
- * Calls init() a second time (re-initialisation) and then verifies TX still
- * works.  If init() corrupts the CR/ICR registers in a way that breaks TX the
- * subsequent putc() will spin forever, which the test runner will observe as a
- * hang.
- * @return Always true if control reaches the end of the function.
- */
-static bool test_init_doesnt_hang() {
-    Uart::init();
-    Uart::putc('I');
+    Log::print("I have no mouth and I must scream");
     return true;
 }
 
@@ -50,7 +36,7 @@ static bool test_init_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_doesnt_hang() {
-    Uart::writeHex(0xDEADBEEFCAFEBABEULL);
+    Log::writeHex(0xDEADBEEFCAFEBABEULL);
     return true;
 }
 
@@ -59,7 +45,7 @@ static bool test_write_hex_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_zero_doesnt_hang() {
-    Uart::writeHex(0x0ULL);
+    Log::writeHex(0x0ULL);
     return true;
 }
 
@@ -68,7 +54,7 @@ static bool test_write_hex_zero_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_write_hex_max_doesnt_hang() {
-    Uart::writeHex(0xFFFFFFFFFFFFFFFFULL);
+    Log::writeHex(0xFFFFFFFFFFFFFFFFULL);
     return true;
 }
 
@@ -77,7 +63,7 @@ static bool test_write_hex_max_doesnt_hang() {
  * @return Always true if control reaches the end of the function.
  */
 static bool test_formatted_print_doesnt_hang() {
-    Uart::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
+    Log::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
     return true;
 }
 
@@ -85,7 +71,6 @@ static bool test_formatted_print_doesnt_hang() {
 static const TestCase uart_hw_cases[] = {
     { "test_tx_doesnt_hang\n", test_tx_doesnt_hang },
     { "test_tx_string_doesnt_hang\n", test_tx_string_doesnt_hang },
-    { "test_init_doesnt_hang\n", test_init_doesnt_hang },
     { "test_write_hex_doesnt_hang\n", test_write_hex_doesnt_hang },
     { "test_write_hex_zero_doesnt_hang\n", test_write_hex_zero_doesnt_hang },
     { "test_write_hex_max_doesnt_hang\n", test_write_hex_max_doesnt_hang },
@@ -96,7 +81,7 @@ static const TestCase uart_hw_cases[] = {
 static const TestSuite uartSuite = {
     "UartHarness",
     uart_hw_cases,
-    7,
+    6,
 };
 
 REGISTER_SUITE(uartSuite);

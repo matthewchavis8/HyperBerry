@@ -15,7 +15,8 @@ add_executable(hyperberry_unit_tests
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
 
   dtb/test_dtb.cpp
-  uart/test_uart_format.cpp
+  log/test_log_format.cpp
+  ${CMAKE_SOURCE_DIR}/lib/log/log.cpp
   gic/test_gic.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
 

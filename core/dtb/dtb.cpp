@@ -6,7 +6,6 @@
 
 #include "dtb.h"
 #include "fdt.h"
-#include "drivers/uart/uart.h"
 #include <stdint.h>
 
 /**

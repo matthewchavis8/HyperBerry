@@ -6,7 +6,6 @@
 #include "core/exceptions/exceptions.h"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
-#include "drivers/uart/uart.h"
 #include "tests/integration/suite.h"
 #include <stdint.h>
 

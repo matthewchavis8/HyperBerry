@@ -5,7 +5,7 @@
  */
 
 #include "core/mm/pmm/pmm.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 #include "lib/strings/strings.h"
 #include "pageTable.h"
 
@@ -34,7 +34,7 @@ void cleanDataCacheRange(const void* addr, size_t size) {
 uint64_t* allocTable() {
     uint64_t pa = pmm::allocPages(0);
     if (pa == 0) {
-        Uart::println("[PageTable] Failed to allocate page table");
+        Log::println("[PageTable] Failed to allocate page table");
         for (;;)
             asm volatile("wfe");
     }

@@ -13,8 +13,8 @@
 #include "core/bootpkg/bootpkg.h"
 #include "core/vm/vm.h"
 #include "lib/cxxrt/cxxrt.h"
+#include "lib/log/log.h"
 #include "lib/panic/panic.h"
-#include "uart.h"
 #include "drivers/gic/gic.h"
 #include "stddef.h"
 #include "dtb/dtb.h"
@@ -36,47 +36,45 @@
  *          address — falling off the end of hmain() is undefined behaviour.
  */
 extern "C" void hmain(uintptr_t dtb) {
-    Uart::init();
     runGlobalConstructors();
-    Uart::println("[UART] UART intialized");
 
-    Uart::println("[DTB] Attempting to parse device tree blob");
+    Log::println("[DTB] Attempting to parse device tree blob");
     MemoryMap memoryMap = parseDtb(dtb);
-    Uart::println("[DTB] Succesfully parsed device tree blob");
-
+    Log::println("[DTB] Succesfully parsed device tree blob");
+    // TODO: This is a future TODO but instead of isValid panicking I think the praseDTB or some sort of the memoryMap should fail hard so we can move this isValid check inside somewhere
     if (!memoryMap.isValid) hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
 
     verifyBspAgainstDtb(dtb);
 
-    Uart::println("[PMM] Attempting to bring up PMM");
+    Log::println("[PMM] Attempting to bring up PMM");
     pmm::init(memoryMap);
-    Uart::println("[PMM] Successfully brought up PMM");
+    Log::println("[PMM] Successfully brought up PMM");
 
-    Uart::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
+    Log::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
 
-    Uart::println("[HEAP] Attempting to bring up kernel heap");
+    Log::println("[HEAP] Attempting to bring up kernel heap");
     hv::heap::init();
-    Uart::println("[HEAP] Successfully brought up kernel heap");
+    Log::println("[HEAP] Successfully brought up kernel heap");
 
-    Uart::println("[HostMmu] Attempting to bring up host MMU");
+    Log::println("[HostMmu] Attempting to bring up host MMU");
     HostMmu::init(dtbHostMmio(dtb));
-    Uart::println("[HostMmu] Successfully host MMU is brought up");
+    Log::println("[HostMmu] Successfully host MMU is brought up");
 
-    Uart::println("[GIC] Attempting to bring up GICv2");
+    Log::println("[GIC] Attempting to bring up GICv2");
     Gic::init();
-    Uart::println("[GIC] Successfully brought up GICv2");
+    Log::println("[GIC] Successfully brought up GICv2");
 
 #ifdef INTEGRATION_TEST
     TestRunner::setBootContext(memoryMap);
     TestRunner::run_all();
 #else
 
-    Uart::println("[BootPkg] Attempting to load Linux guest package");
+    Log::println("[BootPkg] Attempting to load Linux guest package");
     bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
     if (!loaded.isLoaded) {
         hv_panic("[ERROR][VM] Failed to spin up Linux VM");
     }
-    Uart::println("[BootPkg] Linux guest package loaded");
+    Log::println("[BootPkg] Linux guest package loaded");
 
     Vm guest;
     const char* guestName = "Linux VM";
@@ -89,9 +87,9 @@ extern "C" void hmain(uintptr_t dtb) {
             loaded.guest.dtbIpa,
             dtbGuestMmio(loaded.guest.dtbHostPa));
 
-    Uart::println("[VM] Bringing up guest:{}", guest.getName());
-    Uart::println("[VM] {} Intialized", guest.getName());
-    Uart::println("[VM] Guest Kernel running");
+    Log::println("[VM] Bringing up guest:{}", guest.getName());
+    Log::println("[VM] {} Intialized", guest.getName());
+    Log::println("[VM] Guest Kernel running");
     guest.run();
 #endif
 }
