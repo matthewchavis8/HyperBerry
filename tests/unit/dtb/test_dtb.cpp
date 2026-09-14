@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "drivers/uart/uart.h"
+#include "regs.inc"
 #include "core/dtb/dtb.h"
 
 #include <vector>
@@ -40,22 +41,17 @@ void append(char ch) {
 
 } // namespace uart_test_support
 
-volatile uint32_t* Uart::reg(UART_REG) {
-    return nullptr;
+Uart::Uart() : m_base { BSP_UART_BASE } {}
+
+Uart& Uart::getInstance() {
+    static Uart console;
+    return console;
 }
-void Uart::init() {}
-void Uart::println(const char* str) {
-    print(str);
-    putc('\r');
-    putc('\n');
-}
-void Uart::print(const char* str) {
-    uart::detail::writeCString([](char ch) { uart_test_support::append(ch); }, str);
-}
-void Uart::putc(const char ch) {
+
+void Uart::configure() const {}
+void Uart::putc(const char ch) const {
     uart_test_support::append(ch);
 }
-void Uart::writeHex(uint64_t) {}
 
 class DtbBuilder {
     std::vector<uint8_t> m_structs;

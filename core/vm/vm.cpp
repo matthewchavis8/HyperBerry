@@ -5,7 +5,7 @@
  */
 
 #include "core/mm/pmm/pmm.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 #include "vm.h"
 
 void Vm::init(const char* name,
@@ -19,21 +19,21 @@ void Vm::init(const char* name,
     m_name = name;
     m_vmid = vmid;
 
-    Uart::println("[VM] Bringing up Guest MMU");
+    Log::println("[VM] Bringing up Guest MMU");
     m_guestMmu.init(ipaBase, guestRamHostPa, sizeBytes, devices);
-    Uart::println("[VM] Bringing up Guest MMU");
+    Log::println("[VM] Bringing up Guest MMU");
 
-    Uart::println("[VM] Bringing up Vcpu");
+    Log::println("[VM] Bringing up Vcpu");
     m_vcpu.init(guestEntry);
     m_vcpu.setGpReg(VCPU_GPREG_X0, guestDtb);
 }
 
 void Vm::run() {
-    Uart::println("[VM] Enabling Guest MMU");
+    Log::println("[VM] Enabling Guest MMU");
     m_guestMmu.enable(m_vmid);
-    Uart::println("[VM] Successfully enabled Guest MMU");
+    Log::println("[VM] Successfully enabled Guest MMU");
 
-    Uart::println("[VM] Guest Kernel Running");
+    Log::println("[VM] Guest Kernel Running");
     vcpu_enter(&m_vcpu);
 }
 

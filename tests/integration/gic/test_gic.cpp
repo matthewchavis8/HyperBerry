@@ -6,7 +6,7 @@
 #include "core/exceptions/exceptions.h"
 #include "core/vcpu/vcpu.h"
 #include "drivers/gic/gic.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 #include "tests/integration/suite.h"
 #include <stdint.h>
 
@@ -65,7 +65,7 @@ extern "C" char test_gic_vectors[];
 extern "C" void test_gic_guest_entry();
 
 void trace(const char* msg) {
-    Uart::println("[GICDBG] {}", msg);
+    Log::println("[GICDBG] {}", msg);
 }
 
 volatile uint32_t* distReg(uintptr_t offset) {
@@ -179,14 +179,14 @@ bool waitForEl2Irq() {
     trace("waitForEl2Irq: enter");
     for (uint32_t i = 0; i < 1000000; ++i) {
         if (gEl2Irq.called) {
-            Uart::println("[GICDBG] waitForEl2Irq: seen ackId={} injectRc={}",
+            Log::println("[GICDBG] waitForEl2Irq: seen ackId={} injectRc={}",
                     gEl2Irq.ackId,
                     gEl2Irq.injectRc);
             return true;
         }
         asm volatile("nop");
     }
-    Uart::println("[GICDBG] waitForEl2Irq: timeout called={}", gEl2Irq.called);
+    Log::println("[GICDBG] waitForEl2Irq: timeout called={}", gEl2Irq.called);
     return gEl2Irq.called;
 }
 
@@ -210,7 +210,7 @@ bool injectFromPhysicalSpi() {
     trace("injectFromPhysicalSpi: restoreVbar");
     restoreVbar(savedVbar);
 
-    Uart::println("[GICDBG] injectFromPhysicalSpi: exit seen={} ackId={} injectRc={}",
+    Log::println("[GICDBG] injectFromPhysicalSpi: exit seen={} ackId={} injectRc={}",
             seen,
             gEl2Irq.ackId,
             gEl2Irq.injectRc);
@@ -247,8 +247,7 @@ EndToEndCapture runEndToEnd() {
     capture.pendingBeforeGuest = Gic::hasPendingIrq();
     trace("runEndToEnd: readElsrBit before guest");
     capture.lrBusyBeforeGuest = readElsrBit(0) == 0;
-    Uart::println(
-            "[GICDBG] runEndToEnd: preguest seen={} acked={} injected={} pending={} lrBusy={}",
+    Log::println("[GICDBG] runEndToEnd: preguest seen={} acked={} injected={} pending={} lrBusy={}",
             capture.el2IrqSeen,
             capture.el2AckedSpi,
             capture.injected,
@@ -280,8 +279,8 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: vcpu_enter begin");
     vcpu_enter(&vcpu);
     trace("runEndToEnd: vcpu_enter returned");
-    Uart::println("[GICDBG] runEndToEnd: vectorExitKind={} guestProgress={:x} guestIar={:x} "
-                  "guestX0={:x} guestElr={:x}",
+    Log::println("[GICDBG] runEndToEnd: vectorExitKind={} guestProgress={:x} guestIar={:x} "
+                 "guestX0={:x} guestElr={:x}",
             gTestGicVectorExitKind,
             test_gic_guest_progress,
             test_gic_guest_iar,
@@ -299,7 +298,7 @@ EndToEndCapture runEndToEnd() {
     capture.pendingAfterGuest = Gic::hasPendingIrq();
     trace("runEndToEnd: readElsrBit after guest");
     capture.lrFreeAfterGuest = readElsrBit(0) == 1;
-    Uart::println("[GICDBG] runEndToEnd: postguest guestSaw={} inactive={} pending={} lrFree={}",
+    Log::println("[GICDBG] runEndToEnd: postguest guestSaw={} inactive={} pending={} lrFree={}",
             capture.guestSawVirtIrq,
             capture.physicalInactiveAfterEoi,
             capture.pendingAfterGuest,
@@ -323,12 +322,12 @@ extern "C" void handle_test_gic_el2_irq(ExceptionContext* ctx) {
     Gic::IrqAck ack = Gic::ackIrq();
     gEl2Irq.called = true;
     gEl2Irq.ackId = ack.id;
-    Uart::println("[GICDBG] handle_test_gic_el2_irq: ack id={} iar={:x}", ack.id, ack.iar);
+    Log::println("[GICDBG] handle_test_gic_el2_irq: ack id={} iar={:x}", ack.id, ack.iar);
 
     if (ack.id != kSpuriousIrq) {
         trace("handle_test_gic_el2_irq: injectIrq");
         gEl2Irq.injectRc = Gic::injectIrq(kVirtIrq, kPhysIrq);
-        Uart::println("[GICDBG] handle_test_gic_el2_irq: injectRc={}", gEl2Irq.injectRc);
+        Log::println("[GICDBG] handle_test_gic_el2_irq: injectRc={}", gEl2Irq.injectRc);
         trace("handle_test_gic_el2_irq: endIrq");
         Gic::endIrq(ack);
     } else {
@@ -342,7 +341,7 @@ static bool test_spi_to_virq_guest_eoi() {
     EndToEndCapture capture = runEndToEnd();
     bool passed = capture.el2IrqSeen && capture.el2AckedSpi && capture.injected &&
             capture.guestExited && capture.guestSawVirtIrq && capture.physicalInactiveAfterEoi;
-    Uart::println("[GICDBG] test_spi_to_virq_guest_eoi: result={}", passed);
+    Log::println("[GICDBG] test_spi_to_virq_guest_eoi: result={}", passed);
     return passed;
 }
 
@@ -351,7 +350,7 @@ static bool test_lr_pending_state_tracks_guest_eoi() {
     EndToEndCapture capture = runEndToEnd();
     bool passed = capture.pendingBeforeGuest && capture.lrBusyBeforeGuest &&
             !capture.pendingAfterGuest && capture.lrFreeAfterGuest;
-    Uart::println("[GICDBG] test_lr_pending_state_tracks_guest_eoi: result={}", passed);
+    Log::println("[GICDBG] test_lr_pending_state_tracks_guest_eoi: result={}", passed);
     return passed;
 }
 
@@ -361,10 +360,10 @@ static bool test_lr_exhaustion_returns_error() {
     Gic::init();
     trace("test_lr_exhaustion_returns_error: numListRegisters");
     uint32_t count = numListRegisters();
-    Uart::println("[GICDBG] test_lr_exhaustion_returns_error: count={}", count);
+    Log::println("[GICDBG] test_lr_exhaustion_returns_error: count={}", count);
 
     for (uint32_t i = 0; i < count; ++i) {
-        Uart::println("[GICDBG] test_lr_exhaustion_returns_error: inject slot {}", i);
+        Log::println("[GICDBG] test_lr_exhaustion_returns_error: inject slot {}", i);
         if (Gic::injectIrq(100 + i, 100 + i) != 0) {
             trace("test_lr_exhaustion_returns_error: inject failed cleanup");
             Gic::cpuReset();
@@ -374,7 +373,7 @@ static bool test_lr_exhaustion_returns_error() {
 
     trace("test_lr_exhaustion_returns_error: inject exhausted");
     bool exhausted = Gic::injectIrq(200, 200) == -1;
-    Uart::println("[GICDBG] test_lr_exhaustion_returns_error: exhausted={}", exhausted);
+    Log::println("[GICDBG] test_lr_exhaustion_returns_error: exhausted={}", exhausted);
     trace("test_lr_exhaustion_returns_error: cpuReset");
     Gic::cpuReset();
     return exhausted;
@@ -389,7 +388,7 @@ static bool test_duplicate_virt_id_rejected() {
     bool rejected = Gic::injectIrq(kVirtIrq, kPhysIrq) == 0 &&
             (trace("test_duplicate_virt_id_rejected: duplicate inject"), true) &&
             Gic::injectIrq(kVirtIrq, 99) == -1;
-    Uart::println("[GICDBG] test_duplicate_virt_id_rejected: rejected={}", rejected);
+    Log::println("[GICDBG] test_duplicate_virt_id_rejected: rejected={}", rejected);
 
     trace("test_duplicate_virt_id_rejected: cpuReset");
     Gic::cpuReset();

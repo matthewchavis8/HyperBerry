@@ -8,7 +8,7 @@
 #define __REGISTERDUMP_H__
 
 #include "core/exceptions/exceptions.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 
 #include "stddef.h"
 
@@ -26,8 +26,8 @@
  * @param ctx  Reference to the saved exception context populated by
  *             the assembly @c save_context macro.
  *
- * @note Output goes directly to the PL011 UART via Uart::print()
- *       and Uart::writeHex().  Intended for fatal-exception debugging
+ * @note Output goes directly to the PL011 UART via Log::print()
+ *       and Log::writeHex().  Intended for fatal-exception debugging
  *       only -- not suitable for production logging.
  */
 inline void registerDump(ExceptionContext& ctx) {
@@ -44,51 +44,51 @@ inline void registerDump(ExceptionContext& ctx) {
     uint32_t ec = (esr >> 26) & 0x3F;
     uint32_t iss = esr & 0xFFFFFF;
 
-    Uart::println("==========[EXCEPTION DUMP]============");
+    Log::println("==========[EXCEPTION DUMP]============");
     // ESR
-    Uart::print("ESR_EL2(Syndrome): 0x");
-    Uart::writeHex(esr);
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("ESR_EL2(Syndrome): 0x");
+    Log::writeHex(esr);
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
-    Uart::print("EC(Class):         0x");
-    Uart::writeHex(static_cast<uint64_t>(ec));
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("EC(Class):         0x");
+    Log::writeHex(static_cast<uint64_t>(ec));
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
-    Uart::print("ISS(Subclass):     0x");
-    Uart::writeHex(static_cast<uint64_t>(iss));
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("ISS(Subclass):     0x");
+    Log::writeHex(static_cast<uint64_t>(iss));
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
     // System Registers
-    Uart::print("ELR_EL2(Return):   0x");
-    Uart::writeHex(elr);
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("ELR_EL2(Return):   0x");
+    Log::writeHex(elr);
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
-    Uart::print("SPSR(Status):      0x");
-    Uart::writeHex(spsr);
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("SPSR(Status):      0x");
+    Log::writeHex(spsr);
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
-    Uart::print("FAR_EL2(Fault):    0x");
-    Uart::writeHex(far);
-    Uart::putc('\r');
-    Uart::putc('\n');
+    Log::print("FAR_EL2(Fault):    0x");
+    Log::writeHex(far);
+    Log::writeCh('\r');
+    Log::writeCh('\n');
 
     for (size_t i {}; i < 31; i++) {
-        Uart::putc('x');
+        Log::writeCh('x');
         if (i >= 10) {
-            Uart::putc('0' + static_cast<char>(i / 10));
+            Log::writeCh('0' + static_cast<char>(i / 10));
         }
-        Uart::putc('0' + static_cast<char>(i % 10));
-        Uart::print(i < 10 ? ":  0x" : ": 0x");
-        Uart::writeHex(ctx[i]);
-        Uart::putc('\r');
-        Uart::putc('\n');
+        Log::writeCh('0' + static_cast<char>(i % 10));
+        Log::print(i < 10 ? ":  0x" : ": 0x");
+        Log::writeHex(ctx[i]);
+        Log::writeCh('\r');
+        Log::writeCh('\n');
     }
-    Uart::println("======================================");
+    Log::println("======================================");
 }
 
 #endif // __cplusplus

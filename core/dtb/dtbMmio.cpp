@@ -7,12 +7,12 @@
 #include "dtbMmio.h"
 #include "dtb.h"
 #include "regs.inc"
-#include "uart.h"
+#include "lib/log/log.h"
 
 namespace {
 
 void addOrWarn(bool added, const char* what) {
-    if (!added) Uart::println("[DTB][WARN] no room for the {} window; it is unmapped", what);
+    if (!added) Log::println("[DTB][WARN] no room for the {} window; it is unmapped", what);
 }
 
 } // namespace
@@ -22,14 +22,14 @@ MmioMap dtbHostMmio(uintptr_t dtb) {
 
     DeviceNode uart = dtbFindUart(dtb);
     if (!uart.found || uart.regionCount == 0) {
-        Uart::println("[DTB][WARN] no PL011 in device tree; EL2 console window not mapped");
+        Log::println("[DTB][WARN] no PL011 in device tree; EL2 console window not mapped");
     } else {
         addOrWarn(map.addBlocks(uart.regions[0].base, uart.regions[0].size), "EL2 console");
     }
 
     DeviceNode gic = dtbFindGic(dtb);
     if (!gic.found || gic.regionCount == 0) {
-        Uart::println("[DTB][WARN] no GIC in device tree; EL2 interrupt windows not mapped");
+        Log::println("[DTB][WARN] no GIC in device tree; EL2 interrupt windows not mapped");
     } else {
         for (uint32_t i {}; i < gic.regionCount; ++i) {
             addOrWarn(map.addBlocks(gic.regions[i].base, gic.regions[i].size), "EL2 GIC");
@@ -44,7 +44,7 @@ MmioMap dtbGuestMmio(uintptr_t guestDtb) {
 
     DeviceNode gic = dtbFindGic(guestDtb);
     if (!gic.found || gic.regionCount == 0) {
-        Uart::println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
+        Log::println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
     } else {
         // The first two regions only: the distributor and the CPU interface.
         // GICH and GICV belong to EL2, and a guest that can reach GICH
@@ -63,7 +63,7 @@ MmioMap dtbGuestMmio(uintptr_t guestDtb) {
 
     DeviceNode uart = dtbFindUart(guestDtb);
     if (!uart.found || uart.regionCount == 0) {
-        Uart::println("[DTB][WARN] guest tree has no PL011; guest console not mapped");
+        Log::println("[DTB][WARN] guest tree has no PL011; guest console not mapped");
     } else {
         addOrWarn(map.addPages(uart.regions[0].base, uart.regions[0].base, uart.regions[0].size),
                 "guest console");

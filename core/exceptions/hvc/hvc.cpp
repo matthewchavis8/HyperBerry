@@ -7,7 +7,7 @@
 #include "hvc.h"
 #include "core/exceptions/exceptions.h"
 #include "core/exceptions/smccc/smccc.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 
 namespace {
 
@@ -32,23 +32,23 @@ namespace PSCI {
 
         switch (callId) {
             case VERSION:
-                Uart::println("[Guest][PSCI] VERSION");
+                Log::println("[Guest][PSCI] VERSION");
                 gpr[0] = VERSION_1_0;
                 return HvcResult::Handled;
 
             case FEATURES: {
                 uint64_t queriedCall = gpr[1];
-                Uart::println("[Guest][PSCI] FEATURES function={:x}", queriedCall);
+                Log::println("[Guest][PSCI] FEATURES function={:x}", queriedCall);
                 gpr[0] = isSupportedPsciCall(queriedCall) ? SUCCESS : NOT_SUPPORTED;
                 return HvcResult::Handled;
             }
 
             case SYSTEM_OFF:
-                Uart::println("[Guest][PSCI] SYSTEM_OFF");
+                Log::println("[Guest][PSCI] SYSTEM_OFF");
                 return HvcResult::Halt;
 
             case SYSTEM_RESET:
-                Uart::println("[Guest][PSCI] SYSTEM_RESET");
+                Log::println("[Guest][PSCI] SYSTEM_RESET");
                 return HvcResult::Reset;
 
             default:
@@ -72,7 +72,7 @@ HvcResult handleHvcAarch64(ExceptionContext& gpr) {
             return HvcResult::Unhandled;
 
         default:
-            Uart::println("[Guest][HVC] Unsupported call ID={:x}", callId);
+            Log::println("[Guest][HVC] Unsupported call ID={:x}", callId);
             return HvcResult::Unhandled;
     }
 }

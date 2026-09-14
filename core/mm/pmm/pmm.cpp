@@ -5,7 +5,7 @@
  */
 
 #include "pmm.h"
-#include "drivers/uart/uart.h"
+#include "lib/log/log.h"
 
 #include <stddef.h>
 
@@ -59,7 +59,7 @@ uint8_t bitmapToggle(uint64_t addr, uint32_t order) {
     size_t bitIdx = bitmapIndex(addr, order);
     size_t byteIdx = bitIdx >> 3;
     if (byteIdx >= BITMAP_BYTES) {
-        Uart::println("[ERROR] PMM bitmap overflow");
+        Log::println("[ERROR] PMM bitmap overflow");
         for (;;)
             asm volatile("wfe");
     }
@@ -197,12 +197,12 @@ void init(const MemoryMap& map) {
     s_size = map.memSize;
 
     if (s_size > MAX_POOL_SIZE) {
-        Uart::println("[PMM][ERROR] PMM pool larger than supported bitmap");
+        Log::println("[PMM][ERROR] PMM pool larger than supported bitmap");
         for (;;)
             asm volatile("wfe");
     }
 
-    Uart::println("[PMM] Initialising buddy allocator");
+    Log::println("[PMM] Initialising buddy allocator");
 
     uint64_t maxBlockSize = (uint64_t)PAGE_SIZE << MAX_ORDER;
     uint64_t poolEnd = map.memBase + map.memSize;
@@ -230,30 +230,30 @@ void init(const MemoryMap& map) {
     uint64_t kernelBase = reinterpret_cast<uint64_t>(__text_start);
     uint64_t kernelSize = reinterpret_cast<uint64_t>(__uncached_space_end) - kernelBase;
     reserveRegion(kernelBase, kernelSize);
-    Uart::println("[PMM] Reserved: kernel");
+    Log::println("[PMM] Reserved: kernel");
 
     reserveRegion(map.atfBase, map.atfSize);
-    Uart::println("[PMM] Reserved: TF-A");
+    Log::println("[PMM] Reserved: TF-A");
 
     reserveRegion(map.dtbBase, map.dtbSize);
-    Uart::println("[PMM] Reserved: DTB");
+    Log::println("[PMM] Reserved: DTB");
 
     if (map.bootPackageSize != 0) {
         reserveRegion(map.bootPackageBase, map.bootPackageSize);
-        Uart::println("[PMM] Reserved: boot package");
+        Log::println("[PMM] Reserved: boot package");
     }
 
     if (map.memBase == 0 && map.memSize >= PAGE_SIZE) {
         reserveRegion(0, PAGE_SIZE);
-        Uart::println("[PMM] Reserved: null page");
+        Log::println("[PMM] Reserved: null page");
     }
 
-    Uart::println("[PMM] Buddy allocator ready");
+    Log::println("[PMM] Buddy allocator ready");
     dumpState();
 }
 
 void dumpState() {
-    Uart::println("[PMM] Free blocks per order:");
+    Log::println("[PMM] Free blocks per order:");
     for (uint32_t o = 0; o <= MAX_ORDER; o++) {
         uint32_t count {};
         FreeNode* node = s_freeLists[o];
@@ -261,7 +261,7 @@ void dumpState() {
             count++;
             node = node->m_next;
         }
-        Uart::println("  [order] {} [size] {:x} [free] {}", o, (uint64_t)PAGE_SIZE << o, count);
+        Log::println("  [order] {} [size] {:x} [free] {}", o, (uint64_t)PAGE_SIZE << o, count);
     }
 }
 

@@ -16,7 +16,7 @@
 #include "core/exceptions/hvc/hvc.h"
 #include "core/vcpu/vcpu.h"
 #include "lib/panic/panic.h"
-#include "uart.h"
+#include "lib/log/log.h"
 
 // Hypervisor EL2 exception handlers
 
@@ -46,8 +46,7 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
 
     switch (exceptionClass) {
         case EsrEc::HvcAarch64:
-            Uart::println(
-                    "[Guest][HVC] Handling HVC call from guest, call ID={:x}", vcpu->m_gpr[0]);
+            Log::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}", vcpu->m_gpr[0]);
             {
                 HvcResult result = handleHvcAarch64(vcpu->m_gpr);
 
@@ -67,7 +66,7 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
             break;
 
         case EsrEc::SmcAarch64:
-            Uart::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
+            Log::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
                     vcpu->getGpReg(VCPU_GPREG_X0));
             vcpu->skipInstruction();
             break;
@@ -77,7 +76,7 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
         }
 
         default:
-            Uart::println(
+            Log::println(
                     "[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}", exceptionClass, esr);
             hv_panic("[Guest] unhandled lower-EL sync exception");
     }
@@ -96,7 +95,7 @@ extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t esr) {
 extern "C" void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr) {
     (void)vcpu;
     (void)esr;
-    Uart::println("[Guest EL SError] was triggered");
+    Log::println("[Guest EL SError] was triggered");
     for (;;) {
         asm volatile("wfe");
     }
