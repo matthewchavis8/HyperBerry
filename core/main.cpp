@@ -12,6 +12,7 @@
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/bootpkg/bootpkg.h"
 #include "core/vm/vm.h"
+#include "lib/cxxrt/cxxrt.h"
 #include "lib/panic/panic.h"
 #include "uart.h"
 #include "drivers/gic/gic.h"
@@ -36,6 +37,7 @@
  */
 extern "C" void hmain(uintptr_t dtb) {
     Uart::init();
+    runGlobalConstructors();
     Uart::println("[UART] UART intialized");
 
     Uart::println("[DTB] Attempting to parse device tree blob");
