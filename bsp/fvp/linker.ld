@@ -35,6 +35,15 @@ SECTIONS {
   } > RAM
   __rodata_size = __rodata_end - __rodata_start;
 
+  /* C++ global constructors, walked by runGlobalConstructors() in hmain.
+     KEEP because nothing references these by symbol and --gc-sections is on. */
+  .init_array : ALIGN(0x8) {
+    __init_array_start = .;
+    KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
+    KEEP(*(.init_array))
+    __init_array_end = .;
+  } > RAM
+
   .hyperberry_tests : ALIGN(0x1000) {
     __test_suites_start = .;
     KEEP(*(.hyperberry_tests))
