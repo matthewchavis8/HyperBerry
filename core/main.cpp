@@ -41,7 +41,8 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::println("[DTB] Attempting to parse device tree blob");
     MemoryMap memoryMap = parseDtb(dtb);
     Log::println("[DTB] Succesfully parsed device tree blob");
-    // TODO: This is a future TODO but instead of isValid panicking I think the praseDTB or some sort of the memoryMap should fail hard so we can move this isValid check inside somewhere
+    // TODO: future, but instead of isValid panicking here I think parseDtb or the
+    // memoryMap itself should fail hard, so this check can move inside somewhere.
     if (!memoryMap.isValid) hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
 
     verifyBspAgainstDtb(dtb);
