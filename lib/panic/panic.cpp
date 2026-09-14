@@ -16,11 +16,11 @@
  * @param ctx Saved exception context for diagnostic output.
  */
 [[noreturn]] void hv_panic(const char* msg, ExceptionContext& ctx) {
-    Log::println("=======================================");
-    Log::println("=             HV PANIC                =");
-    Log::println("=======================================");
+    Log::writeLine("=======================================");
+    Log::writeLine("=             HV PANIC                =");
+    Log::writeLine("=======================================");
 
-    if (msg) Log::println("[ERROR] {}", msg);
+    if (msg) Log::writeLine("[ERROR] {}", msg);
 
     registerDump(ctx);
 
@@ -35,11 +35,11 @@
  * @param msg Optional panic message to print.
  */
 [[noreturn]] void hv_panic(const char* msg) {
-    Log::println("=======================================");
-    Log::println("=             HV PANIC                =");
-    Log::println("=======================================");
+    Log::writeLine("=======================================");
+    Log::writeLine("=             HV PANIC                =");
+    Log::writeLine("=======================================");
 
-    if (msg) Log::println("[ERROR] {}", msg);
+    if (msg) Log::writeLine("[ERROR] {}", msg);
 
     // Dump System Register State
     uint64_t esr {};
@@ -63,13 +63,13 @@
     // HPFAR_EL2[39:4] holds IPA[47:12] of the stage-2 fault.
     uint64_t fault_ipa = (hpfar & 0xFFFFFFFFF0ULL) << 8;
 
-    Log::println("[ESR_EL2]   {:x} EC={:x} ISS={:x}", esr, ec, iss);
-    Log::println("[ELR_EL2]   {:x}", elr);
-    Log::println("[FAR_EL2]   {:x}", far);
-    Log::println("[SPSR_EL2]  {:x}", spsr);
-    Log::println("[HPFAR_EL2] {:x} IPA={:x}", hpfar, fault_ipa);
-    Log::println("[VTTBR_EL2] {:x}", vttbr);
-    Log::println("[VTCR_EL2]  {:x}", vtcr);
+    Log::writeLine("[ESR_EL2]   {:x} EC={:x} ISS={:x}", esr, ec, iss);
+    Log::writeLine("[ELR_EL2]   {:x}", elr);
+    Log::writeLine("[FAR_EL2]   {:x}", far);
+    Log::writeLine("[SPSR_EL2]  {:x}", spsr);
+    Log::writeLine("[HPFAR_EL2] {:x} IPA={:x}", hpfar, fault_ipa);
+    Log::writeLine("[VTTBR_EL2] {:x}", vttbr);
+    Log::writeLine("[VTCR_EL2]  {:x}", vtcr);
 
     for (;;) {
         asm volatile("wfe");

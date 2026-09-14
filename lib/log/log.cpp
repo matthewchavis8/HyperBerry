@@ -13,14 +13,14 @@ void Log::writeCh(const char ch) {
     sink(ch);
 }
 
-void Log::println(const char* str) {
+void Log::writeLine(const char* str) {
     log::detail::writeCString([](char ch) { Log::sink(ch); }, str);
 
     writeCh('\r');
     writeCh('\n');
 }
 
-void Log::print(const char* str) {
+void Log::write(const char* str) {
     log::detail::writeCString([](char ch) { Log::sink(ch); }, str);
 }
 

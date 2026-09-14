@@ -251,7 +251,7 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
 //                  vanish from a release image instead of becoming a call to
 //                  an empty function that still pins the literal in .rodata.
 //
-//   write/println/writeCh/writeHex
+//   write/writeLine/writeCh/writeHex
 //                  always emitted. The panic path and the integration
 //                  harness ride these, and a release build that panics
 //                  silently is a release build you cannot debug.
@@ -265,29 +265,29 @@ private:
     static void sink(const char ch);
 
 public:
-    // @brief Emit a null-terminated string followed by CRLF..
+    // @brief Emit a null-terminated string followed by CRLF. Always emitted.
     // @param str Pointer to the null-terminated string to send.
     // @return Nothing.
-    static void println(const char* str);
+    static void writeLine(const char* str);
 
     template <typename... Args>
-    static void println(const char* fmt, Args... args) {
-        print(fmt, args...);
+    static void writeLine(const char* fmt, Args... args) {
+        write(fmt, args...);
         writeCh('\r');
         writeCh('\n');
     }
 
-    // @brief Emit a null-terminated string..
+    // @brief Emit a null-terminated string. Always emitted.
     // @param str Pointer to the null-terminated string to send.
     // @return Nothing.
-    static void print(const char* str);
+    static void write(const char* str);
 
     template <typename... Args>
-    static void print(const char* fmt, Args... args) {
+    static void write(const char* fmt, Args... args) {
         log::detail::formatToSink([](char ch) { Log::sink(ch); }, fmt, args...);
     }
 
-    // @brief Emit a single character..
+    // @brief Emit a single character. Always emitted.
     // @param ch Character to send.
     // @return Nothing.
     static void writeCh(const char ch);
@@ -298,6 +298,38 @@ public:
     //       "0x" prefix -- callers must add it themselves.
     // @return Nothing.
     static void writeHex(uint64_t val);
+
+    // @brief Debug console line. Compiled out when NDEBUG is set.
+    // @param str Pointer to the null-terminated string to send.
+    // @return Nothing.
+    static void println([[maybe_unused]] const char* str) {
+#ifndef NDEBUG
+        writeLine(str);
+#endif
+    }
+
+    template <typename... Args>
+    static void println([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
+#ifndef NDEBUG
+        writeLine(fmt, args...);
+#endif
+    }
+
+    // @brief Debug console text, no line ending. Compiled out when NDEBUG is set.
+    // @param str Pointer to the null-terminated string to send.
+    // @return Nothing.
+    static void print([[maybe_unused]] const char* str) {
+#ifndef NDEBUG
+        write(str);
+#endif
+    }
+
+    template <typename... Args>
+    static void print([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
+#ifndef NDEBUG
+        write(fmt, args...);
+#endif
+    }
 };
 
 #endif // !__LOG_H__

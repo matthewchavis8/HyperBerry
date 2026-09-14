@@ -26,7 +26,7 @@
  * @param ctx  Reference to the saved exception context populated by
  *             the assembly @c save_context macro.
  *
- * @note Output goes directly to the PL011 UART via Log::print()
+ * @note Output goes directly to the PL011 UART via Log::write()
  *       and Log::writeHex().  Intended for fatal-exception debugging
  *       only -- not suitable for production logging.
  */
@@ -44,35 +44,35 @@ inline void registerDump(ExceptionContext& ctx) {
     uint32_t ec = (esr >> 26) & 0x3F;
     uint32_t iss = esr & 0xFFFFFF;
 
-    Log::println("==========[EXCEPTION DUMP]============");
+    Log::writeLine("==========[EXCEPTION DUMP]============");
     // ESR
-    Log::print("ESR_EL2(Syndrome): 0x");
+    Log::write("ESR_EL2(Syndrome): 0x");
     Log::writeHex(esr);
     Log::writeCh('\r');
     Log::writeCh('\n');
 
-    Log::print("EC(Class):         0x");
+    Log::write("EC(Class):         0x");
     Log::writeHex(static_cast<uint64_t>(ec));
     Log::writeCh('\r');
     Log::writeCh('\n');
 
-    Log::print("ISS(Subclass):     0x");
+    Log::write("ISS(Subclass):     0x");
     Log::writeHex(static_cast<uint64_t>(iss));
     Log::writeCh('\r');
     Log::writeCh('\n');
 
     // System Registers
-    Log::print("ELR_EL2(Return):   0x");
+    Log::write("ELR_EL2(Return):   0x");
     Log::writeHex(elr);
     Log::writeCh('\r');
     Log::writeCh('\n');
 
-    Log::print("SPSR(Status):      0x");
+    Log::write("SPSR(Status):      0x");
     Log::writeHex(spsr);
     Log::writeCh('\r');
     Log::writeCh('\n');
 
-    Log::print("FAR_EL2(Fault):    0x");
+    Log::write("FAR_EL2(Fault):    0x");
     Log::writeHex(far);
     Log::writeCh('\r');
     Log::writeCh('\n');
@@ -83,12 +83,12 @@ inline void registerDump(ExceptionContext& ctx) {
             Log::writeCh('0' + static_cast<char>(i / 10));
         }
         Log::writeCh('0' + static_cast<char>(i % 10));
-        Log::print(i < 10 ? ":  0x" : ": 0x");
+        Log::write(i < 10 ? ":  0x" : ": 0x");
         Log::writeHex(ctx[i]);
         Log::writeCh('\r');
         Log::writeCh('\n');
     }
-    Log::println("======================================");
+    Log::writeLine("======================================");
 }
 
 #endif // __cplusplus
