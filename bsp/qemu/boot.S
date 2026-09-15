@@ -1,33 +1,31 @@
-/**
- * @file bsp/qemu/boot.S
- * @brief EL2 hypervisor bootstrap for QEMU virt (Cortex-A76).
- * @ingroup bsp
- *
- * @par Boot Sequence
- * 1. **Core parking** — MPIDR_EL1 is read and all non-zero cores are
- *    sent to a `wfe` spin loop. Only core 0 proceeds.
- * 2. **EL2 verification** — CurrentEL is checked. If the firmware did
- *    not enter at EL2, core 0 is also parked (hypervisor cannot run at EL1).
- * 3. **HCR_EL2** — RW bit (31) is set, forcing all EL1 guests into
- *    AArch64 mode. 32-bit guests are not supported.
- * 4. **SCTLR_EL2** — MMU, D-cache, and I-cache are explicitly disabled
- *    until Stage-2 page tables are installed.
- * 5. **CNTHCTL_EL2** — EL1PCTEN and EL1PCEN are set, granting guest
- *    OSes read access to the physical counter and timer. CNTVOFF_EL2
- *    is zeroed so the virtual offset is neutral.
- * 6. **VPIDR/VMPIDR** — Shadowed from the real MIDR/MPIDR so guests
- *    report accurate CPU identity.
- * 7. **BSS zeroing** — The .bss section is zeroed with 16-byte stores
- *    using symbol addresses from the linker script.
- * 8. **Stack** — SP_EL2 is set to `__stack_end` (top of the 4 MB EL2
- *    stack defined in the linker script).
- * 9. **Branch to hmain()** — Control is transferred to the C++ hypervisor
- *    entry point. hmain() must never return.
- *
- * @note Target: QEMU virt machine emulating Cortex-A76.
- *       Shared C/C++ code selects UART and MMIO ranges from the QEMU
- *       BSP definition.
- */
+// @file bsp/qemu/boot.S
+// @brief EL2 hypervisor bootstrap for QEMU virt (Cortex-A76).
+// @ingroup bsp
+//
+// @par Boot Sequence
+// 1. **Core parking** — MPIDR_EL1 is read and all non-zero cores are
+//    sent to a `wfe` spin loop. Only core 0 proceeds.
+// 2. **EL2 verification** — CurrentEL is checked. If the firmware did
+//    not enter at EL2, core 0 is also parked (hypervisor cannot run at EL1).
+// 3. **HCR_EL2** — RW bit (31) is set, forcing all EL1 guests into
+//    AArch64 mode. 32-bit guests are not supported.
+// 4. **SCTLR_EL2** — MMU, D-cache, and I-cache are explicitly disabled
+//    until Stage-2 page tables are installed.
+// 5. **CNTHCTL_EL2** — EL1PCTEN and EL1PCEN are set, granting guest
+//    OSes read access to the physical counter and timer. CNTVOFF_EL2
+//    is zeroed so the virtual offset is neutral.
+// 6. **VPIDR/VMPIDR** — Shadowed from the real MIDR/MPIDR so guests
+//    report accurate CPU identity.
+// 7. **BSS zeroing** — The .bss section is zeroed with 16-byte stores
+//    using symbol addresses from the linker script.
+// 8. **Stack** — SP_EL2 is set to `__stack_end` (top of the 4 MB EL2
+//    stack defined in the linker script).
+// 9. **Branch to hmain()** — Control is transferred to the C++ hypervisor
+//    entry point. hmain() must never return.
+//
+// @note Target: QEMU virt machine emulating Cortex-A76.
+//       Shared C/C++ code selects UART and MMIO ranges from the QEMU
+//       BSP definition.
 
 // EL2 hypervisor entry point for BCM2712 / Cortex-A76. VIRTUAL
 

@@ -1,12 +1,10 @@
-/**
- * @file test_heap.cpp
- * @brief Unit tests for the slab + large-allocation kernel heap.
- *
- * Compiled with @c HEAP_TESTING_BUILD so heap.cpp exposes
- * @c hv::heap::testing::allocate / @c deallocate instead of overriding
- * the global C++ allocation operators (which would otherwise hijack
- * GoogleTest's own dynamic allocations before @c hv::heap::init() runs).
- */
+// @file test_heap.cpp
+// @brief Unit tests for the slab + large-allocation kernel heap.
+//
+// Compiled with @c HEAP_TESTING_BUILD so heap.cpp exposes
+// @c hv::heap::testing::allocate / @c deallocate instead of overriding
+// the global C++ allocation operators (which would otherwise hijack
+// GoogleTest's own dynamic allocations before @c hv::heap::init() runs).
 
 #include <gtest/gtest.h>
 

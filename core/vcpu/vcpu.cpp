@@ -1,8 +1,6 @@
-/**
- * @file vcpu.cpp
- * @brief Per-guest vCPU context implementation.
- * @ingroup vcpu
- */
+// @file vcpu.cpp
+// @brief Per-guest vCPU context implementation.
+// @ingroup vcpu
 
 #include "vcpu.h"
 #include "lib/strings/strings.h"

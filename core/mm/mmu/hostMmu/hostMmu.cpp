@@ -1,8 +1,6 @@
-/**
- * @file hostMmu.cpp
- * @brief EL2 stage-1 MMU bring-up and mapping operations.
- * @ingroup mmu
- */
+// @file hostMmu.cpp
+// @brief EL2 stage-1 MMU bring-up and mapping operations.
+// @ingroup mmu
 
 #include "core/mm/pageTable/pageTable.h"
 #include "lib/log/log.h"

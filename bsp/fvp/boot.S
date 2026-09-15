@@ -1,19 +1,17 @@
-/**
- * @file bsp/fvp/boot.S
- * @brief EL2 hypervisor bootstrap for Arm FVP Base RevC-2xAEMvA.
- * @ingroup bsp
- *
- * @par Boot Sequence
- * 1. Park non-zero MPIDR cores in a wfe loop.
- * 2. Inspect CurrentEL:
- *    - EL3: program SCR_EL3 / SPSR_EL3 / ELR_EL3 and ERET into the EL2 path.
- *    - EL2: jump straight into the EL2 path.
- *    - other: park.
- * 3. EL2 path mirrors the QEMU bring-up.
- *
- * @note FVP does not pass a device tree. parseDtb() will panic shortly after
- *       the first UART line in this milestone; that is expected.
- */
+// @file bsp/fvp/boot.S
+// @brief EL2 hypervisor bootstrap for Arm FVP Base RevC-2xAEMvA.
+// @ingroup bsp
+//
+// @par Boot Sequence
+// 1. Park non-zero MPIDR cores in a wfe loop.
+// 2. Inspect CurrentEL:
+//    - EL3: program SCR_EL3 / SPSR_EL3 / ELR_EL3 and ERET into the EL2 path.
+//    - EL2: jump straight into the EL2 path.
+//    - other: park.
+// 3. EL2 path mirrors the QEMU bring-up.
+//
+// @note FVP does not pass a device tree. parseDtb() will panic shortly after
+//       the first UART line in this milestone; that is expected.
 
 #include "platform.inc"
 

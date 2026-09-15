@@ -1,7 +1,5 @@
-/**
- * @file guest_payload.S
- * @brief Minimal EL1 payload used by the GIC integration test.
- */
+// @file guest_payload.S
+// @brief Minimal EL1 payload used by the GIC integration test.
 
 // x0 holds the GICV base at entry; stashed because the IRQ handler reuses x0.
 #define GICV_IAR  0x00c

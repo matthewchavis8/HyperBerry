@@ -1,7 +1,5 @@
-/**
- * @file test_pmm.cpp
- * @brief Integration tests for the physical memory allocator (PMM).
- */
+// @file test_pmm.cpp
+// @brief Integration tests for the physical memory allocator (PMM).
 
 #include "tests/integration/suite.h"
 #include "core/mm/pmm/pmm.h"

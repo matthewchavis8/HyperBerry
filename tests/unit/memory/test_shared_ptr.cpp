@@ -1,7 +1,5 @@
-/**
- * @file test_shared_ptr.cpp
- * @brief Unit tests for hv::shared_ptr.
- */
+// @file test_shared_ptr.cpp
+// @brief Unit tests for hv::shared_ptr.
 
 #include <gtest/gtest.h>
 #include "lib/memory/shared_ptr.h"

@@ -1,7 +1,5 @@
-/**
- * @file test_guestMmu.cpp
- * @brief Unit tests for stage-2 descriptor bits and VTCR field builders.
- */
+// @file test_guestMmu.cpp
+// @brief Unit tests for stage-2 descriptor bits and VTCR field builders.
 
 #include <gtest/gtest.h>
 

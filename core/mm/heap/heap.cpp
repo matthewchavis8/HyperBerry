@@ -1,17 +1,15 @@
-/**
- * @file heap.cpp
- * @brief PMM-backed slab allocator with page-order fallback.
- * @ingroup mm
- *
- * Small allocations (<= 1024 bytes, or alignment <= 1024) are served from
- * size-class slabs whose metadata lives at the start of each PMM page.
- * Larger or more strictly-aligned requests are served from a contiguous
- * page-order PMM allocation with a header placed immediately before the
- * returned pointer.
- *
- * The allocator publishes itself only through the global C++17 freestanding
- * allocation/deallocation operators below. There is no malloc-style API.
- */
+// @file heap.cpp
+// @brief PMM-backed slab allocator with page-order fallback.
+// @ingroup mm
+//
+// Small allocations (<= 1024 bytes, or alignment <= 1024) are served from
+// size-class slabs whose metadata lives at the start of each PMM page.
+// Larger or more strictly-aligned requests are served from a contiguous
+// page-order PMM allocation with a header placed immediately before the
+// returned pointer.
+//
+// The allocator publishes itself only through the global C++17 freestanding
+// allocation/deallocation operators below. There is no malloc-style API.
 
 #include "heap.h"
 

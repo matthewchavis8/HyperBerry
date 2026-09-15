@@ -1,7 +1,5 @@
-/**
- * @file test_vectors.S
- * @brief Test-only EL2 vector table for physical timer IRQ coverage.
- */
+// @file test_vectors.S
+// @brief Test-only EL2 vector table for physical timer IRQ coverage.
 
 .section .text.test_timer_vectors
 .balign 0x800

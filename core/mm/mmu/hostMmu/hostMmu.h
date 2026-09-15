@@ -1,12 +1,10 @@
-/**
- * @file hostMmu.h
- * @brief EL2 stage-1 MMU (host self-map) interface and attribute helpers.
- * @ingroup mmu
- *
- * Programs the EL2 translation tables that make the hypervisor itself
- * executable with caches, shareability, and device-memory attributes.
- * Stage-2 (guest) translation lives in @ref guestMmu.h.
- */
+// @file hostMmu.h
+// @brief EL2 stage-1 MMU (host self-map) interface and attribute helpers.
+// @ingroup mmu
+//
+// Programs the EL2 translation tables that make the hypervisor itself
+// executable with caches, shareability, and device-memory attributes.
+// Stage-2 (guest) translation lives in @ref guestMmu.h.
 #ifndef __HOST_MMU_H__
 #define __HOST_MMU_H__
 
@@ -43,63 +41,51 @@
 #define HV_VA_SIZE SIZE_16GB
 
 namespace HostMmu {
-/**
- * @brief Build EL2 translation tables and enable stage-1 translation.
- * @ingroup mmu
- *
- * @param devices Device windows to map as Device-nGnRnE, read out of the host
- *                device tree by the caller. These overwrite the normal memory
- *                blocks the hypervisor self-map lays down first, so a
- *                peripheral missing from @p devices stays mapped cacheable
- *                rather than faulting.
- */
+// @brief Build EL2 translation tables and enable stage-1 translation.
+// @ingroup mmu
+//
+// @param devices Device windows to map as Device-nGnRnE, read out of the host
+//                device tree by the caller. These overwrite the normal memory
+//                blocks the hypervisor self-map lays down first, so a
+//                peripheral missing from @p devices stays mapped cacheable
+//                rather than faulting.
 void init(const MmioMap& devices);
 
-/**
- * @brief Convert a host physical address to an EL2-accessible pointer.
- * @ingroup mmu
- *
- * HyperBerry currently uses an identity direct map for RAM. Keeping this
- * helper at the boundary avoids spreading that assumption through loaders.
- *
- * @param pa Host physical address.
- * @return EL2 virtual address for the same byte.
- */
+// @brief Convert a host physical address to an EL2-accessible pointer.
+// @ingroup mmu
+//
+// HyperBerry currently uses an identity direct map for RAM. Keeping this
+// helper at the boundary avoids spreading that assumption through loaders.
+//
+// @param pa Host physical address.
+// @return EL2 virtual address for the same byte.
 inline void* paToVa(uint64_t pa) {
     // TODO: Replace this identity direct-map assumption if HyperBerry moves
     // to a higher-half or otherwise non-identity host VA layout.
     return reinterpret_cast<void*>(pa);
 }
 
-/**
- * @brief Map a physical range into EL2 VA space using 2 MiB blocks.
- * @ingroup mmu
- * @param va    Virtual base address.
- * @param pa    Physical base address.
- * @param size  Mapping size in bytes (multiple of 2 MiB).
- * @param flags Descriptor flags excluding the output-address bits.
- */
+// @brief Map a physical range into EL2 VA space using 2 MiB blocks.
+// @ingroup mmu
+// @param va    Virtual base address.
+// @param pa    Physical base address.
+// @param size  Mapping size in bytes (multiple of 2 MiB).
+// @param flags Descriptor flags excluding the output-address bits.
 void mapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags);
 
-/**
- * @brief Remove mappings for a virtual range and flush affected TLBs.
- * @ingroup mmu
- * @param va   Virtual base address.
- * @param size Range size in bytes (multiple of 2 MiB).
- */
+// @brief Remove mappings for a virtual range and flush affected TLBs.
+// @ingroup mmu
+// @param va   Virtual base address.
+// @param size Range size in bytes (multiple of 2 MiB).
 void unmapRange(uint64_t va, uint64_t size);
 
-/**
- * @brief Invalidate all EL2 stage-1 TLB entries.
- * @ingroup mmu
- */
+// @brief Invalidate all EL2 stage-1 TLB entries.
+// @ingroup mmu
 void tlbFlushAll();
 
-/**
- * @brief Invalidate a single EL2 VA translation from the TLB.
- * @ingroup mmu
- * @param va Virtual address within the page to flush.
- */
+// @brief Invalidate a single EL2 VA translation from the TLB.
+// @ingroup mmu
+// @param va Virtual address within the page to flush.
 void tlbFlushVa(uint64_t va);
 } // namespace HostMmu
 

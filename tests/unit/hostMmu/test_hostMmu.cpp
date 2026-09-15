@@ -1,7 +1,5 @@
-/**
- * @file test_hostMmu.cpp
- * @brief Unit tests for stage-1 (EL2 self-map) attribute presets.
- */
+// @file test_hostMmu.cpp
+// @brief Unit tests for stage-1 (EL2 self-map) attribute presets.
 
 #include <gtest/gtest.h>
 

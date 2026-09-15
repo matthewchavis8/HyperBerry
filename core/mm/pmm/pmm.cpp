@@ -1,8 +1,6 @@
-/**
- * @file pmm.cpp
- * @brief Buddy-based physical memory allocator implementation.
- * @ingroup pmm
- */
+// @file pmm.cpp
+// @brief Buddy-based physical memory allocator implementation.
+// @ingroup pmm
 
 #include "pmm.h"
 #include "lib/log/log.h"

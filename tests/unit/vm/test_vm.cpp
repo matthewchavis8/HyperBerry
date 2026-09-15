@@ -1,16 +1,14 @@
-/**
- * @file test_vm.cpp
- * @brief Unit tests for Vm::init composition — verifies that init correctly
- *        wires GuestMmu::init, Vcpu::init, and Linux x0 DTB seeding
- *        without executing real hardware paths.
- *
- * Stubs for GuestMmu capture call arguments into file-scope globals. Vcpu
- * stubs live in test_vcpu.cpp (single-binary constraint); the capture globals
- * defined there are referenced here via extern declarations.
- *
- * Uart stubs (constructor, getInstance, putc) are provided by test_dtb.cpp, which
- * is compiled into the same binary. vcpu_enter is stubbed here.
- */
+// @file test_vm.cpp
+// @brief Unit tests for Vm::init composition — verifies that init correctly
+//        wires GuestMmu::init, Vcpu::init, and Linux x0 DTB seeding
+//        without executing real hardware paths.
+//
+// Stubs for GuestMmu capture call arguments into file-scope globals. Vcpu
+// stubs live in test_vcpu.cpp (single-binary constraint); the capture globals
+// defined there are referenced here via extern declarations.
+//
+// Uart stubs (constructor, getInstance, putc) are provided by test_dtb.cpp, which
+// is compiled into the same binary. vcpu_enter is stubbed here.
 
 #include <gtest/gtest.h>
 

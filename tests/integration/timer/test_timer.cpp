@@ -1,7 +1,5 @@
-/**
- * @file test_timer.cpp
- * @brief Hardware-backed integration tests for the ARM generic timer driver.
- */
+// @file test_timer.cpp
+// @brief Hardware-backed integration tests for the ARM generic timer driver.
 
 #include "core/vmm/esr.h"
 #include "drivers/gic/gic.h"

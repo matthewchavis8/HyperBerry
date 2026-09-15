@@ -1,7 +1,5 @@
-/**
- * @file test_bootpkg.cpp
- * @brief Integration tests for firmware-loaded guest boot packages.
- */
+// @file test_bootpkg.cpp
+// @brief Integration tests for firmware-loaded guest boot packages.
 
 #include "core/bootpkg/bootpkg.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"

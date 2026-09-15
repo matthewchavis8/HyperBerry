@@ -1,8 +1,6 @@
-/**
- * @file panic.h
- * @brief Fatal hypervisor panic interface.
- * @ingroup lib
- */
+// @file panic.h
+// @brief Fatal hypervisor panic interface.
+// @ingroup lib
 
 #ifndef __PANIC_H__
 #define __PANIC_H__

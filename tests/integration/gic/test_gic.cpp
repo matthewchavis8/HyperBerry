@@ -1,7 +1,5 @@
-/**
- * @file test_gic.cpp
- * @brief Hardware-backed integration tests for the GICv2 driver.
- */
+// @file test_gic.cpp
+// @brief Hardware-backed integration tests for the GICv2 driver.
 
 #include "core/vmm/esr.h"
 #include "core/vcpu/vcpu.h"

@@ -1,7 +1,5 @@
-/**
- * @file test_vcpu.cpp
- * @brief Integration tests for the Vcpu subsystem on AArch64.
- */
+// @file test_vcpu.cpp
+// @brief Integration tests for the Vcpu subsystem on AArch64.
 
 #include "tests/integration/suite.h"
 #include "core/vmm/esr.h"

@@ -1,11 +1,9 @@
-/**
- * @file test_gic.cpp
- * @brief Unit-level GICv2 register logic tests.
- *
- * These tests intentionally stub the Gic implementation and validate the
- * register index, bit mask, and List Register encoding logic without touching
- * real MMIO. Hardware-backed behavior belongs in the integration suite.
- */
+// @file test_gic.cpp
+// @brief Unit-level GICv2 register logic tests.
+//
+// These tests intentionally stub the Gic implementation and validate the
+// register index, bit mask, and List Register encoding logic without touching
+// real MMIO. Hardware-backed behavior belongs in the integration suite.
 
 #include <gtest/gtest.h>
 

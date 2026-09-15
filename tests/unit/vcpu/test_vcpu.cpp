@@ -1,7 +1,5 @@
-/**
- * @file test_vcpu.cpp
- * @brief Hosted unit tests for Vcpu layout and basic behavior.
- */
+// @file test_vcpu.cpp
+// @brief Hosted unit tests for Vcpu layout and basic behavior.
 
 #include <gtest/gtest.h>
 

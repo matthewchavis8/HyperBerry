@@ -1,12 +1,10 @@
-/**
- * @file vm.h
- * @brief Per-guest VM container: owns a stage-2 MMU and its vCPU(s).
- * @ingroup vm
- *
- * A VM is the unit that the hypervisor schedules: one stage-2 translation
- * regime, one VMID, and the vCPUs that share both. Currently one vCPU
- * per VM; the member is named with growth in mind.
- */
+// @file vm.h
+// @brief Per-guest VM container: owns a stage-2 MMU and its vCPU(s).
+// @ingroup vm
+//
+// A VM is the unit that the hypervisor schedules: one stage-2 translation
+// regime, one VMID, and the vCPUs that share both. Currently one vCPU
+// per VM; the member is named with growth in mind.
 #ifndef __VM_H__
 #define __VM_H__
 
@@ -23,22 +21,20 @@ private:
     uint8_t m_vmid;
 
 public:
-    /**
-     * @brief Build this VM's stage-2 mappings and seed its vCPU.
-     *
-     * Order is significant: stage-2 tables are constructed first so they
-     * are in place before the vCPU's first entry. VTTBR_EL2 /
-     * HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
-     *
-     * @param name           Guest kernel or VM name retained for diagnostics.
-     * @param ipaBase        Guest IPA base.
-     * @param guestRamHostPa Host physical base backing guest RAM.
-     * @param sizeBytes      Size of the guest RAM region.
-     * @param vmid           Non-zero VMID (unique across live VMs).
-     * @param guestEntry     Guest IPA at which to resume on first @c eret.
-     * @param guestDtb       Guest IPA of the Linux device tree blob.
-     * @param devices        Device windows this guest may reach.
-     */
+    // @brief Build this VM's stage-2 mappings and seed its vCPU.
+    //
+    // Order is significant: stage-2 tables are constructed first so they
+    // are in place before the vCPU's first entry. VTTBR_EL2 /
+    // HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
+    //
+    // @param name           Guest kernel or VM name retained for diagnostics.
+    // @param ipaBase        Guest IPA base.
+    // @param guestRamHostPa Host physical base backing guest RAM.
+    // @param sizeBytes      Size of the guest RAM region.
+    // @param vmid           Non-zero VMID (unique across live VMs).
+    // @param guestEntry     Guest IPA at which to resume on first @c eret.
+    // @param guestDtb       Guest IPA of the Linux device tree blob.
+    // @param devices        Device windows this guest may reach.
     void init(const char* name,
             uint64_t ipaBase,
             uint64_t guestRamHostPa,
@@ -48,17 +44,15 @@ public:
             uint64_t guestDtb,
             const MmioMap& devices);
 
-    /**
-     * @brief Enable stage-2 and enter the guest.
-     * @note Does not return; the guest runs forever or traps back via
-     *       the exception path, which is owned by vcpu.S / vmm.S.
-     */
+    // @brief Enable stage-2 and enter the guest.
+    // @note Does not return; the guest runs forever or traps back via
+    //       the exception path, which is owned by vcpu.S / vmm.S.
     void run();
 
-    /** @brief Return the guest kernel name passed to @ref init(). */
+    // @brief Return the guest kernel name passed to @ref init().
     [[nodiscard]] const char* getName() const noexcept;
 
-    /** @brief Return the guest vm ID passed to @ref init(). */
+    // @brief Return the guest vm ID passed to @ref init().
     [[nodiscard]] uint8_t getVmId() const noexcept;
 };
 

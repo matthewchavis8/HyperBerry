@@ -1,21 +1,17 @@
-/**
- * @file core/dtb/fdt.h
- * @brief Flattened Device Tree on-wire format and shared decoding helpers.
- * @ingroup core
- *
- * Both the read-only boot parser and the guest DTB patcher walk the same
- * structure block, so the token values, header layout and byte-order helpers
- * live here rather than being duplicated per walker.
- */
+// @file core/dtb/fdt.h
+// @brief Flattened Device Tree on-wire format and shared decoding helpers.
+// @ingroup core
+//
+// Both the read-only boot parser and the guest DTB patcher walk the same
+// structure block, so the token values, header layout and byte-order helpers
+// live here rather than being duplicated per walker.
 
 #ifndef __FDT_H__
 #define __FDT_H__
 
 #include <stdint.h>
 
-/**
- * @brief Flattened Device Tree token values used in the structure block.
- */
+// @brief Flattened Device Tree token values used in the structure block.
 enum class FDT : uint32_t {
     MAGIC = 0xD00DFEED,
     BEGIN_NODE = 1,
@@ -25,9 +21,7 @@ enum class FDT : uint32_t {
     END = 9,
 };
 
-/**
- * @brief On-wire DTB header layout.
- */
+// @brief On-wire DTB header layout.
 struct FdtHeader {
     uint32_t magic;
     uint32_t totalSize;
@@ -41,31 +35,23 @@ struct FdtHeader {
     uint32_t sizeStructs;
 };
 
-/**
- * @brief DTB property record header.
- */
+// @brief DTB property record header.
 struct FdtProp {
     uint32_t dataLen;
     uint32_t nameOff;
 };
 
-/**
- * @brief Convert a 32-bit big-endian DTB field to host endianness.
- */
+// @brief Convert a 32-bit big-endian DTB field to host endianness.
 inline uint32_t be32(uint32_t byte) {
     return __builtin_bswap32(byte);
 }
 
-/**
- * @brief Convert a 64-bit big-endian DTB field to host endianness.
- */
+// @brief Convert a 64-bit big-endian DTB field to host endianness.
 inline uint64_t be64(uint64_t byte) {
     return __builtin_bswap64(byte);
 }
 
-/**
- * @brief Compare two null-terminated strings for equality.
- */
+// @brief Compare two null-terminated strings for equality.
 inline bool strEq(const char* str1, const char* str2) {
     while (*str1 && *str2) {
         if (*str1 != *str2) return false;
@@ -76,9 +62,7 @@ inline bool strEq(const char* str1, const char* str2) {
     return *str1 == *str2;
 }
 
-/**
- * @brief Test whether @p str begins with @p prefix.
- */
+// @brief Test whether @p str begins with @p prefix.
 inline bool strStartsWith(const char* str, const char* prefix) {
     while (*prefix) {
         if (*str != *prefix) return false;
@@ -89,13 +73,11 @@ inline bool strStartsWith(const char* str, const char* prefix) {
     return true;
 }
 
-/**
- * @brief Advance past @p bytes and round up to the next 32-bit boundary.
- * @return The aligned address; callers cast to the constness they need.
- *
- * The structure block only guarantees 4-byte alignment, so every token and
- * property payload has to be re-aligned before the next read.
- */
+// @brief Advance past @p bytes and round up to the next 32-bit boundary.
+// @return The aligned address; callers cast to the constness they need.
+//
+// The structure block only guarantees 4-byte alignment, so every token and
+// property payload has to be re-aligned before the next read.
 inline uintptr_t fdtAlign(const void* ptr, uint32_t bytes) {
     uintptr_t addr = reinterpret_cast<uintptr_t>(ptr) + bytes;
 

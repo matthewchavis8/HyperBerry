@@ -1,8 +1,6 @@
-/**
- * @file registerDump.h
- * @brief Human-readable register dump for exception diagnostics.
- * @ingroup lib
- */
+// @file registerDump.h
+// @brief Human-readable register dump for exception diagnostics.
+// @ingroup lib
 
 #ifndef __REGISTERDUMP_H__
 #define __REGISTERDUMP_H__
@@ -16,21 +14,19 @@
 
 #ifdef __cplusplus
 
-/**
- * @brief Print a full register dump to the UART console.
- * @ingroup lib
- *
- * Reads ESR_EL2 and FAR_EL2, decodes the Exception Class (EC) and
- * Instruction-Specific Syndrome (ISS) fields, then prints all 31
- * general-purpose registers plus the saved ELR and SPSR from the
- * exception context.
- *
- * @param ctx  Reference to the saved exception context populated by
- *             the assembly @c save_context macro.
- *
- * @note Writes straight to the UART rather than through Log, so the dump
- *       survives a release build. Only hv_panic calls this.
- */
+// @brief Print a full register dump to the UART console.
+// @ingroup lib
+//
+// Reads ESR_EL2 and FAR_EL2, decodes the Exception Class (EC) and
+// Instruction-Specific Syndrome (ISS) fields, then prints all 31
+// general-purpose registers plus the saved ELR and SPSR from the
+// exception context.
+//
+// @param ctx  Reference to the saved exception context populated by
+//             the assembly @c save_context macro.
+//
+// @note Writes straight to the UART rather than through Log, so the dump
+//       survives a release build. Only hv_panic calls this.
 inline void registerDump(const hv::array<uint64_t, 31>& ctx) {
     uint64_t esr {};
     uint64_t far {};

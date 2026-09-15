@@ -1,8 +1,6 @@
-/**
- * @file guestMmu.cpp
- * @brief Stage-2 MMU bring-up and mapping.
- * @ingroup mmu
- */
+// @file guestMmu.cpp
+// @brief Stage-2 MMU bring-up and mapping.
+// @ingroup mmu
 
 #include "core/mm/pageTable/pageTable.h"
 #include "core/mm/pmm/pmm.h"

@@ -1,7 +1,5 @@
-/**
- * @file test_guestMmu.cpp
- * @brief Integration tests for live EL2 stage-2 MMU state.
- */
+// @file test_guestMmu.cpp
+// @brief Integration tests for live EL2 stage-2 MMU state.
 
 #include "regs.inc"
 #include "core/mm/mmu/guestMmu/guestMmu.h"

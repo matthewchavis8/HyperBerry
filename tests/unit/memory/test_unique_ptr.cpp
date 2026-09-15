@@ -1,7 +1,5 @@
-/**
- * @file test_unique_ptr.cpp
- * @brief Unit tests for hv::unique_ptr.
- */
+// @file test_unique_ptr.cpp
+// @brief Unit tests for hv::unique_ptr.
 
 #include <gtest/gtest.h>
 #include "lib/memory/unique_ptr.h"
