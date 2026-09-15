@@ -8,7 +8,7 @@
  * stubs live in test_vcpu.cpp (single-binary constraint); the capture globals
  * defined there are referenced here via extern declarations.
  *
- * Uart stubs (print/println/writeHex) are provided by test_dtb.cpp, which
+ * Uart stubs (constructor, getInstance, putc) are provided by test_dtb.cpp, which
  * is compiled into the same binary. vcpu_enter is stubbed here.
  */
 

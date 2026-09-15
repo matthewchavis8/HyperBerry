@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include "lib/array/array.h"
+#include "drivers/uart/uart.h"
 #include "lib/log/log.h"
 
 #include "stddef.h"
@@ -27,9 +28,8 @@
  * @param ctx  Reference to the saved exception context populated by
  *             the assembly @c save_context macro.
  *
- * @note Output goes directly to the PL011 UART via Log::write()
- *       and Log::writeHex().  Intended for fatal-exception debugging
- *       only -- not suitable for production logging.
+ * @note Writes straight to the UART rather than through Log, so the dump
+ *       survives a release build. Only hv_panic calls this.
  */
 inline void registerDump(const hv::array<uint64_t, 31>& ctx) {
     uint64_t esr {};
@@ -45,51 +45,20 @@ inline void registerDump(const hv::array<uint64_t, 31>& ctx) {
     uint32_t ec = (esr >> 26) & 0x3F;
     uint32_t iss = esr & 0x1FFFFFF;
 
-    Log::writeLine("==========[EXCEPTION DUMP]============");
-    // ESR
-    Log::write("ESR_EL2(Syndrome): 0x");
-    Log::writeHex(esr);
-    Log::writeCh('\r');
-    Log::writeCh('\n');
+    auto sink = [](char ch) { Uart::getInstance().putc(ch); };
 
-    Log::write("EC(Class):         0x");
-    Log::writeHex(static_cast<uint64_t>(ec));
-    Log::writeCh('\r');
-    Log::writeCh('\n');
+    log::detail::formatLineToSink(sink, "==========[EXCEPTION DUMP]============");
+    log::detail::formatLineToSink(sink, "ESR_EL2(Syndrome): {:x}", esr);
+    log::detail::formatLineToSink(sink, "EC(Class):         {:x}", ec);
+    log::detail::formatLineToSink(sink, "ISS(Subclass):     {:x}", iss);
+    log::detail::formatLineToSink(sink, "ELR_EL2(Return):   {:x}", elr);
+    log::detail::formatLineToSink(sink, "SPSR(Status):      {:x}", spsr);
+    log::detail::formatLineToSink(sink, "FAR_EL2(Fault):    {:x}", far);
 
-    Log::write("ISS(Subclass):     0x");
-    Log::writeHex(static_cast<uint64_t>(iss));
-    Log::writeCh('\r');
-    Log::writeCh('\n');
-
-    // System Registers
-    Log::write("ELR_EL2(Return):   0x");
-    Log::writeHex(elr);
-    Log::writeCh('\r');
-    Log::writeCh('\n');
-
-    Log::write("SPSR(Status):      0x");
-    Log::writeHex(spsr);
-    Log::writeCh('\r');
-    Log::writeCh('\n');
-
-    Log::write("FAR_EL2(Fault):    0x");
-    Log::writeHex(far);
-    Log::writeCh('\r');
-    Log::writeCh('\n');
-
-    for (size_t i {}; i < 31; i++) {
-        Log::writeCh('x');
-        if (i >= 10) {
-            Log::writeCh('0' + static_cast<char>(i / 10));
-        }
-        Log::writeCh('0' + static_cast<char>(i % 10));
-        Log::write(i < 10 ? ":  0x" : ": 0x");
-        Log::writeHex(ctx[i]);
-        Log::writeCh('\r');
-        Log::writeCh('\n');
+    for (size_t i {}; i < ctx.size(); i++) {
+        log::detail::formatLineToSink(sink, i < 10 ? "x{}:  {:x}" : "x{}: {:x}", i, ctx[i]);
     }
-    Log::writeLine("======================================");
+    log::detail::formatLineToSink(sink, "======================================");
 }
 
 #endif // __cplusplus

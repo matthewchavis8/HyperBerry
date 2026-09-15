@@ -238,23 +238,26 @@ inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest
     }
 }
 
+template <typename Writer, typename... Args>
+inline void formatLineToSink(Writer&& writer, const char* fmt, Args... args) {
+    formatToSink(writer, fmt, args...);
+    writer('\r');
+    writer('\n');
+}
+
 } // namespace log::detail
 
 // @class Log
 // @ingroup lib
-// @brief Console log sink. Formats values and hands characters to the UART.
+// @brief The debug console. Formats values and hands characters to the UART.
 //
-// Two tiers, split at compile time rather than by severity:
+// println and print are the only way to print, and both compile to nothing
+// when NDEBUG is set. They are inline on purpose, so the call and its format
+// string vanish from a release image instead of becoming a call to an empty
+// function that still pins the literal in .rodata.
 //
-//   println/print  the debug console. Compiled to nothing when NDEBUG is set.
-//                  Inline on purpose, so the call and its format string both
-//                  vanish from a release image instead of becoming a call to
-//                  an empty function that still pins the literal in .rodata.
-//
-//   write/writeLine/writeCh/writeHex
-//                  always emitted. The panic path and the integration
-//                  harness ride these, and a release build that panics
-//                  silently is a release build you cannot debug.
+// The panic path does not print through Log. It formats with log::detail and
+// writes straight to the UART, so a release panic still reports.
 class Log {
 private:
     // @brief Character sink the formatter writes through.
@@ -265,69 +268,43 @@ private:
     static void sink(const char ch);
 
 public:
-    // @brief Emit a null-terminated string followed by CRLF. Always emitted.
-    // @param str Pointer to the null-terminated string to send.
-    // @return Nothing.
-    static void writeLine(const char* str);
-
-    template <typename... Args>
-    static void writeLine(const char* fmt, Args... args) {
-        write(fmt, args...);
-        writeCh('\r');
-        writeCh('\n');
-    }
-
-    // @brief Emit a null-terminated string. Always emitted.
-    // @param str Pointer to the null-terminated string to send.
-    // @return Nothing.
-    static void write(const char* str);
-
-    template <typename... Args>
-    static void write(const char* fmt, Args... args) {
-        log::detail::formatToSink([](char ch) { Log::sink(ch); }, fmt, args...);
-    }
-
-    // @brief Emit a single character. Always emitted.
-    // @param ch Character to send.
-    // @return Nothing.
-    static void writeCh(const char ch);
-
-    // @brief Write a 64-bit value as a 16-digit hexadecimal string.
-    // @param val The value to print.
-    // @note Always emits exactly 16 hex digits (zero-padded). Does not print a
-    //       "0x" prefix -- callers must add it themselves.
-    // @return Nothing.
-    static void writeHex(uint64_t val);
-
-    // @brief Debug console line. Compiled out when NDEBUG is set.
-    // @param str Pointer to the null-terminated string to send.
+    // @brief Print a string followed by CRLF. Compiled out when NDEBUG is set.
+    // @param str Null terminated string, printed as is.
     // @return Nothing.
     static void println([[maybe_unused]] const char* str) {
 #ifndef NDEBUG
-        writeLine(str);
+        log::detail::formatLineToSink([](char ch) { Log::sink(ch); }, "{}", str);
 #endif
     }
 
+    // @brief Format a line followed by CRLF. Compiled out when NDEBUG is set.
+    // @param fmt Format string.
+    // @param args Values for its placeholders.
+    // @return Nothing.
     template <typename... Args>
     static void println([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
 #ifndef NDEBUG
-        writeLine(fmt, args...);
+        log::detail::formatLineToSink([](char ch) { Log::sink(ch); }, fmt, args...);
 #endif
     }
 
-    // @brief Debug console text, no line ending. Compiled out when NDEBUG is set.
-    // @param str Pointer to the null-terminated string to send.
+    // @brief Print a string with no line ending. Compiled out when NDEBUG is set.
+    // @param str Null terminated string, printed as is.
     // @return Nothing.
     static void print([[maybe_unused]] const char* str) {
 #ifndef NDEBUG
-        write(str);
+        log::detail::formatToSink([](char ch) { Log::sink(ch); }, "{}", str);
 #endif
     }
 
+    // @brief Format text with no line ending. Compiled out when NDEBUG is set.
+    // @param fmt Format string.
+    // @param args Values for its placeholders.
+    // @return Nothing.
     template <typename... Args>
     static void print([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
 #ifndef NDEBUG
-        write(fmt, args...);
+        log::detail::formatToSink([](char ch) { Log::sink(ch); }, fmt, args...);
 #endif
     }
 };

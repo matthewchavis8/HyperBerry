@@ -2,11 +2,11 @@
  * @file tap.h
  * @brief Freestanding TAP-style test output emitter over UART.
  *
- * Header-only, no stdlib. All output goes through Log::writeLine() and
- * Log::write(). Provides suite headers, per-case PASS/FAIL lines with
- * progress counters, and a final summary.
+ * Header-only, no stdlib. All output goes through Log::println(), which is
+ * why integration images are always debug builds. Provides suite headers,
+ * per-case PASS/FAIL lines with progress counters, and a final summary.
  *
- * @note Uses Log::writeLine() for all line endings to emit proper CRLF
+ * @note Uses Log::println() for all line endings to emit proper CRLF
  *       sequences required by raw UART hardware (e.g. Raspberry Pi 5).
  *       Never embed bare '\n' in print() calls.
  */
@@ -24,8 +24,8 @@ namespace Tap {
  * @param count Number of test cases in the suite.
  */
 inline void suite_header(const char* name, int count) {
-    Log::writeLine("");
-    Log::writeLine("======== {} ({} tests) ========", name, count);
+    Log::println("");
+    Log::println("======== {} ({} tests) ========", name, count);
 }
 
 /**
@@ -36,7 +36,7 @@ inline void suite_header(const char* name, int count) {
  * @param desc  Test case description.
  */
 inline void ok(int n, int total, const char* suite, const char* desc) {
-    Log::writeLine("[{}/{}] PASS: {}: {}", n, total, suite, desc);
+    Log::println("[{}/{}] PASS: {}: {}", n, total, suite, desc);
 }
 
 /**
@@ -48,8 +48,8 @@ inline void ok(int n, int total, const char* suite, const char* desc) {
  * @param reason Human-readable failure reason.
  */
 inline void fail(int n, int total, const char* suite, const char* desc, const char* reason) {
-    Log::writeLine("[{}/{}] FAIL: {}::{}", n, total, suite, desc);
-    Log::writeLine("         reason: {}", reason);
+    Log::println("[{}/{}] FAIL: {}::{}", n, total, suite, desc);
+    Log::println("         reason: {}", reason);
 }
 
 /**
@@ -59,9 +59,9 @@ inline void fail(int n, int total, const char* suite, const char* desc, const ch
  * @param total  Total cases run.
  */
 inline void summary(int passed, int failed, int total) {
-    Log::writeLine("-------- Results --------");
-    Log::writeLine("{} passed, {} failed, {} total", passed, failed, total);
-    failed == 0 ? Log::writeLine("TESTS PASSED") : Log::writeLine("TESTS FAILED");
+    Log::println("-------- Results --------");
+    Log::println("{} passed, {} failed, {} total", passed, failed, total);
+    failed == 0 ? Log::println("TESTS PASSED") : Log::println("TESTS FAILED");
 }
 
 } // namespace Tap
