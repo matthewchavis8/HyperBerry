@@ -1,41 +1,29 @@
-/**
- * @file hvc.h
- * @brief AArch64 HVC call dispatch for lower-EL guest exits.
- * @ingroup hypercalls
- */
+// @file hvc.h
+// @brief AArch64 HVC dispatch for guest exits.
+// @ingroup hypercalls
 
 #ifndef __HVC_H__
 #define __HVC_H__
 
 #include <stdint.h>
 #include "core/vmm/esr.h"
-#include "lib/array/array.h"
 
-/**
- * @brief Result returned after dispatching a guest HVC call.
- */
-enum class HvcResult : uint64_t {
-    /** The call was handled and the guest can resume. */
-    Handled,
-    /** The call was recognized as an HVC exit but is not implemented. */
-    Unhandled,
-    /** The guest requested shutdown, such as PSCI SYSTEM_OFF. */
-    Halt,
-    /** The guest requested reset, such as PSCI SYSTEM_RESET. */
-    Reset,
+// @brief Outcome of dispatching a guest HVC.
+enum class HvcResult : uint8_t {
+    HANDLED,   // handled, the guest can resume
+    UNHANDLED, // an HVC exit, but the call is not implemented
+    HALT,      // the guest asked to power off, such as PSCI SYSTEM_OFF
+    RESET,     // the guest asked to reset, such as PSCI SYSTEM_RESET
 };
 
-/**
- * @brief Dispatch an AArch64 HVC call from the guest register context.
- *
- * The function ID is read from ``x0`` in the saved general-purpose register
- * array. Supported standard-service calls are routed to the local PSCI handler;
- * unsupported owners return HvcResult::Unhandled.
- *
- * @param gpr Saved guest registers x0-x30. Return values are written back into
- *            this array using the SMCCC register convention.
- * @return Dispatch status describing whether the guest can resume or must stop.
- */
+// @brief Dispatch an AArch64 HVC from the guest register context.
+//
+// The function ID is read from x0. Standard service calls go to the PSCI
+// handler; other owners return HvcResult::UNHANDLED.
+//
+// @param gpr Saved guest registers x0 to x30. Results are written back using
+//            the SMCCC register convention.
+// @return Whether the guest can resume or asked to stop.
 HvcResult handleHvcAarch64(ExceptionContext& gpr);
 
-#endif // __HVC_H__
+#endif // !__HVC_H__

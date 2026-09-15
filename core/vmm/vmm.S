@@ -1,27 +1,18 @@
-/**
- * @file vmm.S
- * @brief Exception handler entry points and context save/restore macros.
- * @ingroup vmm
- *
- * Defines the low-level assembly glue between the EL2 vector table
- * (vectors.S) and the C++ handler functions (vmm.cpp).
- * Each entry point saves the full CPU context to the stack using
- * @c save_context, passes a pointer to the resulting ExceptionContext
- * frame in x0, and branches to the corresponding C++ handler.
- *
- * @par Stack Frame Layout (272 bytes)
- * | Offset   | Content            |
- * |----------|--------------------|
- * | 0-224    | x0-x29 (GPRs)      |
- * | 240      | x30 (LR)           |
- * | 248      | ELR_EL2            |
- * | 256      | SPSR_EL2           |
- *
- * @note The @c restore_context macro ends with @c eret, returning
- *       execution to the faulting address in ELR_EL2.
- * @warning The @c el2_unhandled entry point spins forever after
- *          calling handle_unhandled() -- it never erets.
- */
+// @file vmm.S
+// @brief EL2 trap entry points and the frame save and restore macros.
+// @ingroup vmm
+//
+// Glue between the EL2 vector table (vectors.S) and the C++ handlers
+// (vmm.cpp). Each entry saves the CPU state with save_context, passes the
+// frame in x0 as an ExceptionContext, and branches to its handler.
+//
+// Frame layout, 272 bytes:
+//   0 to 232   x0 to x29
+//   240        x30
+//   248        ELR_EL2
+//   256        SPSR_EL2
+//
+// restore_context ends in eret, back to ELR_EL2.
 
 .section .text
 
@@ -81,7 +72,6 @@
 el2_sync:
     save_context
     mov     x0, sp
-    mrs     x1, esr_el2
     bl      handle_el2_sync
     restore_context
 
@@ -100,7 +90,6 @@ el2_fiq:
 el2_serror:
     save_context
     mov     x0, sp
-    mrs     x1, esr_el2
     bl      handle_el2_serror
     restore_context
 
@@ -110,6 +99,5 @@ el2_serror:
 el2_unhandled:
     save_context
     mov     x0, sp
-    mrs     x1, esr_el2
     bl      handle_unhandled
-    b       .                   // spin forever
+    b       .
