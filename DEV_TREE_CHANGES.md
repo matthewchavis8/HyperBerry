@@ -1,8 +1,12 @@
 # What changed on dev: d087f07..9f563c5
 
-> A second round, `9f563c5..29cfecd`, split logging out of the UART driver and
-> gave every driver one way to reach a register. See
-> [the section at the end](#what-changed-on-dev-9f563c529cfecd).
+> Two more rounds follow.
+> [`9f563c5..29cfecd`](#what-changed-on-dev-9f563c529cfecd) split logging out of
+> the UART driver and gave every driver one way to reach a register.
+> [`29cfecd..e34870f`](#what-changed-on-dev-29cfecde34870f) turned the exception
+> code into the VMM, cut Log down to the debug console, and renamed the public
+> API. Each section uses the names in force when it was written; the last one
+> maps the old names to today's.
 
 Three commits moved every MMIO address out of hand written headers and into the
 device tree. Written as a refactor reference: what the new surface is, what is
@@ -291,3 +295,196 @@ just test-integration              # 48 cases in QEMU
 Console output should be unchanged outside the suite you touched. Build the
 previous commit into a worktree, run both images, and diff the logs; that is
 how this round was checked.
+
+---
+
+# What changed on dev: 29cfecd..e34870f
+
+Fifteen commits. The exception code became the VMM and lost three trap path
+bugs, Log shrank to the debug console, and the tree was brought into line with
+STYLES.md: `//` comments, UPPER_CASE enumerators, an UpperCamelCase public API
+with `Get` and `Set` prefixes, and brace initialization. Same format as above.
+
+```
+e3f6a7d [docs]    record the logging and MMIO refactor in DEV_TREE_CHANGES
+f6f4dd9 [misc]    address review on the clang-format and clang-tidy commit
+4ebfb1e [misc]    drop the style recipes from the justfile
+9aae47e [core]    rename exceptions to vmm
+9396e79 [core]    give the vmm its ESR decode and the frame panic
+4b5509a [core]    tidy the vmm trap path
+7437f34 [docs]    record the enumerator, initialization and comment rules
+2e25eda [core]    resume the guest after an SMC and report unhandled calls
+2b261b4 [lib]     let hv_panic dump the saved registers again
+0e69154 [lib]     make Log the debug console and nothing else
+d70ac67 [misc]    use // comments throughout
+0a3a30f [misc]    name enumerators in UPPER_CASE
+f889b36 [misc]    name the public API in UpperCamelCase
+a13c139 [misc]    prefer direct initialization
+e34870f [misc]    prefix getters with Get
+```
+
+120 files, +4041 / -4139. Most of that is the style sweeps, which are
+mechanical.
+
+## The mental model
+
+**`core/vmm` is where a trap goes.** The EL2 vector table, the entry glue that
+saves a frame, guest trap dispatch, HVC and PSCI, SMCCC and the ESR decode all
+live there. `core/vcpu` still owns entering and leaving the guest; `core/vmm`
+decides what a trap means.
+
+**Log is the debug console and nothing else.** `Log::Println` and `Log::Print`
+are the only way to print, and a release build has neither. The panic path is
+not logging: `HvPanic` and `RegisterDump` format with `log::detail` and write to
+`Uart::Putc` themselves, so a release panic still reports.
+
+**The public API is UpperCamelCase.** Public member functions and functions with
+external linkage are UpperCamelCase, getters are `GetX` and setters are `SetX`.
+Private methods and file local helpers stay lowerCamelCase, with `getX` and
+`setX`. `.clang-tidy` enforces the public half. Names the assembly, compiler or
+runtime reach by symbol keep their spelling, as do the lib pieces that mirror the
+standard library.
+
+## New surface
+
+```cpp
+// core/vmm/esr.h  -- the saved frame and the ESR_EL2 decode
+enum class EsrEc : uint8_t;                    // HVC_AARCH64, SMC_AARCH64, DATA_ABORT_LOWER, ...
+using ExceptionContext = hv::array<uint64_t, 31>;
+constexpr EsrEc    GetEsrEc(uint64_t esr);     // bits [31:26]
+constexpr uint32_t GetEsrIss(uint64_t esr);    // bits [24:0]
+
+// core/vmm/vmm.h  -- trap entry points, extern "C", reached from vectors.S and vcpu.S
+void handle_el2_sync(ExceptionContext& ctx);          // also _irq, _fiq, _serror, handle_unhandled
+void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr);  // also _irq, _fiq, _serror
+
+// core/vmm/hvc/hvc.h
+enum class HvcResult : uint8_t { HANDLED, UNHANDLED, HALT, RESET };
+HvcResult HandleHvcAarch64(ExceptionContext& gpr);    // writes NOT_SUPPORTED to x0 on UNHANDLED
+
+// core/vmm/smccc/smccc.h
+constexpr uint64_t SMCCC::ToRegister(int32_t code);   // sign extends a return code for x0
+
+// lib/log/log.h
+class Log {
+    static void Println(const char* fmt, ...);        // gone under NDEBUG
+    static void Print(const char* fmt, ...);          // gone under NDEBUG
+};
+void log::detail::FormatLineToSink(Writer&& writer, const char* fmt, ...);
+
+// lib/panic/panic.h
+[[noreturn]] void HvPanic(const char* msg);
+[[noreturn]] void HvPanic(const char* msg, const hv::array<uint64_t, 31>& ctx);
+```
+
+Renames you will hit first:
+
+| Was | Now |
+| --- | --- |
+| `core/exceptions/` | `core/vmm/` |
+| `exceptions.h`, `exceptions.cpp`, `exceptions.S` | `esr.h` and `vmm.h`, `vmm.cpp`, `vmm.S` |
+| `tests/*/exceptions/`, `exceptionState.h` | `tests/*/vmm/`, `trapState.h` |
+| `hv_panic`, `registerDump` | `HvPanic`, `RegisterDump` |
+| `Log::println`, `Log::print` | `Log::Println`, `Log::Print` |
+| `Uart::getInstance`, `putc`, `setBase`, `getBase` | `GetInstance`, `Putc`, `SetBase`, `GetBase` |
+| `mmio::read`, `mmio::write` | `mmio::Read`, `mmio::Write` |
+| `Gic::distBase`, `hvBase`, `vcpuBase`, `frameBase` | `GetDistBase`, `GetHvBase`, `GetVcpuBase`, `getFrameBase` |
+| `VcpuLayoutAccess::gprOffset` and friends | `GetGprOffset` and friends |
+| `Gic::init`, `Vm::init`, `Vcpu::init`, `pmm::init` | `Init` |
+| `parseDtb`, `dtbHostMmio`, `dtbGuestMmio`, `verifyBspAgainstDtb` | `ParseDtb`, `DtbHostMmio`, `DtbGuestMmio`, `VerifyBspAgainstDtb` |
+| `runGlobalConstructors`, `TestRunner::run_all` | `RunGlobalConstructors`, `TestRunner::RunAll` |
+| `EsrEc::HvcAarch64`, `ValidateError::BadMagic`, `Gic::Frame::Hv` | `HVC_AARCH64`, `BAD_MAGIC`, `HV` |
+
+The rest follow the same rule: a public name gains a capital, and an
+UpperCamelCase enumerator becomes UPPER_SNAKE_CASE. Rebase a branch and the
+compiler names every call site that still uses an old spelling.
+
+## Gone
+
+`Log::writeLine`, `Log::write`, `Log::writeCh` and `Log::writeHex`. Hex is
+`{:x}`, which prints `0x` and does not zero pad, and a character is `{}`.
+`log.cpp` holds only the sink.
+
+The duplicate `using ExceptionContext` in `hvc.h`. `panicWithFrame` existed
+briefly and went back into `HvPanic`.
+
+The `EsrEc` values that never matched the Arm ARM. The coprocessor classes were
+off by one, `0x07` was listed twice, and `0x1C` was called the PAC trap; it is
+FPAC, and the PAC trap is `0x09`.
+
+The `fmt`, `fmt-check`, `tidy`, `tidy-diff` and `lint-report` justfile recipes.
+`scripts/lint-report.sh` stays for the CI rework.
+
+## Behaviour changes
+
+**A guest SMC resumes the guest.** It used to skip the instruction and return
+into the `b .` after the call in `vcpu_exit_sync`, so the guest never ran again.
+It now reads `NOT_SUPPORTED` back in x0.
+
+**An unimplemented HVC returns `NOT_SUPPORTED`.** x0 used to keep the function
+ID, which the guest reads back as its result. Vendor hypervisor calls now log in
+a debug build, like every other unsupported owner.
+
+**A guest SError panics.** It used to log through the debug console and spin,
+so a release build stopped without a word.
+
+**The register dump masks all 25 ISS bits**, not 24, and prints through the
+formatter, so values carry `0x` and are not padded to 16 digits.
+
+## Landmines
+
+**Lib must not include core.** `ExceptionContext` lives in `core/vmm/esr.h`, so
+`lib/panic` and `lib/registerDump` take `hv::array<uint64_t, 31>`, which is the
+same type. The linker cannot see a header include, so this one is on review.
+
+**Only the panic path prints in a release build, and it must not use Log.**
+Route `HvPanic` or `RegisterDump` through `Log::Println` and a release panic
+halts silently. Check with `strings build/release/qemu/kernel8.img`.
+
+**The TAP harness prints through `Log::Println`.** Integration images are always
+debug builds. A release built integration image prints no verdict, and CI times
+out rather than passing.
+
+**ABI names keep their spelling.** `hmain`, `vcpu_enter`,
+`vcpu_save_el1_sysregs`, `vcpu_restore_el1_sysregs`, the `handle_*` trap entries,
+`memcpy`, `memset` and `__cxa_*` are reached by symbol from assembly, the
+compiler or the runtime, and renaming one breaks the link. `.clang-tidy` skips
+them by pattern, so a new `extern "C"` entry point wants a `handle_*` or `vcpu_*`
+name, or an entry in `GlobalFunctionIgnoredRegexp`.
+
+**`hv::array`'s `begin`, `end`, `size` and `data` stay lowercase.** Range based
+`for` needs `begin` and `end` by those exact names. The smart pointers' `get`,
+`reset` and `release`, and `hv::move`, `forward` and `swap`, stay lowercase to
+read like the std types they replace.
+
+**A rename sweep over text will hit the linker scripts.** The pass that updated
+comments matched `.start` in `KEEP(*(.text.start))` and turned it into
+`.text.Start`, which links cleanly and does not boot. It was caught before the
+commit. Keep renames out of `.ld` files, or check that `KEEP` still names the
+section `boot.S` declares.
+
+**Braces refuse narrowing.** `uint32_t ec { (esr >> 26) & 0x3F }` is an error
+and needs a `static_cast<uint32_t>`. Lambdas keep `=`, and default arguments
+cannot take braces.
+
+**`Log::Println(const char* str)` prints the string as is.** It passes the
+string through `"{}"`, so braces in a plain message are safe. The overload that
+takes arguments treats braces as placeholders.
+
+## Verifying a refactor
+
+```sh
+just test-unit                     # 164 host cases
+just build
+just build release
+just test-integration              # 48 cases in QEMU
+strings build/release/qemu/kernel8.img | grep "HV PANIC"   # the panic path survived release
+```
+
+The style sweeps were checked by hashing every `kernel8.img` before and after.
+The comment, enumerator and brace initialization commits left all nine images
+byte identical. A rename changes symbol names, so after one run the suites
+instead. No test triggers a panic, so the register dump's output has not been
+observed since it moved to the formatter.
+
+Everything above is verified on qemu only.
