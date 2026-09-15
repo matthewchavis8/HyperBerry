@@ -8,6 +8,7 @@
 
 #include "vmm.h"
 #include "core/vmm/hvc/hvc.h"
+#include "core/vmm/smccc/smccc.h"
 #include "core/vcpu/vcpu.h"
 #include "lib/panic/panic.h"
 #include "lib/log/log.h"
@@ -79,7 +80,9 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
         case EsrEc::SMC_AARCH64:
             Log::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
                     vcpu->getGpReg(VCPU_GPREG_X0));
+            vcpu->setGpReg(VCPU_GPREG_X0, SMCCC::toRegister(SMCCC::NOT_SUPPORTED));
             vcpu->skipInstruction();
+            vcpu_enter(vcpu);
             break;
 
         case EsrEc::DATA_ABORT_LOWER:
@@ -103,8 +106,5 @@ extern "C" void handle_lower_el_fiq(Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
 }
 
 extern "C" void handle_lower_el_serror([[maybe_unused]] Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
-    Log::println("[Guest EL SError] was triggered");
-    for (;;) {
-        asm volatile("wfe");
-    }
+    hv_panic("[Guest] SError taken from the guest");
 }

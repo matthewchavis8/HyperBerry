@@ -61,20 +61,28 @@ namespace PSCI {
 
 } // namespace PSCI
 
-} // namespace
-
-HvcResult handleHvcAarch64(ExceptionContext& gpr) {
+// @brief Route an HVC to the service that owns its function ID.
+// @param gpr Saved guest registers.
+// @return Whether the guest can resume or asked to stop.
+HvcResult dispatchByOwner(ExceptionContext& gpr) {
     uint64_t callId { gpr[0] };
 
     switch (SMCCC::getOwner(callId)) {
         case SMCCC::OWNER_STANDARD:
             return PSCI::handlePsci(gpr);
 
-        case SMCCC::OWNER_VENDOR_HYP:
-            return HvcResult::UNHANDLED;
-
         default:
             Log::println("[Guest][HVC] Unsupported call ID={:x}", callId);
             return HvcResult::UNHANDLED;
     }
+}
+
+} // namespace
+
+HvcResult handleHvcAarch64(ExceptionContext& gpr) {
+    HvcResult result { dispatchByOwner(gpr) };
+
+    if (result == HvcResult::UNHANDLED) gpr[0] = SMCCC::toRegister(SMCCC::NOT_SUPPORTED);
+
+    return result;
 }
