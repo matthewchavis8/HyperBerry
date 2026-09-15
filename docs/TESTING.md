@@ -30,8 +30,8 @@ The `unit-tests` preset uses:
 
 ```sh
 just test-integration qemu          # run in QEMU
-just test-integration rpi5          # flash and run on Raspberry Pi 5
-just test-integration rpi5 /dev/sdX1  # specify SD card partition
+just test-integration fvp           # run on the FVP model
+cmake --build --preset debug --target flash-rpi5-test # card must already be mounted
 ```
 
 Board-specific test sources live in `tests/bsp/<board>/`. A file there whose
@@ -48,7 +48,14 @@ cmake --build --preset debug --target hyperberry-qemu-test
 cmake --build --preset debug --target run-qemu-test
 ```
 
-For Raspberry Pi 5, `just` also mounts `/mnt/sdcard`, flashes the generated `kernel8.img` plus firmware files, then unmounts the card again.
+For Raspberry Pi 5, mount the boot partition at `SD_MOUNT` before running
+`flash-rpi5-test`, then unmount it and boot the board with a serial console.
+The target copies the integration kernel, its CPIO archive, and firmware files.
+
+Both the vCPU and GIC guest payloads are separate flat binaries in the integration
+CPIO archive. The tests load them by name and copy them to executable memory.
+EL2 test vectors remain part of the hypervisor. Production archives contain
+the Linux files only. See [Guest archives](GUEST_ARCHIVE.md).
 
 UART output looks like:
 

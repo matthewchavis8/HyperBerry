@@ -20,8 +20,10 @@ add_executable(hyperberry_unit_tests
   gic/test_gic.cpp
   ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
 
-  bootpkg/test_bootpkg.cpp
-  ${CMAKE_SOURCE_DIR}/core/bootpkg/bootpkg.cpp
+  cpio/test_cpio.cpp
+  ${CMAKE_SOURCE_DIR}/lib/cpio/cpio.cpp
+  guest/test_guest.cpp
+  ${CMAKE_SOURCE_DIR}/core/guest/guest.cpp
 
   vm/test_vm.cpp
   ${CMAKE_SOURCE_DIR}/core/vm/vm.cpp
@@ -75,3 +77,17 @@ target_link_libraries(hyperberry_heap_tests
 )
 
 gtest_discover_tests(hyperberry_heap_tests)
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+find_program(CPIO cpio REQUIRED)
+set(CPIO_FIXTURE ${CMAKE_CURRENT_BINARY_DIR}/fixture.cpio)
+add_custom_command(
+  OUTPUT ${CPIO_FIXTURE}
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py
+          --root ${CMAKE_CURRENT_SOURCE_DIR}/cpio/root --out ${CPIO_FIXTURE}
+  DEPENDS cpio/root/message.txt ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py
+  VERBATIM
+)
+add_custom_target(cpio_fixture DEPENDS ${CPIO_FIXTURE})
+add_dependencies(hyperberry_unit_tests cpio_fixture)
+target_compile_definitions(hyperberry_unit_tests PRIVATE CPIO_FIXTURE="${CPIO_FIXTURE}")

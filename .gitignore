@@ -1,5 +1,4 @@
 build/
-tools/mkguestpkg/target/
 docs/_doxygen/
 docs/_build/
 docs/.venv/
@@ -12,7 +11,7 @@ __pycache__/
 *.elf
 !boot/start4.elf
 *.bin
-boot/*.hvgbp
+*.cpio
 .codex
 .agents
 skills-lock.json

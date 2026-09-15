@@ -191,33 +191,27 @@ minicom -b 115200 -D /dev/ttyUSB0   # Example
 minicom -b 115200 -D /dev/ttyACM0   # Example
 ```
 
-## Building Guest Boot Packages (`.hvgbp`)
+## Guest CPIO archives
 
-HyperBerry expects a firmware-loaded guest package (`.hvgbp`) for Linux guest boot.
-Use the Rust CLI at `tools/mkguestpkg` to build it from a kernel `Image` and guest DTB.
-This package is required because HyperBerry consumes one firmware-provided blob at boot
-that bundles guest kernel + DTB (+ optional initrd) with offsets/CRC metadata the loader validates.
+Every guest payload is delivered in an uncompressed `newc` CPIO archive.
+CMake builds `build/<mode>/<board>/guest.cpio` from the Linux `Image` and
+the board's guest device tree. Integration archives live under
+`build/<mode>/<board>/integration/guest.cpio` and also contain the vCPU and GIC binaries.
 
-```sh
-cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
-  --kernel path/to/Image \
-  --dtb path/to/guest.dtb \
-  --out boot/profiles/guest-qemu.hvgbp
-```
+The host needs Python 3, `cpio`, and `dtc`. FVP also needs `fdtput`.
+Set `QEMU_GUEST_KERNEL`, `RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` to
+select a kernel. By default CMake downloads and verifies a static AArch64
+BusyBox binary, then places its initramfs in the guest archive. Set the corresponding
+`*_GUEST_INITRD` to replace that BusyBox initramfs.
+The guest kernel must enable `CONFIG_BLK_DEV_INITRD` to load it.
 
-Or use the `just` wrapper:
-
-```sh
-just guestpkg path/to/Image path/to/guest.dtb
-```
-
-Optional initrd + build id:
+Package your own directory with:
 
 ```sh
-just guestpkg path/to/Image path/to/guest.dtb boot/profiles/guest-qemu.hvgbp path/to/rootfs.cpio.gz my-build-id
+just cpio path/to/root path/to/guest.cpio
 ```
 
-For ABI/layout details, see `docs/GUEST_BOOT_PACKAGE.md`.
+See [Guest archives](docs/GUEST_ARCHIVE.md) for paths, format rules, and boot behavior.
 
 ## Testing
 
@@ -231,7 +225,7 @@ Run them with:
 ```sh
 just test-unit
 just test-integration qemu
-just test-integration rpi5 /dev/sdX1
+cmake --build --preset debug --target flash-rpi5-test
 ```
 
 The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.

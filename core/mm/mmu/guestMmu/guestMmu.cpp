@@ -53,8 +53,24 @@ uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
     uint64_t* l2 { PageTable::Walk(root, ipa, kStage2Walk) };
     if (l2 == nullptr) return nullptr;
 
-    if (!pte_is_valid(*l2)) {
+    if (!pte_is_table(*l2)) {
+        uint64_t block { *l2 };
         uint64_t* l3 { PageTable::AllocTable() };
+        if (pte_is_block(block)) {
+            uint64_t base { block & PTE_ADDR_MASK };
+            uint64_t attributes { (block & ~PTE_ADDR_MASK) | PTE_TABLE };
+            for (uint64_t i {}; i < SIZE_2MB / SIZE_4KB; ++i)
+                l3[i] = (base + i * SIZE_4KB) | attributes;
+            PageTable::CleanDataCacheRange(l3, SIZE_4KB);
+            *l2 = 0;
+            PageTable::CleanDataCacheRange(l2, sizeof(*l2));
+            asm volatile("dsb ish" ::: "memory");
+            uint64_t hcr {};
+            asm volatile("mrs %0, hcr_el2" : "=r"(hcr));
+            if (hcr & 1) {
+                asm volatile("tlbi vmalls12e1is\ndsb ish\nisb" ::: "memory");
+            }
+        }
         *l2 = reinterpret_cast<uint64_t>(l3) | PTE_VALID | PTE_TABLE;
         PageTable::CleanDataCacheRange(l2, sizeof(*l2));
     }

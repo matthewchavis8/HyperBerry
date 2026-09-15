@@ -63,7 +63,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyAMA0 earlycon=pl011,0x7d001000 root=/dev/ram0 rdinit=/sbin/init";
+		bootargs = "console=ttyAMA0 earlycon=pl011,0x7d001000 rdinit=/sbin/init";
 		linux,initrd-start = <0x0 0x00000000>;
 		linux,initrd-end   = <0x0 0x00000000>;
 	};

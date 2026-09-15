@@ -56,6 +56,8 @@ MemoryMap ParseDtb(uintptr_t dtb) {
     bool inMemory { false };
     bool inAtf { false };
     bool inChosen { false };
+    uint64_t archiveStart {}, archiveEnd {};
+    bool foundArchiveStart {}, foundArchiveEnd {};
 
     int depth {};
 
@@ -102,7 +104,6 @@ MemoryMap ParseDtb(uintptr_t dtb) {
                     inAtf = false;
                 }
 
-                if (foundMem && foundAtf) goto done;
                 break;
             }
 
@@ -120,13 +121,13 @@ MemoryMap ParseDtb(uintptr_t dtb) {
                         readReg64(propData, map.atfBase, map.atfSize);
                         foundAtf = true;
                     }
-                } else if (inChosen && dataLen >= 4) {
+                } else if (inChosen && depth == 2 && (dataLen == 4 || dataLen == 8)) {
                     if (StrEq(propName, "linux,initrd-start")) {
-                        map.bootPackageBase = readInitrdAddress(propData, dataLen);
+                        archiveStart = readInitrdAddress(propData, dataLen);
+                        foundArchiveStart = true;
                     } else if (StrEq(propName, "linux,initrd-end")) {
-                        uint64_t end { readInitrdAddress(propData, dataLen) };
-                        if (end > map.bootPackageBase)
-                            map.bootPackageSize = end - map.bootPackageBase;
+                        archiveEnd = readInitrdAddress(propData, dataLen);
+                        foundArchiveEnd = true;
                     }
                 }
 
@@ -147,6 +148,10 @@ MemoryMap ParseDtb(uintptr_t dtb) {
     }
 
 done:
+    if (foundArchiveStart && foundArchiveEnd && archiveEnd > archiveStart) {
+        map.bootArchiveBase = archiveStart;
+        map.bootArchiveSize = archiveEnd - archiveStart;
+    }
     map.isValid = foundMem;
     return map;
 }

@@ -1,21 +1,21 @@
 // @file guest_payload.S
 // @brief Minimal EL1 payload used by the GIC integration test.
 
-// x0 holds the GICV base at entry; stashed because the IRQ handler reuses x0.
+// x0 is GICV; x1 points to two shared words: progress and IAR.
 #define GICV_IAR  0x00c
 #define GICV_EOIR 0x010
 
-.section .text.test_gic_guest_payload
+.section .text
 .balign 0x800
-.global test_gic_guest_entry
+.global guest_entry
 .global test_gic_guest_hvc
 .global test_gic_guest_vectors
 
-test_gic_guest_entry:
-    ldr     x1, =test_gic_guest_gicv_base
-    str     x0, [x1]
+guest_entry:
+    mov     x19, x0
+    mov     x20, x1
 
-    ldr     x0, =test_gic_guest_vectors
+    adr     x0, test_gic_guest_vectors
     msr     vbar_el1, x0
     isb
 
@@ -59,17 +59,16 @@ test_gic_guest_vectors:
   .balign 0x80; b test_gic_guest_unhandled_403
 
 test_gic_guest_irq:
-    ldr     x3, =test_gic_guest_progress
+    mov     x3, x20
     movz    w4, #1
     str     w4, [x3]
-    ldr     x1, =test_gic_guest_gicv_base
-    ldr     x1, [x1]
+    mov     x1, x19
     movz    w4, #2
     str     w4, [x3]
     ldr     w0, [x1, #GICV_IAR]
     movz    w4, #3
     str     w4, [x3]
-    ldr     x2, =test_gic_guest_iar
+    add     x2, x20, #4
     str     w0, [x2]
     movz    w4, #4
     str     w4, [x3]
@@ -85,7 +84,7 @@ test_gic_guest_hvc:
 
 .macro GUEST_UNHANDLED name, code
 \name:
-    ldr     x3, =test_gic_guest_progress
+    mov     x3, x20
     movz    w4, #\code
     str     w4, [x3]
     movz    x0, #\code
@@ -108,19 +107,3 @@ GUEST_UNHANDLED test_gic_guest_unhandled_400, 0x400
 GUEST_UNHANDLED test_gic_guest_unhandled_401, 0x401
 GUEST_UNHANDLED test_gic_guest_unhandled_402, 0x402
 GUEST_UNHANDLED test_gic_guest_unhandled_403, 0x403
-
-.section .bss.test_gic_guest_payload
-.balign 8
-.global test_gic_guest_gicv_base
-test_gic_guest_gicv_base:
-    .dword 0
-
-.balign 4
-.global test_gic_guest_progress
-test_gic_guest_progress:
-    .word 0
-
-.balign 4
-.global test_gic_guest_iar
-test_gic_guest_iar:
-    .word 0

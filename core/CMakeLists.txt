@@ -29,7 +29,7 @@ set(HB_CORE_SOURCES
   dtb/dtb.cpp
   dtb/dtbVerify.cpp
   dtb/dtbMmio.cpp
-  bootpkg/bootpkg.cpp
+  guest/guest.cpp
 )
 
 set(HB_CORE_DEPS
@@ -47,7 +47,7 @@ add_library(Core${BSP_SUFFIX}
 target_include_directories(Core${BSP_SUFFIX}
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/dtb
-  ${CMAKE_CURRENT_SOURCE_DIR}/bootpkg
+  ${CMAKE_CURRENT_SOURCE_DIR}/guest
 )
 
 target_link_libraries(Core${BSP_SUFFIX}
@@ -71,7 +71,7 @@ if(BUILD_INTEGRATION)
   target_include_directories(CoreTest${BSP_SUFFIX}
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/dtb
-    ${CMAKE_CURRENT_SOURCE_DIR}/bootpkg
+    ${CMAKE_CURRENT_SOURCE_DIR}/guest
   )
 
   target_link_libraries(CoreTest${BSP_SUFFIX}

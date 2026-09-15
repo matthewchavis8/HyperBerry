@@ -6,12 +6,11 @@
 #include "drivers/gic/gic.h"
 #include "lib/log/log.h"
 #include "tests/integration/suite.h"
+#include "tests/integration/guest/binary.h"
 #include <stdint.h>
 
 extern "C" {
 volatile uint64_t gTestGicVectorExitKind { 0 };
-extern volatile uint32_t test_gic_guest_progress;
-extern volatile uint32_t test_gic_guest_iar;
 }
 
 namespace {
@@ -56,11 +55,17 @@ struct EndToEndCapture {
     bool lrFreeAfterGuest;
 };
 
+struct GuestResult {
+    volatile uint32_t progress;
+    volatile uint32_t iar;
+};
+static_assert(sizeof(GuestResult) == 8);
+GuestResult gGuestResult {};
+
 alignas(16) uint8_t gGuestStack[512];
 El2IrqCapture gEl2Irq;
 
 extern "C" char test_gic_vectors[];
-extern "C" void test_gic_guest_entry();
 
 void trace(const char* msg) {
     Log::Println("[GICDBG] {}", msg);
@@ -218,6 +223,8 @@ bool injectFromPhysicalSpi() {
 EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: enter");
     EndToEndCapture capture {};
+    test::Binary binary { "tests/gic.bin" };
+    if (!binary.GetEntry()) return capture;
 
     trace("runEndToEnd: Gic::init");
     Gic::Init();
@@ -264,24 +271,25 @@ EndToEndCapture runEndToEnd() {
 
     trace("runEndToEnd: Vcpu::init");
     Vcpu vcpu;
-    vcpu.Init(reinterpret_cast<uint64_t>(test_gic_guest_entry));
+    vcpu.Init(binary.GetEntry());
     vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetVcpuBase());
+    vcpu.SetGpReg(VCPU_GPREG_X1, reinterpret_cast<uint64_t>(&gGuestResult));
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
     trace("runEndToEnd: installTestVbar for guest");
     uint64_t savedVbar { installTestVbar() };
     gTestGicVectorExitKind = 0;
-    test_gic_guest_progress = 0;
-    test_gic_guest_iar = 0;
+    gGuestResult.progress = 0;
+    gGuestResult.iar = 0;
     trace("runEndToEnd: vcpu_enter begin");
     vcpu_enter(&vcpu);
     trace("runEndToEnd: vcpu_enter returned");
     Log::Println("[GICDBG] runEndToEnd: vectorExitKind={} guestProgress={:x} guestIar={:x} "
                  "guestX0={:x} guestElr={:x}",
             gTestGicVectorExitKind,
-            test_gic_guest_progress,
-            test_gic_guest_iar,
+            gGuestResult.progress,
+            gGuestResult.iar,
             vcpu.GetGpReg(VCPU_GPREG_X0),
             vcpu.GetElr());
     restoreVbar(savedVbar);

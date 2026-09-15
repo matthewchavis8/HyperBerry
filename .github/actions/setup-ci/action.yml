@@ -22,6 +22,8 @@ runs:
           cmake \
           ninja-build \
           python3 \
+          cpio \
+          device-tree-compiler \
           git \
           ca-certificates \
           curl
