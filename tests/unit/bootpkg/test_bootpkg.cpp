@@ -279,7 +279,7 @@ TEST(BootPkg, ValidPackageWithInitrdParsesMetadata) {
     auto result = bootpkg::validate(data.data(), data.size());
 
     ASSERT_TRUE(result.isValid);
-    EXPECT_EQ(result.error, bootpkg::ValidateError::None);
+    EXPECT_EQ(result.error, bootpkg::ValidateError::NONE);
     EXPECT_EQ(result.package.kernelOffset, kHeaderSize);
     EXPECT_EQ(result.package.kernelSize, kKernelSize);
     EXPECT_EQ(result.package.dtbSize, kDtbSize);
@@ -303,7 +303,7 @@ TEST(BootPkg, RejectsBadMagic) {
     writeLe32(data, 0, 0xBAD00000U);
     writeChecksums(data);
 
-    EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error, bootpkg::ValidateError::BadMagic);
+    EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error, bootpkg::ValidateError::BAD_MAGIC);
 }
 
 TEST(BootPkg, RejectsBadVersion) {
@@ -312,7 +312,7 @@ TEST(BootPkg, RejectsBadVersion) {
     writeChecksums(data);
 
     EXPECT_EQ(
-            bootpkg::validate(data.data(), data.size()).error, bootpkg::ValidateError::BadVersion);
+            bootpkg::validate(data.data(), data.size()).error, bootpkg::ValidateError::BAD_VERSION);
 }
 
 TEST(BootPkg, RejectsBadHeaderSize) {
@@ -321,14 +321,14 @@ TEST(BootPkg, RejectsBadHeaderSize) {
     writeChecksums(data);
 
     EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error,
-            bootpkg::ValidateError::BadHeaderSize);
+            bootpkg::ValidateError::BAD_HEADER_SIZE);
 }
 
 TEST(BootPkg, RejectsTruncatedFirmwareLoadedSize) {
     auto data = buildPackage();
 
     EXPECT_EQ(bootpkg::validate(data.data(), data.size() - 1).error,
-            bootpkg::ValidateError::BadTotalSize);
+            bootpkg::ValidateError::BAD_TOTAL_SIZE);
 }
 
 TEST(BootPkg, AcceptsTrailingFirmwarePadding) {
@@ -347,7 +347,7 @@ TEST(BootPkg, RejectsHeaderCrcMismatch) {
     data[100] ^= 0x1U;
 
     EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error,
-            bootpkg::ValidateError::BadHeaderCrc);
+            bootpkg::ValidateError::BAD_HEADER_CRC);
 }
 
 TEST(BootPkg, RejectsPayloadCrcMismatch) {
@@ -355,63 +355,63 @@ TEST(BootPkg, RejectsPayloadCrcMismatch) {
     data[kHeaderSize] ^= 0x1U;
 
     EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error,
-            bootpkg::ValidateError::BadPayloadCrc);
+            bootpkg::ValidateError::BAD_PAYLOAD_CRC);
 }
 
 TEST(BootPkg, RejectsUnsupportedBootProtocol) {
     auto data = buildPackage();
     writeLe32(data, 24, bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::UnsupportedBootProtocol);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::UNSUPPORTED_BOOT_PROTOCOL);
 }
 
 TEST(BootPkg, RejectsUnknownFlags) {
     auto data = buildPackage();
     writeLe32(data, 28, bootpkg::HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT | (1U << 8));
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::UnknownFlags);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::UNKNOWN_FLAGS);
 }
 
 TEST(BootPkg, RejectsMissingKernel) {
     auto data = buildPackage();
     writeLe64(data, 40, 0);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::MissingKernel);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::MISSING_KERNEL);
 }
 
 TEST(BootPkg, RejectsMissingDtb) {
     auto data = buildPackage();
     writeLe64(data, 56, 0);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::MissingDtb);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::MISSING_DTB);
 }
 
 TEST(BootPkg, RejectsInitrdFlagMismatch) {
     auto data = buildPackage();
     writeLe32(data, 28, 0);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BadInitrdFlag);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_INITRD_FLAG);
 }
 
 TEST(BootPkg, RejectsNonCanonicalKernelOffset) {
     auto data = buildPackage();
     writeLe64(data, 32, kHeaderSize + 4096);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BadKernelOffset);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_KERNEL_OFFSET);
 }
 
 TEST(BootPkg, RejectsNonCanonicalDtbOffset) {
     auto data = buildPackage();
     writeLe64(data, 48, kHeaderSize + kKernelSize);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BadDtbOffset);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_DTB_OFFSET);
 }
 
 TEST(BootPkg, RejectsNonCanonicalInitrdOffset) {
     auto data = buildPackage();
     writeLe64(data, 64, align4k(kHeaderSize + kKernelSize) + kDtbSize);
 
-    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BadInitrdOffset);
+    EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_INITRD_OFFSET);
 }
 
 TEST(BootPkg, RejectsBadTotalLayout) {
@@ -421,7 +421,7 @@ TEST(BootPkg, RejectsBadTotalLayout) {
     writeChecksums(data);
 
     EXPECT_EQ(bootpkg::validate(data.data(), data.size()).error,
-            bootpkg::ValidateError::BadTotalLayout);
+            bootpkg::ValidateError::BAD_TOTAL_LAYOUT);
 }
 
 TEST(BootPkg, CalculatesGuestLayoutWithInitrd) {
@@ -496,7 +496,7 @@ TEST(BootPkg, LoadLinuxGuestCopiesPackageComponents) {
     auto result = bootpkg::loadLinuxGuest(map);
 
     ASSERT_TRUE(result.isLoaded);
-    EXPECT_EQ(result.error, bootpkg::LoadError::None);
+    EXPECT_EQ(result.error, bootpkg::LoadError::NONE);
     EXPECT_EQ(gAllocPagesOrder, 16U);
     EXPECT_EQ(result.guest.guestRamHostPa, reinterpret_cast<uint64_t>(guestRam.data()));
     EXPECT_EQ(result.guest.guestIpaBase, bootpkg::GUEST_IPA_BASE);
@@ -572,7 +572,7 @@ TEST(BootPkg, LoadLinuxGuestFailsWhenGuestDtbPlaceholdersAreMissing) {
     auto result = bootpkg::loadLinuxGuest(map);
 
     EXPECT_FALSE(result.isLoaded);
-    EXPECT_EQ(result.error, bootpkg::LoadError::GuestDtbPatchFailed);
+    EXPECT_EQ(result.error, bootpkg::LoadError::GUEST_DTB_PATCH_FAILED);
 }
 
 TEST(BootPkg, LoadLinuxGuestRejectsMissingFirmwarePackage) {
@@ -581,7 +581,7 @@ TEST(BootPkg, LoadLinuxGuestRejectsMissingFirmwarePackage) {
     auto result = bootpkg::loadLinuxGuest(map);
 
     EXPECT_FALSE(result.isLoaded);
-    EXPECT_EQ(result.error, bootpkg::LoadError::MissingFirmwarePackage);
+    EXPECT_EQ(result.error, bootpkg::LoadError::MISSING_FIRMWARE_PACKAGE);
 }
 
 TEST(BootPkg, LoadLinuxGuestPropagatesValidationError) {
@@ -596,8 +596,8 @@ TEST(BootPkg, LoadLinuxGuestPropagatesValidationError) {
     auto result = bootpkg::loadLinuxGuest(map);
 
     EXPECT_FALSE(result.isLoaded);
-    EXPECT_EQ(result.error, bootpkg::LoadError::InvalidPackage);
-    EXPECT_EQ(result.validateError, bootpkg::ValidateError::BadMagic);
+    EXPECT_EQ(result.error, bootpkg::LoadError::INVALID_PACKAGE);
+    EXPECT_EQ(result.validateError, bootpkg::ValidateError::BAD_MAGIC);
 }
 
 TEST(BootPkg, LoadLinuxGuestReportsAllocationFailure) {
@@ -611,6 +611,6 @@ TEST(BootPkg, LoadLinuxGuestReportsAllocationFailure) {
     auto result = bootpkg::loadLinuxGuest(map);
 
     EXPECT_FALSE(result.isLoaded);
-    EXPECT_EQ(result.error, bootpkg::LoadError::GuestRamAllocationFailed);
+    EXPECT_EQ(result.error, bootpkg::LoadError::GUEST_RAM_ALLOCATION_FAILED);
     gAllocPagesReturn = 0x10000000ULL;
 }

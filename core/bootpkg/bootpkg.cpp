@@ -123,7 +123,7 @@ bootpkg::ValidateResult fail(bootpkg::ValidateError error) {
 }
 
 bootpkg::LoadResult loadFail(bootpkg::LoadError error,
-        bootpkg::ValidateError validateError = bootpkg::ValidateError::None) {
+        bootpkg::ValidateError validateError = bootpkg::ValidateError::NONE) {
     bootpkg::LoadResult result = {};
     result.error = error;
     result.validateError = validateError;
@@ -241,16 +241,17 @@ uint32_t crc32(const void* data, uint64_t size) {
 }
 
 ValidateResult validate(const void* package, uint64_t size) {
-    if (package == nullptr) return fail(ValidateError::NullPackage);
-    if (size < HV_GUEST_BOOT_PKG_HEADER_SIZE) return fail(ValidateError::TooSmall);
+    if (package == nullptr) return fail(ValidateError::NULL_PACKAGE);
+    if (size < HV_GUEST_BOOT_PKG_HEADER_SIZE) return fail(ValidateError::TOO_SMALL);
 
     const auto* bytes = static_cast<const uint8_t*>(package);
 
-    if (readLe32(bytes, OFF_MAGIC) != HV_GUEST_BOOT_PKG_MAGIC) return fail(ValidateError::BadMagic);
+    if (readLe32(bytes, OFF_MAGIC) != HV_GUEST_BOOT_PKG_MAGIC)
+        return fail(ValidateError::BAD_MAGIC);
     if (readLe16(bytes, OFF_VERSION) != HV_GUEST_BOOT_PKG_VERSION)
-        return fail(ValidateError::BadVersion);
+        return fail(ValidateError::BAD_VERSION);
     if (readLe16(bytes, OFF_HEADER_SIZE) != HV_GUEST_BOOT_PKG_HEADER_SIZE)
-        return fail(ValidateError::BadHeaderSize);
+        return fail(ValidateError::BAD_HEADER_SIZE);
 
     PackageView view = {};
     view.totalSize = readLe64(bytes, OFF_TOTAL_SIZE);
@@ -266,39 +267,39 @@ ValidateResult validate(const void* package, uint64_t size) {
     view.buildId = reinterpret_cast<const char*>(bytes + OFF_BUILD_ID);
 
     if (view.totalSize < HV_GUEST_BOOT_PKG_HEADER_SIZE || view.totalSize > size)
-        return fail(ValidateError::BadTotalSize);
+        return fail(ValidateError::BAD_TOTAL_SIZE);
 
     uint32_t expectedHeaderCrc = readLe32(bytes, OFF_HEADER_CRC32);
-    if (headerCrc32(bytes) != expectedHeaderCrc) return fail(ValidateError::BadHeaderCrc);
+    if (headerCrc32(bytes) != expectedHeaderCrc) return fail(ValidateError::BAD_HEADER_CRC);
 
     uint32_t expectedPayloadCrc = readLe32(bytes, OFF_PAYLOAD_CRC32);
     if (crc32(bytes + HV_GUEST_BOOT_PKG_HEADER_SIZE,
                 view.totalSize - HV_GUEST_BOOT_PKG_HEADER_SIZE) != expectedPayloadCrc)
-        return fail(ValidateError::BadPayloadCrc);
+        return fail(ValidateError::BAD_PAYLOAD_CRC);
 
     if (view.bootProtocol != HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64)
-        return fail(ValidateError::UnsupportedBootProtocol);
+        return fail(ValidateError::UNSUPPORTED_BOOT_PROTOCOL);
     if ((view.flags & ~HV_GUEST_BOOT_PKG_KNOWN_FLAGS) != 0)
-        return fail(ValidateError::UnknownFlags);
-    if (view.kernelSize == 0) return fail(ValidateError::MissingKernel);
-    if (view.dtbSize == 0) return fail(ValidateError::MissingDtb);
+        return fail(ValidateError::UNKNOWN_FLAGS);
+    if (view.kernelSize == 0) return fail(ValidateError::MISSING_KERNEL);
+    if (view.dtbSize == 0) return fail(ValidateError::MISSING_DTB);
 
     bool hasInitrdFlag = (view.flags & HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT) != 0;
     bool hasInitrd = view.initrdSize != 0;
-    if (hasInitrdFlag != hasInitrd) return fail(ValidateError::BadInitrdFlag);
-    if (!hasInitrd && view.initrdOffset != 0) return fail(ValidateError::BadInitrdFlag);
+    if (hasInitrdFlag != hasInitrd) return fail(ValidateError::BAD_INITRD_FLAG);
+    if (!hasInitrd && view.initrdOffset != 0) return fail(ValidateError::BAD_INITRD_FLAG);
 
     if (view.kernelOffset != HV_GUEST_BOOT_PKG_HEADER_SIZE)
-        return fail(ValidateError::BadKernelOffset);
+        return fail(ValidateError::BAD_KERNEL_OFFSET);
 
     uint64_t expectedDtbOffset = align4k(view.kernelOffset + view.kernelSize);
     if (addOverflows(view.kernelOffset, view.kernelSize) || view.dtbOffset != expectedDtbOffset) {
-        return fail(ValidateError::BadDtbOffset);
+        return fail(ValidateError::BAD_DTB_OFFSET);
     }
 
     if (!rangeInBounds(view.kernelOffset, view.kernelSize, view.totalSize) ||
             !rangeInBounds(view.dtbOffset, view.dtbSize, view.totalSize)) {
-        return fail(ValidateError::ComponentOutOfBounds);
+        return fail(ValidateError::COMPONENT_OUT_OF_BOUNDS);
     }
 
     uint64_t expectedTotalSize {};
@@ -306,23 +307,24 @@ ValidateResult validate(const void* package, uint64_t size) {
         uint64_t expectedInitrdOffset = align4k(view.dtbOffset + view.dtbSize);
         if (addOverflows(view.dtbOffset, view.dtbSize) ||
                 view.initrdOffset != expectedInitrdOffset) {
-            return fail(ValidateError::BadInitrdOffset);
+            return fail(ValidateError::BAD_INITRD_OFFSET);
         }
         if (!rangeInBounds(view.initrdOffset, view.initrdSize, view.totalSize))
-            return fail(ValidateError::ComponentOutOfBounds);
+            return fail(ValidateError::COMPONENT_OUT_OF_BOUNDS);
         if (addOverflows(view.initrdOffset, view.initrdSize))
-            return fail(ValidateError::BadTotalLayout);
+            return fail(ValidateError::BAD_TOTAL_LAYOUT);
         expectedTotalSize = align4k(view.initrdOffset + view.initrdSize);
     } else {
-        if (addOverflows(view.dtbOffset, view.dtbSize)) return fail(ValidateError::BadTotalLayout);
+        if (addOverflows(view.dtbOffset, view.dtbSize))
+            return fail(ValidateError::BAD_TOTAL_LAYOUT);
         expectedTotalSize = align4k(view.dtbOffset + view.dtbSize);
     }
 
-    if (expectedTotalSize != view.totalSize) return fail(ValidateError::BadTotalLayout);
+    if (expectedTotalSize != view.totalSize) return fail(ValidateError::BAD_TOTAL_LAYOUT);
 
     ValidateResult result = {};
     result.isValid = true;
-    result.error = ValidateError::None;
+    result.error = ValidateError::NONE;
     result.package = view;
     return result;
 }
@@ -372,19 +374,19 @@ bool calculateGuestLayout(const PackageView& package, GuestLayout& out) {
 
 LoadResult loadLinuxGuest(const MemoryMap& map) {
     if (map.bootPackageBase == 0 || map.bootPackageSize == 0)
-        return loadFail(LoadError::MissingFirmwarePackage);
+        return loadFail(LoadError::MISSING_FIRMWARE_PACKAGE);
 
     const auto* packageBytes = static_cast<const uint8_t*>(HostMmu::paToVa(map.bootPackageBase));
 
     ValidateResult validated = validate(packageBytes, map.bootPackageSize);
-    if (!validated.isValid) return loadFail(LoadError::InvalidPackage, validated.error);
+    if (!validated.isValid) return loadFail(LoadError::INVALID_PACKAGE, validated.error);
 
     GuestLayout layout = {};
     if (!calculateGuestLayout(validated.package, layout))
-        return loadFail(LoadError::GuestLayoutOverflow);
+        return loadFail(LoadError::GUEST_LAYOUT_OVERFLOW);
 
     uint64_t guestRamHostPa = pmm::allocPages(GUEST_RAM_ORDER);
-    if (guestRamHostPa == 0) return loadFail(LoadError::GuestRamAllocationFailed);
+    if (guestRamHostPa == 0) return loadFail(LoadError::GUEST_RAM_ALLOCATION_FAILED);
 
     hv::unique_ptr<uint8_t, GuestRamDeleter> guestRam(reinterpret_cast<uint8_t*>(guestRamHostPa));
 
@@ -398,7 +400,7 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
             validated.package.dtbSize);
     uint64_t dtbHostPa = guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE);
     void* guestDtb = HostMmu::paToVa(dtbHostPa);
-    if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GuestDtbPatchFailed);
+    if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GUEST_DTB_PATCH_FAILED);
 
     if (validated.package.initrdSize != 0) {
         copyToGuest(guestRamHostPa,
@@ -409,8 +411,8 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
 
     LoadResult result = {};
     result.isLoaded = true;
-    result.error = LoadError::None;
-    result.validateError = ValidateError::None;
+    result.error = LoadError::NONE;
+    result.validateError = ValidateError::NONE;
     result.guest.guestRamHostPa = guestRamHostPa;
     result.guest.guestIpaBase = layout.guestIpaBase;
     result.guest.guestRamSize = layout.guestRamSize;

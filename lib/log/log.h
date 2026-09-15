@@ -120,14 +120,14 @@ inline void writeValue(Writer&& writer, T value) {
 }
 
 enum class FormatStep : uint8_t {
-    End,
-    Placeholder,
-    Invalid,
+    END,
+    PLACEHOLDER,
+    INVALID,
 };
 
 enum class FormatSpec : uint8_t {
-    Default,
-    Hex,
+    DEFAULT,
+    HEX,
 };
 
 struct FormatResult {
@@ -139,7 +139,7 @@ template <typename Writer>
 inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
     if (fmt == nullptr) {
         writeCString(writer, "(null)");
-        return { FormatStep::End, FormatSpec::Default };
+        return { FormatStep::END, FormatSpec::DEFAULT };
     }
 
     while (*fmt != '\0') {
@@ -152,16 +152,16 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
 
             if (fmt[1] == '}') {
                 fmt += 2;
-                return { FormatStep::Placeholder, FormatSpec::Default };
+                return { FormatStep::PLACEHOLDER, FormatSpec::DEFAULT };
             }
 
             if (fmt[1] == ':' && (fmt[2] == 'x' || fmt[2] == 'X') && fmt[3] == '}') {
                 fmt += 4;
-                return { FormatStep::Placeholder, FormatSpec::Hex };
+                return { FormatStep::PLACEHOLDER, FormatSpec::HEX };
             }
 
             writeCString(writer, "[invalid format]");
-            return { FormatStep::Invalid, FormatSpec::Default };
+            return { FormatStep::INVALID, FormatSpec::DEFAULT };
         }
 
         if (*fmt == '}') {
@@ -172,13 +172,13 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
             }
 
             writeCString(writer, "[invalid format]");
-            return { FormatStep::Invalid, FormatSpec::Default };
+            return { FormatStep::INVALID, FormatSpec::DEFAULT };
         }
 
         writer(*fmt++);
     }
 
-    return { FormatStep::End, FormatSpec::Default };
+    return { FormatStep::END, FormatSpec::DEFAULT };
 }
 
 template <typename Writer, typename T>
@@ -200,7 +200,7 @@ inline void writeHexValue(Writer&& writer, T value) {
 
 template <typename Writer, typename T>
 inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
-    if (spec == FormatSpec::Hex) {
+    if (spec == FormatSpec::HEX) {
         if constexpr (__is_enum(T)) {
             writeHexValue(writer, static_cast<__underlying_type(T)>(value));
         } else {
@@ -218,7 +218,7 @@ inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
 
 template <typename Writer>
 inline void formatToSink(Writer&& writer, const char* fmt) {
-    if (writeUntilPlaceholder(writer, fmt).step == FormatStep::Placeholder) {
+    if (writeUntilPlaceholder(writer, fmt).step == FormatStep::PLACEHOLDER) {
         writeCString(writer, "[missing arg]");
     }
 }
@@ -227,13 +227,13 @@ template <typename Writer, typename T, typename... Rest>
 inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest) {
     const FormatResult result = writeUntilPlaceholder(writer, fmt);
 
-    if (result.step == FormatStep::Placeholder) {
+    if (result.step == FormatStep::PLACEHOLDER) {
         writeFormattedValue(writer, result.spec, value);
         formatToSink(writer, fmt, rest...);
         return;
     }
 
-    if (result.step == FormatStep::End) {
+    if (result.step == FormatStep::END) {
         writeCString(writer, "[extra arg]");
     }
 }

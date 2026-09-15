@@ -174,7 +174,7 @@ static bool test_firmware_package_validates() {
 
     bootpkg::ValidateResult result = bootpkg::validate(packageBytes(map), map.bootPackageSize);
 
-    return result.isValid && result.error == bootpkg::ValidateError::None &&
+    return result.isValid && result.error == bootpkg::ValidateError::NONE &&
             result.package.bootProtocol == bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64;
 }
 
@@ -196,7 +196,7 @@ static bool test_load_linux_guest_from_firmware_package() {
     bool copied = kernel[0] == packageKernel[0] &&
             kernel[validated.package.kernelSize - 1] ==
                     packageKernel[validated.package.kernelSize - 1];
-    bool metadata = loaded.error == bootpkg::LoadError::None &&
+    bool metadata = loaded.error == bootpkg::LoadError::NONE &&
             loaded.guest.guestIpaBase == layout.guestIpaBase &&
             loaded.guest.guestRamSize == layout.guestRamSize &&
             loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa;
