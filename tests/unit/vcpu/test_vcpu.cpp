@@ -68,10 +68,10 @@ TEST(Vcpu, IsStandardLayout) {
 }
 
 TEST(Vcpu, SubStructOffsetsMatchAsmContract) {
-    EXPECT_EQ(VcpuLayoutAccess::GprOffset(), VCPU_GPREGS_OFFSET);
-    EXPECT_EQ(VcpuLayoutAccess::SpEl0Offset(), VCPU_GPREG_SP_EL0);
-    EXPECT_EQ(VcpuLayoutAccess::El2StateOffset(), VCPU_EL2STATE_OFFSET);
-    EXPECT_EQ(VcpuLayoutAccess::El1SysRegsOffset(), VCPU_EL1REGS_OFFSET);
+    EXPECT_EQ(VcpuLayoutAccess::GetGprOffset(), VCPU_GPREGS_OFFSET);
+    EXPECT_EQ(VcpuLayoutAccess::GetSpEl0Offset(), VCPU_GPREG_SP_EL0);
+    EXPECT_EQ(VcpuLayoutAccess::GetEl2StateOffset(), VCPU_EL2STATE_OFFSET);
+    EXPECT_EQ(VcpuLayoutAccess::GetEl1SysRegsOffset(), VCPU_EL1REGS_OFFSET);
     EXPECT_GE(sizeof(Vcpu), VCPU_SIZEOF);
 }
 
@@ -127,7 +127,7 @@ TEST(Vcpu, HvContextSizeMatchesAsmConstant) {
 }
 
 TEST(Vcpu, HvContextOffsetMatchesAsmConstant) {
-    EXPECT_EQ(VcpuLayoutAccess::HvCtxOffset(), (uint64_t)VCPU_HVCTX_OFFSET);
+    EXPECT_EQ(VcpuLayoutAccess::GetHvCtxOffset(), (uint64_t)VCPU_HVCTX_OFFSET);
 }
 
 TEST(Vcpu, SetIdGetIdRoundTrip) {

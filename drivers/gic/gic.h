@@ -16,7 +16,7 @@ private:
     // Which register frame an offset is measured from.
     enum class Frame { DIST, CPU, HV, VCPU };
 
-    static uintptr_t frameBase(Frame frame);
+    static uintptr_t getFrameBase(Frame frame);
 
     // @brief Initialize the GICC for the current CPU.
     // @note Called internally by @ref Init().
@@ -36,13 +36,13 @@ public:
     static void SetBases(uint64_t dist, uint64_t cpu, uint64_t hv, uint64_t vcpu);
 
     // @brief Base of the distributor frame in use.
-    [[nodiscard]] static uint64_t DistBase();
+    [[nodiscard]] static uint64_t GetDistBase();
 
     // @brief Base of the hypervisor interface frame in use.
-    [[nodiscard]] static uint64_t HvBase();
+    [[nodiscard]] static uint64_t GetHvBase();
 
     // @brief Base of the guest facing virtual CPU interface frame in use.
-    [[nodiscard]] static uint64_t VcpuBase();
+    [[nodiscard]] static uint64_t GetVcpuBase();
 
 private:
 public:

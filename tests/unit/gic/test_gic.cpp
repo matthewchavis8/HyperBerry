@@ -46,7 +46,7 @@ uint32_t encodedLr(uint32_t virtId, uint32_t physId) {
 
 } // namespace
 
-uintptr_t Gic::frameBase(Frame /*frame*/) {
+uintptr_t Gic::getFrameBase(Frame /*frame*/) {
     return 0;
 }
 

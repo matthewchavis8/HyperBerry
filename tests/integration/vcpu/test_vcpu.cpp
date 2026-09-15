@@ -66,7 +66,7 @@ static bool test_vcpu_hvctx_size_matches_asm() {
 }
 
 static bool test_vcpu_hvctx_offset_matches_asm() {
-    return VcpuLayoutAccess::HvCtxOffset() == VCPU_HVCTX_OFFSET;
+    return VcpuLayoutAccess::GetHvCtxOffset() == VCPU_HVCTX_OFFSET;
 }
 
 static bool test_vcpu_gpr_round_trip() {

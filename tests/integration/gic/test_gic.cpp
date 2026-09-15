@@ -67,11 +67,11 @@ void trace(const char* msg) {
 }
 
 volatile uint32_t* distReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::DistBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetDistBase() + offset);
 }
 
 volatile uint32_t* hvReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::HvBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetHvBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -102,7 +102,7 @@ void pendTestSpi() {
 
 void routeTestSpiToCpu0() {
     volatile uint8_t* target { reinterpret_cast<volatile uint8_t*>(
-            Gic::DistBase() + GicReg::Dist::ITARGETSR + kPhysIrq) };
+            Gic::GetDistBase() + GicReg::Dist::ITARGETSR + kPhysIrq) };
     *target = 0x01;
 }
 
@@ -265,7 +265,7 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: Vcpu::init");
     Vcpu vcpu;
     vcpu.Init(reinterpret_cast<uint64_t>(test_gic_guest_entry));
-    vcpu.SetGpReg(VCPU_GPREG_X0, Gic::VcpuBase());
+    vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetVcpuBase());
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
