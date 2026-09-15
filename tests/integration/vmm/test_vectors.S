@@ -1,10 +1,7 @@
-/**
- * @file test_vectors.S
- * @brief Test only EL2 exception vector table for HyperBerry.
- *
- * Mirros the Core EL2 vector layout, but routes to the test handler instead
- *
- */
+// @file test_vectors.S
+// @brief Test only EL2 vector table.
+//
+// Mirrors the EL2 vector layout, but routes the sync entry to the test handler.
 
 .section .text.test_vectors
 .balign 0x800
@@ -55,7 +52,7 @@ test_el2_sync_entry:
     stp  x28, x29, [sp, #224]
     str  x30,      [sp, #240]
  
-    /* Save ELR_EL2 and SPSR_EL2 */
+    // Save ELR_EL2 and SPSR_EL2
     mrs  x0, elr_el2
     mrs  x1, spsr_el2
     stp  x0, x1, [sp, #248]

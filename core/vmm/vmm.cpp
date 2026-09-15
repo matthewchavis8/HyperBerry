@@ -1,16 +1,10 @@
-/**
- * @file vmm.cpp
- * @brief C++ exception handlers for EL2 and lower-EL (guest) exits.
- * @ingroup vmm
- *
- * EL2 handlers receive an ExceptionContext built by vmm.S.
- * Lower-EL handlers receive the Vcpu* parked in TPIDR_EL2 and the
- * ESR_EL2 value passed through by vcpu.S, then re-enter the guest
- * via vcpu_enter().
- *
- * @note Uses C linkage (@c extern "C") so assembly can branch to
- *       handlers by unmangled symbol name.
- */
+// @file vmm.cpp
+// @brief Trap handlers for exceptions taken at EL2 and for guest exits.
+// @ingroup vmm
+//
+// EL2 handlers receive the ExceptionContext built by vmm.S. Guest handlers
+// receive the Vcpu parked in TPIDR_EL2 and the ESR_EL2 value passed through by
+// vcpu.S, then re-enter the guest through vcpu_enter().
 
 #include "vmm.h"
 #include "core/vmm/hvc/hvc.h"
@@ -31,9 +25,28 @@ namespace {
     hv_panic(msg);
 }
 
-} // namespace
+// @brief Dispatch a guest HVC and resume the guest unless it asked to stop.
+// @param vcpu vCPU that trapped.
+// @return Nothing.
+void handleHvcExit(Vcpu& vcpu) {
+    Log::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
+            vcpu.getGpReg(VCPU_GPREG_X0));
 
-// Hypervisor EL2 exception handlers
+    switch (handleHvcAarch64(vcpu.m_gpr)) {
+        case HvcResult::HANDLED:
+        case HvcResult::UNHANDLED:
+            vcpu_enter(&vcpu);
+            break;
+
+        case HvcResult::HALT:
+            hv_panic("[HVC] guest requested halt");
+
+        case HvcResult::RESET:
+            hv_panic("[HVC] guest requested reset");
+    }
+}
+
+} // namespace
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
     panicWithFrame("[HV sync] was triggered", ctx);
@@ -55,62 +68,41 @@ extern "C" void handle_unhandled(ExceptionContext& ctx) {
     panicWithFrame("[HV mysterious exception?] was triggered", ctx);
 }
 
-// Guest Exception Handlers
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
-    EsrEc exceptionClass = getEsrEc(esr);
+    EsrEc exceptionClass { getEsrEc(esr) };
 
     switch (exceptionClass) {
-        case EsrEc::HvcAarch64:
-            Log::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}", vcpu->m_gpr[0]);
-            {
-                HvcResult result = handleHvcAarch64(vcpu->m_gpr);
-
-                switch (result) {
-                    case HvcResult::Handled:
-                    case HvcResult::Unhandled:
-                        vcpu_enter(vcpu);
-                        break;
-
-                    case HvcResult::Halt:
-                        hv_panic("[HVC] guest requested halt");
-
-                    case HvcResult::Reset:
-                        hv_panic("[HVC] guest requested reset");
-                }
-            }
+        case EsrEc::HVC_AARCH64:
+            handleHvcExit(*vcpu);
             break;
 
-        case EsrEc::SmcAarch64:
+        case EsrEc::SMC_AARCH64:
             Log::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
                     vcpu->getGpReg(VCPU_GPREG_X0));
             vcpu->skipInstruction();
             break;
 
-        case EsrEc::DataAbortLower: {
+        case EsrEc::DATA_ABORT_LOWER:
             hv_panic("[DataAbortLower] unhandled");
-        }
 
         default:
-            Log::println(
-                    "[Guest][ERROR] Unhandled guest exit EC={:x} ISS={:x} ESR={:x}",
-                    exceptionClass, getEsrIss(esr), esr);
+            Log::println("[Guest][ERROR] Unhandled guest exit EC={:x} ISS={:x} ESR={:x}",
+                    exceptionClass,
+                    getEsrIss(esr),
+                    esr);
             hv_panic("[Guest] unhandled lower-EL sync exception");
     }
 }
 
-extern "C" void handle_lower_el_irq(Vcpu* vcpu, uint64_t esr) {
-    (void)esr; // Unused for now will add some debugging later
+extern "C" void handle_lower_el_irq(Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
     vcpu_enter(vcpu);
 }
 
-extern "C" void handle_lower_el_fiq(Vcpu* vcpu, uint64_t esr) {
-    (void)esr;
+extern "C" void handle_lower_el_fiq(Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
     vcpu_enter(vcpu);
 }
 
-extern "C" void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr) {
-    (void)vcpu;
-    (void)esr;
+extern "C" void handle_lower_el_serror([[maybe_unused]] Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
     Log::println("[Guest EL SError] was triggered");
     for (;;) {
         asm volatile("wfe");

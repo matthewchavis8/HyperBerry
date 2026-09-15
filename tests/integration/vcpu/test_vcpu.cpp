@@ -103,7 +103,7 @@ static bool test_vcpu_guest_exit_captures_hvc_esr() {
         return false;
     }
 
-    return getEsrEc(gGuestExit.esr) == EsrEc::HvcAarch64;
+    return getEsrEc(gGuestExit.esr) == EsrEc::HVC_AARCH64;
 }
 
 static bool test_vcpu_guest_exit_saves_guest_pc() {

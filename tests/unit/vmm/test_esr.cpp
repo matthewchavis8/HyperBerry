@@ -6,19 +6,19 @@
 #include "core/vmm/esr.h"
 
 TEST(EsrEc, HvcAarch64) {
-    EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HvcAarch64);
+    EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HVC_AARCH64);
 }
 
 TEST(EsrEc, SmcAarch64) {
-    EXPECT_EQ(getEsrEc(0x17ULL << 26), EsrEc::SmcAarch64);
+    EXPECT_EQ(getEsrEc(0x17ULL << 26), EsrEc::SMC_AARCH64);
 }
 
 TEST(EsrEc, DataAbortLower) {
-    EXPECT_EQ(getEsrEc(0x24ULL << 26), EsrEc::DataAbortLower);
+    EXPECT_EQ(getEsrEc(0x24ULL << 26), EsrEc::DATA_ABORT_LOWER);
 }
 
 TEST(EsrEc, Unknown) {
-    EXPECT_EQ(getEsrEc(0), EsrEc::Unknown);
+    EXPECT_EQ(getEsrEc(0), EsrEc::UNKNOWN);
 }
 
 TEST(EsrEc, MasksCorrectly) {

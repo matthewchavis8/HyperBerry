@@ -1,7 +1,5 @@
-/**
- * @file test_vmm.cpp
- * @brief Integration tests for EL2 exception vector table routing.
- */
+// @file test_vmm.cpp
+// @brief Integration tests for EL2 exception vector table routing.
 
 #include "tests/integration/suite.h"
 #include "trapState.h"
@@ -9,16 +7,14 @@
 // Holds the current state of EL2 vector table during testing
 static TestExceptionState vecBarState;
 
-/**
- * @brief Test-only EL2 sync exception handler.
- *
- * Called from test_el2_sync_entry in test_vectors.S.
- * Captures ESR, ELR, and a spot-check GPR into g_test_ex_state,
- * then advances ELR by 4 so eret skips the faulting BRK instruction.
- *
- * The +4 advance is safe because BRK is a fixed 4-byte A64 encoding
- * and we are always in AArch64 at EL2.
- */
+// @brief Test only EL2 sync handler.
+//
+// Called from test_el2_sync_entry in test_vectors.S. Captures ESR, ELR and x19
+// into vecBarState, then advances ELR by 4 so eret skips the faulting BRK. A64
+// BRK is a fixed 4 byte encoding, and EL2 always runs AArch64.
+// @param frame Frame saved by test_el2_sync_entry.
+// @param esr ESR_EL2 at the trap.
+// @return Nothing.
 extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
     uint64_t* ctx = reinterpret_cast<uint64_t*>(frame);
 
@@ -27,8 +23,7 @@ extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
     vecBarState.esr = esr;
     // ELR/SPSR live after x0-x30 in the saved exception frame.
     vecBarState.elr = ctx[31];
-    // Grab the first non volatile register to make sure allignment or stack corruption did not
-    // occur
+    // A callee saved register catches a misaligned or corrupted frame.
     vecBarState.gpr19 = ctx[19];
     // Skip the faulting BRK so eret resumes at the next instruction.
     ctx[31] += 4;
@@ -37,13 +32,10 @@ extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
 // Symbol defined from test_vectors.S
 extern "C" char test_vectors[];
 
-/**
- * @brief RAII guard for temporarily swapping VBAR_EL2.
- *
- * Constructor saves current VBAR_EL2 and installs the test vector table.
- * Destructor restores the original VBAR_EL2. ISB ensures the pipeline
- * sees the new table before any exception can fire.
- */
+// @brief RAII guard that swaps VBAR_EL2 for the test table.
+//
+// The constructor saves VBAR_EL2 and installs test_vectors; the destructor puts
+// the original back. The isb makes sure the new table is live before a trap.
 class VbarGuard {
 private:
     uint64_t m_saved;
@@ -65,26 +57,18 @@ public:
 };
 
 
-/**
- * @test Verify production VBAR_EL2 is non-zero and 0x800-aligned.
- *
- * ARMv8-A requires VBAR alignment to 0x800 (bits [10:0] must be zero,
- * but the minimum meaningful alignment is 11 bits = 0x800).
- * This runs *before* installing the test table.
- */
+// @test Production VBAR_EL2 is nonzero and aligned to 0x800.
+//
+// Runs before the test table is installed.
+// @return true when VBAR_EL2 is set and bits [10:0] are clear.
 static bool test_vbar_aligned() {
     uint64_t vbar;
     asm volatile("mrs %0, vbar_el2" : "=r"(vbar));
     return (vbar != 0) && ((vbar & 0x7FF) == 0);
 }
 
-/**
- * @test Trigger BRK #0 and verify the test handler was called.
- *
- * If the vector table is wired correctly, test_el2_sync_entry runs,
- * calls handle_test_el2_sync, sets g_test_ex_state.called = true,
- * advances ELR, and erets back here.
- */
+// @test BRK #0 reaches the test handler.
+// @return true when handle_test_el2_sync ran.
 static bool test_brk_fires_handler() {
     vecBarState = {};
     VbarGuard guard;
@@ -92,13 +76,8 @@ static bool test_brk_fires_handler() {
     return vecBarState.isCalled;
 }
 
-/**
- * @test Verify ESR_EL2 exception class is 0x3C (BRK from AArch64).
- *
- * ESR_EL2 bits [31:26] hold the Exception Class (EC).
- * EC = 0x3C means "BRK instruction execution in AArch64 state"
- * when taken from the current EL.
- */
+// @test ESR_EL2.EC reads 0x3C, BRK from AArch64.
+// @return true when the captured EC is 0x3C.
 static bool test_brk_esr_ec_correct() {
     vecBarState = {};
     VbarGuard guard;
@@ -108,13 +87,10 @@ static bool test_brk_esr_ec_correct() {
     return ec == 0x3C;
 }
 
-/**
- * @test Verify ELR_EL2 points to the BRK instruction.
- *
- * Uses `adr` to capture the address of the BRK before executing it.
- * The handler records ELR before advancing it, so we compare against
- * the pre-advance value.
- */
+// @test ELR_EL2 points at the BRK.
+//
+// adr captures the BRK address; the handler records ELR before advancing it.
+// @return true when the captured ELR matches.
 static bool test_brk_elr_points_to_brk() {
     vecBarState = {};
     VbarGuard guard;
@@ -127,13 +103,11 @@ static bool test_brk_elr_points_to_brk() {
     return vecBarState.elr == brk_addr;
 }
 
-/**
- * @test Verify callee-saved register x19 round-trips through context save.
- *
- * Loads a known sentinel (0xBEEF) into x19 before BRK, then checks
- * that the handler read the same value from the saved frame.
- * Validates that the test_vectors.S context save covers callee-saved regs.
- */
+// @test x19 survives the frame save.
+//
+// Loads 0xBEEF into x19 before the BRK and checks the handler read it back from
+// the saved frame.
+// @return true when the saved x19 is 0xBEEF.
 static bool test_context_gpr_preserved() {
     vecBarState = {};
     VbarGuard guard;
