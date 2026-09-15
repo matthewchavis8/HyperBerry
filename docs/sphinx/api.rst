@@ -134,9 +134,8 @@ Panic
 
 Fatal exception reporting for unrecoverable EL2 errors.
 
-``hv_panic()`` prints an error message and the EL2 fault registers, then halts
-the current CPU indefinitely. A trap from the hypervisor itself also prints the
-saved general purpose registers first, from ``core/vmm``.
+``hv_panic()`` prints an error message, emits a full exception register dump,
+and halts the current CPU indefinitely.
 
 .. doxygenfile:: panic.h
    :project: HyperBerry
@@ -166,6 +165,14 @@ Freestanding fixed-size container used in exception context state.
 .. doxygenstruct:: hv::array
    :project: HyperBerry
    :members:
+
+registerDump()
+~~~~~~~~~~~~~~
+
+Prints a full exception-state register dump to UART for diagnostics.
+
+.. doxygenfile:: registerDump.h
+   :project: HyperBerry
 
 BSP
 ---

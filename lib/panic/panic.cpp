@@ -6,6 +6,27 @@
 
 #include "panic.h"
 #include "lib/log/log.h"
+#include "lib/registerDump/registerDump.h"
+
+/*
+ * @brief Print panic diagnostics and stop execution permanently.
+ * @ingroup lib
+ * @param msg Optional panic message to print.
+ * @param ctx Saved exception context for diagnostic output.
+ */
+[[noreturn]] void hv_panic(const char* msg, const hv::array<uint64_t, 31>& ctx) {
+    Log::writeLine("=======================================");
+    Log::writeLine("=             HV PANIC                =");
+    Log::writeLine("=======================================");
+
+    if (msg) Log::writeLine("[ERROR] {}", msg);
+
+    registerDump(ctx);
+
+    for (;;) {
+        asm volatile("wfe");
+    }
+}
 
 /*
  * @brief Print panic diagnostics and stop execution permanently.
