@@ -51,7 +51,7 @@ public:
     /**
      * @brief Enable stage-2 and enter the guest.
      * @note Does not return; the guest runs forever or traps back via
-     *       the exception path, which is owned by vcpu.S / exceptions.S.
+     *       the exception path, which is owned by vcpu.S / vmm.S.
      */
     void run();
 

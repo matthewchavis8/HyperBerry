@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "core/exceptions/hvc/hvc.h"
+#include "core/vmm/hvc/hvc.h"
 
 namespace {
 constexpr uint64_t PSCI_VERSION = 0x84000000ULL;

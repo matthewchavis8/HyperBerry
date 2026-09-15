@@ -8,7 +8,7 @@
 #define __HVC_H__
 
 #include <stdint.h>
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 #include "lib/array/array.h"
 
 /**

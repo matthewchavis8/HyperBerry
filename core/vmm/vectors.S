@@ -1,7 +1,7 @@
 /**
  * @file vectors.S
  * @brief EL2 exception vector table.
- * @ingroup exceptions
+ * @ingroup vmm
  *
  * Table installed in VBAR_EL2 by boot.S. 0x800-byte aligned, 0x80-byte entries.
  *

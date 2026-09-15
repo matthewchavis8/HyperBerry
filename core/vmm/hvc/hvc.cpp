@@ -1,12 +1,12 @@
 /**
  * @file hvc.cpp
  * @brief AArch64 HVC call dispatch and private PSCI-over-HVC handling.
- * @ingroup exceptions
+ * @ingroup vmm
  */
 
 #include "hvc.h"
-#include "core/exceptions/exceptions.h"
-#include "core/exceptions/smccc/smccc.h"
+#include "core/vmm/vmm.h"
+#include "core/vmm/smccc/smccc.h"
 #include "lib/log/log.h"
 
 namespace {

@@ -1,11 +1,11 @@
 /**
- * @file test_exceptions.cpp
+ * @file test_vmm.cpp
  * @brief Integration tests for EL2 exception vector table routing.
  */
 
 #include "tests/integration/suite.h"
-#include "exceptionState.h"
-#include "core/exceptions/exceptions.h"
+#include "trapState.h"
+#include "core/vmm/vmm.h"
 
 // Holds the current state of EL2 vector table during testing
 static TestExceptionState vecBarState;

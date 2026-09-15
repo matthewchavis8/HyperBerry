@@ -24,7 +24,7 @@ Run the integration suite before calling anything done.
 
 ```
 bsp/<board>/         everything a board owns: bsp.h, boot.S, linker.ld, dts/, firmware/
-core/                main, dtb, bootpkg, mm/, vcpu, vm, exceptions; each owns its
+core/                main, dtb, bootpkg, mm/, vcpu, vm, vmm; each owns its
                      own entry assembly next to the C++ it pairs with
 drivers/             uart, gic, timer
 lib/                 panic, strings, and header only utilities

@@ -7,7 +7,7 @@
 #ifndef __REGISTERDUMP_H__
 #define __REGISTERDUMP_H__
 
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 #include "lib/log/log.h"
 
 #include "stddef.h"

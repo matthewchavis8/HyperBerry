@@ -4,8 +4,8 @@ add_executable(hyperberry_unit_tests
   hostMmu/test_hostMmu.cpp
   guestMmu/test_guestMmu.cpp
   vcpu/test_vcpu.cpp
-  exceptions/test_exceptions.cpp
-  exceptions/test_hvc.cpp
+  vmm/test_vmm.cpp
+  vmm/test_hvc.cpp
 
   utility/test_utility.cpp
   memory/test_unique_ptr.cpp
@@ -26,7 +26,7 @@ add_executable(hyperberry_unit_tests
   vm/test_vm.cpp
   ${CMAKE_SOURCE_DIR}/core/vm/vm.cpp
 
-  ${CMAKE_SOURCE_DIR}/core/exceptions/hvc/hvc.cpp
+  ${CMAKE_SOURCE_DIR}/core/vmm/hvc/hvc.cpp
 )
 
 target_include_directories(hyperberry_unit_tests

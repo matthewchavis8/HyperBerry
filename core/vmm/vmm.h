@@ -1,11 +1,11 @@
 /**
- * @file exceptions.h
+ * @file vmm.h
  * @brief Exception context structure shared between assembly and C++.
- * @ingroup exceptions
+ * @ingroup vmm
  */
 
-#ifndef __EXCEPTIONS_H__
-#define __EXCEPTIONS_H__
+#ifndef __VMM_H__
+#define __VMM_H__
 
 #include <stdint.h>
 #include "lib/array/array.h"
@@ -58,4 +58,4 @@ inline EsrEc getEsrEc(uint64_t esr) {
     return static_cast<EsrEc>((esr >> 26) & 0x3F);
 }
 
-#endif // __EXCEPTIONS_H__
+#endif // __VMM_H__

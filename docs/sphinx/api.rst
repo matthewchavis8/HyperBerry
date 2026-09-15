@@ -51,12 +51,12 @@ Shared page-table walk and allocation helpers used by both MMU paths.
    :project: HyperBerry
    :sections: func innerclass define
 
-Exception Handling
-~~~~~~~~~~~~~~~~~~
+VMM
+~~~
 
-EL2 exception vector table, context save/restore, and handler stubs.
+EL2 vector table, trap entry glue, and guest trap dispatch.
 
-.. doxygengroup:: exceptions
+.. doxygengroup:: vmm
    :project: HyperBerry
    :members:
 
