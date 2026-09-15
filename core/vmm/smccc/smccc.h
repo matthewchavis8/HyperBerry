@@ -33,6 +33,13 @@ inline constexpr int32_t NOT_SUPPORTED { -1 };
 inline constexpr int32_t NOT_REQUIRED { -2 };
 inline constexpr int32_t INVALID_PARAMETER { -3 };
 
+// @brief Widen a return code to the value a caller reads back in x0.
+// @param code One of the SMCCC return codes.
+// @return The code sign extended to 64 bits.
+constexpr uint64_t toRegister(int32_t code) {
+    return static_cast<uint64_t>(static_cast<int64_t>(code));
+}
+
 // @brief Extract the owning entity number from an SMCCC function ID.
 // @param funcId Raw function ID from x0.
 // @return The OEN field.

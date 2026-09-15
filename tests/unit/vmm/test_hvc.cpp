@@ -7,6 +7,7 @@
 
 namespace {
 constexpr uint64_t PSCI_VERSION { 0x84000000ULL };
+constexpr uint64_t PSCI_CPU_SUSPEND { 0x84000001ULL };
 constexpr uint64_t PSCI_SYSTEM_OFF { 0x84000008ULL };
 constexpr uint64_t PSCI_SYSTEM_RESET { 0x84000009ULL };
 constexpr uint64_t PSCI_FEATURES { 0x8400000AULL };
@@ -62,6 +63,14 @@ TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
     regs[1] = 0x1234ULL;
 
     EXPECT_EQ(handleHvcAarch64(regs), HvcResult::UNHANDLED);
-    EXPECT_EQ(regs[0], 0xC0FFEEULL);
+    EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
     EXPECT_EQ(regs[1], 0x1234ULL);
+}
+
+TEST(HvcAarch64, UnimplementedPsciCallReturnsNotSupported) {
+    ExceptionContext regs = {};
+    regs[0] = PSCI_CPU_SUSPEND;
+
+    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::UNHANDLED);
+    EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
 }
