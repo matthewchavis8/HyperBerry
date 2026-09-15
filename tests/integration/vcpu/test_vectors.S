@@ -1,14 +1,11 @@
 // @file test_vectors.S
-// @brief Test-only EL2 vector table and guest stub for Vcpu integration tests.
+// @brief Test-only EL2 vector table for Vcpu integration tests.
 
 #include "core/vcpu/vcpu.h"
 
 .section .text.test_vcpu_vectors
 .balign 0x800
 .global test_vcpu_vectors
-.global test_vcpu_guest_entry
-.global test_vcpu_guest_hvc
-.global test_vcpu_guest_resume
 
 test_vcpu_vectors:
   // Group 1: EL2/SP_EL0 (unused)
@@ -100,14 +97,4 @@ test_vcpu_exit_sync:
     ret
 
 test_vcpu_unhandled:
-    b .
-
-.section .text.test_vcpu_guest
-.balign 4
-test_vcpu_guest_entry:
-    movz x0, #0x1234
-    movz x5, #0xbeef
-test_vcpu_guest_hvc:
-    hvc #0
-test_vcpu_guest_resume:
     b .

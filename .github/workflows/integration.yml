@@ -20,13 +20,13 @@ jobs:
         run: cmake --preset debug
       - name: Build QEMU integration tests
         run: cmake --build --preset debug --target hyperberry-qemu-test
-      - name: Build guest boot package
-        run: cmake --build --preset debug --target guest_pkg
+      - name: Build QEMU guest archive
+        run: cmake --build --preset debug --target guest-archive-qemu
       - name: Run QEMU integration tests
         uses: ./.github/actions/run-qemu-integration
         with:
           kernel: build/debug/qemu/integration/kernel8.img
-          initrd: boot/profiles/guest-qemu.hvgbp
+          initrd: build/debug/qemu/integration/guest.cpio
           log: build/debug/qemu/integration/qemu.log
       - name: Upload QEMU serial logs
         if: failure()

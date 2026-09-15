@@ -10,6 +10,7 @@
 #define __FDT_H__
 
 #include <stdint.h>
+#include "lib/strings/strings.h"
 
 // @brief Flattened Device Tree token values used in the structure block.
 enum class FDT : uint32_t {
@@ -49,28 +50,6 @@ inline uint32_t Be32(uint32_t byte) {
 // @brief Convert a 64-bit big-endian DTB field to host endianness.
 inline uint64_t Be64(uint64_t byte) {
     return __builtin_bswap64(byte);
-}
-
-// @brief Compare two null-terminated strings for equality.
-inline bool StrEq(const char* str1, const char* str2) {
-    while (*str1 && *str2) {
-        if (*str1 != *str2) return false;
-        str1++;
-        str2++;
-    }
-
-    return *str1 == *str2;
-}
-
-// @brief Test whether @p str begins with @p prefix.
-inline bool StrStartsWith(const char* str, const char* prefix) {
-    while (*prefix) {
-        if (*str != *prefix) return false;
-        str++;
-        prefix++;
-    }
-
-    return true;
 }
 
 // @brief Advance past @p bytes and round up to the next 32-bit boundary.

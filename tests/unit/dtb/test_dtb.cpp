@@ -216,7 +216,7 @@ TEST(DtbParser, ValidMemoryAndAtf) {
     EXPECT_EQ(map.dtbBase, reinterpret_cast<uint64_t>(blob.data()));
 }
 
-TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
+TEST(DtbParser, ChosenInitrdBecomesBootArchiveRegion) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
     uint32_t initrdStart { b.AddString("linux,initrd-start") };
@@ -237,8 +237,8 @@ TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
     MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
-    EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
-    EXPECT_EQ(map.bootPackageSize, 0x400000ULL);
+    EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
+    EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
 }
 
 TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
@@ -262,8 +262,59 @@ TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
     MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
-    EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
-    EXPECT_EQ(map.bootPackageSize, 0x400000ULL);
+    EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
+    EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
+}
+
+TEST(DtbParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
+    for (bool reversed : { false, true }) {
+        DtbBuilder b;
+        auto reg { b.AddString("reg") };
+        auto start { b.AddString("linux,initrd-start") };
+        auto end { b.AddString("linux,initrd-end") };
+        b.BeginNode("");
+        b.BeginNode("memory@0");
+        b.PropReg64(reg, 0, 0x100000000);
+        b.EndNode();
+        b.BeginNode("reserved-memory");
+        b.BeginNode("atf");
+        b.PropReg64(reg, 0, 0x80000);
+        b.EndNode();
+        b.EndNode();
+        b.BeginNode("chosen");
+        b.PropU64Cells(reversed ? end : start, reversed ? 0x20400000 : 0x20000000);
+        b.PropU64Cells(reversed ? start : end, reversed ? 0x20000000 : 0x20400000);
+        b.EndNode();
+        b.EndNode();
+        b.end();
+        auto blob { b.Build() };
+        auto map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+        EXPECT_EQ(map.bootArchiveBase, 0x20000000);
+        EXPECT_EQ(map.bootArchiveSize, 0x400000);
+    }
+}
+
+TEST(DtbParser, InvalidArchiveEndpointsDoNotReserveMemory) {
+    for (uint64_t end : { 0ULL, 0x1fffffffULL, 0x20000000ULL }) {
+        DtbBuilder b;
+        auto reg { b.AddString("reg") };
+        auto startName { b.AddString("linux,initrd-start") };
+        auto endName { b.AddString("linux,initrd-end") };
+        b.BeginNode("");
+        b.BeginNode("memory");
+        b.PropReg64(reg, 0, 0x40000000);
+        b.EndNode();
+        b.BeginNode("chosen");
+        b.PropU64Cells(startName, 0x20000000);
+        if (end) b.PropU64Cells(endName, end);
+        b.EndNode();
+        b.EndNode();
+        b.end();
+        auto blob { b.Build() };
+        auto map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+        EXPECT_EQ(map.bootArchiveBase, 0);
+        EXPECT_EQ(map.bootArchiveSize, 0);
+    }
 }
 
 TEST(DtbParser, MemoryOnlyNoAtf) {

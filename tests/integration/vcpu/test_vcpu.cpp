@@ -2,6 +2,7 @@
 // @brief Integration tests for the Vcpu subsystem on AArch64.
 
 #include "tests/integration/suite.h"
+#include "tests/integration/guest/binary.h"
 #include "core/vmm/esr.h"
 #include "core/vcpu/vcpu.h"
 
@@ -19,8 +20,6 @@ alignas(16) uint8_t gGuestStack[256];
 GuestExitCapture gGuestExit;
 
 extern "C" char test_vcpu_vectors[];
-extern "C" void test_vcpu_guest_entry();
-extern "C" char test_vcpu_guest_resume[];
 
 extern "C" void handle_test_vcpu_guest_exit(Vcpu* vcpu, uint64_t esr) {
     gGuestExit.isCalled = true;
@@ -47,7 +46,9 @@ void restoreVbar(uint64_t saved) {
 bool enterGuestAndCapture(Vcpu& vcpu) {
     gGuestExit = {};
 
-    vcpu.Init(reinterpret_cast<uint64_t>(test_vcpu_guest_entry));
+    test::Binary binary { "tests/vcpu.bin" };
+    if (!binary.GetEntry()) return false;
+    vcpu.Init(binary.GetEntry());
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
     uint64_t savedVbar { installTestVbar() };
@@ -110,7 +111,7 @@ static bool test_vcpu_guest_exit_saves_guest_pc() {
         return false;
     }
 
-    return vcpu.GetElr() == reinterpret_cast<uint64_t>(test_vcpu_guest_resume);
+    return vcpu.GetElr() == vcpu.GetGpReg(VCPU_GPREG_X6);
 }
 
 static bool test_vcpu_guest_exit_saves_guest_gprs() {

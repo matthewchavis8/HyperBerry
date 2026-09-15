@@ -174,170 +174,180 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
   endif()
 endforeach()
 
-# ---------------------------------------------------------------------------
-# Run / flash targets. Host tools are looked up without REQUIRED so a missing
-# dtc or cargo disables one board's run target instead of failing the build.
-# ---------------------------------------------------------------------------
-find_program(CARGO_CMD cargo)
-find_program(DTC       dtc)
-find_program(FDTPUT    fdtput)
 
-set(MKGUESTPKG ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/target/release/mkguestpkg)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+find_program(CPIO cpio REQUIRED)
+find_program(DTC dtc REQUIRED)
+find_program(FDTPUT fdtput)
+set(ARCHIVE_TOOL ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py)
+set(BUSYBOX_FETCH_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/fetch.py)
+set(BUSYBOX_ROOTFS_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/rootfs.py)
+set(BUSYBOX_BINARY ${CMAKE_BINARY_DIR}/busybox/busybox)
+set(BUSYBOX_ROOTFS ${CMAKE_BINARY_DIR}/busybox/rootfs.cpio)
 
-# --- qemu -------------------------------------------------------------------
-set(QEMU_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
-    CACHE FILEPATH "Guest Linux kernel Image for QEMU")
-set(QEMU_GUEST_DTS     "${CMAKE_SOURCE_DIR}/bsp/qemu/dts/guest-qemu.dts")
-set(QEMU_GUEST_DTB     "${CMAKE_BINARY_DIR}/qemu/guest-qemu.dtb")
-set(QEMU_GUEST_PACKAGE "${CMAKE_SOURCE_DIR}/boot/profiles/guest-qemu.hvgbp"
-    CACHE STRING "QEMU guest boot package")
-
-if(CARGO_CMD AND DTC)
-  add_custom_command(
-    OUTPUT ${QEMU_GUEST_DTB}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/qemu
-    COMMAND ${DTC} -I dts -O dtb -i ${CMAKE_SOURCE_DIR}/boot/dts
-            -o ${QEMU_GUEST_DTB} ${QEMU_GUEST_DTS}
-    DEPENDS ${QEMU_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
-    COMMENT "[LOG] Compiling guest-qemu.dtb"
-  )
-
-  add_custom_command(
-    OUTPUT  ${QEMU_GUEST_PACKAGE}
-    COMMAND ${CARGO_CMD} build --release --manifest-path
-              ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
-    COMMAND ${MKGUESTPKG}
-              --kernel ${QEMU_GUEST_KERNEL}
-              --dtb    ${QEMU_GUEST_DTB}
-              --out    ${QEMU_GUEST_PACKAGE}
-    DEPENDS ${QEMU_GUEST_KERNEL} ${QEMU_GUEST_DTB}
-    COMMENT "[LOG] Building guest-qemu.hvgbp"
-  )
-  add_custom_target(guest_pkg DEPENDS ${QEMU_GUEST_PACKAGE})
-
-  add_custom_target(run-qemu
-    COMMAND qemu-system-aarch64
-      -machine virt,virtualization=on,gic-version=2
-      -cpu cortex-a76
-      -m 8G
-      -nographic
-      -kernel ${CMAKE_BINARY_DIR}/qemu/kernel8.img
-      -initrd ${QEMU_GUEST_PACKAGE}
-    DEPENDS hyperberry-qemu guest_pkg
-    COMMENT "[LOG] Launching HyperBerry in QEMU"
-  )
-
-  if(BUILD_INTEGRATION)
-    add_custom_target(run-qemu-test
-      COMMAND qemu-system-aarch64
-        -machine virt,virtualization=on,gic-version=2
-        -cpu cortex-a76
-        -m 8G
-        -nographic
-        -kernel ${CMAKE_BINARY_DIR}/qemu/integration/kernel8.img
-        -initrd ${QEMU_GUEST_PACKAGE}
-      DEPENDS hyperberry-qemu-test guest_pkg
-      COMMENT "[LOG] Running HyperBerry integration suite in QEMU"
-    )
-  endif()
-else()
-  message(STATUS "cargo/dtc not both found - run-qemu disabled")
-endif()
-
-# --- rpi5 -------------------------------------------------------------------
-set(SD_MOUNT "/mnt/sdcard" CACHE STRING "SD card mount point")
-set(RPI5_FW  ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware)
-
-add_custom_target(flash-rpi5
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_BINARY_DIR}/rpi5/kernel8.img       ${SD_MOUNT}/kernel8.img
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${RPI5_FW}/start4.elf                      ${SD_MOUNT}/start4.elf
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${RPI5_FW}/bcm2712-rpi-5-b.dtb             ${SD_MOUNT}/bcm2712-rpi-5-b.dtb
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${RPI5_FW}/config.txt                      ${SD_MOUNT}/config.txt
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${RPI5_FW}/fixup4.dat                      ${SD_MOUNT}/fixup4.dat
-  COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_SOURCE_DIR}/boot/profiles/guest.hvgbp ${SD_MOUNT}/guest.hvgbp
-  DEPENDS hyperberry-rpi5
-  COMMENT "[LOG] Flashing the SD card for the RPI5 firmware"
+add_custom_command(
+  OUTPUT ${BUSYBOX_BINARY}
+  COMMAND ${Python3_EXECUTABLE} ${BUSYBOX_FETCH_TOOL}
+          --cache ${CMAKE_BINARY_DIR}/busybox
+          --out ${BUSYBOX_BINARY}
+  DEPENDS ${BUSYBOX_FETCH_TOOL}
+  VERBATIM
 )
 
-# --- fvp --------------------------------------------------------------------
-set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
-    CACHE FILEPATH "Path to the FVP Base RevC binary")
+add_custom_command(
+  OUTPUT ${BUSYBOX_ROOTFS}
+  COMMAND ${Python3_EXECUTABLE} ${BUSYBOX_ROOTFS_TOOL}
+          --busybox ${BUSYBOX_BINARY} --out ${BUSYBOX_ROOTFS}
+  DEPENDS ${BUSYBOX_BINARY} ${BUSYBOX_ROOTFS_TOOL}
+  VERBATIM
+)
+add_custom_target(busybox-rootfs DEPENDS ${BUSYBOX_ROOTFS})
 
-if(DTC AND FDTPUT AND CARGO_CMD)
-  set(FVP_DIR           ${CMAKE_SOURCE_DIR}/bsp/fvp)
+if(BUILD_INTEGRATION)
+  foreach(payload vcpu gic)
+    set(payload_dir ${CMAKE_BINARY_DIR}/payloads)
+    add_custom_command(
+      OUTPUT ${payload_dir}/${payload}.bin
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${payload_dir}
+      COMMAND ${CMAKE_ASM_COMPILER} --target=aarch64-none-elf -fuse-ld=lld
+              -nostdlib -Wl,--build-id=none
+              -Wl,-T,${CMAKE_SOURCE_DIR}/tests/integration/guest/payload.ld
+              ${CMAKE_SOURCE_DIR}/tests/integration/${payload}/guest_payload.S
+              -o ${payload_dir}/${payload}.elf
+      COMMAND ${CMAKE_OBJCOPY} -O binary ${payload_dir}/${payload}.elf
+              ${payload_dir}/${payload}.bin
+      DEPENDS tests/integration/${payload}/guest_payload.S
+              tests/integration/guest/payload.ld
+      BYPRODUCTS ${payload_dir}/${payload}.elf
+      VERBATIM
+    )
+  endforeach()
+  add_custom_target(test-payloads DEPENDS ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin)
+endif()
 
-  # Single-source the load addresses with boot.S.
-  file(STRINGS ${FVP_DIR}/platform.inc FVP_HOST_DTB_ADDR
-       REGEX "define BSP_HOST_DTB_BASE")
-  file(STRINGS ${FVP_DIR}/platform.inc FVP_PKG_ADDR
-       REGEX "define BSP_GUEST_PACKAGE_BASE")
-  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_HOST_DTB_ADDR "${FVP_HOST_DTB_ADDR}")
-  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_PKG_ADDR "${FVP_PKG_ADDR}")
-  set(FVP_HOST_DTS      "${FVP_DIR}/dts/host-fvp.dts")
-  set(FVP_HOST_DTB      "${CMAKE_BINARY_DIR}/fvp/host-fvp.dtb")
-  set(FVP_GUEST_DTS     "${FVP_DIR}/dts/guest-fvp.dts")
-  set(FVP_GUEST_DTB     "${CMAKE_BINARY_DIR}/fvp/guest-fvp.dtb")
-  set(FVP_GUEST_KERNEL  "${CMAKE_SOURCE_DIR}/Image"
-      CACHE FILEPATH "Guest Linux kernel Image for FVP")
-  set(FVP_GUEST_PACKAGE "${CMAKE_BINARY_DIR}/fvp/host-fvp.hvgbp")
-
+foreach(board IN LISTS SUPPORTED_BOARDS)
+  string(TOUPPER ${board} upper)
+  set(${upper}_GUEST_KERNEL "${CMAKE_SOURCE_DIR}/Image" CACHE FILEPATH "Linux Image for ${board}")
+  set(${upper}_GUEST_INITRD "" CACHE FILEPATH "Linux initrd override for ${board}")
+  set(guest_dts ${CMAKE_SOURCE_DIR}/bsp/${board}/dts/guest-${board}.dts)
+  set(guest_dtb ${CMAKE_BINARY_DIR}/${board}/guest.dtb)
   add_custom_command(
-    OUTPUT ${FVP_GUEST_DTB}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/fvp
+    OUTPUT ${guest_dtb}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${board}
     COMMAND ${DTC} -I dts -O dtb -i ${CMAKE_SOURCE_DIR}/boot/dts
-            -o ${FVP_GUEST_DTB} ${FVP_GUEST_DTS}
-    DEPENDS ${FVP_GUEST_DTS} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
-    COMMENT "[LOG] Compiling guest-fvp.dtb"
-  )
-
-  add_custom_command(
-    OUTPUT  ${FVP_GUEST_PACKAGE}
-    COMMAND ${CARGO_CMD} build --release --manifest-path
-              ${CMAKE_SOURCE_DIR}/tools/mkguestpkg/Cargo.toml
-    COMMAND ${MKGUESTPKG}
-              --kernel ${FVP_GUEST_KERNEL}
-              --dtb    ${FVP_GUEST_DTB}
-              --out    ${FVP_GUEST_PACKAGE}
-    DEPENDS ${FVP_GUEST_KERNEL} ${FVP_GUEST_DTB}
-    COMMENT "[LOG] Building host-fvp.hvgbp"
-  )
-
-  add_custom_command(
-    OUTPUT ${FVP_HOST_DTB}
-    COMMAND ${DTC} -I dts -O dtb -o ${FVP_HOST_DTB} ${FVP_HOST_DTS}
-    COMMAND python3 -c
-      "import os,sys,subprocess; sz=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0',sys.argv[4]]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end','0x0',hex(int(sys.argv[4],16)+sz)])"
-      ${FVP_GUEST_PACKAGE} ${FDTPUT} ${FVP_HOST_DTB} ${FVP_PKG_ADDR}
-    DEPENDS ${FVP_HOST_DTS} ${FVP_GUEST_PACKAGE}
-    COMMENT "[LOG] Compiling host-fvp.dtb and patching /chosen initrd range"
+            -o ${guest_dtb} ${guest_dts}
+    DEPENDS ${guest_dts} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
     VERBATIM
   )
-
-  add_custom_target(fvp_host_dtb DEPENDS ${FVP_HOST_DTB})
-  add_dependencies(hyperberry-fvp fvp_host_dtb)
-
-  add_custom_target(run-fvp
-    COMMAND ${FVP_BIN}
-      -a $<TARGET_FILE:hyperberry-fvp>
-      --data ${FVP_HOST_DTB}@${FVP_HOST_DTB_ADDR}
-      --data ${FVP_GUEST_PACKAGE}@${FVP_PKG_ADDR}
-      -C bp.secure_memory=0
-      -C cluster0.NUM_CORES=1
-      -C cluster1.NUM_CORES=0
-      -C bp.vis.disable_visualisation=1
-      -C bp.terminal_0.start_telnet=0
-      -C bp.pl011_uart0.out_file=-
-      -C bp.pl011_uart0.unbuffered_output=1
-      -C cache_state_modelled=0
-    DEPENDS hyperberry-fvp fvp_host_dtb ${FVP_GUEST_PACKAGE}
-    COMMENT "[LOG] Launching HyperBerry on Arm FVP Base RevC"
+  set(archive_base_args --file linux/Image ${${upper}_GUEST_KERNEL}
+                        --file linux/guest.dtb ${guest_dtb})
+  set(archive_args ${archive_base_args})
+  set(archive_base_deps ${${upper}_GUEST_KERNEL} ${guest_dtb} ${ARCHIVE_TOOL})
+  set(archive_deps ${archive_base_deps})
+  if(NOT "${${upper}_GUEST_INITRD}" STREQUAL "")
+    list(APPEND archive_args --file linux/initrd ${${upper}_GUEST_INITRD})
+    list(APPEND archive_deps ${${upper}_GUEST_INITRD})
+  else()
+    list(APPEND archive_args --file linux/initrd ${BUSYBOX_ROOTFS})
+    list(APPEND archive_deps ${BUSYBOX_ROOTFS})
+  endif()
+  set(${upper}_GUEST_ARCHIVE ${CMAKE_BINARY_DIR}/${board}/guest.cpio)
+  add_custom_command(
+    OUTPUT ${${upper}_GUEST_ARCHIVE}
+    COMMAND ${Python3_EXECUTABLE} ${ARCHIVE_TOOL}
+            ${archive_args} --out ${${upper}_GUEST_ARCHIVE}
+    DEPENDS ${archive_deps}
+    VERBATIM
   )
-else()
-  message(STATUS "dtc/fdtput/cargo not all found - run-fvp disabled")
+  add_custom_target(guest-archive-${board} DEPENDS ${${upper}_GUEST_ARCHIVE})
+  add_dependencies(hyperberry-${board} guest-archive-${board})
+  if(BUILD_INTEGRATION)
+    set(${upper}_TEST_ARCHIVE ${CMAKE_BINARY_DIR}/${board}/integration/guest.cpio)
+    add_custom_command(
+      OUTPUT ${${upper}_TEST_ARCHIVE}
+      COMMAND ${Python3_EXECUTABLE} ${ARCHIVE_TOOL} ${archive_base_args}
+              --file tests/vcpu.bin ${payload_dir}/vcpu.bin
+              --file tests/gic.bin ${payload_dir}/gic.bin
+              --out ${${upper}_TEST_ARCHIVE}
+      DEPENDS ${archive_base_deps} ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin
+      VERBATIM
+    )
+    add_custom_target(test-archive-${board} DEPENDS ${${upper}_TEST_ARCHIVE})
+    add_dependencies(test-archive-${board} test-payloads)
+    add_dependencies(hyperberry-${board}-test test-archive-${board})
+  endif()
+endforeach()
+
+add_custom_target(run-qemu
+  COMMAND qemu-system-aarch64
+    -machine virt,virtualization=on,gic-version=2 -cpu cortex-a76 -m 8G -nographic
+    -kernel ${CMAKE_BINARY_DIR}/qemu/kernel8.img -initrd ${QEMU_GUEST_ARCHIVE}
+  DEPENDS hyperberry-qemu guest-archive-qemu
+  VERBATIM
+)
+if(BUILD_INTEGRATION)
+  add_custom_target(run-qemu-test
+    COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_SOURCE_DIR}/.github/actions/run-qemu-integration/run_qemu_integration.py
+      --kernel ${CMAKE_BINARY_DIR}/qemu/integration/kernel8.img
+      --initrd ${QEMU_TEST_ARCHIVE}
+      --log ${CMAKE_BINARY_DIR}/qemu/integration/qemu.log
+    DEPENDS hyperberry-qemu-test
+    VERBATIM
+  )
+endif()
+
+set(SD_MOUNT "/mnt/sdcard" CACHE STRING "SD card mount point")
+set(RPI5_FW ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware)
+function(add_flash_target target image archive)
+  add_custom_target(${target}
+    COMMAND ${CMAKE_COMMAND} -E copy ${image} ${SD_MOUNT}/kernel8.img
+    COMMAND ${CMAKE_COMMAND} -E copy ${archive} ${SD_MOUNT}/guest.cpio
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${RPI5_FW}/start4.elf ${RPI5_FW}/bcm2712-rpi-5-b.dtb
+      ${RPI5_FW}/config.txt ${RPI5_FW}/fixup4.dat ${SD_MOUNT}
+    VERBATIM
+  )
+endfunction()
+add_flash_target(flash-rpi5 ${CMAKE_BINARY_DIR}/rpi5/kernel8.img ${RPI5_GUEST_ARCHIVE})
+add_dependencies(flash-rpi5 hyperberry-rpi5 guest-archive-rpi5)
+if(BUILD_INTEGRATION)
+  add_flash_target(flash-rpi5-test ${CMAKE_BINARY_DIR}/rpi5/integration/kernel8.img ${RPI5_TEST_ARCHIVE})
+  add_dependencies(flash-rpi5-test hyperberry-rpi5-test)
+endif()
+
+set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
+    CACHE FILEPATH "Path to the FVP Base RevC binary")
+if(FDTPUT)
+  set(FVP_DIR ${CMAKE_SOURCE_DIR}/bsp/fvp)
+  file(STRINGS ${FVP_DIR}/platform.inc FVP_HOST_DTB_ADDR REGEX "define BSP_HOST_DTB_BASE")
+  file(STRINGS ${FVP_DIR}/platform.inc FVP_ARCHIVE_ADDR REGEX "define BSP_GUEST_ARCHIVE_BASE")
+  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_HOST_DTB_ADDR "${FVP_HOST_DTB_ADDR}")
+  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_ARCHIVE_ADDR "${FVP_ARCHIVE_ADDR}")
+  function(add_fvp_run target image archive host_dtb)
+    add_custom_command(
+      OUTPUT ${host_dtb}
+      COMMAND ${DTC} -I dts -O dtb -o ${host_dtb} ${FVP_DIR}/dts/host-fvp.dts
+      COMMAND ${Python3_EXECUTABLE} -c
+        "import os,sys,subprocess; base=int(sys.argv[4],16); size=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0',hex(base)]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end',hex((base+size)>>32),hex((base+size)&0xffffffff)])"
+        ${archive} ${FDTPUT} ${host_dtb} ${FVP_ARCHIVE_ADDR}
+      DEPENDS ${FVP_DIR}/dts/host-fvp.dts ${archive}
+      VERBATIM
+    )
+    add_custom_target(${target}
+      COMMAND ${FVP_BIN} -a $<TARGET_FILE:${image}>
+        --data ${host_dtb}@${FVP_HOST_DTB_ADDR} --data ${archive}@${FVP_ARCHIVE_ADDR}
+        -C bp.secure_memory=0 -C cluster0.NUM_CORES=1 -C cluster1.NUM_CORES=0
+        -C bp.vis.disable_visualisation=1 -C bp.terminal_0.start_telnet=0
+        -C bp.pl011_uart0.out_file=- -C bp.pl011_uart0.unbuffered_output=1
+        -C cache_state_modelled=0
+      DEPENDS ${image} ${host_dtb}
+      VERBATIM
+    )
+  endfunction()
+  add_fvp_run(run-fvp hyperberry-fvp ${FVP_GUEST_ARCHIVE} ${CMAKE_BINARY_DIR}/fvp/host-fvp.dtb)
+  if(BUILD_INTEGRATION)
+    add_fvp_run(run-fvp-test hyperberry-fvp-test ${FVP_TEST_ARCHIVE}
+                ${CMAKE_BINARY_DIR}/fvp/integration/host-fvp.dtb)
+  endif()
 endif()

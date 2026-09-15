@@ -23,8 +23,8 @@ struct alignas(16) MemoryMap {
     uint64_t atfSize;         // Size in bytes of the TF-A reserved region.
     uint64_t dtbBase;         // Base physical address of the DTB blob.
     uint64_t dtbSize;         // Total size in bytes of the DTB blob.
-    uint64_t bootPackageBase; // Base PA of the firmware-loaded guest package; zero if absent.
-    uint64_t bootPackageSize; // Size of the firmware-loaded guest package; zero if absent.
+    uint64_t bootArchiveBase; // Base PA of the firmware-loaded guest archive; zero if absent.
+    uint64_t bootArchiveSize; // Size of the firmware-loaded guest archive; zero if absent.
     bool isValid;             // True only if all fields were successfully parsed.
 };
 
@@ -36,10 +36,10 @@ struct alignas(16) MemoryMap {
 //
 // @param dtb Physical address of the DTB blob passed in at boot.
 // @return Parsed MemoryMap. @c isValid is set only when the main memory
-//         region was found and decoded successfully. @c bootPackageBase and
-//         @c bootPackageSize are populated from the `/chosen/linux,initrd-start`
+//         region was found and decoded successfully. @c bootArchiveBase and
+//         @c bootArchiveSize are populated from the `/chosen/linux,initrd-start`
 //         and `/chosen/linux,initrd-end` properties when present (the Raspberry
-//         Pi firmware writes these after loading the guest package).
+//         Pi firmware writes these after loading the guest archive).
 MemoryMap ParseDtb(uintptr_t dtb);
 
 // Maximum `reg` regions recorded per discovered device.

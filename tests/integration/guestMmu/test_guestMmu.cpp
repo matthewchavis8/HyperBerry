@@ -143,17 +143,42 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
     return enabled;
 }
 
+static bool test_device_pages_replace_ram_without_losing_neighbors() {
+    GuestMmu mmu;
+    uint64_t hostPa { pmm::AllocPages(10) };
+    if (!hostPa) return false;
+    uint64_t deviceIpa { kGuestIpaBase + SIZE_4KB };
+    MmioMap devices {};
+    devices.AddPages(deviceIpa, BSP_UART_BASE, SIZE_4KB);
+    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, devices);
+    uint64_t* first { walkStage2L3(rootTable(mmu), kGuestIpaBase) };
+    uint64_t* device { walkStage2L3(rootTable(mmu), deviceIpa) };
+    uint64_t* after { walkStage2L3(rootTable(mmu), deviceIpa + SIZE_4KB) };
+    uint64_t* last { walkStage2L3(rootTable(mmu), kGuestIpaBase + SIZE_2MB - SIZE_4KB) };
+    uint64_t* nextBlock { walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB) };
+    bool mapped { first && device && after && last && nextBlock &&
+        *first == (normalStage2Descriptor(hostPa) | PTE_TABLE) &&
+        *device == devicePageStage2Descriptor(BSP_UART_BASE) &&
+        *after == (normalStage2Descriptor(hostPa + 2 * SIZE_4KB) | PTE_TABLE) &&
+        *last == (normalStage2Descriptor(hostPa + SIZE_2MB - SIZE_4KB) | PTE_TABLE) &&
+        *nextBlock == normalStage2Descriptor(hostPa + SIZE_2MB) };
+    pmm::FreePages(hostPa, 10);
+    return mapped;
+}
+
 static const TestCase kGuestMmuCases[] {
     { "init_programs_vtcr_el2", test_init_programs_vtcr_el2 },
     { "init_maps_guest_ram_blocks", test_init_maps_guest_ram_blocks },
     { "init_maps_device_windows", test_init_maps_device_windows },
+    { "device_pages_replace_ram_without_losing_neighbors",
+            test_device_pages_replace_ram_without_losing_neighbors },
     { "enable_programs_vttbr_and_hcr_vm", test_enable_programs_vttbr_and_hcr_vm },
 };
 
 static const TestSuite kGuestMmuSuite {
     "GuestMmuHarness",
     kGuestMmuCases,
-    4,
+    5,
 };
 
 REGISTER_SUITE(kGuestMmuSuite);

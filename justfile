@@ -44,8 +44,7 @@ docs-clean:
 test-integration BOARD="qemu":
   cmake --preset debug
   cmake --build --preset debug --target hyperberry-{{ BOARD }}-test
-  cmake --build --preset debug --target run-{{ BOARD }}-test 2>&1 \
-    | tee build/debug/{{ BOARD }}/integration/qemu.log
+  cmake --build --preset debug --target run-{{ BOARD }}-test
 
 # Point clangd at the build compile database.
 compile-db:
@@ -58,13 +57,8 @@ test-unit:
   cmake --build --preset unit-tests
   ctest --preset unit-tests
 
-guestpkg KERNEL DTB OUT="boot/profiles/guest-qemu.hvgbp" INITRD="" BUILD_ID="":
-  cargo run --manifest-path tools/mkguestpkg/Cargo.toml -- \
-    --kernel {{ KERNEL }} \
-    --dtb {{ DTB }} \
-    --out {{ OUT }} \
-    {{ if INITRD != "" { "--initrd " + INITRD } else { "" } }} \
-    {{ if BUILD_ID != "" { "--build-id " + BUILD_ID } else { "" } }}
+cpio ROOT OUT:
+  python3 tools/cpio/archive.py --root "{{ ROOT }}" --out "{{ OUT }}"
 
 clean:
   rm -rf build/

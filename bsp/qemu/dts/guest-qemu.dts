@@ -39,6 +39,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyAMA0 earlycon=pl011,0x09000000 root=/dev/ram0 rdinit=/sbin/init";
+		bootargs = "console=ttyAMA0 earlycon=pl011,0x09000000 rdinit=/sbin/init";
 	};
 };

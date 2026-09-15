@@ -1,10 +1,11 @@
-// @file test_bootpkg.cpp
-// @brief Integration tests for firmware-loaded guest boot packages.
+// @file test_guest.cpp
+// @brief Integration tests for firmware-loaded guest boot archives.
 
-#include "core/bootpkg/bootpkg.h"
+#include "core/guest/guest.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pmm/pmm.h"
 #include "tests/integration/suite.h"
+#include "lib/log/log.h"
 
 namespace {
 enum class FDT : uint32_t {
@@ -158,45 +159,48 @@ uint8_t* findMemoryRegData(void* dtb) {
     }
 }
 
-const uint8_t* packageBytes(const MemoryMap& map) {
-    return static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootPackageBase));
+const uint8_t* archiveBytes(const MemoryMap& map) {
+    return static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootArchiveBase));
 }
 } // namespace
 
-static bool test_firmware_package_region_present() {
+static bool test_firmware_archive_region_present() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    return map.bootPackageBase != 0 && map.bootPackageSize != 0;
+    return map.bootArchiveBase != 0 && map.bootArchiveSize != 0;
 }
 
-static bool test_firmware_package_validates() {
+static bool test_firmware_archive_validates() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    if (map.bootPackageBase == 0 || map.bootPackageSize == 0) return false;
+    if (map.bootArchiveBase == 0 || map.bootArchiveSize == 0) return false;
 
-    bootpkg::ValidateResult result { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
+    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
 
-    return result.isValid && result.error == bootpkg::ValidateError::NONE &&
-            result.package.bootProtocol == bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64;
+    Log::Println("[CPIO] base={:x} size={:x} error={}",
+            map.bootArchiveBase,
+            map.bootArchiveSize,
+            static_cast<unsigned>(archive.GetError()));
+    return archive.GetError() == cpio::Error::NONE;
 }
 
-static bool test_load_linux_guest_from_firmware_package() {
+static bool test_load_linux_guest_from_firmware_archive() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    bootpkg::ValidateResult validated { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
-    if (!validated.isValid) return false;
+    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
+    guest::LinuxFiles files {};
+    if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
 
-    bootpkg::GuestLayout layout {};
-    if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
+    guest::GuestLayout layout {};
+    if (!guest::CalculateGuestLayout(files, layout)) return false;
 
-    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(map) };
+    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
     if (!loaded.isLoaded) return false;
 
     const uint8_t* kernel { static_cast<const uint8_t*>(HostMmu::PaToVa(
             loaded.guest.guestRamHostPa + (layout.kernelIpa - layout.guestIpaBase))) };
-    const uint8_t* packageKernel { packageBytes(map) + validated.package.kernelOffset };
+    const uint8_t* archiveKernel { files.kernel.data };
 
-    bool copied { kernel[0] == packageKernel[0] &&
-        kernel[validated.package.kernelSize - 1] ==
-                packageKernel[validated.package.kernelSize - 1] };
-    bool metadata { loaded.error == bootpkg::LoadError::NONE &&
+    bool copied { kernel[0] == archiveKernel[0] &&
+        kernel[files.kernel.size - 1] == archiveKernel[files.kernel.size - 1] };
+    bool metadata { loaded.error == guest::LoadError::NONE &&
         loaded.guest.guestIpaBase == layout.guestIpaBase &&
         loaded.guest.guestRamSize == layout.guestRamSize &&
         loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa };
@@ -207,13 +211,14 @@ static bool test_load_linux_guest_from_firmware_package() {
 
 static bool test_load_patches_guest_dtb() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    bootpkg::ValidateResult validated { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
-    if (!validated.isValid) return false;
+    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
+    guest::LinuxFiles files {};
+    if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
 
-    bootpkg::GuestLayout layout {};
-    if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
+    guest::GuestLayout layout {};
+    if (!guest::CalculateGuestLayout(files, layout)) return false;
 
-    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(map) };
+    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
     if (!loaded.isLoaded) return false;
 
     void* dtb { HostMmu::PaToVa(
@@ -232,17 +237,17 @@ static bool test_load_patches_guest_dtb() {
     return patched;
 }
 
-static const TestCase kBootPkgCases[] {
-    { "firmware_package_region_present", test_firmware_package_region_present },
-    { "firmware_package_validates", test_firmware_package_validates },
-    { "load_linux_guest_from_firmware_package", test_load_linux_guest_from_firmware_package },
+static const TestCase kGuestCases[] {
+    { "firmware_archive_region_present", test_firmware_archive_region_present },
+    { "firmware_archive_validates", test_firmware_archive_validates },
+    { "load_linux_guest_from_firmware_archive", test_load_linux_guest_from_firmware_archive },
     { "load_patches_guest_dtb", test_load_patches_guest_dtb },
 };
 
-static const TestSuite kBootPkgSuite {
-    "BootPkgHarness",
-    kBootPkgCases,
+static const TestSuite kGuestSuite {
+    "GuestHarness",
+    kGuestCases,
     4,
 };
 
-REGISTER_SUITE(kBootPkgSuite);
+REGISTER_SUITE(kGuestSuite);

@@ -1,5 +1,6 @@
 add_library(Lib${BSP_SUFFIX}
   STATIC
+  cpio/cpio.cpp
   cxxrt/cxxrt.cpp
   log/log.cpp
   panic/panic.cpp

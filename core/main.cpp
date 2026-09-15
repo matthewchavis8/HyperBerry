@@ -8,7 +8,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/heap/heap.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
-#include "core/bootpkg/bootpkg.h"
+#include "core/guest/guest.h"
 #include "core/vm/vm.h"
 #include "lib/cxxrt/cxxrt.h"
 #include "lib/log/log.h"
@@ -66,12 +66,15 @@ extern "C" void hmain(uintptr_t dtb) {
     TestRunner::RunAll();
 #else
 
-    Log::Println("[BootPkg] Attempting to load Linux guest package");
-    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(memoryMap) };
+    Log::Println("[Guest] Attempting to load Linux guest archive");
+    cpio::Archive archive { HostMmu::PaToVa(memoryMap.bootArchiveBase), memoryMap.bootArchiveSize };
+    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
     if (!loaded.isLoaded) {
+        Log::Println("[Guest] load error={} archive error={}",
+                static_cast<unsigned>(loaded.error), static_cast<unsigned>(archive.GetError()));
         HvPanic("[ERROR][VM] Failed to spin up Linux VM");
     }
-    Log::Println("[BootPkg] Linux guest package loaded");
+    Log::Println("[Guest] Linux guest archive loaded");
 
     Vm guest;
     const char* guestName { "Linux VM" };

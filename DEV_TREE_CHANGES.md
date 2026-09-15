@@ -144,14 +144,8 @@ bspgen). Nothing regenerates the blob when the source changes. The boot panic
 in `verifyBspAgainstDtb` is the only thing that catches it, and only for the
 ten values it checks.
 
-`bsp/rpi5/dts/guest-rpi5.dts` -> `boot/dtb/guest-rpi5.dtb` ->
-`boot/profiles/guest.hvgbp`. No build rule at all. qemu and fvp both compile
-their guest tree with `dtc` at build time; rpi5 does not, because its package
-is flashed rather than built. All three agree as of `dcb54e6`. Giving rpi5 the
-same `dtc` plus `mkguestpkg` rules would close this, and wants a card to test.
-
-`boot/profiles/guest-qemu.hvgbp` is a build output written into the source
-tree, so it shows dirty after every build.
+Guest device trees and CPIO archives are generated under each board's build
+directory. The Raspberry Pi flash targets depend on archive generation.
 
 ## Verifying a refactor
 

@@ -6,7 +6,7 @@ inputs:
     description: Path to the kernel image to boot.
     required: true
   initrd:
-    description: Optional initrd/guest boot package to pass to QEMU.
+    description: Optional initrd/guest archive to pass to QEMU.
     required: false
     default: ""
   log:

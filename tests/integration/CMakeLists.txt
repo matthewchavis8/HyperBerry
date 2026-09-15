@@ -7,12 +7,11 @@ set(SHARED_TESTS
   pmm/test_pmm.cpp
   mmu/test_mmu.cpp
   guestMmu/test_guestMmu.cpp
-  bootpkg/test_bootpkg.cpp
+  guest/test_guest.cpp
   vcpu/test_vcpu.cpp
   vcpu/test_vectors.S
   gic/test_gic.cpp
   gic/test_vectors.S
-  gic/guest_payload.S
   timer/test_timer.cpp
   timer/test_vectors.S
 )
