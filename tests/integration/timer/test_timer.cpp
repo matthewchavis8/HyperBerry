@@ -3,7 +3,7 @@
  * @brief Hardware-backed integration tests for the ARM generic timer driver.
  */
 
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "tests/integration/suite.h"

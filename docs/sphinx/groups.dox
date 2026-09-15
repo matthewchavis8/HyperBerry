@@ -65,14 +65,14 @@
  */
 
 /**
- * @defgroup exceptions Exception Handling
+ * @defgroup vmm VMM
  * @ingroup core
- * @brief EL2 exception vector table, context save/restore, and handler stubs.
+ * @brief EL2 vector table, trap entry glue, and guest trap dispatch.
  */
 
 /**
  * @defgroup hypercalls Hypercalls
- * @ingroup exceptions
+ * @ingroup vmm
  * @brief AArch64 HVC dispatch for guest hypervisor calls and PSCI requests.
  */
 

@@ -1,9 +1,9 @@
 /**
- * @file exceptions.cpp
+ * @file vmm.cpp
  * @brief C++ exception handlers for EL2 and lower-EL (guest) exits.
- * @ingroup exceptions
+ * @ingroup vmm
  *
- * EL2 handlers receive an ExceptionContext built by exceptions.S.
+ * EL2 handlers receive an ExceptionContext built by vmm.S.
  * Lower-EL handlers receive the Vcpu* parked in TPIDR_EL2 and the
  * ESR_EL2 value passed through by vcpu.S, then re-enter the guest
  * via vcpu_enter().
@@ -12,8 +12,8 @@
  *       handlers by unmangled symbol name.
  */
 
-#include "exceptions.h"
-#include "core/exceptions/hvc/hvc.h"
+#include "vmm.h"
+#include "core/vmm/hvc/hvc.h"
 #include "core/vcpu/vcpu.h"
 #include "lib/panic/panic.h"
 #include "lib/log/log.h"

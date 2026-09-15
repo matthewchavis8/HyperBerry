@@ -1,8 +1,8 @@
-/** @file test_exceptions.cpp @brief Unit tests for EsrEc extraction and ExceptionContext layout. */
+/** @file test_vmm.cpp @brief Unit tests for EsrEc extraction and ExceptionContext layout. */
 
 #include <gtest/gtest.h>
 
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 
 TEST(EsrEc, HvcAarch64) {
     EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HvcAarch64);

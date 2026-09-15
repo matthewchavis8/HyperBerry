@@ -1,10 +1,10 @@
 /**
- * @file exceptions.S
+ * @file vmm.S
  * @brief Exception handler entry points and context save/restore macros.
- * @ingroup exceptions
+ * @ingroup vmm
  *
  * Defines the low-level assembly glue between the EL2 vector table
- * (vectors.S) and the C++ handler functions (exceptions.cpp).
+ * (vectors.S) and the C++ handler functions (vmm.cpp).
  * Each entry point saves the full CPU context to the stack using
  * @c save_context, passes a pointer to the resulting ExceptionContext
  * frame in x0, and branches to the corresponding C++ handler.

@@ -1,20 +1,20 @@
 add_subdirectory(mm)
 
-# Guest execution: vCPU state, VM lifecycle, and the EL2 exception/HVC path.
+# Guest execution: vCPU state, VM lifecycle, and the EL2 trap and HVC path.
 add_library(Virt${BSP_SUFFIX}
   STATIC
   vcpu/vcpu.cpp
   vm/vm.cpp
-  exceptions/exceptions.cpp
-  exceptions/hvc/hvc.cpp
+  vmm/vmm.cpp
+  vmm/hvc/hvc.cpp
 )
 
 target_include_directories(Virt${BSP_SUFFIX}
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/vcpu
   ${CMAKE_CURRENT_SOURCE_DIR}/vm
-  ${CMAKE_CURRENT_SOURCE_DIR}/exceptions
-  ${CMAKE_CURRENT_SOURCE_DIR}/exceptions/hvc
+  ${CMAKE_CURRENT_SOURCE_DIR}/vmm
+  ${CMAKE_CURRENT_SOURCE_DIR}/vmm/hvc
 )
 
 target_link_libraries(Virt${BSP_SUFFIX}

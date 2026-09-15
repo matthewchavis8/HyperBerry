@@ -1,13 +1,13 @@
 /**
- * @file exceptionState.h
+ * @file trapState.h
  * @brief Shared state between the test exception handler and test cases.
  *
  * The handler writes into g_test_ex_state; each test case zeroes it
  * before triggering BRK #0, then reads the captured values to assert.
  */
 
-#ifndef __EXCEPTION_STATE_H__
-#define __EXCEPTION_STATE_H__
+#ifndef __TRAP_STATE_H__
+#define __TRAP_STATE_H__
 
 #include <stdint.h>
 
@@ -19,4 +19,4 @@ struct TestExceptionState {
 };
 
 
-#endif // !__EXCEPTION_STATE_H__
+#endif // !__TRAP_STATE_H__

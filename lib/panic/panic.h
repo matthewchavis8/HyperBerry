@@ -7,7 +7,7 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 
 /**
  * @brief Print a fatal error banner and halt the current CPU indefinitely.

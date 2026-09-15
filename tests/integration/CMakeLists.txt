@@ -2,8 +2,8 @@
 # file of the same basename in tests/bsp/<board>/ and it wins.
 set(SHARED_TESTS
   uart/test_uart.cpp
-  exceptions/test_exceptions.cpp
-  exceptions/test_vectors.S
+  vmm/test_vmm.cpp
+  vmm/test_vectors.S
   pmm/test_pmm.cpp
   mmu/test_mmu.cpp
   guestMmu/test_guestMmu.cpp

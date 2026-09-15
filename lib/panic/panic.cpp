@@ -7,7 +7,7 @@
 #include "panic.h"
 #include "lib/log/log.h"
 #include "lib/registerDump/registerDump.h"
-#include "core/exceptions/exceptions.h"
+#include "core/vmm/vmm.h"
 
 /*
  * @brief Print panic diagnostics and stop execution permanently.
