@@ -200,15 +200,17 @@ public:
 } __attribute__((aligned(128)));
 
 struct VcpuLayoutAccess {
-    static constexpr uint64_t GprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
+    static constexpr uint64_t GetGprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
 
-    static constexpr uint64_t SpEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
+    static constexpr uint64_t GetSpEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
 
-    static constexpr uint64_t HvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
+    static constexpr uint64_t GetHvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
 
-    static constexpr uint64_t El2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
+    static constexpr uint64_t GetEl2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
 
-    static constexpr uint64_t El1SysRegsOffset() { return __builtin_offsetof(Vcpu, m_el1SysRegs); }
+    static constexpr uint64_t GetEl1SysRegsOffset() {
+        return __builtin_offsetof(Vcpu, m_el1SysRegs);
+    }
 };
 
 // Fail Loudly
@@ -218,19 +220,19 @@ static_assert(sizeof(El2State) == VCPU_EL2STATE_SIZE,
         "El2State size drifted from the asm-visible EL2 layout");
 static_assert(sizeof(El1SysRegs) == VCPU_EL1SYSREGS_SIZE,
         "El1SysRegs size drifted from the asm-visible EL1 sysreg layout");
-static_assert(VcpuLayoutAccess::GprOffset() == VCPU_GPREGS_OFFSET,
+static_assert(VcpuLayoutAccess::GetGprOffset() == VCPU_GPREGS_OFFSET,
         "m_gpr offset drifted from VCPU_GPREGS_OFFSET");
-static_assert(VcpuLayoutAccess::SpEl0Offset() == VCPU_GPREG_SP_EL0,
+static_assert(VcpuLayoutAccess::GetSpEl0Offset() == VCPU_GPREG_SP_EL0,
         "m_spEl0 offset drifted from VCPU_GPREG_SP_EL0");
-static_assert(VcpuLayoutAccess::El2StateOffset() == VCPU_EL2STATE_OFFSET,
+static_assert(VcpuLayoutAccess::GetEl2StateOffset() == VCPU_EL2STATE_OFFSET,
         "m_el2State offset drifted from VCPU_EL2STATE_OFFSET");
-static_assert(VcpuLayoutAccess::El1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
+static_assert(VcpuLayoutAccess::GetEl1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
         "m_el1SysRegs offset drifted from VCPU_EL1REGS_OFFSET");
 static_assert(sizeof(Vcpu) >= VCPU_SIZEOF, "Vcpu smaller than asm-expected context size");
 
 static_assert(
         sizeof(HvContext) == VCPU_HVCTX_SIZE, "HvContext size drifted from asm-visible layout");
-static_assert(VcpuLayoutAccess::HvCtxOffset() == VCPU_HVCTX_OFFSET,
+static_assert(VcpuLayoutAccess::GetHvCtxOffset() == VCPU_HVCTX_OFFSET,
         "m_hvCtx offset drifted from VCPU_HVCTX_OFFSET");
 
 // @brief fn used to resume guest state

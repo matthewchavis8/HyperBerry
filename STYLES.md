@@ -28,7 +28,8 @@ Uart& operator=(Uart&&) = delete;
 
 **Public API is UpperCamelCase.** Public member functions, and functions with
 external linkage: `Uart::GetInstance()`, `Vcpu::GetElr()`, `Log::Println()`,
-`mmio::Write<uint32_t>()`. Getters are `GetX()`. Private methods and file local
+`mmio::Write<uint32_t>()`. Getters are `GetX()` and setters are `SetX()`, private ones
+`getX()` and `setX()`. Private methods and file local
 helpers stay lowerCamelCase, as `Uart::configure()` does. `.clang-tidy` enforces
 both through `PublicMethodCase` and `GlobalFunctionCase`.
 
@@ -37,9 +38,6 @@ reach by name: `memcpy`, `memset`, `hmain`, `vcpu_enter`, the `handle_*` trap
 entries and `__cxa_*`. And the pieces of lib that mirror the standard library:
 `hv::array`'s `begin`, `end`, `size` and `data`, the smart pointers' `get`,
 `reset` and `release`, and `hv::move`, `hv::forward` and `hv::swap`.
-
-`Gic` still carries `DistBase()`, `HvBase()` and `VcpuBase()` from before the
-getter rule.
 
 **Prefer a constructor over an init idiom.** A driver that needs register
 programming does it in the constructor, through a private helper the rebind path

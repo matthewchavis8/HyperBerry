@@ -25,7 +25,7 @@ namespace GicReg {
 } // namespace GicReg
 
 volatile uint32_t* distReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::DistBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetDistBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {

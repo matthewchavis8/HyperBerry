@@ -151,69 +151,69 @@ namespace GicReg {
 
 void Gic::cpuInit() {
     // Figure out how many List Registers are available for virtual interrupts.
-    uint32_t vtr { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::VTR) };
+    uint32_t vtr { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::VTR) };
     m_numLr = (vtr & 0x3F) + 1;
 
     // Enable Group 1 interrupts and split priority drop from deactivation
-    mmio::Write<uint32_t>(frameBase(Frame::CPU),
+    mmio::Write<uint32_t>(getFrameBase(Frame::CPU),
             GicReg::Cpu::CTLR,
             GicReg::Cpu::CTLR_GRPEN1 | GicReg::Cpu::CTLR_EOIMODE);
 
     // Unmask all interrupts priorities
-    mmio::Write<uint32_t>(frameBase(Frame::CPU), GicReg::Cpu::PMR, 0xFF);
+    mmio::Write<uint32_t>(getFrameBase(Frame::CPU), GicReg::Cpu::PMR, 0xFF);
 
     // Set binary point to 0 (no priority grouping)
-    mmio::Write<uint32_t>(frameBase(Frame::CPU), GicReg::Cpu::BPR, 0x0);
+    mmio::Write<uint32_t>(getFrameBase(Frame::CPU), GicReg::Cpu::BPR, 0x0);
 
     // Set up VMCR
     uint32_t vmcr { GicReg::Hv::VMCR_EN0 };
     vmcr |= (0xFF >> 3) << GicReg::Hv::VMCR_PMR_SHIFT;
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::VMCR, vmcr);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::VMCR, vmcr);
 
     // Bring up vGic Hypervisor interface
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::HCR, GicReg::Hv::HCR_EN);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::HCR, GicReg::Hv::HCR_EN);
 
     // Clear all List Register entries
     for (uint32_t i {}; i < m_numLr; i++) {
-        mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::LR0 + i * 4, 0);
+        mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4, 0);
     }
 
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::APR, 0);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::APR, 0);
 }
 
 void Gic::CpuReset() {
     // Clear all List Register entries
     for (uint32_t i {}; i < m_numLr; i++) {
-        mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::LR0 + i * 4, 0);
+        mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4, 0);
     }
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::APR, 0);
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::VMCR, 0);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::APR, 0);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::VMCR, 0);
 }
 
 void Gic::EnableIrq(uint32_t id) {
     uint32_t regIdx { id / 32 };
     uint32_t bitMsk { (1U << (id % 32)) };
-    mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::ISENABLER + regIdx * 4, bitMsk);
+    mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::ISENABLER + regIdx * 4, bitMsk);
 }
 
 void Gic::DisableIrq(uint32_t id) {
     uint32_t regIdx { id / 32 };
     uint32_t bitMsk { (1U << (id % 32)) };
-    mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::ICENABLER + regIdx * 4, bitMsk);
+    mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::ICENABLER + regIdx * 4, bitMsk);
 }
 
 Gic::IrqAck Gic::AckIrq() {
-    uint32_t iar { mmio::Read<uint32_t>(frameBase(Frame::CPU), GicReg::Cpu::IAR) };
+    uint32_t iar { mmio::Read<uint32_t>(getFrameBase(Frame::CPU), GicReg::Cpu::IAR) };
     return IrqAck { iar, iar & 0x3FF };
 }
 
 void Gic::EndIrq(IrqAck irq) {
-    mmio::Write<uint32_t>(frameBase(Frame::CPU), GicReg::Cpu::EOIR, irq.iar);
+    mmio::Write<uint32_t>(getFrameBase(Frame::CPU), GicReg::Cpu::EOIR, irq.iar);
 }
 
 int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
-    uint32_t elsr0 { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::ELSR0) };
-    uint32_t elsr1 { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::ELSR1) };
+    uint32_t elsr0 { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::ELSR0) };
+    uint32_t elsr1 { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::ELSR1) };
 
     // Find a free list register slot
     int freeLr { -1 };
@@ -222,7 +222,7 @@ int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
         uint32_t bit { i % 32 };
 
         // Virtual Id was already pending do not inject
-        uint32_t lrVal { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
+        uint32_t lrVal { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
         if ((lrVal & 0x3FF) == virtId) return -1;
 
         if ((elsr >> bit) & 1U) {
@@ -240,14 +240,14 @@ int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
     lr |= GicReg::Hv::LR_HW;
     lr |= (id & 0x3FF) << GicReg::Hv::LR_PHYS_SHIFT;
     mmio::Write<uint32_t>(
-            frameBase(Frame::HV), GicReg::Hv::LR0 + static_cast<uint32_t>(freeLr) * 4, lr);
+            getFrameBase(Frame::HV), GicReg::Hv::LR0 + static_cast<uint32_t>(freeLr) * 4, lr);
 
     return 0;
 }
 
 bool Gic::HasPendingIrq() {
     for (uint32_t i {}; i < m_numLr; i++) {
-        uint32_t lrVal { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
+        uint32_t lrVal { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
         if (lrVal & GicReg::Hv::LR_PENDING) return true;
     }
     return false;
@@ -255,9 +255,9 @@ bool Gic::HasPendingIrq() {
 
 void Gic::EnableMainIrq(bool isEnable) {
     // Enable/disable maintenance IRQ on empty list regs
-    uint32_t hcr { mmio::Read<uint32_t>(frameBase(Frame::HV), GicReg::Hv::HCR) };
+    uint32_t hcr { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::HCR) };
     isEnable ? hcr |= GicReg::Hv::HCR_UIE : hcr &= ~GicReg::Hv::HCR_UIE;
-    mmio::Write<uint32_t>(frameBase(Frame::HV), GicReg::Hv::HCR, hcr);
+    mmio::Write<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::HCR, hcr);
 }
 
 void Gic::SetPriorityLevel(uint32_t id, uint8_t priority) {
@@ -266,24 +266,24 @@ void Gic::SetPriorityLevel(uint32_t id, uint8_t priority) {
 
 void Gic::Init() {
     // Disable Distributor
-    mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::CTLR, 0);
+    mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::CTLR, 0);
 
     // Find out how many interrupt lines are supported
-    uint32_t typer { mmio::Read<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::TYPER) };
+    uint32_t typer { mmio::Read<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::TYPER) };
     uint32_t numOfIrqLines { (typer & 0x1F) + 1 };
 
     // Configure all SPIs (Shared Peripheral Interrupts)
     for (uint32_t i {}; i < numOfIrqLines; i++) {
-        mmio::Write<uint32_t>(frameBase(Frame::DIST),
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST),
                 GicReg::Dist::IGROUPR + i * 4,
                 0xFFFFFFFF); // Group all Non-secure SPIs
-        mmio::Write<uint32_t>(frameBase(Frame::DIST),
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST),
                 GicReg::Dist::ICENABLER + i * 4,
                 0xFFFFFFFF); // Disable all SPIs
-        mmio::Write<uint32_t>(frameBase(Frame::DIST),
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST),
                 GicReg::Dist::ICPENDR + i * 4,
                 0xFFFFFFFF); // Clear any pending SPIs
-        mmio::Write<uint32_t>(frameBase(Frame::DIST),
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST),
                 GicReg::Dist::ICACTIVER + i * 4,
                 0xFFFFFFFF); // Clear any active SPIs
     }
@@ -297,22 +297,22 @@ void Gic::Init() {
 
     // Route all SPIs to CPU0
     for (uint32_t i { 32 }; i < numOfSpis; i += 4) {
-        mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::ITARGETSR + i, 0x01010101);
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::ITARGETSR + i, 0x01010101);
     }
 
     // All SPis are level triggered
     uint32_t numCfgRegs { numOfIrqLines * 2 };
     for (uint32_t i { 2 }; i < numCfgRegs; i++) {
-        mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::ICFGR + i * 4, 0x00000000);
+        mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::ICFGR + i * 4, 0x00000000);
     }
 
     // Re-enable Distributor
-    mmio::Write<uint32_t>(frameBase(Frame::DIST), GicReg::Dist::CTLR, GicReg::Dist::CTLR_GRPEN1);
+    mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::CTLR, GicReg::Dist::CTLR_GRPEN1);
 
     cpuInit();
 }
 
-uintptr_t Gic::frameBase(Frame frame) {
+uintptr_t Gic::getFrameBase(Frame frame) {
     uint64_t base { 0 };
     switch (frame) {
         case Frame::DIST:
@@ -339,14 +339,14 @@ void Gic::SetBases(uint64_t dist, uint64_t cpu, uint64_t hv, uint64_t vcpu) {
     gVcpuBase = vcpu;
 }
 
-uint64_t Gic::DistBase() {
+uint64_t Gic::GetDistBase() {
     return gDistBase;
 }
 
-uint64_t Gic::HvBase() {
+uint64_t Gic::GetHvBase() {
     return gHvBase;
 }
 
-uint64_t Gic::VcpuBase() {
+uint64_t Gic::GetVcpuBase() {
     return gVcpuBase;
 }
