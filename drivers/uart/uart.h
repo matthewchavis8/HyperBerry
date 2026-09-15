@@ -37,7 +37,7 @@ private:
     // @brief Construct bound to the board's compile-time console base, and
     //        bring that frame up.
     //
-    // Private because @ref getInstance() is the only legitimate way to reach
+    // Private because @ref GetInstance() is the only legitimate way to reach
     // the one physical PL011. Defined out of line so the board's generated
     // `regs.inc` stays in the .cpp and off every consumer's include path.
     Uart();
@@ -51,7 +51,7 @@ public:
     // Constructed on first call rather than at static-init time.
     //
     // @return Reference to the single console driver instance.
-    static Uart& getInstance();
+    static Uart& GetInstance();
 
     // @brief Rebind the driver to a base address discovered at runtime.
     // @ingroup drivers_uart
@@ -62,19 +62,19 @@ public:
     //
     // @param base CPU-physical base address of the PL011 register frame.
     // @return Nothing.
-    void setBase(uint64_t base);
+    void SetBase(uint64_t base);
 
     // @brief Base address the driver is currently bound to.
     // @ingroup drivers_uart
     // @return CPU-physical base address of the active PL011 register frame.
-    [[nodiscard]] uint64_t getBase() const;
+    [[nodiscard]] uint64_t GetBase() const;
 
     // @brief Transmit a single character over the UART.
     // @param ch Character to send.
     // @warning Busy-waits until the TX FIFO has space. Do not call
     //          from an interrupt context or time-critical path.
     // @return Nothing.
-    void putc(const char ch) const;
+    void Putc(const char ch) const;
 
     Uart(const Uart&) = delete;
     Uart& operator=(const Uart&) = delete;

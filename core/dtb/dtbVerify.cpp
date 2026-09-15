@@ -19,32 +19,32 @@ namespace {
 bool check(const char* what, uint64_t expected, uint64_t actual) {
     if (expected == actual) return true;
 
-    Log::println(
+    Log::Println(
             "[DTB][MISMATCH] {}: built for {:x}, device tree says {:x}", what, expected, actual);
     return false;
 }
 
 } // namespace
 
-void verifyBspAgainstDtb(uintptr_t dtb) {
+void VerifyBspAgainstDtb(uintptr_t dtb) {
     bool ok = true;
 
-    DeviceNode uart = dtbFindUart(dtb);
+    DeviceNode uart = DtbFindUart(dtb);
     if (!uart.found || uart.regionCount == 0) {
-        Log::println("[DTB][WARN] no PL011 in device tree; cannot verify UART_BASE");
+        Log::Println("[DTB][WARN] no PL011 in device tree; cannot verify UART_BASE");
     } else {
         // Point the driver at what the tree describes. On a matching board
         // this is the value it already had. It does not rescue a wrong
         // compile-time base: the early console faults long before this runs,
         // so a UART mismatch stays undiagnosable without a second channel.
-        Uart::getInstance().setBase(uart.regions[0].base);
+        Uart::GetInstance().SetBase(uart.regions[0].base);
         ok &= check("UART_BASE", BSP_UART_BASE, uart.regions[0].base);
         ok &= check("UART_SIZE", BSP_UART_SIZE, uart.regions[0].size);
     }
 
-    DeviceNode gic = dtbFindGic(dtb);
+    DeviceNode gic = DtbFindGic(dtb);
     if (!gic.found || gic.regionCount == 0) {
-        Log::println("[DTB][WARN] no GIC in device tree; cannot verify GIC bases");
+        Log::Println("[DTB][WARN] no GIC in device tree; cannot verify GIC bases");
     } else {
         ok &= check("GIC_DISTRIBUTOR_BASE", BSP_GIC_DISTRIBUTOR_BASE, gic.regions[0].base);
         ok &= check("GIC_DISTRIBUTOR_SIZE", BSP_GIC_DISTRIBUTOR_SIZE, gic.regions[0].size);
@@ -62,19 +62,19 @@ void verifyBspAgainstDtb(uintptr_t dtb) {
             // values are checked rather than trusted, so on a matching board
             // this changes nothing; it means the driver follows the tree if the
             // panic below is ever relaxed.
-            Gic::setBases(gic.regions[0].base,
+            Gic::SetBases(gic.regions[0].base,
                     gic.regions[1].base,
                     gic.regions[2].base,
                     gic.regions[3].base);
         } else {
-            Log::println("[DTB][WARN] GIC exposes {} region(s); CPU/HV/VCPU not described",
+            Log::Println("[DTB][WARN] GIC exposes {} region(s); CPU/HV/VCPU not described",
                     gic.regionCount);
         }
     }
 
     if (!ok) {
-        hv_panic("[ERROR][DTB] BSP constants do not match the firmware device tree");
+        HvPanic("[ERROR][DTB] BSP constants do not match the firmware device tree");
     }
 
-    Log::println("[DTB] BSP constants match the device tree");
+    Log::Println("[DTB] BSP constants match the device tree");
 }

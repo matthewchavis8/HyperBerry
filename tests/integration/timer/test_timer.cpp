@@ -25,7 +25,7 @@ namespace GicReg {
 } // namespace GicReg
 
 volatile uint32_t* distReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::distBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::DistBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -108,7 +108,7 @@ void timerCallback(void* ctx) {
 }
 
 uint64_t oneMillisecondTicks(const Timer& timer) {
-    uint64_t ticks = timer.getFrequency() / 1000U;
+    uint64_t ticks = timer.GetFrequency() / 1000U;
     return ticks == 0 ? 1 : ticks;
 }
 
@@ -127,63 +127,63 @@ bool waitForTimerCallback() {
 extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
     (void)ctx;
 
-    Gic::IrqAck ack = Gic::ackIrq();
+    Gic::IrqAck ack = Gic::AckIrq();
     gLastIrqId = ack.id;
 
     if (ack.id == Timer::IRQ && gActiveTimer != nullptr) {
         ++gIrqCount;
-        gActiveTimer->handleIrq();
+        gActiveTimer->HandleIrq();
     }
 
-    Gic::endIrq(ack);
+    Gic::EndIrq(ack);
 }
 
 static bool test_frequency_and_counter_progress() {
     Timer timer;
-    timer.init();
+    timer.Init();
 
-    uint64_t frequency = timer.getFrequency();
-    uint64_t first = timer.getRawCount();
+    uint64_t frequency = timer.GetFrequency();
+    uint64_t first = timer.GetRawCount();
     spin(1000);
-    uint64_t second = timer.getRawCount();
+    uint64_t second = timer.GetRawCount();
 
     return frequency != 0 && second > first;
 }
 
 static bool test_elapsed_ticks_reset_on_start() {
     Timer timer;
-    timer.init();
-    timer.setIntervalTicks(oneMillisecondTicks(timer));
+    timer.Init();
+    timer.SetIntervalTicks(oneMillisecondTicks(timer));
 
-    timer.start();
-    uint64_t immediate = timer.getElapsedTicks();
+    timer.Start();
+    uint64_t immediate = timer.GetElapsedTicks();
     spin(1000);
-    uint64_t later = timer.getElapsedTicks();
-    timer.stop();
+    uint64_t later = timer.GetElapsedTicks();
+    timer.Stop();
 
     return later > immediate;
 }
 
 static bool test_handle_irq_reloads_and_invokes_callback() {
     Timer timer;
-    timer.init();
-    timer.setIntervalTicks(oneMillisecondTicks(timer));
+    timer.Init();
+    timer.SetIntervalTicks(oneMillisecondTicks(timer));
 
     gCallbackCount = 0;
     gCallbackContextMatched = false;
-    timer.setCallback(timerCallback, reinterpret_cast<void*>(0x54494D45ULL));
+    timer.SetCallback(timerCallback, reinterpret_cast<void*>(0x54494D45ULL));
 
-    timer.handleIrq();
-    timer.handleIrq();
+    timer.HandleIrq();
+    timer.HandleIrq();
 
     return gCallbackCount == 2 && gCallbackContextMatched;
 }
 
 static bool test_physical_timer_irq_invokes_callback() {
     Timer timer;
-    timer.init();
-    timer.setIntervalTicks(oneMillisecondTicks(timer));
-    timer.setCallback(timerCallback, reinterpret_cast<void*>(0x54494D45ULL));
+    timer.Init();
+    timer.SetIntervalTicks(oneMillisecondTicks(timer));
+    timer.SetCallback(timerCallback, reinterpret_cast<void*>(0x54494D45ULL));
 
     gActiveTimer = &timer;
     gCallbackCount = 0;
@@ -191,25 +191,25 @@ static bool test_physical_timer_irq_invokes_callback() {
     gLastIrqId = 0;
     gCallbackContextMatched = false;
 
-    Gic::init();
+    Gic::Init();
     configureTimerPpiGroup0();
     enableDistributorGroups();
-    Gic::setPriorityLevel(Timer::IRQ, 0x80);
-    Gic::enableIrq(Timer::IRQ);
+    Gic::SetPriorityLevel(Timer::IRQ, 0x80);
+    Gic::EnableIrq(Timer::IRQ);
 
     uint64_t savedVbar = installTestVbar();
     uint64_t savedDaif = saveDaif();
     uint64_t savedHcr = routePhysicalInterruptsToEl2();
 
-    timer.start();
+    timer.Start();
     unmaskIrqAndFiq();
     bool seen = waitForTimerCallback();
     restoreDaif(savedDaif);
     restoreHcr(savedHcr);
-    timer.stop();
+    timer.Stop();
     restoreVbar(savedVbar);
 
-    Gic::disableIrq(Timer::IRQ);
+    Gic::DisableIrq(Timer::IRQ);
     gActiveTimer = nullptr;
 
     bool passed = seen && gCallbackCount != 0 && gIrqCount != 0 && gLastIrqId == Timer::IRQ &&

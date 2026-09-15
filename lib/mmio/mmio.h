@@ -43,7 +43,7 @@ namespace detail {
 // @param addr Absolute address of the register.
 // @return The value read, at width @p T.
 template <typename T>
-inline T read(uintptr_t addr) {
+inline T Read(uintptr_t addr) {
     static_assert(detail::kIsAccessWidth<T>, "Op must be uint8_t, uint16_t, uint32_t, or uint64_t");
 
     return *reinterpret_cast<volatile T*>(addr);
@@ -56,7 +56,7 @@ inline T read(uintptr_t addr) {
 // @param value Value to store.
 // @return Nothing.
 template <typename T>
-inline void write(uintptr_t addr, typename detail::nonDeduced<T>::type value) {
+inline void Write(uintptr_t addr, typename detail::nonDeduced<T>::type value) {
     static_assert(detail::kIsAccessWidth<T>, "Op must be uint8_t, uint16_t, uint32_t, or uint64_t");
 
     *reinterpret_cast<volatile T*>(addr) = value;
@@ -69,10 +69,10 @@ inline void write(uintptr_t addr, typename detail::nonDeduced<T>::type value) {
 // @param offset Offset of the register within the frame.
 // @return The value read, at width @p T.
 template <typename T, typename Off>
-inline T read(uintptr_t base, Off offset) {
+inline T Read(uintptr_t base, Off offset) {
     static_assert(detail::kIsOffset<Off>, "MMIO offset must be an integer or an enum of one");
 
-    return read<T>(base + static_cast<uintptr_t>(offset));
+    return Read<T>(base + static_cast<uintptr_t>(offset));
 }
 
 // @brief Write a device register at @p offset from a frame base.
@@ -84,10 +84,10 @@ inline T read(uintptr_t base, Off offset) {
 // @param value Value to store.
 // @return Nothing.
 template <typename T, typename Off>
-inline void write(uintptr_t base, Off offset, typename detail::nonDeduced<T>::type value) {
+inline void Write(uintptr_t base, Off offset, typename detail::nonDeduced<T>::type value) {
     static_assert(detail::kIsOffset<Off>, "MMIO offset must be an integer or an enum of one");
 
-    write<T>(base + static_cast<uintptr_t>(offset), value);
+    Write<T>(base + static_cast<uintptr_t>(offset), value);
 }
 
 } // namespace mmio

@@ -47,8 +47,8 @@ void restoreVbar(uint64_t saved) {
 bool enterGuestAndCapture(Vcpu& vcpu) {
     gGuestExit = {};
 
-    vcpu.init(reinterpret_cast<uint64_t>(test_vcpu_guest_entry));
-    vcpu.setGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
+    vcpu.Init(reinterpret_cast<uint64_t>(test_vcpu_guest_entry));
+    vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
     uint64_t savedVbar = installTestVbar();
     vcpu_enter(&vcpu);
@@ -66,14 +66,14 @@ static bool test_vcpu_hvctx_size_matches_asm() {
 }
 
 static bool test_vcpu_hvctx_offset_matches_asm() {
-    return VcpuLayoutAccess::hvCtxOffset() == VCPU_HVCTX_OFFSET;
+    return VcpuLayoutAccess::HvCtxOffset() == VCPU_HVCTX_OFFSET;
 }
 
 static bool test_vcpu_gpr_round_trip() {
     Vcpu vcpu;
-    vcpu.init(0x40000000ULL);
-    vcpu.setGpReg(VCPU_GPREG_X5, 0xCAFEBABEULL);
-    return vcpu.getGpReg(VCPU_GPREG_X5) == 0xCAFEBABEULL;
+    vcpu.Init(0x40000000ULL);
+    vcpu.SetGpReg(VCPU_GPREG_X5, 0xCAFEBABEULL);
+    return vcpu.GetGpReg(VCPU_GPREG_X5) == 0xCAFEBABEULL;
 }
 
 static bool test_vcpu_tpidr_el2_is_accessible() {
@@ -92,7 +92,7 @@ static bool test_vcpu_tpidr_el2_is_accessible() {
 static bool test_vcpu_guest_exit_returns_to_caller() {
     Vcpu vcpu;
     return enterGuestAndCapture(vcpu) && gGuestExit.vcpu == &vcpu &&
-            Vcpu::getCurrentVcpu() == &vcpu;
+            Vcpu::GetCurrentVcpu() == &vcpu;
 }
 
 static bool test_vcpu_guest_exit_captures_hvc_esr() {
@@ -101,7 +101,7 @@ static bool test_vcpu_guest_exit_captures_hvc_esr() {
         return false;
     }
 
-    return getEsrEc(gGuestExit.esr) == EsrEc::HVC_AARCH64;
+    return GetEsrEc(gGuestExit.esr) == EsrEc::HVC_AARCH64;
 }
 
 static bool test_vcpu_guest_exit_saves_guest_pc() {
@@ -110,7 +110,7 @@ static bool test_vcpu_guest_exit_saves_guest_pc() {
         return false;
     }
 
-    return vcpu.getElr() == reinterpret_cast<uint64_t>(test_vcpu_guest_resume);
+    return vcpu.GetElr() == reinterpret_cast<uint64_t>(test_vcpu_guest_resume);
 }
 
 static bool test_vcpu_guest_exit_saves_guest_gprs() {
@@ -119,8 +119,8 @@ static bool test_vcpu_guest_exit_saves_guest_gprs() {
         return false;
     }
 
-    return vcpu.getGpReg(VCPU_GPREG_X0) == kGuestCallId &&
-            vcpu.getGpReg(VCPU_GPREG_X5) == kGuestScratch;
+    return vcpu.GetGpReg(VCPU_GPREG_X0) == kGuestCallId &&
+            vcpu.GetGpReg(VCPU_GPREG_X5) == kGuestScratch;
 }
 
 static const TestCase kVcpuCases[] = {

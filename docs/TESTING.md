@@ -38,7 +38,7 @@ Board-specific test sources live in `tests/bsp/<board>/`. A file there whose
 basename matches one in `tests/integration/` replaces it for that board only;
 any other file is simply added to that board's test image.
 
-The `debug` preset sets `BUILD_INTEGRATION=ON`, which adds a `hyperberry-<board>-test` image per board alongside the normal one. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::run_all()` instead of the normal hypervisor path.
+The `debug` preset sets `BUILD_INTEGRATION=ON`, which adds a `hyperberry-<board>-test` image per board alongside the normal one. When that option is enabled, the integration test sources are compiled directly into the `hyperberry.elf` target and `hmain()` calls `TestRunner::RunAll()` instead of the normal hypervisor path.
 
 That recipe maps to:
 
@@ -68,7 +68,7 @@ Integration tests use **linker-section auto-registration**:
 
 1. Each test file defines a `TestSuite` with an array of `TestCase` entries.
 2. `REGISTER_SUITE(suite)` places a pointer to that suite into the `.hyperberry_tests` linker section.
-3. At boot, `TestRunner::run_all()` walks from `__test_suites_start` to `__test_suites_end`, executing every registered suite.
+3. At boot, `TestRunner::RunAll()` walks from `__test_suites_start` to `__test_suites_end`, executing every registered suite.
 4. Results are emitted over UART via the `Tap` namespace (freestanding, no stdlib).
 5. After all suites finish the CPU spins — there is no OS to return to.
 

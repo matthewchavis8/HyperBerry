@@ -10,8 +10,8 @@
 // @brief ARM generic timer driver using the EL2 physical timer (CNTHP).
 // @ingroup drivers
 //
-// Call init() once at boot, setCallback() before start(). The IRQ
-// handler must forward IRQ (26) firings to handleIrq().
+// Call Init() once at boot, SetCallback() before Start(). The IRQ
+// handler must forward IRQ (26) firings to HandleIrq().
 class Timer {
 private:
     uint64_t m_frequency {};
@@ -31,34 +31,34 @@ public:
     Timer& operator=(Timer&&) = delete;
 
     // @brief Read CNTFRQ_EL0 and establish the default one-second interval.
-    void init() noexcept;
+    void Init() noexcept;
 
     // @brief Arm the physical timer with the configured interval.
-    void start() noexcept;
+    void Start() noexcept;
 
     // @brief Disarm the physical timer.
-    void stop() const noexcept;
+    void Stop() const noexcept;
 
     // @brief Reload the timer and invoke the registered callback.
-    void handleIrq() noexcept;
+    void HandleIrq() noexcept;
 
     // @brief Set the physical timer interval in counter ticks.
     // @param ticks Down-count value to write to CNTHP_TVAL_EL2.
-    void setIntervalTicks(uint64_t ticks) noexcept;
+    void SetIntervalTicks(uint64_t ticks) noexcept;
 
     // @brief Register a callback invoked on each timer expiry.
     // @param cb  Function to call; must be IRQ-safe.
     // @param ctx Opaque pointer forwarded to cb.
-    void setCallback(void (*cb)(void*), void* ctx) noexcept;
+    void SetCallback(void (*cb)(void*), void* ctx) noexcept;
 
     // @return Counter frequency in Hz (CNTFRQ_EL0).
-    [[nodiscard]] uint64_t getFrequency() const noexcept;
+    [[nodiscard]] uint64_t GetFrequency() const noexcept;
 
     // @return Raw physical counter value (CNTVCT_EL0).
-    [[nodiscard]] uint64_t getRawCount() const noexcept;
+    [[nodiscard]] uint64_t GetRawCount() const noexcept;
 
     // @return Ticks elapsed since the last timer arm.
-    [[nodiscard]] uint64_t getElapsedTicks() const noexcept;
+    [[nodiscard]] uint64_t GetElapsedTicks() const noexcept;
 };
 
 #endif // !__TIMER_H__

@@ -23,39 +23,39 @@ constexpr PageTable::WalkConfig kStage1Lookup {
 } // namespace
 
 namespace HostMmu {
-void init(const MmioMap& devices) {
-    Log::println("[HostMmu] init called");
-    l0_table = PageTable::allocTable();
-    Log::println("[HostMmu] L0 table={}", l0_table);
+void Init(const MmioMap& devices) {
+    Log::Println("[HostMmu] init called");
+    l0_table = PageTable::AllocTable();
+    Log::Println("[HostMmu] L0 table={}", l0_table);
 
-    Log::println("[HostMmu] Programming MAIR");
+    Log::Println("[HostMmu] Programming MAIR");
     uint64_t mair = (0xFFULL << (MAIR_IDX_NORMAL * 8)) // Normal memory
             | (0x00ULL << (MAIR_IDX_DEVICE * 8))       // Device memory
             | (0x44ULL << (MAIR_IDX_NORMAL_NC * 8));   // Normal but non cacheable memory
     asm volatile("msr mair_el2, %0" ::"r"(mair) : "memory");
 
-    Log::println("[HostMmu] Programming TCR");
+    Log::Println("[HostMmu] Programming TCR");
     uint64_t tcr =
             (16ULL << 0) | (0ULL << 14) | (1ULL << 8) | (1ULL << 10) | (3ULL << 12) | (2ULL << 16);
     asm volatile("msr tcr_el2, %0" ::"r"(tcr) : "memory");
     asm volatile("isb");
 
-    Log::println("[HostMmu] Mapping HV DRAM");
-    mapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
+    Log::Println("[HostMmu] Mapping HV DRAM");
+    MapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
-    Log::println("[HostMmu] Mapping {} HV MMIO window(s)", devices.count);
+    Log::Println("[HostMmu] Mapping {} HV MMIO window(s)", devices.count);
     for (uint32_t i {}; i < devices.count; ++i) {
         const MmioWindow& window = devices.windows[i];
-        Log::println("[HostMmu]   {:x}..{:x}", window.base, window.base + window.size);
-        mapRange(window.base, window.pa, window.size, PTE_DEVICE);
+        Log::Println("[HostMmu]   {:x}..{:x}", window.base, window.base + window.size);
+        MapRange(window.base, window.pa, window.size, PTE_DEVICE);
     }
 
-    Log::println("[HostMmu] Programming TTBR0");
+    Log::Println("[HostMmu] Programming TTBR0");
     asm volatile("msr ttbr0_el2, %0" ::"r"((uint64_t)(uintptr_t)l0_table) : "memory");
     asm volatile("dsb ishst" ::: "memory");
     asm volatile("isb");
 
-    Log::println("[HostMmu] Enabling SCTLR.M/C/I");
+    Log::Println("[HostMmu] Enabling SCTLR.M/C/I");
     uint64_t sctlr;
     asm volatile("mrs %0, sctlr_el2" : "=r"(sctlr));
     sctlr |= (1ULL << 0)    // enable MMU
@@ -64,39 +64,39 @@ void init(const MmioMap& devices) {
     asm volatile("msr sctlr_el2, %0" ::"r"(sctlr) : "memory");
     asm volatile("isb");
 
-    Log::println("[HostMmu] init finished");
+    Log::Println("[HostMmu] init finished");
 }
 
-void mapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
+void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte = PageTable::walk(l0_table, va + off, kStage1Walk);
+        uint64_t* pte = PageTable::Walk(l0_table, va + off, kStage1Walk);
         if (!pte) {
-            Log::println("[ERROR] HostMmu::mapRange walk failed");
+            Log::Println("[ERROR] HostMmu::mapRange walk failed");
             break;
         }
         *pte = (((pa + off) & PTE_ADDR_MASK) | flags | PTE_BLOCK);
     }
 }
 
-void unmapRange(uint64_t va, uint64_t size) {
+void UnmapRange(uint64_t va, uint64_t size) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte = PageTable::walk(l0_table, va + off, kStage1Lookup);
+        uint64_t* pte = PageTable::Walk(l0_table, va + off, kStage1Lookup);
         if (!pte) {
-            Log::println("[ERROR] HostMmu::unmapRange walk failed");
+            Log::Println("[ERROR] HostMmu::unmapRange walk failed");
             break;
         }
         *pte = 0;
-        tlbFlushVa(va + off);
+        TlbFlushVa(va + off);
     }
 }
 
-void tlbFlushAll() {
+void TlbFlushAll() {
     asm volatile("tlbi alle2is" ::: "memory");
     asm volatile("dsb sy" ::: "memory");
     asm volatile("isb");
 }
 
-void tlbFlushVa(uint64_t va) {
+void TlbFlushVa(uint64_t va) {
     asm volatile("tlbi vae2is, %0" ::"r"(va >> 12) : "memory");
     asm volatile("dsb sy" ::: "memory");
     asm volatile("isb");

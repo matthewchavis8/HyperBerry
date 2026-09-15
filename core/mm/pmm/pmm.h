@@ -28,23 +28,23 @@ namespace pmm {
 // @brief Initialise the buddy allocator from a DTB memory map.
 // @ingroup pmm
 // @param map Physical memory regions discovered from the device tree.
-void init(const MemoryMap& map);
+void Init(const MemoryMap& map);
 
 // @brief Allocate a power-of-2 block of physical pages.
 // @ingroup pmm
 // @param order Block size exponent: allocates PAGE_SIZE * 2^order bytes.
 // @return Physical base address of the allocated block, or 0 on failure.
-uint64_t allocPages(uint32_t order);
+uint64_t AllocPages(uint32_t order);
 
 // @brief Return a previously allocated block to the free pool.
 // @ingroup pmm
-// @param addr  Physical base address returned by allocPages().
-// @param order Must match the order passed to allocPages().
-void freePages(uint64_t addr, uint32_t order);
+// @param addr  Physical base address returned by AllocPages().
+// @param order Must match the order passed to AllocPages().
+void FreePages(uint64_t addr, uint32_t order);
 
 // @brief Print a human-readable summary of the free-list state.
 // @ingroup pmm
-void dumpState();
+void DumpState();
 } // namespace pmm
 
 #endif // __PMM_H__

@@ -90,7 +90,7 @@ bool rangeInBounds(uint64_t offset, uint64_t componentSize, uint64_t totalSize) 
 
 struct GuestRamDeleter {
     void operator()(uint8_t* guestRam) const noexcept {
-        if (guestRam) pmm::freePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
+        if (guestRam) pmm::FreePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
     }
 };
 
@@ -132,7 +132,7 @@ bootpkg::LoadResult loadFail(bootpkg::LoadError error,
 
 void copyToGuest(uint64_t guestRamHostPa, uint64_t guestIpa, const uint8_t* source, uint64_t size) {
     uint64_t guestOffset = guestIpa - bootpkg::GUEST_IPA_BASE;
-    void* dest = HostMmu::paToVa(guestRamHostPa + guestOffset);
+    void* dest = HostMmu::PaToVa(guestRamHostPa + guestOffset);
     memcpy(dest, source, static_cast<size_t>(size));
 }
 
@@ -140,11 +140,11 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
     if (dtb == nullptr) return false;
 
     auto* hdr = static_cast<FdtHeader*>(dtb);
-    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return false;
+    if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return false;
 
     auto* base = static_cast<uint8_t*>(dtb);
-    auto* tok = reinterpret_cast<uint32_t*>(base + be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(base + be32(hdr->stringsOff));
+    auto* tok = reinterpret_cast<uint32_t*>(base + Be32(hdr->structOff));
+    const char* strings = reinterpret_cast<const char*>(base + Be32(hdr->stringsOff));
 
     bool inMemory = false;
     bool inChosen = false;
@@ -154,7 +154,7 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
     int depth {};
 
     while (true) {
-        uint32_t token = be32(*tok);
+        uint32_t token = Be32(*tok);
         tok++;
 
         switch (static_cast<FDT>(token)) {
@@ -163,15 +163,15 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                 auto* nameB = reinterpret_cast<uint8_t*>(tok);
 
                 if (depth == 1) {
-                    inMemory = strStartsWith(name, "memory");
-                    inChosen = strEq(name, "chosen");
+                    inMemory = StrStartsWith(name, "memory");
+                    inChosen = StrEq(name, "chosen");
                 }
 
                 uint32_t nameLen {};
                 while (nameB[nameLen] != 0)
                     nameLen++;
 
-                tok = reinterpret_cast<uint32_t*>(fdtAlign(nameB, nameLen + 1));
+                tok = reinterpret_cast<uint32_t*>(FdtAlign(nameB, nameLen + 1));
                 depth++;
                 break;
             }
@@ -185,21 +185,21 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                 break;
 
             case FDT::PROP: {
-                uint32_t dataLen = be32(tok[0]);
-                uint32_t nameOff = be32(tok[1]);
+                uint32_t dataLen = Be32(tok[0]);
+                uint32_t nameOff = Be32(tok[1]);
                 const char* propName = strings + nameOff;
                 auto* propData = reinterpret_cast<uint8_t*>(tok + 2);
 
-                if (inMemory && strEq(propName, "reg")) {
+                if (inMemory && StrEq(propName, "reg")) {
                     if (dataLen != 16) return false;
                     writeBe64Cells(propData, layout.guestIpaBase);
                     writeBe64Cells(propData + 8, layout.guestRamSize);
                     patchedMemory = true;
-                } else if (inChosen && strEq(propName, "linux,initrd-start")) {
+                } else if (inChosen && StrEq(propName, "linux,initrd-start")) {
                     if (dataLen != 8) return false;
                     writeBe64Cells(propData, layout.initrdIpa);
                     patchedInitrdStart = true;
-                } else if (inChosen && strEq(propName, "linux,initrd-end")) {
+                } else if (inChosen && StrEq(propName, "linux,initrd-end")) {
                     if (dataLen != 8) return false;
                     uint64_t initrdEnd =
                             layout.initrdSize == 0 ? 0 : layout.initrdIpa + layout.initrdSize;
@@ -207,7 +207,7 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                     patchedInitrdEnd = true;
                 }
 
-                tok = reinterpret_cast<uint32_t*>(fdtAlign(propData, dataLen));
+                tok = reinterpret_cast<uint32_t*>(FdtAlign(propData, dataLen));
                 break;
             }
 
@@ -227,7 +227,7 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
 
 namespace bootpkg {
 
-uint32_t crc32(const void* data, uint64_t size) {
+uint32_t Crc32(const void* data, uint64_t size) {
     if (data == nullptr && size != 0) return 0;
 
     const auto* bytes = static_cast<const uint8_t*>(data);
@@ -240,7 +240,7 @@ uint32_t crc32(const void* data, uint64_t size) {
     return ~crc;
 }
 
-ValidateResult validate(const void* package, uint64_t size) {
+ValidateResult Validate(const void* package, uint64_t size) {
     if (package == nullptr) return fail(ValidateError::NULL_PACKAGE);
     if (size < HV_GUEST_BOOT_PKG_HEADER_SIZE) return fail(ValidateError::TOO_SMALL);
 
@@ -273,7 +273,7 @@ ValidateResult validate(const void* package, uint64_t size) {
     if (headerCrc32(bytes) != expectedHeaderCrc) return fail(ValidateError::BAD_HEADER_CRC);
 
     uint32_t expectedPayloadCrc = readLe32(bytes, OFF_PAYLOAD_CRC32);
-    if (crc32(bytes + HV_GUEST_BOOT_PKG_HEADER_SIZE,
+    if (Crc32(bytes + HV_GUEST_BOOT_PKG_HEADER_SIZE,
                 view.totalSize - HV_GUEST_BOOT_PKG_HEADER_SIZE) != expectedPayloadCrc)
         return fail(ValidateError::BAD_PAYLOAD_CRC);
 
@@ -329,7 +329,7 @@ ValidateResult validate(const void* package, uint64_t size) {
     return result;
 }
 
-bool calculateGuestLayout(const PackageView& package, GuestLayout& out) {
+bool CalculateGuestLayout(const PackageView& package, GuestLayout& out) {
     out = {};
 
     if (package.kernelSize == 0 || package.dtbSize == 0) return false;
@@ -372,20 +372,20 @@ bool calculateGuestLayout(const PackageView& package, GuestLayout& out) {
     return true;
 }
 
-LoadResult loadLinuxGuest(const MemoryMap& map) {
+LoadResult LoadLinuxGuest(const MemoryMap& map) {
     if (map.bootPackageBase == 0 || map.bootPackageSize == 0)
         return loadFail(LoadError::MISSING_FIRMWARE_PACKAGE);
 
-    const auto* packageBytes = static_cast<const uint8_t*>(HostMmu::paToVa(map.bootPackageBase));
+    const auto* packageBytes = static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootPackageBase));
 
-    ValidateResult validated = validate(packageBytes, map.bootPackageSize);
+    ValidateResult validated = Validate(packageBytes, map.bootPackageSize);
     if (!validated.isValid) return loadFail(LoadError::INVALID_PACKAGE, validated.error);
 
     GuestLayout layout = {};
-    if (!calculateGuestLayout(validated.package, layout))
+    if (!CalculateGuestLayout(validated.package, layout))
         return loadFail(LoadError::GUEST_LAYOUT_OVERFLOW);
 
-    uint64_t guestRamHostPa = pmm::allocPages(GUEST_RAM_ORDER);
+    uint64_t guestRamHostPa = pmm::AllocPages(GUEST_RAM_ORDER);
     if (guestRamHostPa == 0) return loadFail(LoadError::GUEST_RAM_ALLOCATION_FAILED);
 
     hv::unique_ptr<uint8_t, GuestRamDeleter> guestRam(reinterpret_cast<uint8_t*>(guestRamHostPa));
@@ -399,7 +399,7 @@ LoadResult loadLinuxGuest(const MemoryMap& map) {
             packageBytes + validated.package.dtbOffset,
             validated.package.dtbSize);
     uint64_t dtbHostPa = guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE);
-    void* guestDtb = HostMmu::paToVa(dtbHostPa);
+    void* guestDtb = HostMmu::PaToVa(dtbHostPa);
     if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GUEST_DTB_PATCH_FAILED);
 
     if (validated.package.initrdSize != 0) {

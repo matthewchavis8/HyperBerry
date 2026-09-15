@@ -31,48 +31,48 @@ static inline void writeCnthpCtlEl2(uint64_t reg) {
             : "memory");
 }
 
-void Timer::init() noexcept {
+void Timer::Init() noexcept {
     m_frequency = readCntFrqEl0();
     m_intervalTicks = m_frequency;
     m_lastArmTicks = readCntVctEl0();
-    stop();
+    Stop();
 }
 
-void Timer::start() noexcept {
+void Timer::Start() noexcept {
     m_lastArmTicks = readCntVctEl0();
     writeCnthpTvalEl2(m_intervalTicks);
     constexpr uint64_t CNTHP_CTL_ENABLE = 0b01; // ENABLE=1, IMASK=0
     writeCnthpCtlEl2(CNTHP_CTL_ENABLE);
 }
 
-void Timer::stop() const noexcept {
+void Timer::Stop() const noexcept {
     constexpr uint64_t CNTHP_CTL_DISABLE = 0b00;
     writeCnthpCtlEl2(CNTHP_CTL_DISABLE);
 }
 
-void Timer::handleIrq() noexcept {
+void Timer::HandleIrq() noexcept {
     m_lastArmTicks = readCntVctEl0();
     writeCnthpTvalEl2(m_intervalTicks);
 
     if (m_callback != nullptr) m_callback(m_ctx);
 }
 
-void Timer::setIntervalTicks(uint64_t ticks) noexcept {
+void Timer::SetIntervalTicks(uint64_t ticks) noexcept {
     m_intervalTicks = ticks;
 }
 
-void Timer::setCallback(void (*cb)(void*), void* ctx) noexcept {
+void Timer::SetCallback(void (*cb)(void*), void* ctx) noexcept {
     m_callback = cb;
     m_ctx = ctx;
 }
 
-uint64_t Timer::getFrequency() const noexcept {
+uint64_t Timer::GetFrequency() const noexcept {
     return m_frequency;
 }
 
-uint64_t Timer::getRawCount() const noexcept {
+uint64_t Timer::GetRawCount() const noexcept {
     return readCntVctEl0();
 }
-uint64_t Timer::getElapsedTicks() const noexcept {
+uint64_t Timer::GetElapsedTicks() const noexcept {
     return readCntVctEl0() - m_lastArmTicks;
 }

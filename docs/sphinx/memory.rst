@@ -10,7 +10,7 @@ reported by the firmware DTB into a pool of physically contiguous blocks that
 later EL2 subsystems can allocate and free.
 
 The allocator lives in ``core/mm/pmm/`` and is exposed through the ``pmm``
-namespace (``pmm::init``, ``pmm::allocPages``, ``pmm::freePages``). Boot code
+namespace (``pmm::Init``, ``pmm::AllocPages``, ``pmm::FreePages``). Boot code
 reaches it from ``hmain()`` after the DTB has been parsed successfully.
 
 Boot Flow
@@ -19,10 +19,10 @@ Boot Flow
 The allocator is brought up in this order:
 
 1. ``boot.S`` transfers control to ``hmain()`` at EL2.
-2. ``parseDtb()`` decodes the firmware DTB and returns a ``MemoryMap`` with:
+2. ``ParseDtb()`` decodes the firmware DTB and returns a ``MemoryMap`` with:
    ``memBase``, ``memSize``, ``atfBase``, ``atfSize``, ``dtbBase``, and
    ``dtbSize``.
-3. ``pmm::init(memoryMap)`` seeds the free lists from the RAM region.
+3. ``pmm::Init(memoryMap)`` seeds the free lists from the RAM region.
 4. The allocator reserves memory already occupied by:
 
    - the hypervisor image
@@ -79,7 +79,7 @@ The final merged block is pushed back onto the appropriate free list.
 Reservations
 ------------
 
-During ``init()``, HyperBerry first seeds the allocator with the full RAM range
+During ``Init()``, HyperBerry first seeds the allocator with the full RAM range
 reported by the DTB, then removes regions that must never be handed out:
 
 - the hypervisor image from ``__text_start`` through ``__uncached_space_end``

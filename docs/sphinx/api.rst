@@ -134,7 +134,7 @@ Panic
 
 Fatal exception reporting for unrecoverable EL2 errors.
 
-``hv_panic()`` prints an error message, emits a full exception register dump,
+``HvPanic()`` prints an error message, emits a full exception register dump,
 and halts the current CPU indefinitely.
 
 .. doxygenfile:: panic.h
@@ -166,7 +166,7 @@ Freestanding fixed-size container used in exception context state.
    :project: HyperBerry
    :members:
 
-registerDump()
+RegisterDump()
 ~~~~~~~~~~~~~~
 
 Prints a full exception-state register dump to UART for diagnostics.
@@ -187,12 +187,12 @@ Two paths exist, and which one a value takes depends on when it is needed.
 ``regs.inc``, a plain ``#define`` per address and size. It covers only what has
 to be a compile time constant: the PL011 base, because the early console must
 work before any tree has been parsed, and the four GIC bases the driver's
-register tables are built from. ``verifyBspAgainstDtb`` rechecks every one of
+register tables are built from. ``VerifyBspAgainstDtb`` rechecks every one of
 them against the firmware tree at boot and panics on a mismatch, which is what
 guards against a board's checked in blob drifting from its source.
 
-Everything else is read from a tree at runtime. ``dtbHostMmio`` and
-``dtbGuestMmio`` derive the device windows the two MMU layers map, so the EL2
+Everything else is read from a tree at runtime. ``DtbHostMmio`` and
+``DtbGuestMmio`` derive the device windows the two MMU layers map, so the EL2
 self map covers exactly the peripherals the host tree declares and a guest
 reaches exactly what its own tree declares.
 

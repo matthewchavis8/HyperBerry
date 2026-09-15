@@ -40,7 +40,7 @@ struct alignas(16) MemoryMap {
 //         @c bootPackageSize are populated from the `/chosen/linux,initrd-start`
 //         and `/chosen/linux,initrd-end` properties when present (the Raspberry
 //         Pi firmware writes these after loading the guest package).
-MemoryMap parseDtb(uintptr_t dtb);
+MemoryMap ParseDtb(uintptr_t dtb);
 
 // Maximum `reg` regions recorded per discovered device.
 constexpr uint32_t DT_MAX_REGIONS = 8;
@@ -63,7 +63,7 @@ struct alignas(16) DeviceNode {
 // @brief Locate a device by compatible string and decode its `reg`.
 // @ingroup core
 //
-// Unlike @ref parseDtb, which matches fixed top-level node names, this walks
+// Unlike @ref ParseDtb, which matches fixed top-level node names, this walks
 // the whole tree matching the `compatible` property. Addresses honour the
 // parent's `#address-cells`/`#size-cells` and are translated through every
 // ancestor's `ranges`, which is required on boards where peripherals sit on a
@@ -73,14 +73,14 @@ struct alignas(16) DeviceNode {
 // @param compatibles Array of compatible strings, tried in order.
 // @param count Number of entries in @p compatibles.
 // @return The first matching node; @c found is false when none matched.
-DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count);
+DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count);
 
 // @brief Locate the PL011 console the hypervisor drives.
 // @ingroup core
 //
-// Wraps @ref dtbFindCompatible with the compatible list for the console, so
+// Wraps @ref DtbFindCompatible with the compatible list for the console, so
 // that list lives in one place rather than being restated at each call site.
-DeviceNode dtbFindUart(uintptr_t dtb);
+DeviceNode DtbFindUart(uintptr_t dtb);
 
 // @brief Locate the interrupt controller the hypervisor drives.
 // @ingroup core
@@ -89,6 +89,6 @@ DeviceNode dtbFindUart(uintptr_t dtb);
 // GICv2 tree `regions` is GICD, GICC, GICH, GICV; for GICv3 it is GICD and
 // the redistributor. Either way the first two regions are the ones a guest
 // may see and the rest belong to EL2.
-DeviceNode dtbFindGic(uintptr_t dtb);
+DeviceNode DtbFindGic(uintptr_t dtb);
 
 #endif // __DTB_H__

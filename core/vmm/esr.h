@@ -56,14 +56,14 @@ using ExceptionContext = hv::array<uint64_t, 31>;
 // @brief Extract the exception class from a raw ESR_EL2 value.
 // @param esr Raw ESR_EL2.
 // @return The EC field, bits [31:26].
-constexpr EsrEc getEsrEc(uint64_t esr) {
+constexpr EsrEc GetEsrEc(uint64_t esr) {
     return static_cast<EsrEc>((esr >> 26) & 0x3F);
 }
 
 // @brief Extract the instruction specific syndrome from a raw ESR_EL2 value.
 // @param esr Raw ESR_EL2.
 // @return The ISS field, bits [24:0].
-constexpr uint32_t getEsrIss(uint64_t esr) {
+constexpr uint32_t GetEsrIss(uint64_t esr) {
     return static_cast<uint32_t>(esr & 0x1FFFFFF);
 }
 

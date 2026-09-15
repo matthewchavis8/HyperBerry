@@ -64,21 +64,21 @@ static bool test_gic_distributor_mapped_as_device() {
 }
 
 static bool test_map_range_installs_block_entry() {
-    HostMmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
+    HostMmu::MapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
     return entryMatches(walkToL2Entry(kTestVa), kTestPa, PTE_NORMAL | PTE_AP_RW);
 }
 
 static bool test_unmap_range_clears_block_entry() {
-    HostMmu::mapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
-    HostMmu::unmapRange(kTestVa, SIZE_2MB);
+    HostMmu::MapRange(kTestVa, kTestPa, SIZE_2MB, PTE_NORMAL | PTE_AP_RW);
+    HostMmu::UnmapRange(kTestVa, SIZE_2MB);
 
     uint64_t* entry = walkToL2Entry(kTestVa);
     return entry && *entry == 0;
 }
 
 static bool test_tlb_flush_apis_do_not_hang() {
-    HostMmu::tlbFlushVa(HV_VA_BASE);
-    HostMmu::tlbFlushAll();
+    HostMmu::TlbFlushVa(HV_VA_BASE);
+    HostMmu::TlbFlushAll();
     return true;
 }
 

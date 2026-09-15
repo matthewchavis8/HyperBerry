@@ -18,6 +18,6 @@
 // translation unit's global already being built.
 //
 // @return Nothing.
-void runGlobalConstructors();
+void RunGlobalConstructors();
 
 #endif // !__CXXRT_H__

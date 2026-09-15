@@ -42,17 +42,17 @@ struct FdtProp {
 };
 
 // @brief Convert a 32-bit big-endian DTB field to host endianness.
-inline uint32_t be32(uint32_t byte) {
+inline uint32_t Be32(uint32_t byte) {
     return __builtin_bswap32(byte);
 }
 
 // @brief Convert a 64-bit big-endian DTB field to host endianness.
-inline uint64_t be64(uint64_t byte) {
+inline uint64_t Be64(uint64_t byte) {
     return __builtin_bswap64(byte);
 }
 
 // @brief Compare two null-terminated strings for equality.
-inline bool strEq(const char* str1, const char* str2) {
+inline bool StrEq(const char* str1, const char* str2) {
     while (*str1 && *str2) {
         if (*str1 != *str2) return false;
         str1++;
@@ -63,7 +63,7 @@ inline bool strEq(const char* str1, const char* str2) {
 }
 
 // @brief Test whether @p str begins with @p prefix.
-inline bool strStartsWith(const char* str, const char* prefix) {
+inline bool StrStartsWith(const char* str, const char* prefix) {
     while (*prefix) {
         if (*str != *prefix) return false;
         str++;
@@ -78,7 +78,7 @@ inline bool strStartsWith(const char* str, const char* prefix) {
 //
 // The structure block only guarantees 4-byte alignment, so every token and
 // property payload has to be re-aligned before the next read.
-inline uintptr_t fdtAlign(const void* ptr, uint32_t bytes) {
+inline uintptr_t FdtAlign(const void* ptr, uint32_t bytes) {
     uintptr_t addr = reinterpret_cast<uintptr_t>(ptr) + bytes;
 
     return (addr + 3) & ~static_cast<uintptr_t>(3);

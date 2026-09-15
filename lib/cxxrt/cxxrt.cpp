@@ -11,7 +11,7 @@ extern void (*__init_array_start[])();
 extern void (*__init_array_end[])();
 }
 
-void runGlobalConstructors() {
+void RunGlobalConstructors() {
     for (void (**ctor)() = __init_array_start; ctor != __init_array_end; ++ctor) {
         (*ctor)();
     }
@@ -28,7 +28,7 @@ int __cxa_atexit(void (*)(void*), void*, void*) {
 }
 
 void __cxa_pure_virtual() {
-    hv_panic("[cxxrt] pure virtual called");
+    HvPanic("[cxxrt] pure virtual called");
 }
 
 } // extern "C"

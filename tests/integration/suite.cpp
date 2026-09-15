@@ -2,7 +2,7 @@
 // @brief Integration test runner — walks the `.hyperberry_tests` linker section.
 //
 // At boot (when INTEGRATION_TEST is defined), hmain() calls
-// TestRunner::run_all(). The runner iterates every TestSuite pointer
+// TestRunner::RunAll(). The runner iterates every TestSuite pointer
 // placed into the section by REGISTER_SUITE, executes each case,
 // and prints results over UART. Spins forever when finished.
 
@@ -18,11 +18,11 @@ namespace {
     MemoryMap g_bootMemoryMap = {};
 }
 
-void setBootContext(const MemoryMap& map) {
+void SetBootContext(const MemoryMap& map) {
     g_bootMemoryMap = map;
 }
 
-const MemoryMap& bootMemoryMap() {
+const MemoryMap& BootMemoryMap() {
     return g_bootMemoryMap;
 }
 
@@ -30,7 +30,7 @@ const MemoryMap& bootMemoryMap() {
 //
 // The runner walks the linker-populated `.hyperberry_tests` range, executes
 // each test case in registration order, and never returns.
-void run_all() {
+void RunAll() {
     // Get the starting/ending address of the test_suite where the linker script laid it out in
     // memory
     const TestSuite* const* begin = __test_suites_start;
@@ -43,23 +43,23 @@ void run_all() {
     for (const TestSuite* const* it = begin; it != end; ++it) {
         const TestSuite* suite = *it;
 
-        Tap::suite_header(suite->name, suite->count);
+        Tap::SuiteHeader(suite->name, suite->count);
 
         for (int i = 0; i < suite->count; i++) {
             const TestCase& tc = suite->cases[i];
             int num = i + 1;
 
             if (tc.fn()) {
-                Tap::ok(num, suite->count, suite->name, tc.name);
+                Tap::Ok(num, suite->count, suite->name, tc.name);
                 total_passed++;
             } else {
-                Tap::fail(num, suite->count, suite->name, tc.name, "test returned false");
+                Tap::Fail(num, suite->count, suite->name, tc.name, "test returned false");
                 total_failed++;
             }
         }
     }
 
-    Tap::summary(total_passed, total_failed, total_passed + total_failed);
+    Tap::Summary(total_passed, total_failed, total_passed + total_failed);
 
     for (;;) {
     }

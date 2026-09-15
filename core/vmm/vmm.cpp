@@ -19,47 +19,47 @@ namespace {
 // @param vcpu vCPU that trapped.
 // @return Nothing.
 void handleHvcExit(Vcpu& vcpu) {
-    Log::println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
-            vcpu.getGpReg(VCPU_GPREG_X0));
+    Log::Println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
+            vcpu.GetGpReg(VCPU_GPREG_X0));
 
-    switch (handleHvcAarch64(vcpu.m_gpr)) {
+    switch (HandleHvcAarch64(vcpu.m_gpr)) {
         case HvcResult::HANDLED:
         case HvcResult::UNHANDLED:
             vcpu_enter(&vcpu);
             break;
 
         case HvcResult::HALT:
-            hv_panic("[HVC] guest requested halt");
+            HvPanic("[HVC] guest requested halt");
 
         case HvcResult::RESET:
-            hv_panic("[HVC] guest requested reset");
+            HvPanic("[HVC] guest requested reset");
     }
 }
 
 } // namespace
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-    hv_panic("[HV sync] was triggered", ctx);
+    HvPanic("[HV sync] was triggered", ctx);
 }
 
 extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-    hv_panic("[HV irq] was triggered", ctx);
+    HvPanic("[HV irq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-    hv_panic("[HV fiq] was triggered", ctx);
+    HvPanic("[HV fiq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-    hv_panic("[HV SError] was triggered", ctx);
+    HvPanic("[HV SError] was triggered", ctx);
 }
 
 extern "C" void handle_unhandled(ExceptionContext& ctx) {
-    hv_panic("[HV mysterious exception?] was triggered", ctx);
+    HvPanic("[HV mysterious exception?] was triggered", ctx);
 }
 
 extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
-    EsrEc exceptionClass { getEsrEc(esr) };
+    EsrEc exceptionClass { GetEsrEc(esr) };
 
     switch (exceptionClass) {
         case EsrEc::HVC_AARCH64:
@@ -67,22 +67,22 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
             break;
 
         case EsrEc::SMC_AARCH64:
-            Log::println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
-                    vcpu->getGpReg(VCPU_GPREG_X0));
-            vcpu->setGpReg(VCPU_GPREG_X0, SMCCC::toRegister(SMCCC::NOT_SUPPORTED));
-            vcpu->skipInstruction();
+            Log::Println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
+                    vcpu->GetGpReg(VCPU_GPREG_X0));
+            vcpu->SetGpReg(VCPU_GPREG_X0, SMCCC::ToRegister(SMCCC::NOT_SUPPORTED));
+            vcpu->SkipInstruction();
             vcpu_enter(vcpu);
             break;
 
         case EsrEc::DATA_ABORT_LOWER:
-            hv_panic("[DataAbortLower] unhandled");
+            HvPanic("[DataAbortLower] unhandled");
 
         default:
-            Log::println("[Guest][ERROR] Unhandled guest exit EC={:x} ISS={:x} ESR={:x}",
+            Log::Println("[Guest][ERROR] Unhandled guest exit EC={:x} ISS={:x} ESR={:x}",
                     exceptionClass,
-                    getEsrIss(esr),
+                    GetEsrIss(esr),
                     esr);
-            hv_panic("[Guest] unhandled lower-EL sync exception");
+            HvPanic("[Guest] unhandled lower-EL sync exception");
     }
 }
 
@@ -95,5 +95,5 @@ extern "C" void handle_lower_el_fiq(Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
 }
 
 extern "C" void handle_lower_el_serror([[maybe_unused]] Vcpu* vcpu, [[maybe_unused]] uint64_t esr) {
-    hv_panic("[Guest] SError taken from the guest");
+    HvPanic("[Guest] SError taken from the guest");
 }

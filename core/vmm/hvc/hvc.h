@@ -24,6 +24,6 @@ enum class HvcResult : uint8_t {
 // @param gpr Saved guest registers x0 to x30. Results are written back using
 //            the SMCCC register convention.
 // @return Whether the guest can resume or asked to stop.
-HvcResult handleHvcAarch64(ExceptionContext& gpr);
+HvcResult HandleHvcAarch64(ExceptionContext& gpr);
 
 #endif // !__HVC_H__

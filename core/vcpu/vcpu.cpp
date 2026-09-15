@@ -17,18 +17,18 @@ static constexpr uint64_t SCTLR_SA_BIT = (1ULL << 3);
 static constexpr uint64_t SCTLR_I_BIT = (1ULL << 12);
 
 extern "C" void vcpu_restore_el1_sysregs(Vcpu* vcpu) {
-    if (vcpu == nullptr) hv_panic("[VCPU] nullptr passed to vcpu_restore_el1_sysregs");
+    if (vcpu == nullptr) HvPanic("[VCPU] nullptr passed to vcpu_restore_el1_sysregs");
 
-    vcpu->restoreEl1SysRegs();
+    vcpu->RestoreEl1SysRegs();
 }
 
 extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
-    if (vcpu == nullptr) hv_panic("[VCPU] nullptr passed to vcpu_save_el1_sysregs");
+    if (vcpu == nullptr) HvPanic("[VCPU] nullptr passed to vcpu_save_el1_sysregs");
 
-    vcpu->saveEl1SysRegs();
+    vcpu->SaveEl1SysRegs();
 }
 
-void Vcpu::init(uint64_t entrypoint) {
+void Vcpu::Init(uint64_t entrypoint) {
     memset(this, 0, sizeof(*this));
 
     m_el2State.regs[regIdx(VCPU_ELR_EL2)] = entrypoint;
@@ -40,28 +40,28 @@ void Vcpu::init(uint64_t entrypoint) {
     m_el1SysRegs.regs[regIdx(VCPU_SCTLR_EL1)] = sctlr;
 }
 
-uint64_t Vcpu::getElr() const noexcept {
+uint64_t Vcpu::GetElr() const noexcept {
     return m_el2State.regs[regIdx(VCPU_ELR_EL2)];
 }
 
-void Vcpu::setPc(uint64_t pc) {
+void Vcpu::SetPc(uint64_t pc) {
     m_el2State.regs[regIdx(VCPU_ELR_EL2)] = pc;
 }
 
-void Vcpu::skipInstruction() {
-    setPc(getElr() + 4);
+void Vcpu::SkipInstruction() {
+    SetPc(GetElr() + 4);
 }
 
-void Vcpu::setGuestSp(uint64_t sp) {
+void Vcpu::SetGuestSp(uint64_t sp) {
     m_el1SysRegs.regs[regIdx(VCPU_SP_EL1)] = sp;
 }
 
-uint64_t Vcpu::getGpReg(uint64_t off) const noexcept {
+uint64_t Vcpu::GetGpReg(uint64_t off) const noexcept {
     if (off == VCPU_GPREG_SP_EL0) return m_spEl0;
     return m_gpr[regIdx(off)];
 }
 
-void Vcpu::setGpReg(uint64_t off, uint64_t val) {
+void Vcpu::SetGpReg(uint64_t off, uint64_t val) {
     if (off == VCPU_GPREG_SP_EL0) {
         m_spEl0 = val;
         return;
@@ -82,7 +82,7 @@ void Vcpu::setGpReg(uint64_t off, uint64_t val) {
         asm volatile("msr " #name ", %0" ::"r"(value));  \
     } while (0)
 
-void Vcpu::saveEl1SysRegs() {
+void Vcpu::SaveEl1SysRegs() {
     VCPU_SAVE_EL1(sctlr_el1, VCPU_SCTLR_EL1);
     VCPU_SAVE_EL1(ttbr0_el1, VCPU_TTBR0_EL1);
     VCPU_SAVE_EL1(ttbr1_el1, VCPU_TTBR1_EL1);
@@ -107,7 +107,7 @@ void Vcpu::saveEl1SysRegs() {
     VCPU_SAVE_EL1(csselr_el1, VCPU_CSSELR_EL1);
 }
 
-void Vcpu::restoreEl1SysRegs() {
+void Vcpu::RestoreEl1SysRegs() {
     VCPU_RESTORE_EL1(ttbr0_el1, VCPU_TTBR0_EL1);
     VCPU_RESTORE_EL1(ttbr1_el1, VCPU_TTBR1_EL1);
     VCPU_RESTORE_EL1(tcr_el1, VCPU_TCR_EL1);
@@ -135,12 +135,12 @@ void Vcpu::restoreEl1SysRegs() {
     asm volatile("isb");
 }
 
-Vcpu* Vcpu::getCurrentVcpu() {
+Vcpu* Vcpu::GetCurrentVcpu() {
     uint64_t currentVcpu;
     asm volatile("mrs %0, tpidr_el2" : "=r"(currentVcpu));
     return reinterpret_cast<Vcpu*>(static_cast<uintptr_t>(currentVcpu));
 }
 
-void Vcpu::scheduleNext() {
+void Vcpu::ScheduleNext() {
     // TODO: replace with a real scheduler when the vCPU pool lands.
 }

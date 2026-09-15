@@ -35,23 +35,23 @@ namespace PSCI {
 
         switch (callId) {
             case VERSION:
-                Log::println("[Guest][PSCI] VERSION");
+                Log::Println("[Guest][PSCI] VERSION");
                 gpr[0] = VERSION_1_0;
                 return HvcResult::HANDLED;
 
             case FEATURES: {
                 uint64_t queriedCall { gpr[1] };
-                Log::println("[Guest][PSCI] FEATURES function={:x}", queriedCall);
+                Log::Println("[Guest][PSCI] FEATURES function={:x}", queriedCall);
                 gpr[0] = isSupportedPsciCall(queriedCall) ? SUCCESS : NOT_SUPPORTED;
                 return HvcResult::HANDLED;
             }
 
             case SYSTEM_OFF:
-                Log::println("[Guest][PSCI] SYSTEM_OFF");
+                Log::Println("[Guest][PSCI] SYSTEM_OFF");
                 return HvcResult::HALT;
 
             case SYSTEM_RESET:
-                Log::println("[Guest][PSCI] SYSTEM_RESET");
+                Log::Println("[Guest][PSCI] SYSTEM_RESET");
                 return HvcResult::RESET;
 
             default:
@@ -67,22 +67,22 @@ namespace PSCI {
 HvcResult dispatchByOwner(ExceptionContext& gpr) {
     uint64_t callId { gpr[0] };
 
-    switch (SMCCC::getOwner(callId)) {
+    switch (SMCCC::GetOwner(callId)) {
         case SMCCC::OWNER_STANDARD:
             return PSCI::handlePsci(gpr);
 
         default:
-            Log::println("[Guest][HVC] Unsupported call ID={:x}", callId);
+            Log::Println("[Guest][HVC] Unsupported call ID={:x}", callId);
             return HvcResult::UNHANDLED;
     }
 }
 
 } // namespace
 
-HvcResult handleHvcAarch64(ExceptionContext& gpr) {
+HvcResult HandleHvcAarch64(ExceptionContext& gpr) {
     HvcResult result { dispatchByOwner(gpr) };
 
-    if (result == HvcResult::UNHANDLED) gpr[0] = SMCCC::toRegister(SMCCC::NOT_SUPPORTED);
+    if (result == HvcResult::UNHANDLED) gpr[0] = SMCCC::ToRegister(SMCCC::NOT_SUPPORTED);
 
     return result;
 }

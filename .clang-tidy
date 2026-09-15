@@ -79,15 +79,29 @@ CheckOptions:
     value: aNy_CasE
 
 
-# Functions and methods, public or not: lowerCamelCase
-  - key: readability-identifier-naming.FunctionCase
-    value: camelBack
+# Public API is UpperCamelCase: public methods, and functions with external
+# linkage. Names the assembly, compiler or runtime reach by symbol keep their
+# spelling, as do the pieces of lib that mirror the standard library.
+  - key: readability-identifier-naming.GlobalFunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalFunctionIgnoredRegexp
+    value: '^(hmain|memcpy|memset|__cxa_.*|vcpu_.*|handle_.*|test_.*|move|forward|swap|make_unique|make_shared)$'
   - key: readability-identifier-naming.PublicMethodCase
+    value: CamelCase
+  - key: readability-identifier-naming.PublicMethodIgnoredRegexp
+    value: '^(begin|end|cbegin|cend|size|max_size|empty|data|front|back|fill|get|reset|release|use_count|get_deleter|swap)$'
+
+
+# Private methods and file local functions: lowerCamelCase
+  - key: readability-identifier-naming.FunctionCase
     value: camelBack
   - key: readability-identifier-naming.PrivateMethodCase
     value: camelBack
   - key: readability-identifier-naming.ProtectedMethodCase
     value: camelBack
+
+
+# Parameters and variables: lowerCamelCase
   - key: readability-identifier-naming.ParameterCase
     value: camelBack
   - key: readability-identifier-naming.VariableCase

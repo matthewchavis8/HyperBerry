@@ -6,5 +6,5 @@
 #include "drivers/uart/uart.h"
 
 void Log::sink(const char ch) {
-    Uart::getInstance().putc(ch);
+    Uart::GetInstance().Putc(ch);
 }

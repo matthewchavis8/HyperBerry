@@ -21,7 +21,7 @@ TEST(HvcAarch64, PsciVersionReturnsVersion) {
     ExceptionContext regs = {};
     regs[0] = PSCI_VERSION;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::HANDLED);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
     EXPECT_EQ(regs[0], PSCI_VERSION_1_0);
 }
 
@@ -30,7 +30,7 @@ TEST(HvcAarch64, PsciFeaturesReturnsSuccessForSupportedCall) {
     regs[0] = PSCI_FEATURES;
     regs[1] = PSCI_VERSION;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::HANDLED);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
     EXPECT_EQ(regs[0], PSCI_SUCCESS);
 }
 
@@ -39,7 +39,7 @@ TEST(HvcAarch64, PsciFeaturesReturnsNotSupportedForUnknownCall) {
     regs[0] = PSCI_FEATURES;
     regs[1] = 0xDEADBEEFULL;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::HANDLED);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
     EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
 }
 
@@ -47,14 +47,14 @@ TEST(HvcAarch64, PsciSystemOffReturnsHalt) {
     ExceptionContext regs = {};
     regs[0] = PSCI_SYSTEM_OFF;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::HALT);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HALT);
 }
 
 TEST(HvcAarch64, PsciSystemResetReturnsReset) {
     ExceptionContext regs = {};
     regs[0] = PSCI_SYSTEM_RESET;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::RESET);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::RESET);
 }
 
 TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
@@ -62,7 +62,7 @@ TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
     regs[0] = 0xC0FFEEULL;
     regs[1] = 0x1234ULL;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::UNHANDLED);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::UNHANDLED);
     EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
     EXPECT_EQ(regs[1], 0x1234ULL);
 }
@@ -71,6 +71,6 @@ TEST(HvcAarch64, UnimplementedPsciCallReturnsNotSupported) {
     ExceptionContext regs = {};
     regs[0] = PSCI_CPU_SUSPEND;
 
-    EXPECT_EQ(handleHvcAarch64(regs), HvcResult::UNHANDLED);
+    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::UNHANDLED);
     EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
 }
