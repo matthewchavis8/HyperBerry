@@ -4,7 +4,7 @@ add_executable(hyperberry_unit_tests
   hostMmu/test_hostMmu.cpp
   guestMmu/test_guestMmu.cpp
   vcpu/test_vcpu.cpp
-  vmm/test_vmm.cpp
+  vmm/test_esr.cpp
   vmm/test_hvc.cpp
 
   utility/test_utility.cpp

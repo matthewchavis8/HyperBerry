@@ -7,19 +7,9 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#include "core/vmm/vmm.h"
-
-/**
- * @brief Print a fatal error banner and halt the current CPU indefinitely.
- * @ingroup lib
- *
- * Emits the supplied message, prints a full exception register dump, then
- * enters a low-power wait loop that never returns.
- *
- * @param msg Optional panic message to print before the register dump.
- * @param ctx Saved exception context associated with the fatal condition.
- */
-[[noreturn]] void hv_panic(const char* msg, ExceptionContext& ctx);
+// @brief Print a fatal error banner and the EL2 fault registers, then halt.
+// @param msg Optional panic message to print before the register dump.
+// @return Does not return.
 [[noreturn]] void hv_panic(const char* msg);
 
 #endif // !__PANIC_H__

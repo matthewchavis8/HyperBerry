@@ -1,61 +1,68 @@
-/**
- * @file vmm.h
- * @brief Exception context structure shared between assembly and C++.
- * @ingroup vmm
- */
+// @file vmm.h
+// @brief Trap entry points the EL2 vector table and vcpu.S branch to.
+// @ingroup vmm
+//
+// C linkage so the assembly reaches them by unmangled name.
 
 #ifndef __VMM_H__
 #define __VMM_H__
 
 #include <stdint.h>
-#include "lib/array/array.h"
+#include "core/vmm/esr.h"
 
-// ESR_EL2.EC — exception class field [31:26]
-enum class EsrEc : uint64_t {
-    Unknown = 0x00,
-    WfxTrap = 0x01,
-    McrMrc = 0x03,
-    McrrcMrrc = 0x04,
-    Cp15McrMrc = 0x05,
-    Cp15McrrcMrrc = 0x06,
-    Cp14McrMrc = 0x07,
-    FpAccess = 0x07,
-    Cp14Mrrc = 0x0C,
-    BranchTarget = 0x0D,
-    IllegalState = 0x0E,
-    SvcAarch32 = 0x11,
-    HvcAarch32 = 0x12,
-    SmcAarch32 = 0x13,
-    SvcAarch64 = 0x15,
-    HvcAarch64 = 0x16,
-    SmcAarch64 = 0x17,
-    MsrMrsTrap = 0x18,
-    SveAccess = 0x19,
-    PacTrap = 0x1C,
-    InstrAbortLower = 0x20,
-    InstrAbortSame = 0x21,
-    PcAlignFault = 0x22,
-    DataAbortLower = 0x24,
-    DataAbortSame = 0x25,
-    SpAlignFault = 0x26,
-    FpExcAarch32 = 0x28,
-    FpExcAarch64 = 0x2C,
-    SError = 0x2F,
-    BreakpointLower = 0x30,
-    BreakpointSame = 0x31,
-    SoftStepLower = 0x32,
-    SoftStepSame = 0x33,
-    WatchpointLower = 0x34,
-    WatchpointSame = 0x35,
-    BkptAarch32 = 0x38,
-    VectorCatch = 0x3A,
-    BrkAarch64 = 0x3C,
-};
+class Vcpu;
 
-using ExceptionContext = hv::array<uint64_t, 31>;
+extern "C" {
 
-inline EsrEc getEsrEc(uint64_t esr) {
-    return static_cast<EsrEc>((esr >> 26) & 0x3F);
-}
+// @brief Synchronous exception taken while the hypervisor was running.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void handle_el2_sync(ExceptionContext& ctx);
 
-#endif // __VMM_H__
+// @brief IRQ taken while the hypervisor was running.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void handle_el2_irq(ExceptionContext& ctx);
+
+// @brief FIQ taken while the hypervisor was running.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void handle_el2_fiq(ExceptionContext& ctx);
+
+// @brief SError taken while the hypervisor was running.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void handle_el2_serror(ExceptionContext& ctx);
+
+// @brief Any vector the table does not service.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void handle_unhandled(ExceptionContext& ctx);
+
+// @brief Synchronous trap from the guest.
+// @param vcpu vCPU parked in TPIDR_EL2, guest state already saved.
+// @param esr ESR_EL2 captured at the vector.
+// @return Nothing.
+void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr);
+
+// @brief IRQ taken while the guest was running.
+// @param vcpu vCPU parked in TPIDR_EL2, guest state already saved.
+// @param esr Unused, zero.
+// @return Nothing.
+void handle_lower_el_irq(Vcpu* vcpu, uint64_t esr);
+
+// @brief FIQ taken while the guest was running.
+// @param vcpu vCPU parked in TPIDR_EL2, guest state already saved.
+// @param esr Unused, zero.
+// @return Nothing.
+void handle_lower_el_fiq(Vcpu* vcpu, uint64_t esr);
+
+// @brief SError taken while the guest was running.
+// @param vcpu vCPU parked in TPIDR_EL2, guest state already saved.
+// @param esr ESR_EL2 captured at the vector.
+// @return Nothing.
+void handle_lower_el_serror(Vcpu* vcpu, uint64_t esr);
+
+} // extern "C"
+
+#endif // !__VMM_H__

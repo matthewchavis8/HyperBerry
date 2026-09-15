@@ -1,8 +1,9 @@
-/** @file test_vmm.cpp @brief Unit tests for EsrEc extraction and ExceptionContext layout. */
+// @file test_esr.cpp
+// @brief Unit tests for ESR_EL2 decode and the ExceptionContext layout.
 
 #include <gtest/gtest.h>
 
-#include "core/vmm/vmm.h"
+#include "core/vmm/esr.h"
 
 TEST(EsrEc, HvcAarch64) {
     EXPECT_EQ(getEsrEc(0x16ULL << 26), EsrEc::HvcAarch64);
@@ -27,6 +28,14 @@ TEST(EsrEc, MasksCorrectly) {
 
 TEST(EsrEc, LowBitsDoNotAffectEc) {
     EXPECT_EQ(getEsrEc((0x16ULL << 26) | 0xABCDULL), getEsrEc(0x16ULL << 26));
+}
+
+TEST(EsrIss, KeepsBits24To0) {
+    EXPECT_EQ(getEsrIss(0xFFFFFFFFULL), 0x1FFFFFFU);
+}
+
+TEST(EsrIss, IgnoresEcAndIl) {
+    EXPECT_EQ(getEsrIss((0x24ULL << 26) | (1ULL << 25) | 0x93ULL), 0x93U);
 }
 
 TEST(ExceptionContext, Stores31GeneralPurposeRegisters) {

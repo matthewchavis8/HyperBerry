@@ -3,7 +3,7 @@
  * @brief Hardware-backed integration tests for the GICv2 driver.
  */
 
-#include "core/vmm/vmm.h"
+#include "core/vmm/esr.h"
 #include "core/vcpu/vcpu.h"
 #include "drivers/gic/gic.h"
 #include "lib/log/log.h"

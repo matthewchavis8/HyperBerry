@@ -8,7 +8,7 @@
 #define __HVC_H__
 
 #include <stdint.h>
-#include "core/vmm/vmm.h"
+#include "core/vmm/esr.h"
 #include "lib/array/array.h"
 
 /**
@@ -24,8 +24,6 @@ enum class HvcResult : uint64_t {
     /** The guest requested reset, such as PSCI SYSTEM_RESET. */
     Reset,
 };
-
-using ExceptionContext = hv::array<uint64_t, 31>;
 
 /**
  * @brief Dispatch an AArch64 HVC call from the guest register context.
