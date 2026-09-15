@@ -14,7 +14,7 @@
 class Gic {
 private:
     // Which register frame an offset is measured from.
-    enum class Frame { Dist, Cpu, Hv, Vcpu };
+    enum class Frame { DIST, CPU, HV, VCPU };
 
     static uintptr_t frameBase(Frame frame);
 

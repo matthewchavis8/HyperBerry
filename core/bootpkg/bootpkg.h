@@ -92,44 +92,44 @@ struct LoadedGuest {
 // @brief Error codes returned by @ref validate().
 // @ingroup core
 enum class ValidateError : uint32_t {
-    None = 0,                // No error; package is valid.
-    NullPackage,             // Null package pointer passed.
-    TooSmall,                // Region is smaller than the minimum header size.
-    BadMagic,                // `magic` field does not match `HV_GUEST_BOOT_PKG_MAGIC`.
-    BadVersion,              // `version` field is not `HV_GUEST_BOOT_PKG_VERSION`.
-    BadHeaderSize,           // `header_size` field is not `HV_GUEST_BOOT_PKG_HEADER_SIZE`.
-    BadTotalSize,            // `total_size` does not match the firmware-reported size.
-    BadHeaderCrc,            // Header CRC32 check failed.
-    BadPayloadCrc,           // Payload CRC32 check failed.
-    UnsupportedBootProtocol, // `boot_protocol` is not the supported Linux arm64 protocol.
-    UnknownFlags,            // `flags` contains bits not in `HV_GUEST_BOOT_PKG_KNOWN_FLAGS`.
-    MissingKernel,           // `kernel_size` is zero.
-    MissingDtb,              // `dtb_size` is zero.
-    BadInitrdFlag,           // `INITRD_PRESENT` flag is inconsistent with `initrd_size`.
-    BadKernelOffset,         // `kernel_offset` is not `HV_GUEST_BOOT_PKG_HEADER_SIZE`.
-    BadDtbOffset,            // `dtb_offset` is not 4 KiB aligned.
-    BadInitrdOffset,         // `initrd_offset` is not 4 KiB aligned.
-    BadTotalLayout,          // Component offsets/sizes do not sum to `total_size`.
-    ComponentOutOfBounds,    // A component range extends past `total_size`.
-    GuestLayoutOverflow,     // Components do not fit in the fixed guest RAM layout.
+    NONE = 0,                  // No error; package is valid.
+    NULL_PACKAGE,              // Null package pointer passed.
+    TOO_SMALL,                 // Region is smaller than the minimum header size.
+    BAD_MAGIC,                 // `magic` field does not match `HV_GUEST_BOOT_PKG_MAGIC`.
+    BAD_VERSION,               // `version` field is not `HV_GUEST_BOOT_PKG_VERSION`.
+    BAD_HEADER_SIZE,           // `header_size` field is not `HV_GUEST_BOOT_PKG_HEADER_SIZE`.
+    BAD_TOTAL_SIZE,            // `total_size` does not match the firmware-reported size.
+    BAD_HEADER_CRC,            // Header CRC32 check failed.
+    BAD_PAYLOAD_CRC,           // Payload CRC32 check failed.
+    UNSUPPORTED_BOOT_PROTOCOL, // `boot_protocol` is not the supported Linux arm64 protocol.
+    UNKNOWN_FLAGS,             // `flags` contains bits not in `HV_GUEST_BOOT_PKG_KNOWN_FLAGS`.
+    MISSING_KERNEL,            // `kernel_size` is zero.
+    MISSING_DTB,               // `dtb_size` is zero.
+    BAD_INITRD_FLAG,           // `INITRD_PRESENT` flag is inconsistent with `initrd_size`.
+    BAD_KERNEL_OFFSET,         // `kernel_offset` is not `HV_GUEST_BOOT_PKG_HEADER_SIZE`.
+    BAD_DTB_OFFSET,            // `dtb_offset` is not 4 KiB aligned.
+    BAD_INITRD_OFFSET,         // `initrd_offset` is not 4 KiB aligned.
+    BAD_TOTAL_LAYOUT,          // Component offsets/sizes do not sum to `total_size`.
+    COMPONENT_OUT_OF_BOUNDS,   // A component range extends past `total_size`.
+    GUEST_LAYOUT_OVERFLOW,     // Components do not fit in the fixed guest RAM layout.
 };
 
 // @brief Error codes returned by @ref loadLinuxGuest().
 // @ingroup core
 enum class LoadError : uint32_t {
-    None = 0,                 // No error; guest loaded successfully.
-    MissingFirmwarePackage,   // `MemoryMap::bootPackageBase` or `bootPackageSize` is zero.
-    InvalidPackage,           // Package validation failed; see `validateError` for detail.
-    GuestLayoutOverflow,      // IPA layout calculation failed for the validated package.
-    GuestRamAllocationFailed, // PMM could not allocate a contiguous 256 MiB block.
-    GuestDtbPatchFailed,      // Guest DTB placeholder patching failed.
+    NONE = 0,                    // No error; guest loaded successfully.
+    MISSING_FIRMWARE_PACKAGE,    // `MemoryMap::bootPackageBase` or `bootPackageSize` is zero.
+    INVALID_PACKAGE,             // Package validation failed; see `validateError` for detail.
+    GUEST_LAYOUT_OVERFLOW,       // IPA layout calculation failed for the validated package.
+    GUEST_RAM_ALLOCATION_FAILED, // PMM could not allocate a contiguous 256 MiB block.
+    GUEST_DTB_PATCH_FAILED,      // Guest DTB placeholder patching failed.
 };
 
 // @brief Result of a @ref validate() call.
 // @ingroup core
 struct ValidateResult {
     bool isValid;        // True only when validation succeeded and @p package is populated.
-    ValidateError error; // First validation error encountered, or `ValidateError::None`.
+    ValidateError error; // First validation error encountered, or `ValidateError::NONE`.
     PackageView package; // Decoded package metadata; valid only when @p isValid is true.
 };
 
@@ -137,8 +137,8 @@ struct ValidateResult {
 // @ingroup core
 struct LoadResult {
     bool isLoaded;               // True only when the guest was loaded and @p guest is populated.
-    LoadError error;             // High-level load error, or `LoadError::None`.
-    ValidateError validateError; // Validation error when @p error is `LoadError::InvalidPackage`.
+    LoadError error;             // High-level load error, or `LoadError::NONE`.
+    ValidateError validateError; // Validation error when @p error is `LoadError::INVALID_PACKAGE`.
     LoadedGuest guest;           // Loaded guest descriptor; valid only when @p isLoaded is true.
 };
 

@@ -20,7 +20,7 @@ void captureFormat(const char* fmt, Args... args) {
 }
 
 enum class TestEnum : uint8_t {
-    Value = 7,
+    VALUE = 7,
 };
 
 } // namespace
@@ -76,7 +76,7 @@ TEST(Log, PrintsNullptrAsPointer) {
 TEST(Log, PrintsEnumsAsIntegers) {
     uart_test_support::reset();
 
-    Log::print("{}", TestEnum::Value);
+    Log::print("{}", TestEnum::VALUE);
 
     EXPECT_STREQ(uart_test_support::buffer(), "7");
 }
@@ -97,7 +97,7 @@ TEST(Log, ReportsInvalidFormat) {
 }
 
 TEST(Log, FormatsHexIntegers) {
-    captureFormat("value={:x} enum={:x} bool={:x}", 0x2AU, TestEnum::Value, true);
+    captureFormat("value={:x} enum={:x} bool={:x}", 0x2AU, TestEnum::VALUE, true);
     EXPECT_STREQ(uart_test_support::buffer(), "value=0x2A enum=0x7 bool=0x1");
 }
 
