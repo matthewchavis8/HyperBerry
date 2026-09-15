@@ -1,8 +1,6 @@
-/**
- * @file pageTable.cpp
- * @brief Shared page-table walk and allocation.
- * @ingroup mm
- */
+// @file pageTable.cpp
+// @brief Shared page-table walk and allocation.
+// @ingroup mm
 
 #include "core/mm/pmm/pmm.h"
 #include "lib/log/log.h"

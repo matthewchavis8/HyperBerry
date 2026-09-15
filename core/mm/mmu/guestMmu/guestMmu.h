@@ -1,12 +1,10 @@
-/**
- * @file guestMmu.h
- * @brief Stage-2 (IPA -> PA) guest translation for EL2 hypervisor.
- * @ingroup mmu
- *
- * Each VM owns one GuestMmu. When enabled, all guest memory accesses are
- * translated from IPA to PA by stage-2 while HCR_EL2.VM=1. The EL2
- * self-map (HostMmu) is stage-1 and is orthogonal to this path.
- */
+// @file guestMmu.h
+// @brief Stage-2 (IPA -> PA) guest translation for EL2 hypervisor.
+// @ingroup mmu
+//
+// Each VM owns one GuestMmu. When enabled, all guest memory accesses are
+// translated from IPA to PA by stage-2 while HCR_EL2.VM=1. The EL2
+// self-map (HostMmu) is stage-1 and is orthogonal to this path.
 #ifndef __GUEST_MMU_H__
 #define __GUEST_MMU_H__
 
@@ -41,15 +39,13 @@
 #define VTCR_PS_40BIT (0b010ULL << 16)
 #define VTCR_RES1 (1ULL << 31)
 
-/**
- * @brief Per-guest stage-2 MMU.
- * @ingroup mmu
- *
- * Owns the stage-2 root table and VMID. @ref enable() programs VTTBR_EL2
- * and sets HCR_EL2.VM=1. Shared by all vCPUs that belong to the same
- * guest (ARM semantics: one stage-2 table per VM, distinguished at the
- * TLB by VMID).
- */
+// @brief Per-guest stage-2 MMU.
+// @ingroup mmu
+//
+// Owns the stage-2 root table and VMID. @ref enable() programs VTTBR_EL2
+// and sets HCR_EL2.VM=1. Shared by all vCPUs that belong to the same
+// guest (ARM semantics: one stage-2 table per VM, distinguished at the
+// TLB by VMID).
 class GuestMmu {
 private:
     struct Stage2RootDeleter {
@@ -63,44 +59,36 @@ private:
     hv::unique_ptr<uint64_t, Stage2RootDeleter> m_rootTableOwner;
 
 public:
-    /**
-     * @brief Allocate the stage-2 root table, program VTCR_EL2, and
-     *        map a contiguous guest IPA range to host physical memory.
-     * @param ipaBase    Start of the guest IPA region.
-     * @param hostPaBase Start of the backing host physical region.
-     * @param sizeBytes  Size of the region (must be 2 MiB aligned).
-     * @param devices    Device windows the guest may reach, read out of the
-     *                   guest device tree by the caller. Anything absent here
-     *                   is unreachable from the guest, which is the point.
-     */
+    // @brief Allocate the stage-2 root table, program VTCR_EL2, and
+    //        map a contiguous guest IPA range to host physical memory.
+    // @param ipaBase    Start of the guest IPA region.
+    // @param hostPaBase Start of the backing host physical region.
+    // @param sizeBytes  Size of the region (must be 2 MiB aligned).
+    // @param devices    Device windows the guest may reach, read out of the
+    //                   guest device tree by the caller. Anything absent here
+    //                   is unreachable from the guest, which is the point.
     void init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
 
-    /**
-     * @brief Install one 2 MiB stage-2 block descriptor.
-     * @param ipa      Intermediate physical address (2 MiB aligned).
-     * @param pa       Target physical address.
-     * @param isDevice True selects device-nGnRnE memory attributes,
-     *                 false selects normal write-back cacheable memory.
-     */
+    // @brief Install one 2 MiB stage-2 block descriptor.
+    // @param ipa      Intermediate physical address (2 MiB aligned).
+    // @param pa       Target physical address.
+    // @param isDevice True selects device-nGnRnE memory attributes,
+    //                 false selects normal write-back cacheable memory.
     void mapBlock(uint64_t ipa, uint64_t pa, bool isDevice);
 
-    /**
-     * @brief Install one 4 KiB stage-2 page descriptor.
-     * @param ipa      Intermediate physical address (4 KiB aligned).
-     * @param pa       Target physical address (4 KiB aligned).
-     * @param isDevice True selects device-nGnRnE memory attributes,
-     *                 false selects normal write-back cacheable memory.
-     */
+    // @brief Install one 4 KiB stage-2 page descriptor.
+    // @param ipa      Intermediate physical address (4 KiB aligned).
+    // @param pa       Target physical address (4 KiB aligned).
+    // @param isDevice True selects device-nGnRnE memory attributes,
+    //                 false selects normal write-back cacheable memory.
     void mapPage(uint64_t ipa, uint64_t pa, bool isDevice);
 
-    /**
-     * @brief Commit this stage-2 context: program VTTBR_EL2 with @p vmid,
-     *        flush stage-2 TLB, and set HCR_EL2.VM=1.
-     * @param vmid Non-zero VMID. Each live VM must have a unique VMID.
-     */
+    // @brief Commit this stage-2 context: program VTTBR_EL2 with @p vmid,
+    //        flush stage-2 TLB, and set HCR_EL2.VM=1.
+    // @param vmid Non-zero VMID. Each live VM must have a unique VMID.
     void enable(uint8_t vmid);
 
-    /** @brief Invalidate all stage-1 & stage-2 TLB entries for this VMID. */
+    // @brief Invalidate all stage-1 & stage-2 TLB entries for this VMID.
     void tlbFlushAllGuest();
 };
 

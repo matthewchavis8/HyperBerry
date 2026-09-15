@@ -1,8 +1,6 @@
-/**
- * @file bootpkg.cpp
- * @brief HyperBerry guest boot package validation.
- * @ingroup core
- */
+// @file bootpkg.cpp
+// @brief HyperBerry guest boot package validation.
+// @ingroup core
 
 #include "bootpkg.h"
 #include "core/dtb/fdt.h"

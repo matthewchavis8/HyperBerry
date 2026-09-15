@@ -1,11 +1,9 @@
-/**
- * @file main.cpp
- * @brief Hypervisor entry point.
- * @ingroup core
- *
- * Contains hmain(), the C++ entry called from boot.S after
- * EL2 initialization, BSS zeroing, and stack setup.
- */
+// @file main.cpp
+// @brief Hypervisor entry point.
+// @ingroup core
+//
+// Contains hmain(), the C++ entry called from boot.S after
+// EL2 initialization, BSS zeroing, and stack setup.
 
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/heap/heap.h"
@@ -25,16 +23,14 @@
 #include "tests/integration/suite.h"
 #endif
 
-/**
- * @brief Main hypervisor entry point (called from boot.S).
- * @ingroup core
- *
- * Uses C linkage so the assembly boot code can branch to it by name
- * without C++ name mangling.
- *
- * @warning Must never return. The assembly boot stub has no return
- *          address — falling off the end of hmain() is undefined behaviour.
- */
+// @brief Main hypervisor entry point (called from boot.S).
+// @ingroup core
+//
+// Uses C linkage so the assembly boot code can branch to it by name
+// without C++ name mangling.
+//
+// @warning Must never return. The assembly boot stub has no return
+//          address — falling off the end of hmain() is undefined behaviour.
 extern "C" void hmain(uintptr_t dtb) {
     runGlobalConstructors();
 

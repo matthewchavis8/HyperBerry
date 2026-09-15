@@ -1,7 +1,5 @@
-/**
- * @file test_log_format.cpp
- * @brief Unit tests for brace-style log formatting.
- */
+// @file test_log_format.cpp
+// @brief Unit tests for brace-style log formatting.
 
 #include <gtest/gtest.h>
 

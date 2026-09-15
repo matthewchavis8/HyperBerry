@@ -1,7 +1,5 @@
-/**
- * @file test_vectors.S
- * @brief Test-only EL2 vector table and guest stub for Vcpu integration tests.
- */
+// @file test_vectors.S
+// @brief Test-only EL2 vector table and guest stub for Vcpu integration tests.
 
 #include "core/vcpu/vcpu.h"
 

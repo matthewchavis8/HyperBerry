@@ -1,8 +1,6 @@
-/**
- * @file vcpu.S
- * @brief vCPU entry/exit trampoline (EL2).
- * @ingroup vcpu
- */
+// @file vcpu.S
+// @brief vCPU entry/exit trampoline (EL2).
+// @ingroup vcpu
 
 #include "core/vcpu/vcpu.h"
 

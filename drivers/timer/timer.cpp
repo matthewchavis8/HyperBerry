@@ -5,26 +5,26 @@
 #include "timer.h"
 #include <stdint.h>
 
-/** Counter frequency register — Hz at which CNTVCT_EL0 increments. */
+// Counter frequency register — Hz at which CNTVCT_EL0 increments.
 static inline uint64_t readCntFrqEl0() {
     uint64_t reg;
     asm volatile("mrs %0, cntfrq_el0" : "=r"(reg));
     return reg;
 }
 
-/** Virtual count register — free-running tick counter. */
+// Virtual count register — free-running tick counter.
 static inline uint64_t readCntVctEl0() {
     uint64_t reg;
     asm volatile("mrs %0, cntvct_el0" : "=r"(reg));
     return reg;
 }
 
-/** EL2 physical timer value register — fires IRQ when it counts down to zero. */
+// EL2 physical timer value register — fires IRQ when it counts down to zero.
 static inline void writeCnthpTvalEl2(uint64_t reg) {
     asm volatile("msr cnthp_tval_el2, %0" ::"r"(reg));
 }
 
-/** EL2 physical timer control register — bit 0: ENABLE, bit 1: IMASK, bit 2: ISTATUS. */
+// EL2 physical timer control register — bit 0: ENABLE, bit 1: IMASK, bit 2: ISTATUS.
 static inline void writeCnthpCtlEl2(uint64_t reg) {
     asm volatile("msr cnthp_ctl_el2, %0\n"
                  "isb" ::"r"(reg)

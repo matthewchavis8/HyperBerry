@@ -1,13 +1,11 @@
-/**
- * @file vcpu.h
- * @brief Per-guest virtual CPU context for EL2 hypervisor scheduling.
- * @ingroup vcpu
- *
- * Defines the Vcpu class, which carries all CPU state needed to
- * suspend a guest running at EL1 and resume it later. Layout matches
- * the offset constants below so that vcpu.S can index into Vcpu
- * instances without C++ knowledge.
- */
+// @file vcpu.h
+// @brief Per-guest virtual CPU context for EL2 hypervisor scheduling.
+// @ingroup vcpu
+//
+// Defines the Vcpu class, which carries all CPU state needed to
+// suspend a guest running at EL1 and resume it later. Layout matches
+// the offset constants below so that vcpu.S can index into Vcpu
+// instances without C++ knowledge.
 #ifndef __VCPU_H__
 #define __VCPU_H__
 
@@ -109,18 +107,14 @@ static constexpr size_t regIdx(size_t off) {
     return off / sizeof(uint64_t);
 }
 
-/**
- * @brief EL2 exception-return state: elr_el2, spsr_el2.
- * @ingroup vcpu
- */
+// @brief EL2 exception-return state: elr_el2, spsr_el2.
+// @ingroup vcpu
 struct El2State {
     hv::array<uint64_t, VCPU_EL2STATE_SIZE / sizeof(uint64_t)> regs;
 } __attribute__((aligned(16)));
 
-/**
- * @brief EL1 system register context (SCTLR_EL1, TTBRn_EL1, etc).
- * @ingroup vcpu
- */
+// @brief EL1 system register context (SCTLR_EL1, TTBRn_EL1, etc).
+// @ingroup vcpu
 struct El1SysRegs {
     hv::array<uint64_t, VCPU_EL1SYSREGS_SIZE / sizeof(uint64_t)> regs;
 } __attribute__((aligned(16)));
@@ -132,18 +126,16 @@ struct HvContext {
     uint64_t exitEsr; // stashed by vcpu_exit_sync/serror before guest state save
 } __attribute__((aligned(16)));
 
-/**
- * @brief Per-guest virtual CPU context.
- * @ingroup vcpu
- *
- * Layout-critical: the first three sub-structs are indexed from vcpu.S
- * via the VCPU_*_OFFSET constants above. Fields below the
- * "asm contract line" comment are free to reorder.
- *
- * Layout-critical data is public so low-level trap routing can pass
- * register state directly to dispatch modules without copying. Keep all
- * data members in this single access group to preserve standard-layout.
- */
+// @brief Per-guest virtual CPU context.
+// @ingroup vcpu
+//
+// Layout-critical: the first three sub-structs are indexed from vcpu.S
+// via the VCPU_*_OFFSET constants above. Fields below the
+// "asm contract line" comment are free to reorder.
+//
+// Layout-critical data is public so low-level trap routing can pass
+// register state directly to dispatch modules without copying. Keep all
+// data members in this single access group to preserve standard-layout.
 class Vcpu {
 public:
     hv::array<uint64_t, 31> m_gpr;
@@ -153,71 +145,57 @@ public:
     HvContext m_hvCtx;
     uint32_t m_vcpuId;
 
-    /**
-     * @brief Initialise this vCPU for first entry into EL1.
-     *
-     * Zeroes all state, then seeds:
-     *   - elr_el2   ← entrypoint
-     *   - spsr_el2  ← EL1h with all DAIF bits masked
-     *   - sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared
-     *
-     * @param entrypoint Guest physical address to resume at on first eret.
-     */
+    // @brief Initialise this vCPU for first entry into EL1.
+    //
+    // Zeroes all state, then seeds:
+    //   - elr_el2   ← entrypoint
+    //   - spsr_el2  ← EL1h with all DAIF bits masked
+    //   - sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared
+    //
+    // @param entrypoint Guest physical address to resume at on first eret.
     void init(uint64_t entrypoint);
 
-    /**
-     * @brief Save EL1 system registers from hardware into this context.
-     * @note Call site must have DAIF masked. Meaningful only on AArch64.
-     */
+    // @brief Save EL1 system registers from hardware into this context.
+    // @note Call site must have DAIF masked. Meaningful only on AArch64.
     void saveEl1SysRegs();
 
-    /**
-     * @brief Restore EL1 system registers from this context into hardware.
-     * @note SCTLR_EL1 is restored last, after TTBR/TCR/MAIR, with an
-     *       intervening isb. Call site must have DAIF masked.
-     */
+    // @brief Restore EL1 system registers from this context into hardware.
+    // @note SCTLR_EL1 is restored last, after TTBR/TCR/MAIR, with an
+    //       intervening isb. Call site must have DAIF masked.
     void restoreEl1SysRegs();
 
-    /** @brief Return the saved guest PC (ELR_EL2). */
+    // @brief Return the saved guest PC (ELR_EL2).
     [[nodiscard]] uint64_t getElr() const noexcept;
 
-    /** @brief Overwrite the saved guest PC (ELR_EL2). */
+    // @brief Overwrite the saved guest PC (ELR_EL2).
     void setPc(uint64_t pc);
 
-    /** @brief Advance ELR_EL2 by 4 bytes (skip faulting instruction). */
+    // @brief Advance ELR_EL2 by 4 bytes (skip faulting instruction).
     void skipInstruction();
 
-    /** @brief Set the guest SP_EL1 (stack pointer seen by the guest at EL1). */
+    // @brief Set the guest SP_EL1 (stack pointer seen by the guest at EL1).
     void setGuestSp(uint64_t sp);
 
-    /**
-     * @brief Read a saved GPR by offset.
-     * @param off One of the VCPU_GPREG_* constants.
-     */
+    // @brief Read a saved GPR by offset.
+    // @param off One of the VCPU_GPREG_* constants.
     [[nodiscard]] uint64_t getGpReg(uint64_t off) const noexcept;
 
-    /**
-     * @brief Write a saved GPR by offset.
-     * @param off One of the VCPU_GPREG_* constants.
-     * @param val Value to store.
-     */
+    // @brief Write a saved GPR by offset.
+    // @param off One of the VCPU_GPREG_* constants.
+    // @param val Value to store.
     void setGpReg(uint64_t off, uint64_t val);
 
-    /** @brief Opaque vCPU identifier assigned by the scheduler. */
+    // @brief Opaque vCPU identifier assigned by the scheduler.
     [[nodiscard]] uint32_t getId() const noexcept { return m_vcpuId; }
 
-    /** @brief Set the vCPU identifier (scheduler-only). */
+    // @brief Set the vCPU identifier (scheduler-only).
     void setId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
 
-    /**
-     * @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
-     * @note Returns nullptr on hosted (non-AArch64) builds.
-     */
+    // @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
+    // @note Returns nullptr on hosted (non-AArch64) builds.
     [[nodiscard]] static Vcpu* getCurrentVcpu();
 
-    /**
-     * @brief Stub scheduler entry. Replaced by real scheduler later.
-     */
+    // @brief Stub scheduler entry. Replaced by real scheduler later.
     static void scheduleNext();
 } __attribute__((aligned(128)));
 
@@ -258,5 +236,5 @@ static_assert(VcpuLayoutAccess::hvCtxOffset() == VCPU_HVCTX_OFFSET,
 // @brief fn used to resume guest state
 extern "C" void vcpu_enter(Vcpu* ctx);
 
-#endif /* __ASSEMBLER__ */
-#endif /* !__VCPU_H__ */
+#endif // __ASSEMBLER__
+#endif // !__VCPU_H__

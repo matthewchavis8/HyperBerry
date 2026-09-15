@@ -1,7 +1,5 @@
-/**
- * @file test_utility.cpp
- * @brief Unit tests for hv::move, hv::forward, hv::swap.
- */
+// @file test_utility.cpp
+// @brief Unit tests for hv::move, hv::forward, hv::swap.
 
 #include <gtest/gtest.h>
 #include "lib/utility/utility.h"

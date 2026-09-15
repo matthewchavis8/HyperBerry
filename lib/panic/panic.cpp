@@ -1,8 +1,6 @@
-/**
- * @file panic.cpp
- * @brief Fatal hypervisor panic implementation.
- * @ingroup lib
- */
+// @file panic.cpp
+// @brief Fatal hypervisor panic implementation.
+// @ingroup lib
 
 #include "panic.h"
 #include "lib/log/log.h"
@@ -17,12 +15,10 @@ void uartSink(char ch) {
 
 } // namespace
 
-/*
- * @brief Print panic diagnostics and stop execution permanently.
- * @ingroup lib
- * @param msg Optional panic message to print.
- * @param ctx Saved exception context for diagnostic output.
- */
+// @brief Print panic diagnostics and stop execution permanently.
+// @ingroup lib
+// @param msg Optional panic message to print.
+// @param ctx Saved exception context for diagnostic output.
 [[noreturn]] void hv_panic(const char* msg, const hv::array<uint64_t, 31>& ctx) {
     log::detail::formatLineToSink(uartSink, "=======================================");
     log::detail::formatLineToSink(uartSink, "=             HV PANIC                =");
@@ -37,11 +33,9 @@ void uartSink(char ch) {
     }
 }
 
-/*
- * @brief Print panic diagnostics and stop execution permanently.
- * @ingroup lib
- * @param msg Optional panic message to print.
- */
+// @brief Print panic diagnostics and stop execution permanently.
+// @ingroup lib
+// @param msg Optional panic message to print.
 [[noreturn]] void hv_panic(const char* msg) {
     log::detail::formatLineToSink(uartSink, "=======================================");
     log::detail::formatLineToSink(uartSink, "=             HV PANIC                =");

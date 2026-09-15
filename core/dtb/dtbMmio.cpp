@@ -1,8 +1,6 @@
-/**
- * @file dtbMmio.cpp
- * @brief Derive the MMU device windows from a device tree.
- * @ingroup core
- */
+// @file dtbMmio.cpp
+// @brief Derive the MMU device windows from a device tree.
+// @ingroup core
 
 #include "dtbMmio.h"
 #include "dtb.h"

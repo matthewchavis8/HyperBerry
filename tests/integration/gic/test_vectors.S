@@ -1,10 +1,8 @@
-/**
- * @file test_vectors.S
- * @brief Test-only EL2 vector table for the Gic integration suite.
- *
- * Current-EL IRQ catches the physical SPI, and lower-EL/AArch64 sync catches
- * the guest's HVC before unwinding to the test caller via Vcpu::HvContext.
- */
+// @file test_vectors.S
+// @brief Test-only EL2 vector table for the Gic integration suite.
+//
+// Current-EL IRQ catches the physical SPI, and lower-EL/AArch64 sync catches
+// the guest's HVC before unwinding to the test caller via Vcpu::HvContext.
 
 #include "core/vcpu/vcpu.h"
 

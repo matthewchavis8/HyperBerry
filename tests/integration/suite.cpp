@@ -1,12 +1,10 @@
-/**
- * @file suite.cpp
- * @brief Integration test runner — walks the `.hyperberry_tests` linker section.
- *
- * At boot (when INTEGRATION_TEST is defined), hmain() calls
- * TestRunner::run_all(). The runner iterates every TestSuite pointer
- * placed into the section by REGISTER_SUITE, executes each case,
- * and prints results over UART. Spins forever when finished.
- */
+// @file suite.cpp
+// @brief Integration test runner — walks the `.hyperberry_tests` linker section.
+//
+// At boot (when INTEGRATION_TEST is defined), hmain() calls
+// TestRunner::run_all(). The runner iterates every TestSuite pointer
+// placed into the section by REGISTER_SUITE, executes each case,
+// and prints results over UART. Spins forever when finished.
 
 #include "tests/integration/suite.h"
 #include "tests/integration/tap/tap.h"
@@ -28,12 +26,10 @@ const MemoryMap& bootMemoryMap() {
     return g_bootMemoryMap;
 }
 
-/**
- * @brief Execute every registered integration test suite and print a UART summary.
- *
- * The runner walks the linker-populated `.hyperberry_tests` range, executes
- * each test case in registration order, and never returns.
- */
+// @brief Execute every registered integration test suite and print a UART summary.
+//
+// The runner walks the linker-populated `.hyperberry_tests` range, executes
+// each test case in registration order, and never returns.
 void run_all() {
     // Get the starting/ending address of the test_suite where the linker script laid it out in
     // memory

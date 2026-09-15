@@ -1,7 +1,5 @@
-/**
- * @file test_bootpkg.cpp
- * @brief Unit tests for HyperBerry guest boot package validation.
- */
+// @file test_bootpkg.cpp
+// @brief Unit tests for HyperBerry guest boot package validation.
 
 #include <gtest/gtest.h>
 

@@ -1,7 +1,5 @@
-/**
- * @file test_pageTable.cpp
- * @brief Unit tests for shared page-table bit helpers and index macros.
- */
+// @file test_pageTable.cpp
+// @brief Unit tests for shared page-table bit helpers and index macros.
 
 #include <gtest/gtest.h>
 

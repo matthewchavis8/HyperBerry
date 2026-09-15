@@ -1,12 +1,10 @@
-/**
- * @file core/dtb/dtbVerify.cpp
- * @brief Cross-check the generated BSP constants against the firmware DTB.
- * @ingroup core
- *
- * Nothing in the build regenerates a board's checked in host DTB when its
- * source tree changes, so this panic is the only thing standing between a
- * stale blob and a hypervisor driving the wrong addresses.
- */
+// @file core/dtb/dtbVerify.cpp
+// @brief Cross-check the generated BSP constants against the firmware DTB.
+// @ingroup core
+//
+// Nothing in the build regenerates a board's checked in host DTB when its
+// source tree changes, so this panic is the only thing standing between a
+// stale blob and a hypervisor driving the wrong addresses.
 
 #include "dtbVerify.h"
 #include "dtb.h"

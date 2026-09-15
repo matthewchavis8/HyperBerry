@@ -1,7 +1,5 @@
-/**
- * @file test_mmu.cpp
- * @brief Integration tests for EL2 MMU mappings and runtime APIs.
- */
+// @file test_mmu.cpp
+// @brief Integration tests for EL2 MMU mappings and runtime APIs.
 
 #include "regs.inc"
 #include "core/mm/mmu/hostMmu/hostMmu.h"

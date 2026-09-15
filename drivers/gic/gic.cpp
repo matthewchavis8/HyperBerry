@@ -1,7 +1,5 @@
-/**
- * @file gic.cpp
- * @brief Generic Interrupt Controller register address definitions.
- */
+// @file gic.cpp
+// @brief Generic Interrupt Controller register address definitions.
 
 #include "gic.h"
 #include "lib/mmio/mmio.h"

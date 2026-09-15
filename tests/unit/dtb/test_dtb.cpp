@@ -1,7 +1,5 @@
-/**
- * @file test_dtb.cpp
- * @brief Unit tests for DTB parsing and memory map extraction.
- */
+// @file test_dtb.cpp
+// @brief Unit tests for DTB parsing and memory map extraction.
 
 #include <gtest/gtest.h>
 

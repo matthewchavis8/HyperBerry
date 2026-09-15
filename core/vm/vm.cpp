@@ -1,8 +1,6 @@
-/**
- * @file vm.cpp
- * @brief Per-guest VM container implementation.
- * @ingroup vm
- */
+// @file vm.cpp
+// @brief Per-guest VM container implementation.
+// @ingroup vm
 
 #include "core/mm/pmm/pmm.h"
 #include "lib/log/log.h"

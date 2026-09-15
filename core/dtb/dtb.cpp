@@ -1,23 +1,19 @@
-/**
- * @file dtb.cpp
- * @brief Flattened Device Tree parser used during early boot.
- * @ingroup core
- */
+// @file dtb.cpp
+// @brief Flattened Device Tree parser used during early boot.
+// @ingroup core
 
 #include "dtb.h"
 #include "fdt.h"
 #include <stdint.h>
 
-/**
- * @brief Decode a 64-bit base/size pair from a DTB `reg` property.
- * @param data Pointer to the first 32-bit cell of the property payload.
- * @param base Output physical base address.
- * @param size Output region size in bytes.
- *
- * Uses four 32-bit big-endian cells: two address cells followed by two
- * size cells. The @c volatile qualifier prevents the compiler from
- * widening accesses on Device-nGnRnE memory before the MMU is enabled.
- */
+// @brief Decode a 64-bit base/size pair from a DTB `reg` property.
+// @param data Pointer to the first 32-bit cell of the property payload.
+// @param base Output physical base address.
+// @param size Output region size in bytes.
+//
+// Uses four 32-bit big-endian cells: two address cells followed by two
+// size cells. The @c volatile qualifier prevents the compiler from
+// widening accesses on Device-nGnRnE memory before the MMU is enabled.
 static void readReg64(const volatile uint32_t* data, uint64_t& base, uint64_t& size) {
     base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
     size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
@@ -162,7 +158,7 @@ namespace {
 
 constexpr uint32_t MAX_DEPTH = 16;
 
-/// Per-depth bus context needed to decode and translate a child's `reg`.
+// Per-depth bus context needed to decode and translate a child's `reg`.
 struct BusLevel {
     uint32_t addressCells;
     uint32_t sizeCells;
@@ -197,7 +193,7 @@ bool compatibleMatches(const char* list, uint32_t len, const char* const* wanted
     return false;
 }
 
-/// Walk a bus-local address up through each ancestor's `ranges`.
+// Walk a bus-local address up through each ancestor's `ranges`.
 uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
     // stack[depth] is the matched node; its parents are below it.
     for (uint32_t level = depth; level > 0; --level) {

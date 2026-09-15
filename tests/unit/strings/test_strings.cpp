@@ -1,7 +1,5 @@
-/**
- * @file test_strings.cpp
- * @brief Unit tests for freestanding memcpy and memset implementations.
- */
+// @file test_strings.cpp
+// @brief Unit tests for freestanding memcpy and memset implementations.
 
 #include <gtest/gtest.h>
 #include <cstdint>

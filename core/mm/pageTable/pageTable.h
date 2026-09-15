@@ -1,12 +1,10 @@
-/**
- * @file pageTable.h
- * @brief Shared page-table primitives for stage-1 and stage-2 MMUs.
- * @ingroup mm
- *
- * Descriptor bits, index macros, and the generic walk / allocTable used
- * by both HostMmu (EL2 stage-1) and GuestMmu (stage-2). Stage-specific
- * attribute bits (MAIR index, S2AP, MemAttr) live with their owning MMU.
- */
+// @file pageTable.h
+// @brief Shared page-table primitives for stage-1 and stage-2 MMUs.
+// @ingroup mm
+//
+// Descriptor bits, index macros, and the generic walk / allocTable used
+// by both HostMmu (EL2 stage-1) and GuestMmu (stage-2). Stage-specific
+// attribute bits (MAIR index, S2AP, MemAttr) live with their owning MMU.
 #ifndef __PAGE_TABLE_H__
 #define __PAGE_TABLE_H__
 
@@ -52,16 +50,14 @@ static inline int pte_is_block(uint64_t entry) {
 }
 
 namespace PageTable {
-/**
- * @brief Walker configuration: where to start and whether to grow the
- *        table on a missing intermediate entry.
- * @ingroup mm
- *
- * `startLevel == 0` corresponds to stage-1 with T0SZ=16 (48-bit VA).
- * `startLevel == 1` corresponds to 40-bit stage-2 with two concatenated
- * L1 root tables — those use a 10-bit root index, set via @ref rootIndexMask.
- * Both walks terminate at the L2 entry; callers map 2 MiB blocks.
- */
+// @brief Walker configuration: where to start and whether to grow the
+//        table on a missing intermediate entry.
+// @ingroup mm
+//
+// `startLevel == 0` corresponds to stage-1 with T0SZ=16 (48-bit VA).
+// `startLevel == 1` corresponds to 40-bit stage-2 with two concatenated
+// L1 root tables — those use a 10-bit root index, set via @ref rootIndexMask.
+// Both walks terminate at the L2 entry; callers map 2 MiB blocks.
 struct WalkConfig {
     uint32_t startLevel;
     uint64_t rootIndexMask; // Mask for the start-level index (e.g. 0x1FF or 0x3FF for concatenated
@@ -69,34 +65,28 @@ struct WalkConfig {
     bool allocOnMiss;
 };
 
-/**
- * @brief Allocate a zeroed 4 KiB table from the PMM.
- * @ingroup mm
- * @return Pointer to the fresh table. Never returns null — halts on
- *         allocation failure so a missing page does not silently
- *         produce bogus translations.
- */
+// @brief Allocate a zeroed 4 KiB table from the PMM.
+// @ingroup mm
+// @return Pointer to the fresh table. Never returns null — halts on
+//         allocation failure so a missing page does not silently
+//         produce bogus translations.
 uint64_t* allocTable();
 
-/**
- * @brief Clean a range from the data cache to PoC.
- * @ingroup mm
- *
- * Real hardware page-table walkers are not obliged to observe dirty cache
- * lines produced by EL2 stores before the corresponding maintenance and
- * barriers complete. QEMU often hides this class of bug.
- */
+// @brief Clean a range from the data cache to PoC.
+// @ingroup mm
+//
+// Real hardware page-table walkers are not obliged to observe dirty cache
+// lines produced by EL2 stores before the corresponding maintenance and
+// barriers complete. QEMU often hides this class of bug.
 void cleanDataCacheRange(const void* addr, size_t size);
 
-/**
- * @brief Walk a multi-level translation table and return the L2 entry.
- * @ingroup mm
- * @param root Root table pointer (stage-1 L0 or stage-2 L1).
- * @param addr Address to resolve (VA for stage-1, IPA for stage-2).
- * @param cfg  Starting level and allocation behaviour.
- * @return Pointer to the L2 entry covering @p addr, or nullptr when
- *         allocOnMiss is false and an intermediate table is absent.
- */
+// @brief Walk a multi-level translation table and return the L2 entry.
+// @ingroup mm
+// @param root Root table pointer (stage-1 L0 or stage-2 L1).
+// @param addr Address to resolve (VA for stage-1, IPA for stage-2).
+// @param cfg  Starting level and allocation behaviour.
+// @return Pointer to the L2 entry covering @p addr, or nullptr when
+//         allocOnMiss is false and an intermediate table is absent.
 uint64_t* walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg);
 } // namespace PageTable
 
