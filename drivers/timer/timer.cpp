@@ -1,3 +1,7 @@
+// @file timer.cpp
+// @brief ARM generic timer driver implementation.
+// @ingroup drivers
+
 #include "timer.h"
 #include <stdint.h>
 

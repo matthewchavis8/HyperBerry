@@ -1,3 +1,7 @@
+// @file timer.h
+// @brief ARM generic timer driver using the EL2 physical timer.
+// @ingroup drivers
+
 #ifndef __TIMER_H__
 #define __TIMER_H__
 

@@ -12,14 +12,14 @@ just rpi5             # build and flash an SD card
 just fvp              # build and run on the FVP model
 just test-unit        # host tests, 159 cases
 just test-integration # bare metal TAP suite, defaults to qemu
-just fmt-check        # CI formatting gate
+just fmt              # clang-format every tracked source in place
 ```
 
 One configure builds every board. Images land in `build/<mode>/<board>/kernel8.img`,
 with the integration image under `build/<mode>/<board>/integration/`. Flashing
 picks the image it needs rather than reconfiguring.
 
-Run `just fmt-check` and the integration suite before calling anything done.
+Run `just fmt` and the integration suite before calling anything done.
 
 ## Layout
 

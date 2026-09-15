@@ -4,7 +4,6 @@ AlignAfterOpenBracket: DontAlign
 AlignEscapedNewlines: Left
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: Inline
-# A one-statement if body may stay on the same line: `if (!ok) return;`.
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
