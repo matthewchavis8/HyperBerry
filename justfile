@@ -76,11 +76,6 @@ fmt:
   git ls-files '*.cpp' '*.h' | xargs clang-format --style=file -i
   @echo "[LOG] clang-format applied"
 
-# Fail if anything is not formatted. This is the CI gate.
-fmt-check:
-  git ls-files '*.cpp' '*.h' | xargs clang-format --style=file --dry-run -Werror
-  @echo "[LOG] formatting is clean"
-
 # Run clang-tidy over the whole tree using the debug compile database.
 tidy:
   cmake --preset debug

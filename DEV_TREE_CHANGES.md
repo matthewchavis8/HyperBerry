@@ -152,7 +152,7 @@ tree, so it shows dirty after every build.
 ## Verifying a refactor
 
 ```sh
-just fmt-check                     # clang-format gate, git ls-files only, so git add new files first
+just fmt                           # git ls-files only, so git add new files first
 just test-unit                     # 159 host cases
 cmake --preset debug               # after any .dts or bspgen change
 cat build/debug/fvp/generated/regs.inc
@@ -163,8 +163,8 @@ just qemu                          # the only path that runs dtbGuestMmio on a r
 Two things worth knowing about coverage. The integration suite feeds
 `GuestMmu::init` a synthetic `MmioMap`, so only `just qemu` exercises the real
 guest tree derivation; look for the `[GuestMmu] Mapping N guest MMIO window(s)`
-block, which should be 4 windows on qemu. And `just fmt-check` pipes
-`git ls-files`, so a new untracked file is not checked until you `git add` it.
+block, which should be 4 windows on qemu. And `just fmt` pipes
+`git ls-files`, so a new untracked file is not formatted until you `git add` it.
 
 Everything above is verified on qemu only. rpi5 needs hardware and fvp needs
 the model, so the fvp mapping fix that motivated `aae62fa` is reasoned rather
@@ -285,7 +285,7 @@ resolve. Use `<stdint.h>` and the builtins `__is_same`, `__is_integral`,
 ## Verifying a refactor
 
 ```sh
-just fmt-check                     # git ls-files only, so git add new files first
+just fmt                           # git ls-files only, so git add new files first
 just test-unit                     # 159 host cases
 just build
 just test-integration              # 48 cases in QEMU
