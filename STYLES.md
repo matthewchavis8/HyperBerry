@@ -34,6 +34,21 @@ programming does it in the constructor, through a private helper the rebind path
 can also call. `Uart::Uart()` calls `configure()`, and so does `setBase()`.
 There is no public `init()` to forget.
 
+## Declarations
+
+**Enumerators are UPPER_CASE.** `.clang-tidy` enforces it through
+`readability-identifier-naming.EnumConstantCase`: `HvcResult::HANDLED`,
+`EsrEc::DATA_ABORT_LOWER`.
+
+**Prefer direct initialization.** Braces rather than `=`:
+
+```cpp
+inline constexpr uint32_t OEN_SHIFT { 24 };
+uint64_t callId { gpr[0] };
+```
+
+Braces refuse a narrowing conversion that `=` accepts without a word.
+
 ## Singletons
 
 One instance of a device is a function local static, not a namespace scope
@@ -62,7 +77,18 @@ output. Write through `this` instead, as `Uart::Uart()` does for its banner.
 
 ## Comments
 
-**`//` line comments, never `/** */` blocks.**
+**`//` line comments, never `/** */` blocks.** This holds everywhere: headers,
+sources, tests and assembly.
+
+**A short note on an enumerator, field or constant goes after it on the same
+line**, not in a block above it:
+
+```cpp
+enum class HvcResult : uint8_t {
+    HANDLED,   // handled, the guest can resume
+    UNHANDLED, // an HVC exit, but the call is not implemented
+};
+```
 
 **Every documented function carries `@return`**, including the ones returning
 void.
