@@ -74,7 +74,7 @@ struct array {
 
     // @brief Assign @p value to every element in the array.
     constexpr void fill(const T& value) {
-        for (size_type i = 0; i < N; ++i) {
+        for (size_type i { 0 }; i < N; ++i) {
             m_data[i] = value;
         }
     }

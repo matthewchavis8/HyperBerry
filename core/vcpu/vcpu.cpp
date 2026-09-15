@@ -7,14 +7,14 @@
 #include "lib/panic/panic.h"
 
 // EL1h, DAIF all masked: guest wakes with interrupts disabled
-static constexpr uint64_t SPSR_EL1H_ALL_MASKED = (0b00101ULL) | (0xFULL << 6);
+static constexpr uint64_t SPSR_EL1H_ALL_MASKED { (0b00101ULL) | (0xFULL << 6) };
 
 // Bits cleared from SCTLR_EL1 reset value before handing control to guest
-static constexpr uint64_t SCTLR_M_BIT = (1ULL << 0);
-static constexpr uint64_t SCTLR_A_BIT = (1ULL << 1);
-static constexpr uint64_t SCTLR_C_BIT = (1ULL << 2);
-static constexpr uint64_t SCTLR_SA_BIT = (1ULL << 3);
-static constexpr uint64_t SCTLR_I_BIT = (1ULL << 12);
+static constexpr uint64_t SCTLR_M_BIT { (1ULL << 0) };
+static constexpr uint64_t SCTLR_A_BIT { (1ULL << 1) };
+static constexpr uint64_t SCTLR_C_BIT { (1ULL << 2) };
+static constexpr uint64_t SCTLR_SA_BIT { (1ULL << 3) };
+static constexpr uint64_t SCTLR_I_BIT { (1ULL << 12) };
 
 extern "C" void vcpu_restore_el1_sysregs(Vcpu* vcpu) {
     if (vcpu == nullptr) HvPanic("[VCPU] nullptr passed to vcpu_restore_el1_sysregs");

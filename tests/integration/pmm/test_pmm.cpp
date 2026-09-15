@@ -5,7 +5,7 @@
 #include "core/mm/pmm/pmm.h"
 
 static bool test_alloc_order0_succeeds() {
-    uint64_t addr = pmm::AllocPages(0);
+    uint64_t addr { pmm::AllocPages(0) };
     if (addr == 0) return false;
 
     pmm::FreePages(addr, 0);
@@ -13,20 +13,20 @@ static bool test_alloc_order0_succeeds() {
 }
 
 static bool test_alloc_page_aligned() {
-    uint64_t addr = pmm::AllocPages(0);
+    uint64_t addr { pmm::AllocPages(0) };
     if (addr == 0) return false;
 
-    bool aligned = (addr & (PAGE_SIZE - 1)) == 0;
+    bool aligned { (addr & (PAGE_SIZE - 1)) == 0 };
     pmm::FreePages(addr, 0);
     return aligned;
 }
 
 static bool test_free_and_realloc() {
-    uint64_t a = pmm::AllocPages(0);
+    uint64_t a { pmm::AllocPages(0) };
     if (a == 0) return false;
 
     pmm::FreePages(a, 0);
-    uint64_t b = pmm::AllocPages(0);
+    uint64_t b { pmm::AllocPages(0) };
     if (b == 0) return false;
 
     pmm::FreePages(b, 0);
@@ -34,22 +34,22 @@ static bool test_free_and_realloc() {
 }
 
 static bool test_alloc_too_large_fails() {
-    uint64_t addr = pmm::AllocPages(MAX_ORDER + 1);
+    uint64_t addr { pmm::AllocPages(MAX_ORDER + 1) };
     return addr == 0;
 }
 
 static bool test_alloc_two_different() {
-    uint64_t a = pmm::AllocPages(0);
-    uint64_t b = pmm::AllocPages(0);
+    uint64_t a { pmm::AllocPages(0) };
+    uint64_t b { pmm::AllocPages(0) };
     if (a == 0 || b == 0) return false;
 
-    bool different = (a != b);
+    bool different { (a != b) };
     pmm::FreePages(a, 0);
     pmm::FreePages(b, 0);
     return different;
 }
 
-static const TestCase pmm_cases[] = {
+static const TestCase pmm_cases[] {
     { "alloc_order0_succeeds\n", test_alloc_order0_succeeds },
     { "alloc_page_aligned\n", test_alloc_page_aligned },
     { "free_and_realloc\n", test_free_and_realloc },
@@ -57,7 +57,7 @@ static const TestCase pmm_cases[] = {
     { "alloc_two_different\n", test_alloc_two_different },
 };
 
-static const TestSuite pmmSuite = {
+static const TestSuite pmmSuite {
     "PmmHarness",
     pmm_cases,
     5,

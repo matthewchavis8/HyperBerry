@@ -11,16 +11,16 @@ namespace {
 
 extern "C" char test_timer_vectors[];
 
-Timer* gActiveTimer = nullptr;
-volatile uint32_t gCallbackCount = 0;
-volatile uint32_t gIrqCount = 0;
-volatile uint32_t gLastIrqId = 0;
-volatile bool gCallbackContextMatched = false;
+Timer* gActiveTimer { nullptr };
+volatile uint32_t gCallbackCount { 0 };
+volatile uint32_t gIrqCount { 0 };
+volatile uint32_t gLastIrqId { 0 };
+volatile bool gCallbackContextMatched { false };
 
 namespace GicReg {
     namespace Dist {
-        constexpr uintptr_t CTLR = 0x000;
-        constexpr uintptr_t IGROUPR = 0x080;
+        constexpr uintptr_t CTLR { 0x000 };
+        constexpr uintptr_t IGROUPR { 0x080 };
     } // namespace Dist
 } // namespace GicReg
 
@@ -46,13 +46,13 @@ void enableDistributorGroups() {
 }
 
 void spin(uint32_t iterations) {
-    for (uint32_t i = 0; i < iterations; ++i) {
+    for (uint32_t i { 0 }; i < iterations; ++i) {
         asm volatile("nop");
     }
 }
 
 uint64_t saveDaif() {
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, daif" : "=r"(saved));
     return saved;
 }
@@ -70,7 +70,7 @@ void unmaskIrqAndFiq() {
 }
 
 uint64_t installTestVbar() {
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, vbar_el2" : "=r"(saved));
     asm volatile("msr vbar_el2, %0\n"
                  "isb" ::"r"(reinterpret_cast<uint64_t>(test_timer_vectors))
@@ -85,10 +85,10 @@ void restoreVbar(uint64_t saved) {
 }
 
 uint64_t routePhysicalInterruptsToEl2() {
-    constexpr uint64_t HCR_IMO = 1ULL << 4;
-    constexpr uint64_t HCR_FMO = 1ULL << 3;
+    constexpr uint64_t HCR_IMO { 1ULL << 4 };
+    constexpr uint64_t HCR_FMO { 1ULL << 3 };
 
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, hcr_el2" : "=r"(saved));
     asm volatile("msr hcr_el2, %0\n"
                  "isb" ::"r"(saved | HCR_IMO | HCR_FMO)
@@ -108,12 +108,12 @@ void timerCallback(void* ctx) {
 }
 
 uint64_t oneMillisecondTicks(const Timer& timer) {
-    uint64_t ticks = timer.GetFrequency() / 1000U;
+    uint64_t ticks { timer.GetFrequency() / 1000U };
     return ticks == 0 ? 1 : ticks;
 }
 
 bool waitForTimerCallback() {
-    for (uint32_t i = 0; i < 10000000; ++i) {
+    for (uint32_t i { 0 }; i < 10000000; ++i) {
         if (gCallbackCount != 0) {
             return true;
         }
@@ -127,7 +127,7 @@ bool waitForTimerCallback() {
 extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
     (void)ctx;
 
-    Gic::IrqAck ack = Gic::AckIrq();
+    Gic::IrqAck ack { Gic::AckIrq() };
     gLastIrqId = ack.id;
 
     if (ack.id == Timer::IRQ && gActiveTimer != nullptr) {
@@ -142,10 +142,10 @@ static bool test_frequency_and_counter_progress() {
     Timer timer;
     timer.Init();
 
-    uint64_t frequency = timer.GetFrequency();
-    uint64_t first = timer.GetRawCount();
+    uint64_t frequency { timer.GetFrequency() };
+    uint64_t first { timer.GetRawCount() };
     spin(1000);
-    uint64_t second = timer.GetRawCount();
+    uint64_t second { timer.GetRawCount() };
 
     return frequency != 0 && second > first;
 }
@@ -156,9 +156,9 @@ static bool test_elapsed_ticks_reset_on_start() {
     timer.SetIntervalTicks(oneMillisecondTicks(timer));
 
     timer.Start();
-    uint64_t immediate = timer.GetElapsedTicks();
+    uint64_t immediate { timer.GetElapsedTicks() };
     spin(1000);
-    uint64_t later = timer.GetElapsedTicks();
+    uint64_t later { timer.GetElapsedTicks() };
     timer.Stop();
 
     return later > immediate;
@@ -197,13 +197,13 @@ static bool test_physical_timer_irq_invokes_callback() {
     Gic::SetPriorityLevel(Timer::IRQ, 0x80);
     Gic::EnableIrq(Timer::IRQ);
 
-    uint64_t savedVbar = installTestVbar();
-    uint64_t savedDaif = saveDaif();
-    uint64_t savedHcr = routePhysicalInterruptsToEl2();
+    uint64_t savedVbar { installTestVbar() };
+    uint64_t savedDaif { saveDaif() };
+    uint64_t savedHcr { routePhysicalInterruptsToEl2() };
 
     timer.Start();
     unmaskIrqAndFiq();
-    bool seen = waitForTimerCallback();
+    bool seen { waitForTimerCallback() };
     restoreDaif(savedDaif);
     restoreHcr(savedHcr);
     timer.Stop();
@@ -212,19 +212,19 @@ static bool test_physical_timer_irq_invokes_callback() {
     Gic::DisableIrq(Timer::IRQ);
     gActiveTimer = nullptr;
 
-    bool passed = seen && gCallbackCount != 0 && gIrqCount != 0 && gLastIrqId == Timer::IRQ &&
-            gCallbackContextMatched;
+    bool passed { seen && gCallbackCount != 0 && gIrqCount != 0 && gLastIrqId == Timer::IRQ &&
+        gCallbackContextMatched };
     return passed;
 }
 
-static const TestCase kTimerCases[] = {
+static const TestCase kTimerCases[] {
     { "frequency_and_counter_progress", test_frequency_and_counter_progress },
     { "elapsed_ticks_reset_on_start", test_elapsed_ticks_reset_on_start },
     { "handle_irq_invokes_callback", test_handle_irq_reloads_and_invokes_callback },
     { "physical_timer_irq_invokes_callback", test_physical_timer_irq_invokes_callback },
 };
 
-static const TestSuite kTimerSuite = {
+static const TestSuite kTimerSuite {
     "TimerHarness",
     kTimerCases,
     4,

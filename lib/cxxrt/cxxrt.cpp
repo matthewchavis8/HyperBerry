@@ -21,7 +21,7 @@ extern "C" {
 
 // Referenced by objects that register a destructor. The hypervisor never
 // exits, so nothing registered here is ever run.
-void* __dso_handle = nullptr;
+void* __dso_handle { nullptr };
 
 int __cxa_atexit(void (*)(void*), void*, void*) {
     return 0;

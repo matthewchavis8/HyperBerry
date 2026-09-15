@@ -17,7 +17,7 @@ Uart::Uart() : m_base { BSP_UART_BASE } {
     // GetInstance(), and the guard byte for that static is only set once this
     // constructor returns, so routing this line through Log recurses into
     // GetInstance() until the stack is gone.
-    for (const char* msg = "[UART] UART intialized\r\n"; *msg != '\0'; ++msg) {
+    for (const char* msg { "[UART] UART intialized\r\n" }; *msg != '\0'; ++msg) {
         Putc(*msg);
     }
 #endif
@@ -49,7 +49,7 @@ void Uart::configure() const {
 
 void Uart::Putc(const char ch) const {
     // Flag Register bit mask
-    constexpr uint32_t FR_TXFF = (1 << 5);
+    constexpr uint32_t FR_TXFF { (1 << 5) };
 
     // Spin while TX FIFO is full
     while ((mmio::Read<uint32_t>(m_base, UART_REG::FR) & FR_TXFF) != 0U) {

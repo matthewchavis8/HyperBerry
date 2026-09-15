@@ -54,7 +54,7 @@ static bool test_formatted_print_doesnt_hang() {
 }
 
 // Static case table for the UART hardware integration suite.
-static const TestCase uart_hw_cases[] = {
+static const TestCase uart_hw_cases[] {
     { "test_tx_doesnt_hang\n", test_tx_doesnt_hang },
     { "test_tx_string_doesnt_hang\n", test_tx_string_doesnt_hang },
     { "test_print_hex_doesnt_hang\n", test_print_hex_doesnt_hang },
@@ -64,7 +64,7 @@ static const TestCase uart_hw_cases[] = {
 };
 
 // UART integration test suite auto-registered into `.hyperberry_tests`.
-static const TestSuite uartSuite = {
+static const TestSuite uartSuite {
     "UartHarness",
     uart_hw_cases,
     6,

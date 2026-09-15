@@ -28,8 +28,8 @@ TEST(GuestMmu, Vtcr40BitIpaMatchesT0szMask) {
 }
 
 TEST(GuestMmu, VtcrStage2FieldBuildersDoNotOverlap) {
-    uint64_t composed = VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB | VTCR_IRGN0_WB |
-            VTCR_PS_40BIT | VTCR_RES1;
+    uint64_t composed { VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB | VTCR_IRGN0_WB |
+        VTCR_PS_40BIT | VTCR_RES1 };
 
     // Bit 31 is RES1, SL0 is [7:6], TG0 is [15:14], SH0 is [13:12],
     // ORGN0 is [11:10], IRGN0 is [9:8], PS is [18:16].

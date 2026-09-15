@@ -38,8 +38,8 @@ inline void RegisterDump(const hv::array<uint64_t, 31>& ctx) {
     asm volatile("mrs %0, elr_el2" : "=r"(elr));
     asm volatile("mrs %0, spsr_el2" : "=r"(spsr));
 
-    uint32_t ec = (esr >> 26) & 0x3F;
-    uint32_t iss = esr & 0x1FFFFFF;
+    uint32_t ec { static_cast<uint32_t>((esr >> 26) & 0x3F) };
+    uint32_t iss { static_cast<uint32_t>(esr & 0x1FFFFFF) };
 
     auto sink = [](char ch) { Uart::GetInstance().Putc(ch); };
 

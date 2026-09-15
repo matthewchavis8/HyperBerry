@@ -56,7 +56,7 @@ TEST(HvUtility, MoveCastsToRvalueRef) {
 }
 
 TEST(HvUtility, ForwardPreservesLvalue) {
-    int x = 1;
+    int x { 1 };
     EXPECT_TRUE(forwardCheck<int&>(x));
 }
 

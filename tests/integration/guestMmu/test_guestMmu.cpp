@@ -7,11 +7,11 @@
 #include "tests/integration/suite.h"
 
 namespace {
-constexpr uint64_t kGuestIpaBase = 0x40000000ULL;
-constexpr uint64_t kGuestSize = SIZE_2MB * 2;
-constexpr uint8_t kTestVmid = 7;
-constexpr uint64_t kDeviceBlockIpa = 0x50000000ULL;
-constexpr uint64_t kDevicePageIpa = 0x51000000ULL;
+constexpr uint64_t kGuestIpaBase { 0x40000000ULL };
+constexpr uint64_t kGuestSize { SIZE_2MB * 2 };
+constexpr uint8_t kTestVmid { 7 };
+constexpr uint64_t kDeviceBlockIpa { 0x50000000ULL };
+constexpr uint64_t kDevicePageIpa { 0x51000000ULL };
 
 struct GuestMmuLayout {
     uint64_t* rootTable;
@@ -25,18 +25,18 @@ uint64_t* rootTable(GuestMmu& mmu) {
 uint64_t* walkStage2L2(uint64_t* root, uint64_t ipa) {
     if (!root) return nullptr;
 
-    uint64_t l1Entry = root[(ipa >> 30) & 0x3FFULL];
+    uint64_t l1Entry { root[(ipa >> 30) & 0x3FFULL] };
     if (!pte_is_table(l1Entry)) return nullptr;
 
-    uint64_t* l2 = pte_next_table(l1Entry);
+    uint64_t* l2 { pte_next_table(l1Entry) };
     return &l2[L2_INDEX(ipa)];
 }
 
 uint64_t* walkStage2L3(uint64_t* root, uint64_t ipa) {
-    uint64_t* l2 = walkStage2L2(root, ipa);
+    uint64_t* l2 { walkStage2L2(root, ipa) };
     if (!l2 || !pte_is_table(*l2)) return nullptr;
 
-    uint64_t* l3 = pte_next_table(*l2);
+    uint64_t* l3 { pte_next_table(*l2) };
     return &l3[L3_INDEX(ipa)];
 }
 
@@ -66,7 +66,7 @@ void clearStage2Enable() {
 
 static bool test_init_programs_vtcr_el2() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::AllocPages(9);
+    uint64_t hostPa { pmm::AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
@@ -75,24 +75,24 @@ static bool test_init_programs_vtcr_el2() {
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
     pmm::FreePages(hostPa, 9);
 
-    uint64_t expected = VTCR_T0SZ(24) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB |
-            VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1;
+    uint64_t expected { VTCR_T0SZ(24) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB |
+        VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1 };
 
     return vtcr == expected;
 }
 
 static bool test_init_maps_guest_ram_blocks() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::AllocPages(9);
+    uint64_t hostPa { pmm::AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
-    uint64_t* first = walkStage2L2(rootTable(mmu), kGuestIpaBase);
-    uint64_t* second = walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB);
+    uint64_t* first { walkStage2L2(rootTable(mmu), kGuestIpaBase) };
+    uint64_t* second { walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB) };
 
-    bool mapped = first != nullptr && second != nullptr &&
-            *first == normalStage2Descriptor(hostPa) &&
-            *second == normalStage2Descriptor(hostPa + SIZE_2MB);
+    bool mapped { first != nullptr && second != nullptr &&
+        *first == normalStage2Descriptor(hostPa) &&
+        *second == normalStage2Descriptor(hostPa + SIZE_2MB) };
 
     pmm::FreePages(hostPa, 9);
     return mapped;
@@ -100,7 +100,7 @@ static bool test_init_maps_guest_ram_blocks() {
 
 static bool test_init_maps_device_windows() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::AllocPages(9);
+    uint64_t hostPa { pmm::AllocPages(9) };
     if (hostPa == 0) return false;
 
     // One window of each granule. The page path carried no coverage at all
@@ -111,11 +111,11 @@ static bool test_init_maps_device_windows() {
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, devices);
 
-    uint64_t* block = walkStage2L2(rootTable(mmu), kDeviceBlockIpa);
-    uint64_t* page = walkStage2L3(rootTable(mmu), kDevicePageIpa);
+    uint64_t* block { walkStage2L2(rootTable(mmu), kDeviceBlockIpa) };
+    uint64_t* page { walkStage2L3(rootTable(mmu), kDevicePageIpa) };
 
-    bool mapped = block != nullptr && *block == deviceStage2Descriptor(kDeviceBlockIpa) &&
-            page != nullptr && *page == devicePageStage2Descriptor(BSP_UART_BASE);
+    bool mapped { block != nullptr && *block == deviceStage2Descriptor(kDeviceBlockIpa) &&
+        page != nullptr && *page == devicePageStage2Descriptor(BSP_UART_BASE) };
 
     pmm::FreePages(hostPa, 9);
     return mapped;
@@ -123,7 +123,7 @@ static bool test_init_maps_device_windows() {
 
 static bool test_enable_programs_vttbr_and_hcr_vm() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::AllocPages(9);
+    uint64_t hostPa { pmm::AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
@@ -134,23 +134,23 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
     asm volatile("mrs %0, vttbr_el2" : "=r"(vttbr));
     asm volatile("mrs %0, hcr_el2" : "=r"(hcr));
 
-    uint64_t expectedVttbr = (static_cast<uint64_t>(kTestVmid) << 48) |
-            (reinterpret_cast<uint64_t>(rootTable(mmu)) & PTE_ADDR_MASK);
-    bool enabled = vttbr == expectedVttbr && (hcr & 1ULL) != 0;
+    uint64_t expectedVttbr { (static_cast<uint64_t>(kTestVmid) << 48) |
+        (reinterpret_cast<uint64_t>(rootTable(mmu)) & PTE_ADDR_MASK) };
+    bool enabled { vttbr == expectedVttbr && (hcr & 1ULL) != 0 };
 
     clearStage2Enable();
     pmm::FreePages(hostPa, 9);
     return enabled;
 }
 
-static const TestCase kGuestMmuCases[] = {
+static const TestCase kGuestMmuCases[] {
     { "init_programs_vtcr_el2", test_init_programs_vtcr_el2 },
     { "init_maps_guest_ram_blocks", test_init_maps_guest_ram_blocks },
     { "init_maps_device_windows", test_init_maps_device_windows },
     { "enable_programs_vttbr_and_hcr_vm", test_enable_programs_vttbr_and_hcr_vm },
 };
 
-static const TestSuite kGuestMmuSuite = {
+static const TestSuite kGuestMmuSuite {
     "GuestMmuHarness",
     kGuestMmuCases,
     4,

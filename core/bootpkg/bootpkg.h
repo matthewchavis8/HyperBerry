@@ -16,28 +16,28 @@
 namespace bootpkg {
 
 // @brief Magic number identifying a v1 HyperBerry guest boot package (`HGBP`).
-static constexpr uint32_t HV_GUEST_BOOT_PKG_MAGIC = 0x50424748U;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_MAGIC { 0x50424748U };
 // @brief Package format version supported by this loader.
-static constexpr uint16_t HV_GUEST_BOOT_PKG_VERSION = 1;
+static constexpr uint16_t HV_GUEST_BOOT_PKG_VERSION { 1 };
 // @brief Fixed header region size in bytes; payload begins at this offset.
-static constexpr uint16_t HV_GUEST_BOOT_PKG_HEADER_SIZE = 4096;
+static constexpr uint16_t HV_GUEST_BOOT_PKG_HEADER_SIZE { 4096 };
 
 // @brief Boot protocol value for a Linux arm64 guest.
-static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64 = 1;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64 { 1 };
 // @brief Boot protocol value reserved for a bare-metal AArch64 payload (unsupported in v1).
-static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64 = 2;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64 { 2 };
 
 // @brief Flags bit indicating an initrd component is present in the package.
-static constexpr uint32_t HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT = (1U << 0);
+static constexpr uint32_t HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT { (1U << 0) };
 // @brief Mask of all flag bits recognised by the v1 loader; unknown bits are rejected.
-static constexpr uint32_t HV_GUEST_BOOT_PKG_KNOWN_FLAGS = HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT;
+static constexpr uint32_t HV_GUEST_BOOT_PKG_KNOWN_FLAGS { HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT };
 
 // @brief Fixed guest IPA base used for all v1 Linux guests.
-static constexpr uint64_t GUEST_IPA_BASE = 0x0ULL;
+static constexpr uint64_t GUEST_IPA_BASE { 0x0ULL };
 // @brief Fixed guest RAM allocation size (256 MiB) for all v1 Linux guests.
-static constexpr uint64_t GUEST_RAM_SIZE = 256ULL * 1024ULL * 1024ULL;
+static constexpr uint64_t GUEST_RAM_SIZE { 256ULL * 1024ULL * 1024ULL };
 // @brief IPA at which the Linux kernel Image is loaded inside guest RAM.
-static constexpr uint64_t LINUX_KERNEL_LOAD_IPA = 0x200000ULL;
+static constexpr uint64_t LINUX_KERNEL_LOAD_IPA { 0x200000ULL };
 
 // @brief Decoded view of a validated v1 package header.
 // @ingroup core

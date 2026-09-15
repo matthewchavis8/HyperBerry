@@ -27,9 +27,9 @@ bool check(const char* what, uint64_t expected, uint64_t actual) {
 } // namespace
 
 void VerifyBspAgainstDtb(uintptr_t dtb) {
-    bool ok = true;
+    bool ok { true };
 
-    DeviceNode uart = DtbFindUart(dtb);
+    DeviceNode uart { DtbFindUart(dtb) };
     if (!uart.found || uart.regionCount == 0) {
         Log::Println("[DTB][WARN] no PL011 in device tree; cannot verify UART_BASE");
     } else {
@@ -42,7 +42,7 @@ void VerifyBspAgainstDtb(uintptr_t dtb) {
         ok &= check("UART_SIZE", BSP_UART_SIZE, uart.regions[0].size);
     }
 
-    DeviceNode gic = DtbFindGic(dtb);
+    DeviceNode gic { DtbFindGic(dtb) };
     if (!gic.found || gic.regionCount == 0) {
         Log::Println("[DTB][WARN] no GIC in device tree; cannot verify GIC bases");
     } else {

@@ -22,7 +22,7 @@ private:
 
 public:
     // GIC PPI line wired to the ARM generic hypervisor physical timer.
-    static constexpr uint32_t IRQ = 26U;
+    static constexpr uint32_t IRQ { 26U };
 
     Timer() = default;
     Timer(const Timer&) = delete;

@@ -16,21 +16,21 @@ namespace log::detail {
 
 // @brief Uppercase hexadecimal digit lookup table.
 // @ingroup lib
-inline constexpr char hex[] = "0123456789ABCDEF";
+inline constexpr char hex[] { "0123456789ABCDEF" };
 
 
 template <typename T>
 struct AlwaysFalse {
-    static constexpr bool kValue = false;
+    static constexpr bool kValue { false };
 };
 
 template <typename T>
-inline constexpr bool kIsPointer = false;
+inline constexpr bool kIsPointer { false };
 template <typename T>
 inline constexpr bool kIsPointer<T*> = true;
 
 template <typename T>
-inline constexpr bool kIsSigned = static_cast<T>(-1) < static_cast<T>(0);
+inline constexpr bool kIsSigned { static_cast<T>(-1) < static_cast<T>(0) };
 
 template <typename Writer>
 inline void WriteCString(Writer&& writer, const char* str) {
@@ -51,7 +51,7 @@ inline void WriteUnsignedDecimal(Writer&& writer, uint64_t value) {
     }
 
     char buffer[20];
-    size_t len = 0;
+    size_t len { 0 };
 
     while (value != 0U) {
         buffer[len++] = static_cast<char>('0' + (value % 10U));
@@ -67,7 +67,7 @@ template <typename Writer>
 inline void WriteSignedDecimal(Writer&& writer, int64_t value) {
     if (value < 0) {
         writer('-');
-        uint64_t magnitude = static_cast<uint64_t>(-(value + 1)) + 1U;
+        uint64_t magnitude { static_cast<uint64_t>(-(value + 1)) + 1U };
         WriteUnsignedDecimal(writer, magnitude);
         return;
     }
@@ -86,7 +86,7 @@ inline void WriteUnsignedHex(Writer&& writer, uint64_t value) {
     }
 
     char buffer[16];
-    size_t len = 0;
+    size_t len { 0 };
 
     while (value != 0U) {
         buffer[len++] = hex[value & 0xFU];
@@ -225,7 +225,7 @@ inline void FormatToSink(Writer&& writer, const char* fmt) {
 
 template <typename Writer, typename T, typename... Rest>
 inline void FormatToSink(Writer&& writer, const char* fmt, T value, Rest... rest) {
-    const FormatResult result = WriteUntilPlaceholder(writer, fmt);
+    const FormatResult result { WriteUntilPlaceholder(writer, fmt) };
 
     if (result.step == FormatStep::PLACEHOLDER) {
         WriteFormattedValue(writer, result.spec, value);

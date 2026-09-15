@@ -18,7 +18,7 @@ constexpr uint64_t PSCI_NOT_SUPPORTED { static_cast<uint64_t>(-1) };
 } // namespace
 
 TEST(HvcAarch64, PsciVersionReturnsVersion) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_VERSION;
 
     EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
@@ -26,7 +26,7 @@ TEST(HvcAarch64, PsciVersionReturnsVersion) {
 }
 
 TEST(HvcAarch64, PsciFeaturesReturnsSuccessForSupportedCall) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_FEATURES;
     regs[1] = PSCI_VERSION;
 
@@ -35,7 +35,7 @@ TEST(HvcAarch64, PsciFeaturesReturnsSuccessForSupportedCall) {
 }
 
 TEST(HvcAarch64, PsciFeaturesReturnsNotSupportedForUnknownCall) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_FEATURES;
     regs[1] = 0xDEADBEEFULL;
 
@@ -44,21 +44,21 @@ TEST(HvcAarch64, PsciFeaturesReturnsNotSupportedForUnknownCall) {
 }
 
 TEST(HvcAarch64, PsciSystemOffReturnsHalt) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_SYSTEM_OFF;
 
     EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HALT);
 }
 
 TEST(HvcAarch64, PsciSystemResetReturnsReset) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_SYSTEM_RESET;
 
     EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::RESET);
 }
 
 TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = 0xC0FFEEULL;
     regs[1] = 0x1234ULL;
 
@@ -68,7 +68,7 @@ TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
 }
 
 TEST(HvcAarch64, UnimplementedPsciCallReturnsNotSupported) {
-    ExceptionContext regs = {};
+    ExceptionContext regs {};
     regs[0] = PSCI_CPU_SUSPEND;
 
     EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::UNHANDLED);

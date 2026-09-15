@@ -42,7 +42,7 @@ TEST(HvArray, BracketWrite) {
 }
 
 TEST(HvArray, FrontBack) {
-    hv::array<int, 4> a = { 1, 2, 3, 4 };
+    hv::array<int, 4> a { 1, 2, 3, 4 };
 
     EXPECT_EQ(a.front(), 1);
     EXPECT_EQ(a.back(), 4);
@@ -59,7 +59,7 @@ TEST(HvArray, Fill) {
 
 TEST(HvArray, DataPointer) {
     hv::array<int, 3> a { 1, 2, 3 };
-    int* p = a.data();
+    int* p { a.data() };
 
     EXPECT_EQ(p, &a[0]);
     EXPECT_EQ(p[2], 3);
@@ -82,7 +82,7 @@ TEST(HvArray, ConstIterators) {
     int expected { 60 };
     int sum {};
 
-    for (auto it = a.cbegin(); it != a.cend(); ++it) {
+    for (auto it { a.cbegin() }; it != a.cend(); ++it) {
         sum += *it;
     }
 

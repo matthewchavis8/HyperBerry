@@ -5,13 +5,13 @@
 
 #include "core/vcpu/vcpu.h"
 
-static constexpr uint64_t SPSR_EL1H_ALL_MASKED = (0b00101ULL) | (0xFULL << 6);
+static constexpr uint64_t SPSR_EL1H_ALL_MASKED { (0b00101ULL) | (0xFULL << 6) };
 
 // Capture globals — readable from other translation units (e.g. test_vm.cpp)
 // via extern declarations. Sentinel 0xDEADDEADDEADDEADULL means "not set".
-uint64_t gVcpuInitEntryCap = 0xDEADDEADDEADDEADULL;
-uint64_t gVcpuSetGuestSpCap = 0xDEADDEADDEADDEADULL;
-uint64_t gVcpuSetX0Cap = 0xDEADDEADDEADDEADULL;
+uint64_t gVcpuInitEntryCap { 0xDEADDEADDEADDEADULL };
+uint64_t gVcpuSetGuestSpCap { 0xDEADDEADDEADDEADULL };
+uint64_t gVcpuSetX0Cap { 0xDEADDEADDEADDEADULL };
 
 void Vcpu::Init(uint64_t entrypoint) {
     gVcpuInitEntryCap = entrypoint;

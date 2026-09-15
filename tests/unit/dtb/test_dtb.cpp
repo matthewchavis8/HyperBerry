@@ -14,10 +14,10 @@
 
 namespace uart_test_support {
 
-constexpr size_t kUartCaptureSize = 1024;
+constexpr size_t kUartCaptureSize { 1024 };
 
-char gUartCapture[kUartCaptureSize] = {};
-size_t gUartCaptureLen = 0;
+char gUartCapture[kUartCaptureSize] {};
+size_t gUartCaptureLen { 0 };
 
 void Reset() {
     gUartCaptureLen = 0;
@@ -64,7 +64,7 @@ class DtbBuilder {
 
 public:
     uint32_t AddString(const char* s) {
-        uint32_t off = static_cast<uint32_t>(m_strings.size());
+        uint32_t off { static_cast<uint32_t>(m_strings.size()) };
         while (*s) {
             m_strings.push_back(*s++);
         }
@@ -126,14 +126,14 @@ public:
     void end() { pushBE32(9); }
 
     std::vector<uint8_t> Build() {
-        constexpr uint32_t HEADER_SIZE = 40;
-        constexpr uint32_t MEMRSV_SIZE = 16; // just the (0,0) terminator
+        constexpr uint32_t HEADER_SIZE { 40 };
+        constexpr uint32_t MEMRSV_SIZE { 16 }; // just the (0,0) terminator
 
-        uint32_t structOff = HEADER_SIZE + MEMRSV_SIZE;
-        uint32_t structSz = static_cast<uint32_t>(m_structs.size());
-        uint32_t stringsOff = structOff + structSz;
-        uint32_t stringsSz = static_cast<uint32_t>(m_strings.size());
-        uint32_t total = stringsOff + stringsSz;
+        uint32_t structOff { HEADER_SIZE + MEMRSV_SIZE };
+        uint32_t structSz { static_cast<uint32_t>(m_structs.size()) };
+        uint32_t stringsOff { structOff + structSz };
+        uint32_t stringsSz { static_cast<uint32_t>(m_strings.size()) };
+        uint32_t total { stringsOff + stringsSz };
 
         std::vector<uint8_t> blob(total, 0);
 
@@ -170,7 +170,7 @@ static std::vector<uint8_t> buildStandardDtb(uint64_t memBase,
         uint64_t atfSize,
         const char* atfNodeName = "atf") {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
+    uint32_t reg { b.AddString("reg") };
 
     b.BeginNode(""); // root
     b.BeginNode("memory");
@@ -188,25 +188,25 @@ static std::vector<uint8_t> buildStandardDtb(uint64_t memBase,
 }
 
 TEST(DtbParser, NullDtbReturnsInvalid) {
-    MemoryMap map = ParseDtb(0);
+    MemoryMap map { ParseDtb(0) };
     EXPECT_FALSE(map.isValid);
 }
 
 TEST(DtbParser, BadMagicReturnsInvalid) {
-    uint8_t junk[64] = {};
+    uint8_t junk[64] {};
     junk[0] = 0xDE;
     junk[1] = 0xAD;
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(junk));
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(junk)) };
     EXPECT_FALSE(map.isValid);
 }
 
 TEST(DtbParser, ValidMemoryAndAtf) {
-    auto blob = buildStandardDtb(0x80000000ULL,
+    auto blob { buildStandardDtb(0x80000000ULL,
             0x40000000ULL, // 2GB RAM at 0x80000000
             0x80000000ULL,
-            0x00080000ULL); // 512KB ATF
+            0x00080000ULL) }; // 512KB ATF
 
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.memBase, 0x80000000ULL);
@@ -218,9 +218,9 @@ TEST(DtbParser, ValidMemoryAndAtf) {
 
 TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
-    uint32_t initrdStart = b.AddString("linux,initrd-start");
-    uint32_t initrdEnd = b.AddString("linux,initrd-end");
+    uint32_t reg { b.AddString("reg") };
+    uint32_t initrdStart { b.AddString("linux,initrd-start") };
+    uint32_t initrdEnd { b.AddString("linux,initrd-end") };
 
     b.BeginNode("");
     b.BeginNode("memory@0");
@@ -233,8 +233,8 @@ TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
@@ -243,9 +243,9 @@ TEST(DtbParser, ChosenInitrdBecomesBootPackageRegion) {
 
 TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
-    uint32_t initrdStart = b.AddString("linux,initrd-start");
-    uint32_t initrdEnd = b.AddString("linux,initrd-end");
+    uint32_t reg { b.AddString("reg") };
+    uint32_t initrdStart { b.AddString("linux,initrd-start") };
+    uint32_t initrdEnd { b.AddString("linux,initrd-end") };
 
     b.BeginNode("");
     b.BeginNode("memory@0");
@@ -258,8 +258,8 @@ TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.bootPackageBase, 0x20000000ULL);
@@ -268,7 +268,7 @@ TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
 
 TEST(DtbParser, MemoryOnlyNoAtf) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
+    uint32_t reg { b.AddString("reg") };
 
     b.BeginNode("");
     b.BeginNode("memory");
@@ -277,8 +277,8 @@ TEST(DtbParser, MemoryOnlyNoAtf) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.memBase, 0x40000000ULL);
@@ -288,10 +288,10 @@ TEST(DtbParser, MemoryOnlyNoAtf) {
 }
 
 TEST(DtbParser, Bl31NameMatchesAtf) {
-    auto blob =
-            buildStandardDtb(0x80000000ULL, 0x40000000ULL, 0x80000000ULL, 0x00080000ULL, "bl31");
+    auto blob { buildStandardDtb(
+            0x80000000ULL, 0x40000000ULL, 0x80000000ULL, 0x00080000ULL, "bl31") };
 
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.atfBase, 0x80000000ULL);
@@ -308,14 +308,14 @@ TEST(DtbParser, NoMemoryNodeInvalid) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
     EXPECT_FALSE(map.isValid);
 }
 
 TEST(DtbParser, NopTokensSkipped) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
+    uint32_t reg { b.AddString("reg") };
 
     b.BeginNode("");
     b.Nop();
@@ -328,8 +328,8 @@ TEST(DtbParser, NopTokensSkipped) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
 
     EXPECT_TRUE(map.isValid);
     EXPECT_EQ(map.memBase, 0x80000000ULL);
@@ -338,7 +338,7 @@ TEST(DtbParser, NopTokensSkipped) {
 
 TEST(DtbParser, ShortRegPropertySkipped) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
+    uint32_t reg { b.AddString("reg") };
 
     b.BeginNode("");
     b.BeginNode("memory");
@@ -347,7 +347,7 @@ TEST(DtbParser, ShortRegPropertySkipped) {
     b.EndNode();
     b.end();
 
-    auto blob = b.Build();
-    MemoryMap map = ParseDtb(reinterpret_cast<uintptr_t>(blob.data()));
+    auto blob { b.Build() };
+    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
     EXPECT_FALSE(map.isValid);
 }
