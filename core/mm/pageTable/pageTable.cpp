@@ -8,7 +8,7 @@
 #include "pageTable.h"
 
 namespace PageTable {
-void cleanDataCacheRange(const void* addr, size_t size) {
+void CleanDataCacheRange(const void* addr, size_t size) {
 #if defined(__aarch64__)
     if (size == 0) return;
 
@@ -29,21 +29,21 @@ void cleanDataCacheRange(const void* addr, size_t size) {
 #endif
 }
 
-uint64_t* allocTable() {
-    uint64_t pa = pmm::allocPages(0);
+uint64_t* AllocTable() {
+    uint64_t pa = pmm::AllocPages(0);
     if (pa == 0) {
-        Log::println("[PageTable] Failed to allocate page table");
+        Log::Println("[PageTable] Failed to allocate page table");
         for (;;)
             asm volatile("wfe");
     }
 
     uint64_t* table = reinterpret_cast<uint64_t*>(pa);
     memset(table, 0, PAGE_SIZE);
-    cleanDataCacheRange(table, PAGE_SIZE);
+    CleanDataCacheRange(table, PAGE_SIZE);
     return table;
 }
 
-uint64_t* walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg) {
+uint64_t* Walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg) {
     static constexpr uint32_t levelShift[] = { 39, 30, 21, 12 };
 
     uint64_t* table = root;
@@ -55,9 +55,9 @@ uint64_t* walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg) {
         if (!pte_is_valid(table[idx])) {
             if (!cfg.allocOnMiss) return nullptr;
 
-            uint64_t* next = allocTable();
+            uint64_t* next = AllocTable();
             table[idx] = (uint64_t)(uintptr_t)next | PTE_VALID | PTE_TABLE;
-            cleanDataCacheRange(&table[idx], sizeof(table[idx]));
+            CleanDataCacheRange(&table[idx], sizeof(table[idx]));
         }
 
         table = pte_next_table(table[idx]);

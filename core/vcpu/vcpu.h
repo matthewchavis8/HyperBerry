@@ -153,62 +153,62 @@ public:
     //   - sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared
     //
     // @param entrypoint Guest physical address to resume at on first eret.
-    void init(uint64_t entrypoint);
+    void Init(uint64_t entrypoint);
 
     // @brief Save EL1 system registers from hardware into this context.
     // @note Call site must have DAIF masked. Meaningful only on AArch64.
-    void saveEl1SysRegs();
+    void SaveEl1SysRegs();
 
     // @brief Restore EL1 system registers from this context into hardware.
     // @note SCTLR_EL1 is restored last, after TTBR/TCR/MAIR, with an
     //       intervening isb. Call site must have DAIF masked.
-    void restoreEl1SysRegs();
+    void RestoreEl1SysRegs();
 
     // @brief Return the saved guest PC (ELR_EL2).
-    [[nodiscard]] uint64_t getElr() const noexcept;
+    [[nodiscard]] uint64_t GetElr() const noexcept;
 
     // @brief Overwrite the saved guest PC (ELR_EL2).
-    void setPc(uint64_t pc);
+    void SetPc(uint64_t pc);
 
     // @brief Advance ELR_EL2 by 4 bytes (skip faulting instruction).
-    void skipInstruction();
+    void SkipInstruction();
 
     // @brief Set the guest SP_EL1 (stack pointer seen by the guest at EL1).
-    void setGuestSp(uint64_t sp);
+    void SetGuestSp(uint64_t sp);
 
     // @brief Read a saved GPR by offset.
     // @param off One of the VCPU_GPREG_* constants.
-    [[nodiscard]] uint64_t getGpReg(uint64_t off) const noexcept;
+    [[nodiscard]] uint64_t GetGpReg(uint64_t off) const noexcept;
 
     // @brief Write a saved GPR by offset.
     // @param off One of the VCPU_GPREG_* constants.
     // @param val Value to store.
-    void setGpReg(uint64_t off, uint64_t val);
+    void SetGpReg(uint64_t off, uint64_t val);
 
     // @brief Opaque vCPU identifier assigned by the scheduler.
-    [[nodiscard]] uint32_t getId() const noexcept { return m_vcpuId; }
+    [[nodiscard]] uint32_t GetId() const noexcept { return m_vcpuId; }
 
     // @brief Set the vCPU identifier (scheduler-only).
-    void setId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
+    void SetId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
 
     // @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
     // @note Returns nullptr on hosted (non-AArch64) builds.
-    [[nodiscard]] static Vcpu* getCurrentVcpu();
+    [[nodiscard]] static Vcpu* GetCurrentVcpu();
 
     // @brief Stub scheduler entry. Replaced by real scheduler later.
-    static void scheduleNext();
+    static void ScheduleNext();
 } __attribute__((aligned(128)));
 
 struct VcpuLayoutAccess {
-    static constexpr uint64_t gprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
+    static constexpr uint64_t GprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
 
-    static constexpr uint64_t spEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
+    static constexpr uint64_t SpEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
 
-    static constexpr uint64_t hvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
+    static constexpr uint64_t HvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
 
-    static constexpr uint64_t el2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
+    static constexpr uint64_t El2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
 
-    static constexpr uint64_t el1SysRegsOffset() { return __builtin_offsetof(Vcpu, m_el1SysRegs); }
+    static constexpr uint64_t El1SysRegsOffset() { return __builtin_offsetof(Vcpu, m_el1SysRegs); }
 };
 
 // Fail Loudly
@@ -218,19 +218,19 @@ static_assert(sizeof(El2State) == VCPU_EL2STATE_SIZE,
         "El2State size drifted from the asm-visible EL2 layout");
 static_assert(sizeof(El1SysRegs) == VCPU_EL1SYSREGS_SIZE,
         "El1SysRegs size drifted from the asm-visible EL1 sysreg layout");
-static_assert(VcpuLayoutAccess::gprOffset() == VCPU_GPREGS_OFFSET,
+static_assert(VcpuLayoutAccess::GprOffset() == VCPU_GPREGS_OFFSET,
         "m_gpr offset drifted from VCPU_GPREGS_OFFSET");
-static_assert(VcpuLayoutAccess::spEl0Offset() == VCPU_GPREG_SP_EL0,
+static_assert(VcpuLayoutAccess::SpEl0Offset() == VCPU_GPREG_SP_EL0,
         "m_spEl0 offset drifted from VCPU_GPREG_SP_EL0");
-static_assert(VcpuLayoutAccess::el2StateOffset() == VCPU_EL2STATE_OFFSET,
+static_assert(VcpuLayoutAccess::El2StateOffset() == VCPU_EL2STATE_OFFSET,
         "m_el2State offset drifted from VCPU_EL2STATE_OFFSET");
-static_assert(VcpuLayoutAccess::el1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
+static_assert(VcpuLayoutAccess::El1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
         "m_el1SysRegs offset drifted from VCPU_EL1REGS_OFFSET");
 static_assert(sizeof(Vcpu) >= VCPU_SIZEOF, "Vcpu smaller than asm-expected context size");
 
 static_assert(
         sizeof(HvContext) == VCPU_HVCTX_SIZE, "HvContext size drifted from asm-visible layout");
-static_assert(VcpuLayoutAccess::hvCtxOffset() == VCPU_HVCTX_OFFSET,
+static_assert(VcpuLayoutAccess::HvCtxOffset() == VCPU_HVCTX_OFFSET,
         "m_hvCtx offset drifted from VCPU_HVCTX_OFFSET");
 
 // @brief fn used to resume guest state

@@ -33,7 +33,7 @@ template <typename T>
 inline constexpr bool kIsSigned = static_cast<T>(-1) < static_cast<T>(0);
 
 template <typename Writer>
-inline void writeCString(Writer&& writer, const char* str) {
+inline void WriteCString(Writer&& writer, const char* str) {
     if (str == nullptr) {
         str = "(null)";
     }
@@ -44,7 +44,7 @@ inline void writeCString(Writer&& writer, const char* str) {
 }
 
 template <typename Writer>
-inline void writeUnsignedDecimal(Writer&& writer, uint64_t value) {
+inline void WriteUnsignedDecimal(Writer&& writer, uint64_t value) {
     if (value == 0U) {
         writer('0');
         return;
@@ -64,19 +64,19 @@ inline void writeUnsignedDecimal(Writer&& writer, uint64_t value) {
 }
 
 template <typename Writer>
-inline void writeSignedDecimal(Writer&& writer, int64_t value) {
+inline void WriteSignedDecimal(Writer&& writer, int64_t value) {
     if (value < 0) {
         writer('-');
         uint64_t magnitude = static_cast<uint64_t>(-(value + 1)) + 1U;
-        writeUnsignedDecimal(writer, magnitude);
+        WriteUnsignedDecimal(writer, magnitude);
         return;
     }
 
-    writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
+    WriteUnsignedDecimal(writer, static_cast<uint64_t>(value));
 }
 
 template <typename Writer>
-inline void writeUnsignedHex(Writer&& writer, uint64_t value) {
+inline void WriteUnsignedHex(Writer&& writer, uint64_t value) {
     writer('0');
     writer('x');
 
@@ -99,22 +99,22 @@ inline void writeUnsignedHex(Writer&& writer, uint64_t value) {
 }
 
 template <typename Writer, typename T>
-inline void writeValue(Writer&& writer, T value) {
+inline void WriteValue(Writer&& writer, T value) {
     if constexpr (__is_same(T, decltype(nullptr)))
-        writeUnsignedHex(writer, 0U);
+        WriteUnsignedHex(writer, 0U);
     else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
-        writeCString(writer, value);
+        WriteCString(writer, value);
     else if constexpr (kIsPointer<T>)
-        writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+        WriteUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     else if constexpr (__is_same(T, bool))
-        writeCString(writer, value ? "true" : "false");
+        WriteCString(writer, value ? "true" : "false");
     else if constexpr (__is_same(T, char))
         writer(value);
     else if constexpr (__is_integral(T)) {
         if constexpr (kIsSigned<T>)
-            writeSignedDecimal(writer, static_cast<int64_t>(value));
+            WriteSignedDecimal(writer, static_cast<int64_t>(value));
         else
-            writeUnsignedDecimal(writer, static_cast<uint64_t>(value));
+            WriteUnsignedDecimal(writer, static_cast<uint64_t>(value));
     } else
         static_assert(AlwaysFalse<T>::kValue, "Unsupported log format type");
 }
@@ -136,9 +136,9 @@ struct FormatResult {
 };
 
 template <typename Writer>
-inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
+inline FormatResult WriteUntilPlaceholder(Writer&& writer, const char*& fmt) {
     if (fmt == nullptr) {
-        writeCString(writer, "(null)");
+        WriteCString(writer, "(null)");
         return { FormatStep::END, FormatSpec::DEFAULT };
     }
 
@@ -160,7 +160,7 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
                 return { FormatStep::PLACEHOLDER, FormatSpec::HEX };
             }
 
-            writeCString(writer, "[invalid format]");
+            WriteCString(writer, "[invalid format]");
             return { FormatStep::INVALID, FormatSpec::DEFAULT };
         }
 
@@ -171,7 +171,7 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
                 continue;
             }
 
-            writeCString(writer, "[invalid format]");
+            WriteCString(writer, "[invalid format]");
             return { FormatStep::INVALID, FormatSpec::DEFAULT };
         }
 
@@ -182,65 +182,65 @@ inline FormatResult writeUntilPlaceholder(Writer&& writer, const char*& fmt) {
 }
 
 template <typename Writer, typename T>
-inline void writeHexValue(Writer&& writer, T value) {
+inline void WriteHexValue(Writer&& writer, T value) {
     if constexpr (__is_same(T, decltype(nullptr))) {
-        writeUnsignedHex(writer, 0U);
+        WriteUnsignedHex(writer, 0U);
     } else if constexpr (kIsPointer<T>) {
-        writeUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+        WriteUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     } else if constexpr (__is_same(T, bool)) {
-        writeUnsignedHex(writer, value ? 1U : 0U);
+        WriteUnsignedHex(writer, value ? 1U : 0U);
     } else if constexpr (__is_same(T, char)) {
-        writeUnsignedHex(writer, static_cast<uint64_t>(static_cast<unsigned char>(value)));
+        WriteUnsignedHex(writer, static_cast<uint64_t>(static_cast<unsigned char>(value)));
     } else if constexpr (__is_integral(T)) {
-        writeUnsignedHex(writer, static_cast<uint64_t>(value));
+        WriteUnsignedHex(writer, static_cast<uint64_t>(value));
     } else {
         static_assert(AlwaysFalse<T>::kValue, "Unsupported log hex format type");
     }
 }
 
 template <typename Writer, typename T>
-inline void writeFormattedValue(Writer&& writer, FormatSpec spec, T value) {
+inline void WriteFormattedValue(Writer&& writer, FormatSpec spec, T value) {
     if (spec == FormatSpec::HEX) {
         if constexpr (__is_enum(T)) {
-            writeHexValue(writer, static_cast<__underlying_type(T)>(value));
+            WriteHexValue(writer, static_cast<__underlying_type(T)>(value));
         } else {
-            writeHexValue(writer, value);
+            WriteHexValue(writer, value);
         }
         return;
     }
 
     if constexpr (__is_enum(T)) {
-        writeSignedDecimal(writer, static_cast<int64_t>(value));
+        WriteSignedDecimal(writer, static_cast<int64_t>(value));
     } else {
-        writeValue(writer, value);
+        WriteValue(writer, value);
     }
 }
 
 template <typename Writer>
-inline void formatToSink(Writer&& writer, const char* fmt) {
-    if (writeUntilPlaceholder(writer, fmt).step == FormatStep::PLACEHOLDER) {
-        writeCString(writer, "[missing arg]");
+inline void FormatToSink(Writer&& writer, const char* fmt) {
+    if (WriteUntilPlaceholder(writer, fmt).step == FormatStep::PLACEHOLDER) {
+        WriteCString(writer, "[missing arg]");
     }
 }
 
 template <typename Writer, typename T, typename... Rest>
-inline void formatToSink(Writer&& writer, const char* fmt, T value, Rest... rest) {
-    const FormatResult result = writeUntilPlaceholder(writer, fmt);
+inline void FormatToSink(Writer&& writer, const char* fmt, T value, Rest... rest) {
+    const FormatResult result = WriteUntilPlaceholder(writer, fmt);
 
     if (result.step == FormatStep::PLACEHOLDER) {
-        writeFormattedValue(writer, result.spec, value);
-        formatToSink(writer, fmt, rest...);
+        WriteFormattedValue(writer, result.spec, value);
+        FormatToSink(writer, fmt, rest...);
         return;
     }
 
     if (result.step == FormatStep::END) {
-        writeCString(writer, "[extra arg]");
+        WriteCString(writer, "[extra arg]");
     }
 }
 
 template <typename Writer, typename... Args>
-inline void formatLineToSink(Writer&& writer, const char* fmt, Args... args) {
-    formatToSink(writer, fmt, args...);
+inline void FormatLineToSink(Writer&& writer, const char* fmt, Args... args) {
+    FormatToSink(writer, fmt, args...);
     writer('\r');
     writer('\n');
 }
@@ -271,9 +271,9 @@ public:
     // @brief Print a string followed by CRLF. Compiled out when NDEBUG is set.
     // @param str Null terminated string, printed as is.
     // @return Nothing.
-    static void println([[maybe_unused]] const char* str) {
+    static void Println([[maybe_unused]] const char* str) {
 #ifndef NDEBUG
-        log::detail::formatLineToSink([](char ch) { Log::sink(ch); }, "{}", str);
+        log::detail::FormatLineToSink([](char ch) { Log::sink(ch); }, "{}", str);
 #endif
     }
 
@@ -282,18 +282,18 @@ public:
     // @param args Values for its placeholders.
     // @return Nothing.
     template <typename... Args>
-    static void println([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
+    static void Println([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
 #ifndef NDEBUG
-        log::detail::formatLineToSink([](char ch) { Log::sink(ch); }, fmt, args...);
+        log::detail::FormatLineToSink([](char ch) { Log::sink(ch); }, fmt, args...);
 #endif
     }
 
     // @brief Print a string with no line ending. Compiled out when NDEBUG is set.
     // @param str Null terminated string, printed as is.
     // @return Nothing.
-    static void print([[maybe_unused]] const char* str) {
+    static void Print([[maybe_unused]] const char* str) {
 #ifndef NDEBUG
-        log::detail::formatToSink([](char ch) { Log::sink(ch); }, "{}", str);
+        log::detail::FormatToSink([](char ch) { Log::sink(ch); }, "{}", str);
 #endif
     }
 
@@ -302,9 +302,9 @@ public:
     // @param args Values for its placeholders.
     // @return Nothing.
     template <typename... Args>
-    static void print([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
+    static void Print([[maybe_unused]] const char* fmt, [[maybe_unused]] Args... args) {
 #ifndef NDEBUG
-        log::detail::formatToSink([](char ch) { Log::sink(ch); }, fmt, args...);
+        log::detail::FormatToSink([](char ch) { Log::sink(ch); }, fmt, args...);
 #endif
     }
 };

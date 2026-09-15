@@ -15,39 +15,39 @@
 // size cells. The @c volatile qualifier prevents the compiler from
 // widening accesses on Device-nGnRnE memory before the MMU is enabled.
 static void readReg64(const volatile uint32_t* data, uint64_t& base, uint64_t& size) {
-    base = (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
-    size = (static_cast<uint64_t>(be32(data[2])) << 32) | static_cast<uint64_t>(be32(data[3]));
+    base = (static_cast<uint64_t>(Be32(data[0])) << 32) | static_cast<uint64_t>(Be32(data[1]));
+    size = (static_cast<uint64_t>(Be32(data[2])) << 32) | static_cast<uint64_t>(Be32(data[3]));
 }
 
 static uint64_t readU64Cells(const volatile uint32_t* data) {
-    return (static_cast<uint64_t>(be32(data[0])) << 32) | static_cast<uint64_t>(be32(data[1]));
+    return (static_cast<uint64_t>(Be32(data[0])) << 32) | static_cast<uint64_t>(Be32(data[1]));
 }
 
 static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLen) {
     if (dataLen >= 8) return readU64Cells(data);
 
-    return static_cast<uint64_t>(be32(data[0]));
+    return static_cast<uint64_t>(Be32(data[0]));
 }
 
 // All DTB pointers use volatile to prevent the compiler from widening
 // 32-bit reads into larger accesses. With the MMU disabled on Cortex-A76,
 // the DTB resides in Device-nGnRnE memory where natural alignment must be
 // respected, and the DTB format only guarantees 4-byte alignment.
-MemoryMap parseDtb(uintptr_t dtb) {
+MemoryMap ParseDtb(uintptr_t dtb) {
     MemoryMap map = {};
 
     if (dtb == 0) return map;
 
     const volatile FdtHeader* hdr = reinterpret_cast<const volatile FdtHeader*>(dtb);
 
-    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return map;
+    if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return map;
 
     map.dtbBase = dtb;
-    map.dtbSize = be32(hdr->totalSize);
+    map.dtbSize = Be32(hdr->totalSize);
 
     const volatile uint32_t* structs =
-            reinterpret_cast<const volatile uint32_t*>(dtb + be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(dtb + be32(hdr->stringsOff));
+            reinterpret_cast<const volatile uint32_t*>(dtb + Be32(hdr->structOff));
+    const char* strings = reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff));
 
     bool foundMem = false;
     bool foundAtf = false;
@@ -62,7 +62,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
     const volatile uint32_t* tok = structs;
 
     while (true) {
-        uint32_t token = be32(*tok);
+        uint32_t token = Be32(*tok);
         tok++;
 
         switch (static_cast<FDT>(token)) {
@@ -73,20 +73,20 @@ MemoryMap parseDtb(uintptr_t dtb) {
 
                 // depth == 1: inside root "/", entering a top-level node
                 if (depth == 1) {
-                    inMemory = strStartsWith(name, "memory");
-                    inReservedMemory = strEq(name, "reserved-memory");
-                    inChosen = strEq(name, "chosen");
+                    inMemory = StrStartsWith(name, "memory");
+                    inReservedMemory = StrEq(name, "reserved-memory");
+                    inChosen = StrEq(name, "chosen");
                     // depth == 2: inside reserved-memory, entering a child node
                 } else if (depth == 2 && inReservedMemory) {
-                    inAtf = strEq(name, "atf") || strEq(name, "bl31") || strEq(name, "secmon") ||
-                            strEq(name, "optee") || strEq(name, "tee");
+                    inAtf = StrEq(name, "atf") || StrEq(name, "bl31") || StrEq(name, "secmon") ||
+                            StrEq(name, "optee") || StrEq(name, "tee");
                 }
 
                 uint32_t nameLen {};
                 while (nameB[nameLen] != 0)
                     nameLen++;
 
-                tok = reinterpret_cast<const volatile uint32_t*>(fdtAlign(nameB, nameLen + 1));
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(nameB, nameLen + 1));
                 depth++;
                 break;
             }
@@ -106,12 +106,12 @@ MemoryMap parseDtb(uintptr_t dtb) {
             }
 
             case FDT::PROP: {
-                uint32_t dataLen = be32(tok[0]);
-                uint32_t nameOff = be32(tok[1]);
+                uint32_t dataLen = Be32(tok[0]);
+                uint32_t nameOff = Be32(tok[1]);
                 const char* propName = strings + nameOff;
                 const volatile uint32_t* propData = tok + 2; // skip dataLen + nameOff
 
-                if (strEq(propName, "reg") && dataLen >= 16) {
+                if (StrEq(propName, "reg") && dataLen >= 16) {
                     if (inMemory && !foundMem) {
                         readReg64(propData, map.memBase, map.memSize);
                         foundMem = true;
@@ -120,9 +120,9 @@ MemoryMap parseDtb(uintptr_t dtb) {
                         foundAtf = true;
                     }
                 } else if (inChosen && dataLen >= 4) {
-                    if (strEq(propName, "linux,initrd-start")) {
+                    if (StrEq(propName, "linux,initrd-start")) {
                         map.bootPackageBase = readInitrdAddress(propData, dataLen);
-                    } else if (strEq(propName, "linux,initrd-end")) {
+                    } else if (StrEq(propName, "linux,initrd-end")) {
                         uint64_t end = readInitrdAddress(propData, dataLen);
                         if (end > map.bootPackageBase)
                             map.bootPackageSize = end - map.bootPackageBase;
@@ -130,7 +130,7 @@ MemoryMap parseDtb(uintptr_t dtb) {
                 }
 
                 tok = reinterpret_cast<const volatile uint32_t*>(
-                        fdtAlign(const_cast<const uint32_t*>(propData), dataLen));
+                        FdtAlign(const_cast<const uint32_t*>(propData), dataLen));
                 break;
             }
 
@@ -172,7 +172,7 @@ struct BusLevel {
 uint64_t readCells(const volatile uint32_t* data, uint32_t cells) {
     uint64_t value = 0;
     for (uint32_t i = 0; i < cells; ++i)
-        value = (value << 32) | be32(data[i]);
+        value = (value << 32) | Be32(data[i]);
 
     return value;
 }
@@ -182,7 +182,7 @@ bool compatibleMatches(const char* list, uint32_t len, const char* const* wanted
     while (off < len) {
         const char* entry = list + off;
         for (uint32_t i = 0; i < count; ++i) {
-            if (strEq(entry, wanted[i])) return true;
+            if (StrEq(entry, wanted[i])) return true;
         }
 
         while (off < len && list[off] != 0)
@@ -223,23 +223,23 @@ uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
 
 } // namespace
 
-DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count) {
+DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count) {
     DeviceNode out = {};
 
     if (dtb == 0 || compatibles == nullptr || count == 0) return out;
 
     const volatile FdtHeader* hdr = reinterpret_cast<const volatile FdtHeader*>(dtb);
-    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return out;
+    if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return out;
 
     const volatile uint32_t* tok =
-            reinterpret_cast<const volatile uint32_t*>(dtb + be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(dtb + be32(hdr->stringsOff));
+            reinterpret_cast<const volatile uint32_t*>(dtb + Be32(hdr->structOff));
+    const char* strings = reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff));
 
     BusLevel stack[MAX_DEPTH] = {};
     uint32_t depth = 0;
 
     while (true) {
-        uint32_t token = be32(*tok);
+        uint32_t token = Be32(*tok);
         tok++;
 
         switch (static_cast<FDT>(token)) {
@@ -249,7 +249,7 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                 uint32_t nameLen = 0;
                 while (nameB[nameLen] != 0)
                     nameLen++;
-                tok = reinterpret_cast<const volatile uint32_t*>(fdtAlign(nameB, nameLen + 1));
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(nameB, nameLen + 1));
 
                 if (depth < MAX_DEPTH) {
                     // Defaults per the DT spec when a node omits the cells.
@@ -287,25 +287,25 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
             }
 
             case FDT::PROP: {
-                uint32_t dataLen = be32(tok[0]);
-                uint32_t nameOff = be32(tok[1]);
+                uint32_t dataLen = Be32(tok[0]);
+                uint32_t nameOff = Be32(tok[1]);
                 const char* propName = strings + nameOff;
                 const volatile uint32_t* propData = tok + 2;
                 uint32_t level = depth > 0 ? depth - 1 : 0;
 
                 if (level < MAX_DEPTH) {
                     BusLevel& node = stack[level];
-                    if (strEq(propName, "#address-cells") && dataLen >= 4) {
-                        node.addressCells = be32(propData[0]);
-                    } else if (strEq(propName, "#size-cells") && dataLen >= 4) {
-                        node.sizeCells = be32(propData[0]);
-                    } else if (strEq(propName, "ranges")) {
+                    if (StrEq(propName, "#address-cells") && dataLen >= 4) {
+                        node.addressCells = Be32(propData[0]);
+                    } else if (StrEq(propName, "#size-cells") && dataLen >= 4) {
+                        node.sizeCells = Be32(propData[0]);
+                    } else if (StrEq(propName, "ranges")) {
                         node.ranges = propData;
                         node.rangesLen = dataLen;
-                    } else if (strEq(propName, "reg")) {
+                    } else if (StrEq(propName, "reg")) {
                         node.reg = propData;
                         node.regLen = dataLen;
-                    } else if (strEq(propName, "compatible") && dataLen > 0) {
+                    } else if (StrEq(propName, "compatible") && dataLen > 0) {
                         const char* list = reinterpret_cast<const char*>(
                                 const_cast<const uint32_t*>(propData));
                         node.matched = compatibleMatches(list, dataLen, compatibles, count);
@@ -313,7 +313,7 @@ DeviceNode dtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                 }
 
                 tok = reinterpret_cast<const volatile uint32_t*>(
-                        fdtAlign(const_cast<const uint32_t*>(propData), dataLen));
+                        FdtAlign(const_cast<const uint32_t*>(propData), dataLen));
                 break;
             }
 
@@ -343,10 +343,10 @@ const char* const kGicCompatible[] = {
 
 } // namespace
 
-DeviceNode dtbFindUart(uintptr_t dtb) {
-    return dtbFindCompatible(dtb, kUartCompatible, 2);
+DeviceNode DtbFindUart(uintptr_t dtb) {
+    return DtbFindCompatible(dtb, kUartCompatible, 2);
 }
 
-DeviceNode dtbFindGic(uintptr_t dtb) {
-    return dtbFindCompatible(dtb, kGicCompatible, 5);
+DeviceNode DtbFindGic(uintptr_t dtb) {
+    return DtbFindCompatible(dtb, kGicCompatible, 5);
 }

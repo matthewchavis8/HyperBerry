@@ -14,7 +14,7 @@ it.
 lifetime boilerplate, not something a reader looks for first.
 
 **Close copy and move on anything that owns hardware.** Left implicit, the
-compiler hands out a copy for `Uart u = Uart::getInstance();` and that copy
+compiler hands out a copy for `Uart u = Uart::GetInstance();` and that copy
 drives the same registers behind the singleton's back. All four go, and a
 defaulted destructor keeps the type trivially destructible:
 
@@ -26,13 +26,25 @@ Uart& operator=(Uart&&) = delete;
 ~Uart() = default;
 ```
 
-**Getters are named `getX()`.** `getBase()`, `getInstance()`. `Gic` still
-carries `distBase()`, `hvBase()` and `vcpuBase()` from before this rule.
+**Public API is UpperCamelCase.** Public member functions, and functions with
+external linkage: `Uart::GetInstance()`, `Vcpu::GetElr()`, `Log::Println()`,
+`mmio::Write<uint32_t>()`. Getters are `GetX()`. Private methods and file local
+helpers stay lowerCamelCase, as `Uart::configure()` does. `.clang-tidy` enforces
+both through `PublicMethodCase` and `GlobalFunctionCase`.
+
+Two kinds of name keep their spelling. Symbols the assembly, compiler or runtime
+reach by name: `memcpy`, `memset`, `hmain`, `vcpu_enter`, the `handle_*` trap
+entries and `__cxa_*`. And the pieces of lib that mirror the standard library:
+`hv::array`'s `begin`, `end`, `size` and `data`, the smart pointers' `get`,
+`reset` and `release`, and `hv::move`, `hv::forward` and `hv::swap`.
+
+`Gic` still carries `DistBase()`, `HvBase()` and `VcpuBase()` from before the
+getter rule.
 
 **Prefer a constructor over an init idiom.** A driver that needs register
 programming does it in the constructor, through a private helper the rebind path
-can also call. `Uart::Uart()` calls `configure()`, and so does `setBase()`.
-There is no public `init()` to forget.
+can also call. `Uart::Uart()` calls `configure()`, and so does `SetBase()`.
+There is no public `Init()` to forget.
 
 ## Declarations
 
@@ -55,7 +67,7 @@ One instance of a device is a function local static, not a namespace scope
 object:
 
 ```cpp
-Uart& Uart::getInstance() {
+Uart& Uart::GetInstance() {
     static Uart console;
     return console;
 }
@@ -72,7 +84,7 @@ that never exits has no use for a destructor that never runs.
 is written only after the constructor returns, and `-fno-threadsafe-statics`
 removes the `__cxa_guard_acquire` that would otherwise catch recursive
 initialisation. So a constructor that logs through `Log`, whose sink calls
-`getInstance()`, recurses until the stack is gone and faults with no console
+`GetInstance()`, recurses until the stack is gone and faults with no console
 output. Write through `this` instead, as `Uart::Uart()` does for its banner.
 
 ## Comments
@@ -104,13 +116,13 @@ So `@brief`, `@param` and `@return` written in `//` comments do not reach
 only place a device register is turned into a pointer:
 
 ```cpp
-mmio::write<uint32_t>(m_base, UART_REG::DR, value);
-uint32_t fr = mmio::read<uint32_t>(m_base, UART_REG::FR);
+mmio::Write<uint32_t>(m_base, UART_REG::DR, value);
+uint32_t fr = mmio::Read<uint32_t>(m_base, UART_REG::FR);
 ```
 
 Both an absolute address form and a base plus offset form exist. The width is
 never deduced: the value parameter passes through a non deduced indirection, so
-`mmio::write(addr, 0x7FF)` is a compile error rather than a silent `int` width
+`mmio::Write(addr, 0x7FF)` is a compile error rather than a silent `int` width
 access. A `static_assert` rejects anything that is not an integral type of 1, 2,
 4 or 8 bytes.
 
@@ -119,12 +131,12 @@ A driver exposes the frame base it wants and hands that to `mmio`.
 
 **`uintptr_t` for an address you are about to dereference, `uint64_t` while it
 is still a value the device tree told you about.** `MmioWindow::base` and
-`Uart::getBase()` are `uint64_t`; `mmio::read` and `mmio::write` take
+`Uart::GetBase()` are `uint64_t`; `mmio::Read` and `mmio::Write` take
 `uintptr_t`.
 
 ## Logging
 
-**`Log::println` and `Log::print` are the only way to print.** Both compile out
+**`Log::Println` and `Log::Print` are the only way to print.** Both compile out
 when `NDEBUG` is set, so boot progress and diagnostics vanish from a release
 image, format strings included. There are no log levels. Integration images are
 always debug builds, so the TAP harness prints through them too.
@@ -132,12 +144,12 @@ always debug builds, so the TAP harness prints through them too.
 The calls are inline in the header on purpose. An out of line empty function
 still pins every format string in `.rodata`.
 
-**The panic path is not logging.** `hv_panic` and `registerDump` format with
-`log::detail` and write straight to `Uart::putc`, so a release panic still
+**The panic path is not logging.** `HvPanic` and `RegisterDump` format with
+`log::detail` and write straight to `Uart::Putc`, so a release panic still
 reports. A release build that panics silently is a release build you cannot
 debug. Nothing else writes to the UART that way.
 
-**Call sites qualify: `Log::println(...)`.** No free forwarders, no using
+**Call sites qualify: `Log::Println(...)`.** No free forwarders, no using
 directive, one name per entry point.
 
 **`Uart` is the hardware and `Log` is the console.** The driver knows how to push
@@ -153,7 +165,7 @@ queries use the compiler builtins the format engine already uses: `__is_same`,
 `__is_integral`, `__is_enum`.
 
 **Global constructors run, but only because we run them.** Each linker script
-bounds an `.init_array` block and `runGlobalConstructors()` in `lib/cxxrt` walks
+bounds an `.init_array` block and `RunGlobalConstructors()` in `lib/cxxrt` walks
 it from `hmain`. Order inside that section is link order unless a constructor
 carries `init_priority`, so a constructor must not depend on another translation
 unit's global already being built.

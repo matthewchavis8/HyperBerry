@@ -36,27 +36,27 @@ uint64_t buildStage2PageDescriptor(uint64_t pa, bool isDevice) {
 }
 
 uint64_t* allocStage2RootTable() {
-    uint64_t pa = pmm::allocPages(1);
+    uint64_t pa = pmm::AllocPages(1);
     if (pa == 0) {
-        Log::println("[GuestMmu][ERROR] failed to allocate stage-2 root");
+        Log::Println("[GuestMmu][ERROR] failed to allocate stage-2 root");
         for (;;)
             asm volatile("wfe");
     }
 
     uint64_t* table = reinterpret_cast<uint64_t*>(pa);
     memset(table, 0, kStage2RootSize);
-    PageTable::cleanDataCacheRange(table, kStage2RootSize);
+    PageTable::CleanDataCacheRange(table, kStage2RootSize);
     return table;
 }
 
 uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
-    uint64_t* l2 = PageTable::walk(root, ipa, kStage2Walk);
+    uint64_t* l2 = PageTable::Walk(root, ipa, kStage2Walk);
     if (l2 == nullptr) return nullptr;
 
     if (!pte_is_valid(*l2)) {
-        uint64_t* l3 = PageTable::allocTable();
+        uint64_t* l3 = PageTable::AllocTable();
         *l2 = reinterpret_cast<uint64_t>(l3) | PTE_VALID | PTE_TABLE;
-        PageTable::cleanDataCacheRange(l2, sizeof(*l2));
+        PageTable::CleanDataCacheRange(l2, sizeof(*l2));
     }
 
     if (!pte_is_table(*l2)) return nullptr;
@@ -66,29 +66,29 @@ uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
 }
 } // namespace
 
-void GuestMmu::init(
+void GuestMmu::Init(
         uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) {
-    Log::println("[GuestMmu] init called");
+    Log::Println("[GuestMmu] init called");
     m_rootTableOwner.reset(allocStage2RootTable());
     m_rootTable = reinterpret_cast<uint64_t>(m_rootTableOwner.get());
-    Log::println("[GuestMmu] root table={}", m_rootTableOwner.get());
+    Log::Println("[GuestMmu] root table={}", m_rootTableOwner.get());
 
     uint64_t vtcr = VTCR_T0SZ(kStage2T0sz) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS |
             VTCR_ORGN0_WB | VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1;
 
-    Log::println("[GuestMmu] Programming VTCR_EL2");
+    Log::Println("[GuestMmu] Programming VTCR_EL2");
     asm volatile("msr vtcr_el2, %0" ::"r"(vtcr) : "memory");
     asm volatile("isb");
 
-    Log::println("[GuestMmu] Mapping guest IPA range");
+    Log::Println("[GuestMmu] Mapping guest IPA range");
     for (uint64_t off {}; off < sizeBytes; off += SIZE_2MB) {
-        mapBlock(ipaBase + off, hostPaBase + off, false);
+        MapBlock(ipaBase + off, hostPaBase + off, false);
     }
 
-    Log::println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.count);
+    Log::Println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.count);
     for (uint32_t i {}; i < devices.count; ++i) {
         const MmioWindow& window = devices.windows[i];
-        Log::println("[GuestMmu]   ipa {:x}..{:x} -> pa {:x}",
+        Log::Println("[GuestMmu]   ipa {:x}..{:x} -> pa {:x}",
                 window.base,
                 window.base + window.size,
                 window.pa);
@@ -96,38 +96,38 @@ void GuestMmu::init(
         uint64_t granule = window.byPage ? SIZE_4KB : SIZE_2MB;
         for (uint64_t off {}; off < window.size; off += granule) {
             if (window.byPage) {
-                mapPage(window.base + off, window.pa + off, true);
+                MapPage(window.base + off, window.pa + off, true);
             } else {
-                mapBlock(window.base + off, window.pa + off, true);
+                MapBlock(window.base + off, window.pa + off, true);
             }
         }
     }
 
     asm volatile("dsb ishst" ::: "memory");
-    Log::println("[GuestMmu] init finished");
+    Log::Println("[GuestMmu] init finished");
 }
 
-void GuestMmu::mapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte = PageTable::walk(m_rootTableOwner.get(), ipa, kStage2Walk);
+void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
+    uint64_t* pte = PageTable::Walk(m_rootTableOwner.get(), ipa, kStage2Walk);
     if (!pte) {
-        Log::println("[ERROR] GuestMmu::mapBlock walk failed");
+        Log::Println("[ERROR] GuestMmu::mapBlock walk failed");
         return;
     }
     *pte = buildStage2BlockDescriptor(pa, isDevice);
-    PageTable::cleanDataCacheRange(pte, sizeof(*pte));
+    PageTable::CleanDataCacheRange(pte, sizeof(*pte));
 }
 
-void GuestMmu::mapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
+void GuestMmu::MapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
     uint64_t* pte = walkL3(m_rootTableOwner.get(), ipa);
     if (!pte) {
-        Log::println("[ERROR] GuestMmu::mapPage walk failed");
+        Log::Println("[ERROR] GuestMmu::mapPage walk failed");
         return;
     }
     *pte = buildStage2PageDescriptor(pa, isDevice);
-    PageTable::cleanDataCacheRange(pte, sizeof(*pte));
+    PageTable::CleanDataCacheRange(pte, sizeof(*pte));
 }
 
-void GuestMmu::enable(uint8_t vmid) {
+void GuestMmu::Enable(uint8_t vmid) {
     m_vmid = vmid;
 
     uint64_t rootPa = (uint64_t)(uintptr_t)m_rootTableOwner.get();
@@ -136,26 +136,26 @@ void GuestMmu::enable(uint8_t vmid) {
     // Drain page-table stores to PoC before the PTW can ever read VTTBR.
     asm volatile("dsb ish" ::: "memory");
 
-    Log::println("[GuestMmu] Programming VTTBR_EL2");
+    Log::Println("[GuestMmu] Programming VTTBR_EL2");
     asm volatile("msr vttbr_el2, %0" ::"r"(vttbr) : "memory");
     asm volatile("isb");
 
     // Stage-2 must be enabled before tlbi vmalls12e1is can flush stage-2
     // walk-cache entries. Issuing the TLBI with HCR.VM=0 leaves any
     // speculative walks of pre-VTTBR memory cached in the walker.
-    Log::println("[GuestMmu] Setting HCR_EL2.VM");
+    Log::Println("[GuestMmu] Setting HCR_EL2.VM");
     uint64_t hcr;
     asm volatile("mrs %0, hcr_el2" : "=r"(hcr));
     hcr |= (1ULL << 0);
     asm volatile("msr hcr_el2, %0" ::"r"(hcr) : "memory");
     asm volatile("isb");
 
-    tlbFlushAllGuest();
+    TlbFlushAllGuest();
 
-    Log::println("[GuestMmu] stage-2 enabled");
+    Log::Println("[GuestMmu] stage-2 enabled");
 }
 
-void GuestMmu::tlbFlushAllGuest() {
+void GuestMmu::TlbFlushAllGuest() {
     asm volatile("tlbi vmalls12e1is" ::: "memory");
     asm volatile("dsb ish" ::: "memory");
     asm volatile("isb");

@@ -1,6 +1,6 @@
 // @file test_vm.cpp
-// @brief Unit tests for Vm::init composition — verifies that init correctly
-//        wires GuestMmu::init, Vcpu::init, and Linux x0 DTB seeding
+// @brief Unit tests for Vm::Init composition — verifies that init correctly
+//        wires GuestMmu::Init, Vcpu::Init, and Linux x0 DTB seeding
 //        without executing real hardware paths.
 //
 // Stubs for GuestMmu capture call arguments into file-scope globals. Vcpu
@@ -39,7 +39,7 @@ static uint32_t gGuestMmuInitWindows = 0xFFFFFFFFU;
 // GuestMmu stubs
 // ---------------------------------------------------------------------------
 
-void GuestMmu::init(uint64_t ipaBase,
+void GuestMmu::Init(uint64_t ipaBase,
         uint64_t hostPaBase,
         uint64_t sizeBytes,
         const MmioMap& devices) { // NOLINT(readability-convert-member-functions-to-static)
@@ -49,19 +49,19 @@ void GuestMmu::init(uint64_t ipaBase,
     gGuestMmuInitWindows = devices.count;
 }
 
-void GuestMmu::enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
+void GuestMmu::Enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
     gGuestMmuEnableVmid = vmid;
 }
 
-void GuestMmu::mapBlock(uint64_t /*ipa*/, uint64_t /*pa*/, bool /*isDevice*/) {}
+void GuestMmu::MapBlock(uint64_t /*ipa*/, uint64_t /*pa*/, bool /*isDevice*/) {}
 
-void GuestMmu::tlbFlushAllGuest() {}
+void GuestMmu::TlbFlushAllGuest() {}
 
 // ---------------------------------------------------------------------------
 // pmm stub
 // ---------------------------------------------------------------------------
 
-// vcpu_enter stub (extern "C", called by Vm::run())
+// vcpu_enter stub (extern "C", called by Vm::Run())
 
 extern "C" void vcpu_enter(Vcpu* /*vcpu*/) {}
 
@@ -88,8 +88,8 @@ TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
     resetCaptures();
     Vm vm;
     MmioMap devices {};
-    devices.addPages(0x09000000ULL, 0x09000000ULL, 0x1000ULL);
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, devices);
+    devices.AddPages(0x09000000ULL, 0x09000000ULL, 0x1000ULL);
+    vm.Init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, devices);
 
     EXPECT_EQ(gGuestMmuInitIpa, 0x0ULL);
     EXPECT_EQ(gGuestMmuInitHostPa, 0x40000000ULL);
@@ -100,7 +100,7 @@ TEST(Vm, InitCallsGuestMmuInitWithCorrectArgs) {
 TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
+    vm.Init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
 
     EXPECT_EQ(gVcpuInitEntryCap, 0x200000ULL);
 }
@@ -108,7 +108,7 @@ TEST(Vm, InitCallsVcpuInitWithGuestEntry) {
 TEST(Vm, InitSeedsLinuxDtbInX0) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
+    vm.Init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {});
 
     EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
     EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
@@ -117,8 +117,8 @@ TEST(Vm, InitSeedsLinuxDtbInX0) {
 TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
     resetCaptures();
     Vm vm;
-    vm.init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL, MmioMap {});
-    vm.run();
+    vm.Init("test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL, MmioMap {});
+    vm.Run();
 
     EXPECT_EQ(gGuestMmuEnableVmid, 2);
 }

@@ -234,7 +234,7 @@ just test-integration qemu
 just test-integration rpi5 /dev/sdX1
 ```
 
-The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::run_all()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
+The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
 
 ## AI Use Declaration
 

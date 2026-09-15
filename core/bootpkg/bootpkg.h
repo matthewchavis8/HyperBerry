@@ -42,7 +42,7 @@ static constexpr uint64_t LINUX_KERNEL_LOAD_IPA = 0x200000ULL;
 // @brief Decoded view of a validated v1 package header.
 // @ingroup core
 //
-// Populated by @ref validate() when the package passes all checks.
+// Populated by @ref Validate() when the package passes all checks.
 // Offsets are byte offsets from the start of the firmware-loaded region.
 struct PackageView {
     uint64_t totalSize;    // Total firmware-loaded byte count.
@@ -61,7 +61,7 @@ struct PackageView {
 // @brief Resolved guest IPA layout for a validated v1 package.
 // @ingroup core
 //
-// Computed by @ref calculateGuestLayout() from a @ref PackageView.
+// Computed by @ref CalculateGuestLayout() from a @ref PackageView.
 // All addresses are guest IPAs within the fixed 256 MiB guest RAM region.
 struct GuestLayout {
     uint64_t guestIpaBase; // Guest IPA base (always `GUEST_IPA_BASE` in v1).
@@ -78,7 +78,7 @@ struct GuestLayout {
 // @brief Hypervisor-facing descriptor for a successfully loaded Linux guest.
 // @ingroup core
 //
-// Returned by @ref loadLinuxGuest() and consumed by @ref Vm::init() to
+// Returned by @ref LoadLinuxGuest() and consumed by @ref Vm::Init() to
 // configure stage-2 mappings and seed the vCPU entry state.
 struct LoadedGuest {
     uint64_t guestRamHostPa; // Host physical base of the allocated guest RAM block.
@@ -89,7 +89,7 @@ struct LoadedGuest {
     uint64_t dtbHostPa;      // Host physical address of that same DTB.
 };
 
-// @brief Error codes returned by @ref validate().
+// @brief Error codes returned by @ref Validate().
 // @ingroup core
 enum class ValidateError : uint32_t {
     NONE = 0,                  // No error; package is valid.
@@ -114,7 +114,7 @@ enum class ValidateError : uint32_t {
     GUEST_LAYOUT_OVERFLOW,     // Components do not fit in the fixed guest RAM layout.
 };
 
-// @brief Error codes returned by @ref loadLinuxGuest().
+// @brief Error codes returned by @ref LoadLinuxGuest().
 // @ingroup core
 enum class LoadError : uint32_t {
     NONE = 0,                    // No error; guest loaded successfully.
@@ -125,7 +125,7 @@ enum class LoadError : uint32_t {
     GUEST_DTB_PATCH_FAILED,      // Guest DTB placeholder patching failed.
 };
 
-// @brief Result of a @ref validate() call.
+// @brief Result of a @ref Validate() call.
 // @ingroup core
 struct ValidateResult {
     bool isValid;        // True only when validation succeeded and @p package is populated.
@@ -133,7 +133,7 @@ struct ValidateResult {
     PackageView package; // Decoded package metadata; valid only when @p isValid is true.
 };
 
-// @brief Result of a @ref loadLinuxGuest() call.
+// @brief Result of a @ref LoadLinuxGuest() call.
 // @ingroup core
 struct LoadResult {
     bool isLoaded;               // True only when the guest was loaded and @p guest is populated.
@@ -146,24 +146,24 @@ struct LoadResult {
 // @param package Base address of the package bytes.
 // @param size Size of the firmware-loaded package region.
 // @return Parsed package metadata when valid; otherwise the first error found.
-ValidateResult validate(const void* package, uint64_t size);
+ValidateResult Validate(const void* package, uint64_t size);
 
 // @brief Calculate the v1 Linux guest IPA layout for a validated package.
 // @param package Validated package metadata.
 // @param out Output guest layout.
 // @return True when all components fit in the fixed v1 guest RAM region.
-bool calculateGuestLayout(const PackageView& package, GuestLayout& out);
+bool CalculateGuestLayout(const PackageView& package, GuestLayout& out);
 
 // @brief Validate and copy a firmware package into newly allocated guest RAM.
 // @param map Boot-time host memory map including the firmware package region.
 // @return Loaded guest metadata when successful.
-LoadResult loadLinuxGuest(const MemoryMap& map);
+LoadResult LoadLinuxGuest(const MemoryMap& map);
 
 // @brief Compute IEEE CRC32 over a byte range.
 // @param data Base address of the bytes.
 // @param size Number of bytes to include.
 // @return CRC32 value.
-uint32_t crc32(const void* data, uint64_t size);
+uint32_t Crc32(const void* data, uint64_t size);
 
 } // namespace bootpkg
 

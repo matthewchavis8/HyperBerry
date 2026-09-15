@@ -25,10 +25,10 @@ namespace heap {
     // @brief Initialise the kernel heap.
     // @ingroup mm
     //
-    // Must be called once during boot, after @c pmm::init() and before any
+    // Must be called once during boot, after @c pmm::Init() and before any
     // code path that allocates dynamic objects. Subsequent calls re-arm the
     // heap; the existing slab/large bookkeeping is reset.
-    void init();
+    void Init();
 
 } // namespace heap
 } // namespace hv

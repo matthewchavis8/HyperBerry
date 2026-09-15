@@ -45,28 +45,28 @@ struct alignas(16) MmioMap {
 
     // @brief Add an identity window over @p size bytes from @p base, widened
     //         to whole 2 MiB blocks.
-    bool addBlocks(uint64_t base, uint64_t size) {
+    bool AddBlocks(uint64_t base, uint64_t size) {
         uint64_t start = base & ~(SIZE_2MB - 1);
         uint64_t end = (base + size + SIZE_2MB - 1) & ~(SIZE_2MB - 1);
-        return add(MmioWindow { start, start, end - start, false });
+        return Add(MmioWindow { start, start, end - start, false });
     }
 
     // @brief Add a window mapping @p ipa to @p pa in whole 4 KiB pages.
-    bool addPages(uint64_t ipa, uint64_t pa, uint64_t size) {
+    bool AddPages(uint64_t ipa, uint64_t pa, uint64_t size) {
         uint64_t start = ipa & ~(SIZE_4KB - 1);
         uint64_t end = (ipa + size + SIZE_4KB - 1) & ~(SIZE_4KB - 1);
-        return add(MmioWindow { start, pa & ~(SIZE_4KB - 1), end - start, true });
+        return Add(MmioWindow { start, pa & ~(SIZE_4KB - 1), end - start, true });
     }
 
     // @brief True when some window already maps @p addr.
-    bool covers(uint64_t addr) const {
+    bool Covers(uint64_t addr) const {
         for (uint32_t i {}; i < count; ++i) {
             if (addr >= windows[i].base && addr < windows[i].base + windows[i].size) return true;
         }
         return false;
     }
 
-    bool add(const MmioWindow& want) {
+    bool Add(const MmioWindow& want) {
         for (uint32_t i {}; i < count; ++i) {
             const MmioWindow& have = windows[i];
             if (have.base == want.base && have.pa == want.pa && have.size == want.size &&

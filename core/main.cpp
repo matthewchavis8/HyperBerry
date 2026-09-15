@@ -32,61 +32,61 @@
 // @warning Must never return. The assembly boot stub has no return
 //          address — falling off the end of hmain() is undefined behaviour.
 extern "C" void hmain(uintptr_t dtb) {
-    runGlobalConstructors();
+    RunGlobalConstructors();
 
-    Log::println("[DTB] Attempting to parse device tree blob");
-    MemoryMap memoryMap = parseDtb(dtb);
-    Log::println("[DTB] Succesfully parsed device tree blob");
+    Log::Println("[DTB] Attempting to parse device tree blob");
+    MemoryMap memoryMap = ParseDtb(dtb);
+    Log::Println("[DTB] Succesfully parsed device tree blob");
     // TODO: future, but instead of isValid panicking here I think parseDtb or the
     // memoryMap itself should fail hard, so this check can move inside somewhere.
-    if (!memoryMap.isValid) hv_panic("[ERROR][DTB] Failed to parse Tree Blob");
+    if (!memoryMap.isValid) HvPanic("[ERROR][DTB] Failed to parse Tree Blob");
 
-    verifyBspAgainstDtb(dtb);
+    VerifyBspAgainstDtb(dtb);
 
-    Log::println("[PMM] Attempting to bring up PMM");
-    pmm::init(memoryMap);
-    Log::println("[PMM] Successfully brought up PMM");
+    Log::Println("[PMM] Attempting to bring up PMM");
+    pmm::Init(memoryMap);
+    Log::Println("[PMM] Successfully brought up PMM");
 
-    Log::println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
+    Log::Println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
 
-    Log::println("[HEAP] Attempting to bring up kernel heap");
-    hv::heap::init();
-    Log::println("[HEAP] Successfully brought up kernel heap");
+    Log::Println("[HEAP] Attempting to bring up kernel heap");
+    hv::heap::Init();
+    Log::Println("[HEAP] Successfully brought up kernel heap");
 
-    Log::println("[HostMmu] Attempting to bring up host MMU");
-    HostMmu::init(dtbHostMmio(dtb));
-    Log::println("[HostMmu] Successfully host MMU is brought up");
+    Log::Println("[HostMmu] Attempting to bring up host MMU");
+    HostMmu::Init(DtbHostMmio(dtb));
+    Log::Println("[HostMmu] Successfully host MMU is brought up");
 
-    Log::println("[GIC] Attempting to bring up GICv2");
-    Gic::init();
-    Log::println("[GIC] Successfully brought up GICv2");
+    Log::Println("[GIC] Attempting to bring up GICv2");
+    Gic::Init();
+    Log::Println("[GIC] Successfully brought up GICv2");
 
 #ifdef INTEGRATION_TEST
-    TestRunner::setBootContext(memoryMap);
-    TestRunner::run_all();
+    TestRunner::SetBootContext(memoryMap);
+    TestRunner::RunAll();
 #else
 
-    Log::println("[BootPkg] Attempting to load Linux guest package");
-    bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(memoryMap);
+    Log::Println("[BootPkg] Attempting to load Linux guest package");
+    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(memoryMap);
     if (!loaded.isLoaded) {
-        hv_panic("[ERROR][VM] Failed to spin up Linux VM");
+        HvPanic("[ERROR][VM] Failed to spin up Linux VM");
     }
-    Log::println("[BootPkg] Linux guest package loaded");
+    Log::Println("[BootPkg] Linux guest package loaded");
 
     Vm guest;
     const char* guestName = "Linux VM";
-    guest.init(guestName,
+    guest.Init(guestName,
             loaded.guest.guestIpaBase,
             loaded.guest.guestRamHostPa,
             loaded.guest.guestRamSize,
             1,
             loaded.guest.entryIpa,
             loaded.guest.dtbIpa,
-            dtbGuestMmio(loaded.guest.dtbHostPa));
+            DtbGuestMmio(loaded.guest.dtbHostPa));
 
-    Log::println("[VM] Bringing up guest:{}", guest.getName());
-    Log::println("[VM] {} Intialized", guest.getName());
-    Log::println("[VM] Guest Kernel running");
-    guest.run();
+    Log::Println("[VM] Bringing up guest:{}", guest.GetName());
+    Log::Println("[VM] {} Intialized", guest.GetName());
+    Log::Println("[VM] Guest Kernel running");
+    guest.Run();
 #endif
 }

@@ -16,6 +16,6 @@
 // panics, rather than letting the first MMIO access fault somewhere unrelated.
 //
 // @param dtb Physical address of the firmware-supplied DTB.
-void verifyBspAgainstDtb(uintptr_t dtb);
+void VerifyBspAgainstDtb(uintptr_t dtb);
 
 #endif // __DTB_VERIFY_H__

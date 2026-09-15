@@ -70,7 +70,7 @@ struct WalkConfig {
 // @return Pointer to the fresh table. Never returns null — halts on
 //         allocation failure so a missing page does not silently
 //         produce bogus translations.
-uint64_t* allocTable();
+uint64_t* AllocTable();
 
 // @brief Clean a range from the data cache to PoC.
 // @ingroup mm
@@ -78,7 +78,7 @@ uint64_t* allocTable();
 // Real hardware page-table walkers are not obliged to observe dirty cache
 // lines produced by EL2 stores before the corresponding maintenance and
 // barriers complete. QEMU often hides this class of bug.
-void cleanDataCacheRange(const void* addr, size_t size);
+void CleanDataCacheRange(const void* addr, size_t size);
 
 // @brief Walk a multi-level translation table and return the L2 entry.
 // @ingroup mm
@@ -87,7 +87,7 @@ void cleanDataCacheRange(const void* addr, size_t size);
 // @param cfg  Starting level and allocation behaviour.
 // @return Pointer to the L2 entry covering @p addr, or nullptr when
 //         allocOnMiss is false and an intermediate table is absent.
-uint64_t* walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg);
+uint64_t* Walk(uint64_t* root, uint64_t addr, const WalkConfig& cfg);
 } // namespace PageTable
 
 #endif // !__PAGE_TABLE_H__

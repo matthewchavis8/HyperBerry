@@ -27,7 +27,7 @@
 //
 // @note Writes straight to the UART rather than through Log, so the dump
 //       survives a release build. Only hv_panic calls this.
-inline void registerDump(const hv::array<uint64_t, 31>& ctx) {
+inline void RegisterDump(const hv::array<uint64_t, 31>& ctx) {
     uint64_t esr {};
     uint64_t far {};
     uint64_t elr {};
@@ -41,20 +41,20 @@ inline void registerDump(const hv::array<uint64_t, 31>& ctx) {
     uint32_t ec = (esr >> 26) & 0x3F;
     uint32_t iss = esr & 0x1FFFFFF;
 
-    auto sink = [](char ch) { Uart::getInstance().putc(ch); };
+    auto sink = [](char ch) { Uart::GetInstance().Putc(ch); };
 
-    log::detail::formatLineToSink(sink, "==========[EXCEPTION DUMP]============");
-    log::detail::formatLineToSink(sink, "ESR_EL2(Syndrome): {:x}", esr);
-    log::detail::formatLineToSink(sink, "EC(Class):         {:x}", ec);
-    log::detail::formatLineToSink(sink, "ISS(Subclass):     {:x}", iss);
-    log::detail::formatLineToSink(sink, "ELR_EL2(Return):   {:x}", elr);
-    log::detail::formatLineToSink(sink, "SPSR(Status):      {:x}", spsr);
-    log::detail::formatLineToSink(sink, "FAR_EL2(Fault):    {:x}", far);
+    log::detail::FormatLineToSink(sink, "==========[EXCEPTION DUMP]============");
+    log::detail::FormatLineToSink(sink, "ESR_EL2(Syndrome): {:x}", esr);
+    log::detail::FormatLineToSink(sink, "EC(Class):         {:x}", ec);
+    log::detail::FormatLineToSink(sink, "ISS(Subclass):     {:x}", iss);
+    log::detail::FormatLineToSink(sink, "ELR_EL2(Return):   {:x}", elr);
+    log::detail::FormatLineToSink(sink, "SPSR(Status):      {:x}", spsr);
+    log::detail::FormatLineToSink(sink, "FAR_EL2(Fault):    {:x}", far);
 
     for (size_t i {}; i < ctx.size(); i++) {
-        log::detail::formatLineToSink(sink, i < 10 ? "x{}:  {:x}" : "x{}: {:x}", i, ctx[i]);
+        log::detail::FormatLineToSink(sink, i < 10 ? "x{}:  {:x}" : "x{}: {:x}", i, ctx[i]);
     }
-    log::detail::formatLineToSink(sink, "======================================");
+    log::detail::FormatLineToSink(sink, "======================================");
 }
 
 #endif // __cplusplus

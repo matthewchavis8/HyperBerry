@@ -25,7 +25,7 @@ public:
     //
     // Order is significant: stage-2 tables are constructed first so they
     // are in place before the vCPU's first entry. VTTBR_EL2 /
-    // HCR_EL2.VM are committed in @ref run(), after vCPU state is seeded.
+    // HCR_EL2.VM are committed in @ref Run(), after vCPU state is seeded.
     //
     // @param name           Guest kernel or VM name retained for diagnostics.
     // @param ipaBase        Guest IPA base.
@@ -35,7 +35,7 @@ public:
     // @param guestEntry     Guest IPA at which to resume on first @c eret.
     // @param guestDtb       Guest IPA of the Linux device tree blob.
     // @param devices        Device windows this guest may reach.
-    void init(const char* name,
+    void Init(const char* name,
             uint64_t ipaBase,
             uint64_t guestRamHostPa,
             uint64_t sizeBytes,
@@ -47,13 +47,13 @@ public:
     // @brief Enable stage-2 and enter the guest.
     // @note Does not return; the guest runs forever or traps back via
     //       the exception path, which is owned by vcpu.S / vmm.S.
-    void run();
+    void Run();
 
-    // @brief Return the guest kernel name passed to @ref init().
-    [[nodiscard]] const char* getName() const noexcept;
+    // @brief Return the guest kernel name passed to @ref Init().
+    [[nodiscard]] const char* GetName() const noexcept;
 
-    // @brief Return the guest vm ID passed to @ref init().
-    [[nodiscard]] uint8_t getVmId() const noexcept;
+    // @brief Return the guest vm ID passed to @ref Init().
+    [[nodiscard]] uint8_t GetVmId() const noexcept;
 };
 
 #endif // !__VM_H__

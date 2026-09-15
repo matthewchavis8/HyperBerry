@@ -159,37 +159,37 @@ uint8_t* findMemoryRegData(void* dtb) {
 }
 
 const uint8_t* packageBytes(const MemoryMap& map) {
-    return static_cast<const uint8_t*>(HostMmu::paToVa(map.bootPackageBase));
+    return static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootPackageBase));
 }
 } // namespace
 
 static bool test_firmware_package_region_present() {
-    const MemoryMap& map = TestRunner::bootMemoryMap();
+    const MemoryMap& map = TestRunner::BootMemoryMap();
     return map.bootPackageBase != 0 && map.bootPackageSize != 0;
 }
 
 static bool test_firmware_package_validates() {
-    const MemoryMap& map = TestRunner::bootMemoryMap();
+    const MemoryMap& map = TestRunner::BootMemoryMap();
     if (map.bootPackageBase == 0 || map.bootPackageSize == 0) return false;
 
-    bootpkg::ValidateResult result = bootpkg::validate(packageBytes(map), map.bootPackageSize);
+    bootpkg::ValidateResult result = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
 
     return result.isValid && result.error == bootpkg::ValidateError::NONE &&
             result.package.bootProtocol == bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64;
 }
 
 static bool test_load_linux_guest_from_firmware_package() {
-    const MemoryMap& map = TestRunner::bootMemoryMap();
-    bootpkg::ValidateResult validated = bootpkg::validate(packageBytes(map), map.bootPackageSize);
+    const MemoryMap& map = TestRunner::BootMemoryMap();
+    bootpkg::ValidateResult validated = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
     if (!validated.isValid) return false;
 
     bootpkg::GuestLayout layout = {};
-    if (!bootpkg::calculateGuestLayout(validated.package, layout)) return false;
+    if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
 
-    bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(map);
+    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(map);
     if (!loaded.isLoaded) return false;
 
-    const uint8_t* kernel = static_cast<const uint8_t*>(HostMmu::paToVa(
+    const uint8_t* kernel = static_cast<const uint8_t*>(HostMmu::PaToVa(
             loaded.guest.guestRamHostPa + (layout.kernelIpa - layout.guestIpaBase)));
     const uint8_t* packageKernel = packageBytes(map) + validated.package.kernelOffset;
 
@@ -201,23 +201,23 @@ static bool test_load_linux_guest_from_firmware_package() {
             loaded.guest.guestRamSize == layout.guestRamSize &&
             loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa;
 
-    pmm::freePages(loaded.guest.guestRamHostPa, 16);
+    pmm::FreePages(loaded.guest.guestRamHostPa, 16);
     return copied && metadata;
 }
 
 static bool test_load_patches_guest_dtb() {
-    const MemoryMap& map = TestRunner::bootMemoryMap();
-    bootpkg::ValidateResult validated = bootpkg::validate(packageBytes(map), map.bootPackageSize);
+    const MemoryMap& map = TestRunner::BootMemoryMap();
+    bootpkg::ValidateResult validated = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
     if (!validated.isValid) return false;
 
     bootpkg::GuestLayout layout = {};
-    if (!bootpkg::calculateGuestLayout(validated.package, layout)) return false;
+    if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
 
-    bootpkg::LoadResult loaded = bootpkg::loadLinuxGuest(map);
+    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(map);
     if (!loaded.isLoaded) return false;
 
     void* dtb =
-            HostMmu::paToVa(loaded.guest.guestRamHostPa + (layout.dtbIpa - layout.guestIpaBase));
+            HostMmu::PaToVa(loaded.guest.guestRamHostPa + (layout.dtbIpa - layout.guestIpaBase));
     uint8_t* memoryReg = findMemoryRegData(dtb);
     uint8_t* initrdStart = findPropData(dtb, "linux,initrd-start");
     uint8_t* initrdEnd = findPropData(dtb, "linux,initrd-end");
@@ -228,7 +228,7 @@ static bool test_load_patches_guest_dtb() {
             readBe64Cells(initrdStart) == layout.initrdIpa &&
             readBe64Cells(initrdEnd) == layout.initrdIpa + layout.initrdSize;
 
-    pmm::freePages(loaded.guest.guestRamHostPa, 16);
+    pmm::FreePages(loaded.guest.guestRamHostPa, 16);
     return patched;
 }
 

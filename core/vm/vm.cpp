@@ -6,7 +6,7 @@
 #include "lib/log/log.h"
 #include "vm.h"
 
-void Vm::init(const char* name,
+void Vm::Init(const char* name,
         uint64_t ipaBase,
         uint64_t guestRamHostPa,
         uint64_t sizeBytes,
@@ -17,28 +17,28 @@ void Vm::init(const char* name,
     m_name = name;
     m_vmid = vmid;
 
-    Log::println("[VM] Bringing up Guest MMU");
-    m_guestMmu.init(ipaBase, guestRamHostPa, sizeBytes, devices);
-    Log::println("[VM] Bringing up Guest MMU");
+    Log::Println("[VM] Bringing up Guest MMU");
+    m_guestMmu.Init(ipaBase, guestRamHostPa, sizeBytes, devices);
+    Log::Println("[VM] Bringing up Guest MMU");
 
-    Log::println("[VM] Bringing up Vcpu");
-    m_vcpu.init(guestEntry);
-    m_vcpu.setGpReg(VCPU_GPREG_X0, guestDtb);
+    Log::Println("[VM] Bringing up Vcpu");
+    m_vcpu.Init(guestEntry);
+    m_vcpu.SetGpReg(VCPU_GPREG_X0, guestDtb);
 }
 
-void Vm::run() {
-    Log::println("[VM] Enabling Guest MMU");
-    m_guestMmu.enable(m_vmid);
-    Log::println("[VM] Successfully enabled Guest MMU");
+void Vm::Run() {
+    Log::Println("[VM] Enabling Guest MMU");
+    m_guestMmu.Enable(m_vmid);
+    Log::Println("[VM] Successfully enabled Guest MMU");
 
-    Log::println("[VM] Guest Kernel Running");
+    Log::Println("[VM] Guest Kernel Running");
     vcpu_enter(&m_vcpu);
 }
 
-[[nodiscard]] const char* Vm::getName() const noexcept {
+[[nodiscard]] const char* Vm::GetName() const noexcept {
     return m_name;
 }
 
-[[nodiscard]] uint8_t Vm::getVmId() const noexcept {
+[[nodiscard]] uint8_t Vm::GetVmId() const noexcept {
     return m_vmid;
 }

@@ -1,13 +1,13 @@
 // @file tap.h
 // @brief Freestanding TAP-style test output emitter over UART.
 //
-// Header-only, no stdlib. All output goes through Log::println(), which is
+// Header-only, no stdlib. All output goes through Log::Println(), which is
 // why integration images are always debug builds. Provides suite headers,
 // per-case PASS/FAIL lines with progress counters, and a final summary.
 //
-// @note Uses Log::println() for all line endings to emit proper CRLF
+// @note Uses Log::Println() for all line endings to emit proper CRLF
 //       sequences required by raw UART hardware (e.g. Raspberry Pi 5).
-//       Never embed bare '\n' in print() calls.
+//       Never embed bare '\n' in Print() calls.
 
 #ifndef __TAP_H__
 #define __TAP_H__
@@ -19,9 +19,9 @@ namespace Tap {
 // @brief Print a suite header banner with the suite name and case count.
 // @param name  Suite name.
 // @param count Number of test cases in the suite.
-inline void suite_header(const char* name, int count) {
-    Log::println("");
-    Log::println("======== {} ({} tests) ========", name, count);
+inline void SuiteHeader(const char* name, int count) {
+    Log::Println("");
+    Log::Println("======== {} ({} tests) ========", name, count);
 }
 
 // @brief Emit a PASS line: `[n/total] PASS: suite: desc`.
@@ -29,8 +29,8 @@ inline void suite_header(const char* name, int count) {
 // @param total Total cases in the suite.
 // @param suite Suite name.
 // @param desc  Test case description.
-inline void ok(int n, int total, const char* suite, const char* desc) {
-    Log::println("[{}/{}] PASS: {}: {}", n, total, suite, desc);
+inline void Ok(int n, int total, const char* suite, const char* desc) {
+    Log::Println("[{}/{}] PASS: {}: {}", n, total, suite, desc);
 }
 
 // @brief Emit a FAIL line with reason: `[n/total] FAIL: suite::desc`.
@@ -39,19 +39,19 @@ inline void ok(int n, int total, const char* suite, const char* desc) {
 // @param suite  Suite name.
 // @param desc   Test case description.
 // @param reason Human-readable failure reason.
-inline void fail(int n, int total, const char* suite, const char* desc, const char* reason) {
-    Log::println("[{}/{}] FAIL: {}::{}", n, total, suite, desc);
-    Log::println("         reason: {}", reason);
+inline void Fail(int n, int total, const char* suite, const char* desc, const char* reason) {
+    Log::Println("[{}/{}] FAIL: {}::{}", n, total, suite, desc);
+    Log::Println("         reason: {}", reason);
 }
 
 // @brief Print a final summary: pass/fail counts and overall verdict.
 // @param passed Number of passed cases.
 // @param failed Number of failed cases.
 // @param total  Total cases run.
-inline void summary(int passed, int failed, int total) {
-    Log::println("-------- Results --------");
-    Log::println("{} passed, {} failed, {} total", passed, failed, total);
-    failed == 0 ? Log::println("TESTS PASSED") : Log::println("TESTS FAILED");
+inline void Summary(int passed, int failed, int total) {
+    Log::Println("-------- Results --------");
+    Log::Println("{} passed, {} failed, {} total", passed, failed, total);
+    failed == 0 ? Log::Println("TESTS PASSED") : Log::Println("TESTS FAILED");
 }
 
 } // namespace Tap

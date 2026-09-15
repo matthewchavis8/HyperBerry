@@ -11,14 +11,14 @@
 // @brief Verify that UART transmission can emit at least one byte without stalling.
 // @return Always true if control reaches the end of the function.
 static bool test_tx_doesnt_hang() {
-    Uart::getInstance().putc('A');
+    Uart::GetInstance().Putc('A');
     return true;
 }
 
 // @brief Verify that UART transmission can emit a string
 // @return Always true if control reaches the end of the function.
 static bool test_tx_string_doesnt_hang() {
-    Log::print("I have no mouth and I must scream");
+    Log::Print("I have no mouth and I must scream");
     return true;
 }
 
@@ -28,28 +28,28 @@ static bool test_tx_string_doesnt_hang() {
 // identifiable in a log trace.
 // @return Always true if control reaches the end of the function.
 static bool test_print_hex_doesnt_hang() {
-    Log::println("{:x}", 0xDEADBEEFCAFEBABEULL);
+    Log::Println("{:x}", 0xDEADBEEFCAFEBABEULL);
     return true;
 }
 
 // @brief Verify hex formatting handles the all-zeros edge case without stalling.
 // @return Always true if control reaches the end of the function.
 static bool test_print_hex_zero_doesnt_hang() {
-    Log::println("{:x}", 0x0ULL);
+    Log::Println("{:x}", 0x0ULL);
     return true;
 }
 
 // @brief Verify hex formatting handles the all-ones (UINT64_MAX) edge case without stalling.
 // @return Always true if control reaches the end of the function.
 static bool test_print_hex_max_doesnt_hang() {
-    Log::println("{:x}", 0xFFFFFFFFFFFFFFFFULL);
+    Log::Println("{:x}", 0xFFFFFFFFFFFFFFFFULL);
     return true;
 }
 
 // @brief Verify brace-style formatting emits output without stalling.
 // @return Always true if control reaches the end of the function.
 static bool test_formatted_print_doesnt_hang() {
-    Log::println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
+    Log::Println("value={} ok={} ptr={}", -42, true, reinterpret_cast<void*>(0x1234ULL));
     return true;
 }
 

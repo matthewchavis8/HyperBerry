@@ -10,39 +10,39 @@
 namespace {
 
 void addOrWarn(bool added, const char* what) {
-    if (!added) Log::println("[DTB][WARN] no room for the {} window; it is unmapped", what);
+    if (!added) Log::Println("[DTB][WARN] no room for the {} window; it is unmapped", what);
 }
 
 } // namespace
 
-MmioMap dtbHostMmio(uintptr_t dtb) {
+MmioMap DtbHostMmio(uintptr_t dtb) {
     MmioMap map {};
 
-    DeviceNode uart = dtbFindUart(dtb);
+    DeviceNode uart = DtbFindUart(dtb);
     if (!uart.found || uart.regionCount == 0) {
-        Log::println("[DTB][WARN] no PL011 in device tree; EL2 console window not mapped");
+        Log::Println("[DTB][WARN] no PL011 in device tree; EL2 console window not mapped");
     } else {
-        addOrWarn(map.addBlocks(uart.regions[0].base, uart.regions[0].size), "EL2 console");
+        addOrWarn(map.AddBlocks(uart.regions[0].base, uart.regions[0].size), "EL2 console");
     }
 
-    DeviceNode gic = dtbFindGic(dtb);
+    DeviceNode gic = DtbFindGic(dtb);
     if (!gic.found || gic.regionCount == 0) {
-        Log::println("[DTB][WARN] no GIC in device tree; EL2 interrupt windows not mapped");
+        Log::Println("[DTB][WARN] no GIC in device tree; EL2 interrupt windows not mapped");
     } else {
         for (uint32_t i {}; i < gic.regionCount; ++i) {
-            addOrWarn(map.addBlocks(gic.regions[i].base, gic.regions[i].size), "EL2 GIC");
+            addOrWarn(map.AddBlocks(gic.regions[i].base, gic.regions[i].size), "EL2 GIC");
         }
     }
 
     return map;
 }
 
-MmioMap dtbGuestMmio(uintptr_t guestDtb) {
+MmioMap DtbGuestMmio(uintptr_t guestDtb) {
     MmioMap map {};
 
-    DeviceNode gic = dtbFindGic(guestDtb);
+    DeviceNode gic = DtbFindGic(guestDtb);
     if (!gic.found || gic.regionCount == 0) {
-        Log::println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
+        Log::Println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
     } else {
         // The first two regions only: the distributor and the CPU interface.
         // GICH and GICV belong to EL2, and a guest that can reach GICH
@@ -54,16 +54,16 @@ MmioMap dtbGuestMmio(uintptr_t guestDtb) {
         // right answer there.
         uint32_t visible = gic.regionCount < 2 ? gic.regionCount : 2;
         for (uint32_t i {}; i < visible; ++i) {
-            addOrWarn(map.addPages(gic.regions[i].base, gic.regions[i].base, gic.regions[i].size),
+            addOrWarn(map.AddPages(gic.regions[i].base, gic.regions[i].base, gic.regions[i].size),
                     "guest GIC");
         }
     }
 
-    DeviceNode uart = dtbFindUart(guestDtb);
+    DeviceNode uart = DtbFindUart(guestDtb);
     if (!uart.found || uart.regionCount == 0) {
-        Log::println("[DTB][WARN] guest tree has no PL011; guest console not mapped");
+        Log::Println("[DTB][WARN] guest tree has no PL011; guest console not mapped");
     } else {
-        addOrWarn(map.addPages(uart.regions[0].base, uart.regions[0].base, uart.regions[0].size),
+        addOrWarn(map.AddPages(uart.regions[0].base, uart.regions[0].base, uart.regions[0].size),
                 "guest console");
     }
 
@@ -73,11 +73,11 @@ MmioMap dtbGuestMmio(uintptr_t guestDtb) {
     // that IPA with this board's PL011 so the early guest console reaches a
     // real device. Neither tree can express this: it is a property of the
     // payload, not of the hardware. On rpi5 the guest console already sits
-    // here, which is what the covers() check notices.
+    // here, which is what the Covers() check notices.
     // TODO: Replace this with package/DTB-specific device routing.
     constexpr uint64_t kBringUpUartIpa = 0x107D001000ULL;
-    if (!map.covers(kBringUpUartIpa)) {
-        addOrWarn(map.addPages(kBringUpUartIpa, BSP_UART_BASE, SIZE_4KB), "bring up console");
+    if (!map.Covers(kBringUpUartIpa)) {
+        addOrWarn(map.AddPages(kBringUpUartIpa, BSP_UART_BASE, SIZE_4KB), "bring up console");
     }
 
     return map;

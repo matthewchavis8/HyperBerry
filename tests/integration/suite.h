@@ -37,13 +37,13 @@ struct TestSuite {
 
 namespace TestRunner {
 // @brief Save the boot-time memory map for integration tests that need it.
-void setBootContext(const MemoryMap& map);
+void SetBootContext(const MemoryMap& map);
 
 // @brief Return the boot-time memory map captured before the suite started.
-const MemoryMap& bootMemoryMap();
+const MemoryMap& BootMemoryMap();
 
 // @brief Walk all registered suites and run every test case.
-void run_all();
+void RunAll();
 } // namespace TestRunner
 
 #endif // !__SUITE_H__

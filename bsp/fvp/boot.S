@@ -10,7 +10,7 @@
 //    - other: park.
 // 3. EL2 path mirrors the QEMU bring-up.
 //
-// @note FVP does not pass a device tree. parseDtb() will panic shortly after
+// @note FVP does not pass a device tree. ParseDtb() will panic shortly after
 //       the first UART line in this milestone; that is expected.
 
 #include "platform.inc"

@@ -35,7 +35,7 @@ SECTIONS {
   } > RAM
   __rodata_size = __rodata_end - __rodata_start;
 
-  /* C++ global constructors, walked by runGlobalConstructors() in hmain.
+  /* C++ global constructors, walked by RunGlobalConstructors() in hmain.
      KEEP because nothing references these by symbol and --gc-sections is on. */
   .init_array : ALIGN(0x8) {
     __init_array_start = .;

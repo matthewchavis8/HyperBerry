@@ -17,10 +17,10 @@
 //
 // The console and the whole interrupt controller, GICH and GICV included,
 // because EL2 drives all of it. Widened to 2 MiB blocks, which is the only
-// granule @ref HostMmu::mapRange installs.
+// granule @ref HostMmu::MapRange installs.
 //
 // @param dtb Physical address of the host device tree.
-MmioMap dtbHostMmio(uintptr_t dtb);
+MmioMap DtbHostMmio(uintptr_t dtb);
 
 // @brief Device windows a guest may reach through stage 2.
 // @ingroup core
@@ -29,6 +29,6 @@ MmioMap dtbHostMmio(uintptr_t dtb);
 // guest must *not* reach and a 2 MiB block is far too coarse to answer it.
 //
 // @param guestDtb Address of the guest device tree, readable by EL2.
-MmioMap dtbGuestMmio(uintptr_t guestDtb);
+MmioMap DtbGuestMmio(uintptr_t guestDtb);
 
 #endif // !__DTB_MMIO_H__

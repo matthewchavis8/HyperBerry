@@ -26,7 +26,7 @@ enum class align_val_t : size_t {};
 }
 #endif
 
-[[noreturn]] void hv_panic(const char* msg);
+[[noreturn]] void HvPanic(const char* msg);
 
 namespace {
 
@@ -76,7 +76,7 @@ size_t pickClass(size_t size, size_t align) {
 }
 
 SlabHeader* newSlab(size_t classIdx) {
-    uint64_t pageAddr = pmm::allocPages(0);
+    uint64_t pageAddr = pmm::AllocPages(0);
     if (pageAddr == 0) return nullptr;
 
     auto* hdr = reinterpret_cast<SlabHeader*>(pageAddr);
@@ -147,7 +147,7 @@ void* allocLarge(size_t size, size_t align) {
     uint32_t order = orderForBytes(total);
     if (order > MAX_ORDER) return nullptr;
 
-    uint64_t addr = pmm::allocPages(order);
+    uint64_t addr = pmm::AllocPages(order);
     if (addr == 0) return nullptr;
 
     // Wipe the first cache line at the allocation start so the slab-magic
@@ -165,18 +165,18 @@ void* allocLarge(size_t size, size_t align) {
 void freeLarge(void* ptr) {
     auto* hdr =
             reinterpret_cast<LargeHeader*>(reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader));
-    if (hdr->m_magic != LARGE_MAGIC) hv_panic("[HEAP] large free: bad magic");
+    if (hdr->m_magic != LARGE_MAGIC) HvPanic("[HEAP] large free: bad magic");
 
     uint32_t order = hdr->m_order;
     uint32_t userOffset = hdr->m_userOffset;
     hdr->m_magic = 0;
 
     uint64_t allocStart = reinterpret_cast<uint64_t>(ptr) - userOffset;
-    pmm::freePages(allocStart, order);
+    pmm::FreePages(allocStart, order);
 }
 
 void* internalAllocate(size_t size, size_t align) {
-    if (!s_initialized) hv_panic("[HEAP] allocation before heap::init()");
+    if (!s_initialized) HvPanic("[HEAP] allocation before heap::Init()");
 
     if (size == 0) size = 1;
     if (align < DEFAULT_NEW_ALIGN) align = DEFAULT_NEW_ALIGN;
@@ -211,7 +211,7 @@ void internalDeallocate(void* ptr) {
         return;
     }
 
-    hv_panic("[HEAP] free: invalid pointer (no recognised header)");
+    HvPanic("[HEAP] free: invalid pointer (no recognised header)");
 }
 
 } // namespace
@@ -219,7 +219,7 @@ void internalDeallocate(void* ptr) {
 namespace hv {
 namespace heap {
 
-    void init() {
+    void Init() {
         for (auto& list : s_classLists)
             list = nullptr;
         s_initialized = true;
@@ -232,10 +232,10 @@ namespace heap {
 namespace hv {
 namespace heap {
     namespace testing {
-        void* allocate(size_t size, size_t align) {
+        void* Allocate(size_t size, size_t align) {
             return internalAllocate(size, align);
         }
-        void deallocate(void* ptr) {
+        void Deallocate(void* ptr) {
             internalDeallocate(ptr);
         }
     } // namespace testing
@@ -245,12 +245,12 @@ namespace heap {
 
 void* operator new(size_t size) {
     void* p = internalAllocate(size, DEFAULT_NEW_ALIGN);
-    if (p == nullptr) hv_panic("[HEAP] operator new failed");
+    if (p == nullptr) HvPanic("[HEAP] operator new failed");
     return p;
 }
 void* operator new[](size_t size) {
     void* p = internalAllocate(size, DEFAULT_NEW_ALIGN);
-    if (p == nullptr) hv_panic("[HEAP] operator new[] failed");
+    if (p == nullptr) HvPanic("[HEAP] operator new[] failed");
     return p;
 }
 void operator delete(void* p) noexcept {
@@ -268,12 +268,12 @@ void operator delete[](void* p, size_t) noexcept {
 
 void* operator new(size_t size, std::align_val_t a) {
     void* p = internalAllocate(size, static_cast<size_t>(a));
-    if (p == nullptr) hv_panic("[HEAP] aligned operator new failed");
+    if (p == nullptr) HvPanic("[HEAP] aligned operator new failed");
     return p;
 }
 void* operator new[](size_t size, std::align_val_t a) {
     void* p = internalAllocate(size, static_cast<size_t>(a));
-    if (p == nullptr) hv_panic("[HEAP] aligned operator new[] failed");
+    if (p == nullptr) HvPanic("[HEAP] aligned operator new[] failed");
     return p;
 }
 void operator delete(void* p, std::align_val_t) noexcept {

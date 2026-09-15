@@ -66,14 +66,14 @@ void clearStage2Enable() {
 
 static bool test_init_programs_vtcr_el2() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::allocPages(9);
+    uint64_t hostPa = pmm::AllocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
 
     uint64_t vtcr;
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
-    pmm::freePages(hostPa, 9);
+    pmm::FreePages(hostPa, 9);
 
     uint64_t expected = VTCR_T0SZ(24) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB |
             VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1;
@@ -83,10 +83,10 @@ static bool test_init_programs_vtcr_el2() {
 
 static bool test_init_maps_guest_ram_blocks() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::allocPages(9);
+    uint64_t hostPa = pmm::AllocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
     uint64_t* first = walkStage2L2(rootTable(mmu), kGuestIpaBase);
     uint64_t* second = walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB);
 
@@ -94,22 +94,22 @@ static bool test_init_maps_guest_ram_blocks() {
             *first == normalStage2Descriptor(hostPa) &&
             *second == normalStage2Descriptor(hostPa + SIZE_2MB);
 
-    pmm::freePages(hostPa, 9);
+    pmm::FreePages(hostPa, 9);
     return mapped;
 }
 
 static bool test_init_maps_device_windows() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::allocPages(9);
+    uint64_t hostPa = pmm::AllocPages(9);
     if (hostPa == 0) return false;
 
     // One window of each granule. The page path carried no coverage at all
     // while the windows were a fixed table in a board header.
     MmioMap devices {};
-    devices.addBlocks(kDeviceBlockIpa, SIZE_2MB);
-    devices.addPages(kDevicePageIpa, BSP_UART_BASE, SIZE_4KB);
+    devices.AddBlocks(kDeviceBlockIpa, SIZE_2MB);
+    devices.AddPages(kDevicePageIpa, BSP_UART_BASE, SIZE_4KB);
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize, devices);
+    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, devices);
 
     uint64_t* block = walkStage2L2(rootTable(mmu), kDeviceBlockIpa);
     uint64_t* page = walkStage2L3(rootTable(mmu), kDevicePageIpa);
@@ -117,17 +117,17 @@ static bool test_init_maps_device_windows() {
     bool mapped = block != nullptr && *block == deviceStage2Descriptor(kDeviceBlockIpa) &&
             page != nullptr && *page == devicePageStage2Descriptor(BSP_UART_BASE);
 
-    pmm::freePages(hostPa, 9);
+    pmm::FreePages(hostPa, 9);
     return mapped;
 }
 
 static bool test_enable_programs_vttbr_and_hcr_vm() {
     GuestMmu mmu;
-    uint64_t hostPa = pmm::allocPages(9);
+    uint64_t hostPa = pmm::AllocPages(9);
     if (hostPa == 0) return false;
 
-    mmu.init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
-    mmu.enable(kTestVmid);
+    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    mmu.Enable(kTestVmid);
 
     uint64_t vttbr;
     uint64_t hcr;
@@ -139,7 +139,7 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
     bool enabled = vttbr == expectedVttbr && (hcr & 1ULL) != 0;
 
     clearStage2Enable();
-    pmm::freePages(hostPa, 9);
+    pmm::FreePages(hostPa, 9);
     return enabled;
 }
 

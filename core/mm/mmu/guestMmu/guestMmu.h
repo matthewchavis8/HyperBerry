@@ -42,7 +42,7 @@
 // @brief Per-guest stage-2 MMU.
 // @ingroup mmu
 //
-// Owns the stage-2 root table and VMID. @ref enable() programs VTTBR_EL2
+// Owns the stage-2 root table and VMID. @ref Enable() programs VTTBR_EL2
 // and sets HCR_EL2.VM=1. Shared by all vCPUs that belong to the same
 // guest (ARM semantics: one stage-2 table per VM, distinguished at the
 // TLB by VMID).
@@ -50,7 +50,7 @@ class GuestMmu {
 private:
     struct Stage2RootDeleter {
         void operator()(uint64_t* table) const noexcept {
-            if (table) pmm::freePages(reinterpret_cast<uint64_t>(table), 1);
+            if (table) pmm::FreePages(reinterpret_cast<uint64_t>(table), 1);
         }
     };
 
@@ -67,29 +67,29 @@ public:
     // @param devices    Device windows the guest may reach, read out of the
     //                   guest device tree by the caller. Anything absent here
     //                   is unreachable from the guest, which is the point.
-    void init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
+    void Init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
 
     // @brief Install one 2 MiB stage-2 block descriptor.
     // @param ipa      Intermediate physical address (2 MiB aligned).
     // @param pa       Target physical address.
     // @param isDevice True selects device-nGnRnE memory attributes,
     //                 false selects normal write-back cacheable memory.
-    void mapBlock(uint64_t ipa, uint64_t pa, bool isDevice);
+    void MapBlock(uint64_t ipa, uint64_t pa, bool isDevice);
 
     // @brief Install one 4 KiB stage-2 page descriptor.
     // @param ipa      Intermediate physical address (4 KiB aligned).
     // @param pa       Target physical address (4 KiB aligned).
     // @param isDevice True selects device-nGnRnE memory attributes,
     //                 false selects normal write-back cacheable memory.
-    void mapPage(uint64_t ipa, uint64_t pa, bool isDevice);
+    void MapPage(uint64_t ipa, uint64_t pa, bool isDevice);
 
     // @brief Commit this stage-2 context: program VTTBR_EL2 with @p vmid,
     //        flush stage-2 TLB, and set HCR_EL2.VM=1.
     // @param vmid Non-zero VMID. Each live VM must have a unique VMID.
-    void enable(uint8_t vmid);
+    void Enable(uint8_t vmid);
 
     // @brief Invalidate all stage-1 & stage-2 TLB entries for this VMID.
-    void tlbFlushAllGuest();
+    void TlbFlushAllGuest();
 };
 
 #endif // !__GUEST_MMU_H__
