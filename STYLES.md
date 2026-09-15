@@ -124,21 +124,18 @@ is still a value the device tree told you about.** `MmioWindow::base` and
 
 ## Logging
 
-**Two tiers, split at compile time rather than by severity.** There are no log
-levels.
+**`Log::println` and `Log::print` are the only way to print.** Both compile out
+when `NDEBUG` is set, so boot progress and diagnostics vanish from a release
+image, format strings included. There are no log levels. Integration images are
+always debug builds, so the TAP harness prints through them too.
 
-| | |
-| --- | --- |
-| `Log::println`, `Log::print` | debug console, compiled out when `NDEBUG` is set |
-| `Log::writeLine`, `Log::write`, `Log::writeCh`, `Log::writeHex` | always emitted |
-
-Boot progress and diagnostics use the debug tier and vanish from a release
-image, format strings included. The panic path and the integration harness use
-the always tier, because a release build that panics silently is a release build
-you cannot debug.
-
-The debug tier is inline in the header on purpose. An out of line empty function
+The calls are inline in the header on purpose. An out of line empty function
 still pins every format string in `.rodata`.
+
+**The panic path is not logging.** `hv_panic` and `registerDump` format with
+`log::detail` and write straight to `Uart::putc`, so a release panic still
+reports. A release build that panics silently is a release build you cannot
+debug. Nothing else writes to the UART that way.
 
 **Call sites qualify: `Log::println(...)`.** No free forwarders, no using
 directive, one name per entry point.

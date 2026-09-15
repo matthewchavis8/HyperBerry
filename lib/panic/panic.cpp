@@ -7,6 +7,15 @@
 #include "panic.h"
 #include "lib/log/log.h"
 #include "lib/registerDump/registerDump.h"
+#include "drivers/uart/uart.h"
+
+namespace {
+
+void uartSink(char ch) {
+    Uart::getInstance().putc(ch);
+}
+
+} // namespace
 
 /*
  * @brief Print panic diagnostics and stop execution permanently.
@@ -15,11 +24,11 @@
  * @param ctx Saved exception context for diagnostic output.
  */
 [[noreturn]] void hv_panic(const char* msg, const hv::array<uint64_t, 31>& ctx) {
-    Log::writeLine("=======================================");
-    Log::writeLine("=             HV PANIC                =");
-    Log::writeLine("=======================================");
+    log::detail::formatLineToSink(uartSink, "=======================================");
+    log::detail::formatLineToSink(uartSink, "=             HV PANIC                =");
+    log::detail::formatLineToSink(uartSink, "=======================================");
 
-    if (msg) Log::writeLine("[ERROR] {}", msg);
+    if (msg) log::detail::formatLineToSink(uartSink, "[ERROR] {}", msg);
 
     registerDump(ctx);
 
@@ -34,11 +43,11 @@
  * @param msg Optional panic message to print.
  */
 [[noreturn]] void hv_panic(const char* msg) {
-    Log::writeLine("=======================================");
-    Log::writeLine("=             HV PANIC                =");
-    Log::writeLine("=======================================");
+    log::detail::formatLineToSink(uartSink, "=======================================");
+    log::detail::formatLineToSink(uartSink, "=             HV PANIC                =");
+    log::detail::formatLineToSink(uartSink, "=======================================");
 
-    if (msg) Log::writeLine("[ERROR] {}", msg);
+    if (msg) log::detail::formatLineToSink(uartSink, "[ERROR] {}", msg);
 
     // Dump System Register State
     uint64_t esr {};
@@ -62,13 +71,13 @@
     // HPFAR_EL2[39:4] holds IPA[47:12] of the stage-2 fault.
     uint64_t fault_ipa = (hpfar & 0xFFFFFFFFF0ULL) << 8;
 
-    Log::writeLine("[ESR_EL2]   {:x} EC={:x} ISS={:x}", esr, ec, iss);
-    Log::writeLine("[ELR_EL2]   {:x}", elr);
-    Log::writeLine("[FAR_EL2]   {:x}", far);
-    Log::writeLine("[SPSR_EL2]  {:x}", spsr);
-    Log::writeLine("[HPFAR_EL2] {:x} IPA={:x}", hpfar, fault_ipa);
-    Log::writeLine("[VTTBR_EL2] {:x}", vttbr);
-    Log::writeLine("[VTCR_EL2]  {:x}", vtcr);
+    log::detail::formatLineToSink(uartSink, "[ESR_EL2]   {:x} EC={:x} ISS={:x}", esr, ec, iss);
+    log::detail::formatLineToSink(uartSink, "[ELR_EL2]   {:x}", elr);
+    log::detail::formatLineToSink(uartSink, "[FAR_EL2]   {:x}", far);
+    log::detail::formatLineToSink(uartSink, "[SPSR_EL2]  {:x}", spsr);
+    log::detail::formatLineToSink(uartSink, "[HPFAR_EL2] {:x} IPA={:x}", hpfar, fault_ipa);
+    log::detail::formatLineToSink(uartSink, "[VTTBR_EL2] {:x}", vttbr);
+    log::detail::formatLineToSink(uartSink, "[VTCR_EL2]  {:x}", vtcr);
 
     for (;;) {
         asm volatile("wfe");

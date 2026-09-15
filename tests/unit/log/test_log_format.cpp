@@ -46,6 +46,18 @@ TEST(Log, EscapesBraces) {
     EXPECT_STREQ(uart_test_support::buffer(), "{42}");
 }
 
+TEST(Log, FormatLineEndsWithCrlf) {
+    uart_test_support::reset();
+    log::detail::formatLineToSink([](char ch) { uart_test_support::append(ch); }, "x={:x}", 0x2AU);
+    EXPECT_STREQ(uart_test_support::buffer(), "x=0x2A\r\n");
+}
+
+TEST(Log, PrintlnPrintsPlainStringAsIs) {
+    uart_test_support::reset();
+    Log::println("{not a placeholder}");
+    EXPECT_STREQ(uart_test_support::buffer(), "{not a placeholder}\r\n");
+}
+
 TEST(Log, PrintsNullCString) {
     uart_test_support::reset();
 
