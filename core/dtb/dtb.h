@@ -43,7 +43,7 @@ struct alignas(16) MemoryMap {
 MemoryMap ParseDtb(uintptr_t dtb);
 
 // Maximum `reg` regions recorded per discovered device.
-constexpr uint32_t DT_MAX_REGIONS = 8;
+constexpr uint32_t DT_MAX_REGIONS { 8 };
 
 // @brief One `reg` entry, translated to a CPU-physical address.
 // @ingroup core

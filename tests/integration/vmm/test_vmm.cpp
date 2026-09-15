@@ -16,7 +16,7 @@ static TestExceptionState vecBarState;
 // @param esr ESR_EL2 at the trap.
 // @return Nothing.
 extern "C" void handle_test_el2_sync(void* frame, uint64_t esr) {
-    uint64_t* ctx = reinterpret_cast<uint64_t*>(frame);
+    uint64_t* ctx { reinterpret_cast<uint64_t*>(frame) };
 
     vecBarState.isCalled = true;
     // Store the exception syndrome register to see what triggered the crash
@@ -43,7 +43,7 @@ private:
 public:
     VbarGuard() {
         asm volatile("mrs %0, vbar_el2" : "=r"(m_saved));
-        uint64_t test_vbar = reinterpret_cast<uint64_t>(test_vectors);
+        uint64_t test_vbar { reinterpret_cast<uint64_t>(test_vectors) };
         asm volatile("msr vbar_el2, %0\n"
                      "isb" ::"r"(test_vbar)
                 : "memory");
@@ -83,7 +83,7 @@ static bool test_brk_esr_ec_correct() {
     VbarGuard guard;
     asm volatile("brk #0");
 
-    uint64_t ec = (vecBarState.esr >> 26) & 0x3F;
+    uint64_t ec { (vecBarState.esr >> 26) & 0x3F };
     return ec == 0x3C;
 }
 
@@ -120,7 +120,7 @@ static bool test_context_gpr_preserved() {
 }
 
 
-static const TestCase kCases[] = {
+static const TestCase kCases[] {
     { "vbar_aligned", test_vbar_aligned },
     { "brk_fires_handler", test_brk_fires_handler },
     { "brk_esr_ec_correct", test_brk_esr_ec_correct },
@@ -128,6 +128,6 @@ static const TestCase kCases[] = {
     { "context_gpr_preserved", test_context_gpr_preserved },
 };
 
-static const TestSuite kSuite = { "ExceptionHarness", kCases, 5 };
+static const TestSuite kSuite { "ExceptionHarness", kCases, 5 };
 
 REGISTER_SUITE(kSuite);

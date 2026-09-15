@@ -55,7 +55,7 @@ constexpr T&& forward(removeReferenceT<T>&& t) noexcept {
 // @brief Swap two values using move semantics.
 template <typename T>
 constexpr void swap(T& a, T& b) noexcept {
-    T tmp = hv::move(a);
+    T tmp { hv::move(a) };
     a = hv::move(b);
     b = hv::move(tmp);
 }

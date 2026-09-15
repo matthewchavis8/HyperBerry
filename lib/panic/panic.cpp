@@ -60,10 +60,10 @@ void uartSink(char ch) {
     asm volatile("mrs %0, vttbr_el2" : "=r"(vttbr));
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
 
-    uint64_t ec = (esr >> 26) & 0x3F;
-    uint64_t iss = esr & 0x1FFFFFF;
+    uint64_t ec { (esr >> 26) & 0x3F };
+    uint64_t iss { esr & 0x1FFFFFF };
     // HPFAR_EL2[39:4] holds IPA[47:12] of the stage-2 fault.
-    uint64_t fault_ipa = (hpfar & 0xFFFFFFFFF0ULL) << 8;
+    uint64_t fault_ipa { (hpfar & 0xFFFFFFFFF0ULL) << 8 };
 
     log::detail::FormatLineToSink(uartSink, "[ESR_EL2]   {:x} EC={:x} ISS={:x}", esr, ec, iss);
     log::detail::FormatLineToSink(uartSink, "[ELR_EL2]   {:x}", elr);

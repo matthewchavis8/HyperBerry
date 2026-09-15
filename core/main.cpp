@@ -35,7 +35,7 @@ extern "C" void hmain(uintptr_t dtb) {
     RunGlobalConstructors();
 
     Log::Println("[DTB] Attempting to parse device tree blob");
-    MemoryMap memoryMap = ParseDtb(dtb);
+    MemoryMap memoryMap { ParseDtb(dtb) };
     Log::Println("[DTB] Succesfully parsed device tree blob");
     // TODO: future, but instead of isValid panicking here I think parseDtb or the
     // memoryMap itself should fail hard, so this check can move inside somewhere.
@@ -67,14 +67,14 @@ extern "C" void hmain(uintptr_t dtb) {
 #else
 
     Log::Println("[BootPkg] Attempting to load Linux guest package");
-    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(memoryMap);
+    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(memoryMap) };
     if (!loaded.isLoaded) {
         HvPanic("[ERROR][VM] Failed to spin up Linux VM");
     }
     Log::Println("[BootPkg] Linux guest package loaded");
 
     Vm guest;
-    const char* guestName = "Linux VM";
+    const char* guestName { "Linux VM" };
     guest.Init(guestName,
             loaded.guest.guestIpaBase,
             loaded.guest.guestRamHostPa,

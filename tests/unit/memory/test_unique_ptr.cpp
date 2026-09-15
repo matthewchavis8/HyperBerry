@@ -49,21 +49,21 @@ TEST_F(UniquePtrTest, OwnsRawPointer) {
 }
 
 TEST_F(UniquePtrTest, MakeUniqueConstructs) {
-    auto p = hv::make_unique<DtorCounter>(11);
+    auto p { hv::make_unique<DtorCounter>(11) };
     ASSERT_TRUE(static_cast<bool>(p));
     EXPECT_EQ(p->m_value, 11);
 }
 
 TEST_F(UniquePtrTest, DestructorRunsDeleter) {
     {
-        auto p = hv::make_unique<DtorCounter>(1);
+        auto p { hv::make_unique<DtorCounter>(1) };
         EXPECT_EQ(DtorCounter::s_count, 0);
     }
     EXPECT_EQ(DtorCounter::s_count, 1);
 }
 
 TEST_F(UniquePtrTest, MoveTransfersOwnership) {
-    auto a = hv::make_unique<DtorCounter>(2);
+    auto a { hv::make_unique<DtorCounter>(2) };
     hv::unique_ptr<DtorCounter> b(hv::move(a));
 
     EXPECT_FALSE(static_cast<bool>(a));
@@ -73,8 +73,8 @@ TEST_F(UniquePtrTest, MoveTransfersOwnership) {
 }
 
 TEST_F(UniquePtrTest, MoveAssignReleasesOld) {
-    auto a = hv::make_unique<DtorCounter>(3);
-    auto b = hv::make_unique<DtorCounter>(4);
+    auto a { hv::make_unique<DtorCounter>(3) };
+    auto b { hv::make_unique<DtorCounter>(4) };
     b = hv::move(a);
     EXPECT_EQ(DtorCounter::s_count, 1);
     ASSERT_TRUE(static_cast<bool>(b));
@@ -82,14 +82,14 @@ TEST_F(UniquePtrTest, MoveAssignReleasesOld) {
 }
 
 TEST_F(UniquePtrTest, ResetReleases) {
-    auto p = hv::make_unique<DtorCounter>(5);
+    auto p { hv::make_unique<DtorCounter>(5) };
     p.reset();
     EXPECT_EQ(DtorCounter::s_count, 1);
     EXPECT_FALSE(static_cast<bool>(p));
 }
 
 TEST_F(UniquePtrTest, ResetReplaces) {
-    auto p = hv::make_unique<DtorCounter>(5);
+    auto p { hv::make_unique<DtorCounter>(5) };
     p.reset(new DtorCounter(6));
     EXPECT_EQ(DtorCounter::s_count, 1);
     ASSERT_TRUE(static_cast<bool>(p));
@@ -97,9 +97,9 @@ TEST_F(UniquePtrTest, ResetReplaces) {
 }
 
 TEST_F(UniquePtrTest, ReleaseDoesNotDelete) {
-    DtorCounter* raw = nullptr;
+    DtorCounter* raw { nullptr };
     {
-        auto p = hv::make_unique<DtorCounter>(8);
+        auto p { hv::make_unique<DtorCounter>(8) };
         raw = p.release();
         EXPECT_FALSE(static_cast<bool>(p));
     }
@@ -109,24 +109,24 @@ TEST_F(UniquePtrTest, ReleaseDoesNotDelete) {
 }
 
 TEST_F(UniquePtrTest, SwapExchangesPointers) {
-    auto a = hv::make_unique<DtorCounter>(10);
-    auto b = hv::make_unique<DtorCounter>(20);
-    DtorCounter* aRaw = a.get();
-    DtorCounter* bRaw = b.get();
+    auto a { hv::make_unique<DtorCounter>(10) };
+    auto b { hv::make_unique<DtorCounter>(20) };
+    DtorCounter* aRaw { a.get() };
+    DtorCounter* bRaw { b.get() };
     a.swap(b);
     EXPECT_EQ(a.get(), bRaw);
     EXPECT_EQ(b.get(), aRaw);
 }
 
 TEST_F(UniquePtrTest, NullptrAssignReleases) {
-    auto p = hv::make_unique<DtorCounter>(9);
+    auto p { hv::make_unique<DtorCounter>(9) };
     p = nullptr;
     EXPECT_EQ(DtorCounter::s_count, 1);
     EXPECT_FALSE(static_cast<bool>(p));
 }
 
 TEST_F(UniquePtrTest, EqualitySameType) {
-    auto a = hv::make_unique<int>(1);
+    auto a { hv::make_unique<int>(1) };
     hv::unique_ptr<int> b;
     EXPECT_NE(a, b);
     EXPECT_NE(a, nullptr);

@@ -34,42 +34,43 @@ static uint64_t readInitrdAddress(const volatile uint32_t* data, uint32_t dataLe
 // the DTB resides in Device-nGnRnE memory where natural alignment must be
 // respected, and the DTB format only guarantees 4-byte alignment.
 MemoryMap ParseDtb(uintptr_t dtb) {
-    MemoryMap map = {};
+    MemoryMap map {};
 
     if (dtb == 0) return map;
 
-    const volatile FdtHeader* hdr = reinterpret_cast<const volatile FdtHeader*>(dtb);
+    const volatile FdtHeader* hdr { reinterpret_cast<const volatile FdtHeader*>(dtb) };
 
     if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return map;
 
     map.dtbBase = dtb;
     map.dtbSize = Be32(hdr->totalSize);
 
-    const volatile uint32_t* structs =
-            reinterpret_cast<const volatile uint32_t*>(dtb + Be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff));
+    const volatile uint32_t* structs { reinterpret_cast<const volatile uint32_t*>(
+            dtb + Be32(hdr->structOff)) };
+    const char* strings { reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff)) };
 
-    bool foundMem = false;
-    bool foundAtf = false;
+    bool foundMem { false };
+    bool foundAtf { false };
 
-    bool inReservedMemory = false;
-    bool inMemory = false;
-    bool inAtf = false;
-    bool inChosen = false;
+    bool inReservedMemory { false };
+    bool inMemory { false };
+    bool inAtf { false };
+    bool inChosen { false };
 
     int depth {};
 
-    const volatile uint32_t* tok = structs;
+    const volatile uint32_t* tok { structs };
 
     while (true) {
-        uint32_t token = Be32(*tok);
+        uint32_t token { Be32(*tok) };
         tok++;
 
         switch (static_cast<FDT>(token)) {
             case FDT::BEGIN_NODE: {
-                const char* name = reinterpret_cast<const char*>(const_cast<const uint32_t*>(tok));
-                const uint8_t* nameB =
-                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(tok));
+                const char* name { reinterpret_cast<const char*>(
+                        const_cast<const uint32_t*>(tok)) };
+                const uint8_t* nameB { reinterpret_cast<const uint8_t*>(
+                        const_cast<const uint32_t*>(tok)) };
 
                 // depth == 1: inside root "/", entering a top-level node
                 if (depth == 1) {
@@ -106,10 +107,10 @@ MemoryMap ParseDtb(uintptr_t dtb) {
             }
 
             case FDT::PROP: {
-                uint32_t dataLen = Be32(tok[0]);
-                uint32_t nameOff = Be32(tok[1]);
-                const char* propName = strings + nameOff;
-                const volatile uint32_t* propData = tok + 2; // skip dataLen + nameOff
+                uint32_t dataLen { Be32(tok[0]) };
+                uint32_t nameOff { Be32(tok[1]) };
+                const char* propName { strings + nameOff };
+                const volatile uint32_t* propData { tok + 2 }; // skip dataLen + nameOff
 
                 if (StrEq(propName, "reg") && dataLen >= 16) {
                     if (inMemory && !foundMem) {
@@ -123,7 +124,7 @@ MemoryMap ParseDtb(uintptr_t dtb) {
                     if (StrEq(propName, "linux,initrd-start")) {
                         map.bootPackageBase = readInitrdAddress(propData, dataLen);
                     } else if (StrEq(propName, "linux,initrd-end")) {
-                        uint64_t end = readInitrdAddress(propData, dataLen);
+                        uint64_t end { readInitrdAddress(propData, dataLen) };
                         if (end > map.bootPackageBase)
                             map.bootPackageSize = end - map.bootPackageBase;
                     }
@@ -156,7 +157,7 @@ done:
 
 namespace {
 
-constexpr uint32_t MAX_DEPTH = 16;
+constexpr uint32_t MAX_DEPTH { 16 };
 
 // Per-depth bus context needed to decode and translate a child's `reg`.
 struct BusLevel {
@@ -170,18 +171,18 @@ struct BusLevel {
 };
 
 uint64_t readCells(const volatile uint32_t* data, uint32_t cells) {
-    uint64_t value = 0;
-    for (uint32_t i = 0; i < cells; ++i)
+    uint64_t value { 0 };
+    for (uint32_t i { 0 }; i < cells; ++i)
         value = (value << 32) | Be32(data[i]);
 
     return value;
 }
 
 bool compatibleMatches(const char* list, uint32_t len, const char* const* wanted, uint32_t count) {
-    uint32_t off = 0;
+    uint32_t off { 0 };
     while (off < len) {
-        const char* entry = list + off;
-        for (uint32_t i = 0; i < count; ++i) {
+        const char* entry { list + off };
+        for (uint32_t i { 0 }; i < count; ++i) {
             if (StrEq(entry, wanted[i])) return true;
         }
 
@@ -196,21 +197,21 @@ bool compatibleMatches(const char* list, uint32_t len, const char* const* wanted
 // Walk a bus-local address up through each ancestor's `ranges`.
 uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
     // stack[depth] is the matched node; its parents are below it.
-    for (uint32_t level = depth; level > 0; --level) {
-        const BusLevel& bus = stack[level - 1];
+    for (uint32_t level { depth }; level > 0; --level) {
+        const BusLevel& bus { stack[level - 1] };
         if (bus.ranges == nullptr || bus.rangesLen == 0 || level < 2) continue;
 
-        uint32_t childCells = bus.addressCells;
-        uint32_t parentCells = stack[level - 2].addressCells;
-        uint32_t sizeCells = bus.sizeCells;
-        uint32_t stride = (childCells + parentCells + sizeCells) * 4;
+        uint32_t childCells { bus.addressCells };
+        uint32_t parentCells { stack[level - 2].addressCells };
+        uint32_t sizeCells { bus.sizeCells };
+        uint32_t stride { (childCells + parentCells + sizeCells) * 4 };
         if (stride == 0 || (bus.rangesLen % stride) != 0) continue;
 
-        for (uint32_t off = 0; off + stride <= bus.rangesLen; off += stride) {
-            const volatile uint32_t* entry = bus.ranges + (off / 4);
-            uint64_t child = readCells(entry, childCells);
-            uint64_t parent = readCells(entry + childCells, parentCells);
-            uint64_t length = readCells(entry + childCells + parentCells, sizeCells);
+        for (uint32_t off { 0 }; off + stride <= bus.rangesLen; off += stride) {
+            const volatile uint32_t* entry { bus.ranges + (off / 4) };
+            uint64_t child { readCells(entry, childCells) };
+            uint64_t parent { readCells(entry + childCells, parentCells) };
+            uint64_t length { readCells(entry + childCells + parentCells, sizeCells) };
             if (addr >= child && addr - child < length) {
                 addr = addr - child + parent;
                 break;
@@ -224,29 +225,29 @@ uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
 } // namespace
 
 DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint32_t count) {
-    DeviceNode out = {};
+    DeviceNode out {};
 
     if (dtb == 0 || compatibles == nullptr || count == 0) return out;
 
-    const volatile FdtHeader* hdr = reinterpret_cast<const volatile FdtHeader*>(dtb);
+    const volatile FdtHeader* hdr { reinterpret_cast<const volatile FdtHeader*>(dtb) };
     if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return out;
 
-    const volatile uint32_t* tok =
-            reinterpret_cast<const volatile uint32_t*>(dtb + Be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff));
+    const volatile uint32_t* tok { reinterpret_cast<const volatile uint32_t*>(
+            dtb + Be32(hdr->structOff)) };
+    const char* strings { reinterpret_cast<const char*>(dtb + Be32(hdr->stringsOff)) };
 
-    BusLevel stack[MAX_DEPTH] = {};
-    uint32_t depth = 0;
+    BusLevel stack[MAX_DEPTH] {};
+    uint32_t depth { 0 };
 
     while (true) {
-        uint32_t token = Be32(*tok);
+        uint32_t token { Be32(*tok) };
         tok++;
 
         switch (static_cast<FDT>(token)) {
             case FDT::BEGIN_NODE: {
-                const uint8_t* nameB =
-                        reinterpret_cast<const uint8_t*>(const_cast<const uint32_t*>(tok));
-                uint32_t nameLen = 0;
+                const uint8_t* nameB { reinterpret_cast<const uint8_t*>(
+                        const_cast<const uint32_t*>(tok)) };
+                uint32_t nameLen { 0 };
                 while (nameB[nameLen] != 0)
                     nameLen++;
                 tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(nameB, nameLen + 1));
@@ -263,17 +264,17 @@ DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                 if (depth > 0) depth--;
 
                 if (depth < MAX_DEPTH && stack[depth].matched) {
-                    const BusLevel& node = stack[depth];
-                    uint32_t addressCells = depth > 0 ? stack[depth - 1].addressCells : 2;
-                    uint32_t sizeCells = depth > 0 ? stack[depth - 1].sizeCells : 1;
-                    uint32_t stride = (addressCells + sizeCells) * 4;
+                    const BusLevel& node { stack[depth] };
+                    uint32_t addressCells { depth > 0 ? stack[depth - 1].addressCells : 2 };
+                    uint32_t sizeCells { depth > 0 ? stack[depth - 1].sizeCells : 1 };
+                    uint32_t stride { (addressCells + sizeCells) * 4 };
 
                     if (node.reg != nullptr && stride != 0 && (node.regLen % stride) == 0) {
-                        for (uint32_t off = 0;
+                        for (uint32_t off { 0 };
                                 off + stride <= node.regLen && out.regionCount < DT_MAX_REGIONS;
                                 off += stride) {
-                            const volatile uint32_t* entry = node.reg + (off / 4);
-                            uint64_t base = readCells(entry, addressCells);
+                            const volatile uint32_t* entry { node.reg + (off / 4) };
+                            uint64_t base { readCells(entry, addressCells) };
                             out.regions[out.regionCount].base = translate(stack, depth, base);
                             out.regions[out.regionCount].size =
                                     readCells(entry + addressCells, sizeCells);
@@ -287,14 +288,14 @@ DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
             }
 
             case FDT::PROP: {
-                uint32_t dataLen = Be32(tok[0]);
-                uint32_t nameOff = Be32(tok[1]);
-                const char* propName = strings + nameOff;
-                const volatile uint32_t* propData = tok + 2;
-                uint32_t level = depth > 0 ? depth - 1 : 0;
+                uint32_t dataLen { Be32(tok[0]) };
+                uint32_t nameOff { Be32(tok[1]) };
+                const char* propName { strings + nameOff };
+                const volatile uint32_t* propData { tok + 2 };
+                uint32_t level { depth > 0 ? depth - 1 : 0 };
 
                 if (level < MAX_DEPTH) {
-                    BusLevel& node = stack[level];
+                    BusLevel& node { stack[level] };
                     if (StrEq(propName, "#address-cells") && dataLen >= 4) {
                         node.addressCells = Be32(propData[0]);
                     } else if (StrEq(propName, "#size-cells") && dataLen >= 4) {
@@ -306,8 +307,8 @@ DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
                         node.reg = propData;
                         node.regLen = dataLen;
                     } else if (StrEq(propName, "compatible") && dataLen > 0) {
-                        const char* list = reinterpret_cast<const char*>(
-                                const_cast<const uint32_t*>(propData));
+                        const char* list { reinterpret_cast<const char*>(
+                                const_cast<const uint32_t*>(propData)) };
                         node.matched = compatibleMatches(list, dataLen, compatibles, count);
                     }
                 }
@@ -331,9 +332,9 @@ DeviceNode DtbFindCompatible(uintptr_t dtb, const char* const* compatibles, uint
 
 namespace {
 
-const char* const kUartCompatible[] = { "arm,pl011", "brcm,bcm2835-aux-uart" };
+const char* const kUartCompatible[] { "arm,pl011", "brcm,bcm2835-aux-uart" };
 
-const char* const kGicCompatible[] = {
+const char* const kGicCompatible[] {
     "arm,gic-400",
     "arm,cortex-a15-gic",
     "arm,gic-v2",

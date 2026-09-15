@@ -12,9 +12,9 @@ namespace {
 // 40-bit IPA with 4 KiB granules starts at concatenated L1 root tables:
 // two 4 KiB tables, indexed by IPA[39:30]. This preserves the 40-bit IPA
 // space without using an L0 root.
-constexpr uint32_t kStage2StartLevel = 1;
-constexpr uint64_t kStage2T0sz = 24;
-constexpr uint64_t kStage2RootSize = PAGE_SIZE * 2ULL;
+constexpr uint32_t kStage2StartLevel { 1 };
+constexpr uint64_t kStage2T0sz { 24 };
+constexpr uint64_t kStage2RootSize { PAGE_SIZE * 2ULL };
 
 constexpr PageTable::WalkConfig kStage2Walk {
     kStage2StartLevel,
@@ -24,8 +24,8 @@ constexpr PageTable::WalkConfig kStage2Walk {
 
 uint64_t buildStage2BlockDescriptor(uint64_t pa, bool isDevice) {
     // Check if this is device memory or normal memory
-    uint64_t memAttr = isDevice ? S2PTE_MEMATTR_DEVICE_nGnRnE : S2PTE_MEMATTR_NORMAL_WB;
-    uint64_t xn = isDevice ? S2PTE_XN_ALL : S2PTE_XN_NONE;
+    uint64_t memAttr { isDevice ? S2PTE_MEMATTR_DEVICE_nGnRnE : S2PTE_MEMATTR_NORMAL_WB };
+    uint64_t xn { isDevice ? S2PTE_XN_ALL : S2PTE_XN_NONE };
 
     return (pa & PTE_ADDR_MASK) | PTE_VALID | PTE_BLOCK | PTE_AF | S2PTE_SH_INNER | S2PTE_S2AP_RW |
             memAttr | xn;
@@ -36,32 +36,32 @@ uint64_t buildStage2PageDescriptor(uint64_t pa, bool isDevice) {
 }
 
 uint64_t* allocStage2RootTable() {
-    uint64_t pa = pmm::AllocPages(1);
+    uint64_t pa { pmm::AllocPages(1) };
     if (pa == 0) {
         Log::Println("[GuestMmu][ERROR] failed to allocate stage-2 root");
         for (;;)
             asm volatile("wfe");
     }
 
-    uint64_t* table = reinterpret_cast<uint64_t*>(pa);
+    uint64_t* table { reinterpret_cast<uint64_t*>(pa) };
     memset(table, 0, kStage2RootSize);
     PageTable::CleanDataCacheRange(table, kStage2RootSize);
     return table;
 }
 
 uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
-    uint64_t* l2 = PageTable::Walk(root, ipa, kStage2Walk);
+    uint64_t* l2 { PageTable::Walk(root, ipa, kStage2Walk) };
     if (l2 == nullptr) return nullptr;
 
     if (!pte_is_valid(*l2)) {
-        uint64_t* l3 = PageTable::AllocTable();
+        uint64_t* l3 { PageTable::AllocTable() };
         *l2 = reinterpret_cast<uint64_t>(l3) | PTE_VALID | PTE_TABLE;
         PageTable::CleanDataCacheRange(l2, sizeof(*l2));
     }
 
     if (!pte_is_table(*l2)) return nullptr;
 
-    uint64_t* l3 = pte_next_table(*l2);
+    uint64_t* l3 { pte_next_table(*l2) };
     return &l3[L3_INDEX(ipa)];
 }
 } // namespace
@@ -73,8 +73,8 @@ void GuestMmu::Init(
     m_rootTable = reinterpret_cast<uint64_t>(m_rootTableOwner.get());
     Log::Println("[GuestMmu] root table={}", m_rootTableOwner.get());
 
-    uint64_t vtcr = VTCR_T0SZ(kStage2T0sz) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS |
-            VTCR_ORGN0_WB | VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1;
+    uint64_t vtcr { VTCR_T0SZ(kStage2T0sz) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS |
+        VTCR_ORGN0_WB | VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1 };
 
     Log::Println("[GuestMmu] Programming VTCR_EL2");
     asm volatile("msr vtcr_el2, %0" ::"r"(vtcr) : "memory");
@@ -87,13 +87,13 @@ void GuestMmu::Init(
 
     Log::Println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.count);
     for (uint32_t i {}; i < devices.count; ++i) {
-        const MmioWindow& window = devices.windows[i];
+        const MmioWindow& window { devices.windows[i] };
         Log::Println("[GuestMmu]   ipa {:x}..{:x} -> pa {:x}",
                 window.base,
                 window.base + window.size,
                 window.pa);
 
-        uint64_t granule = window.byPage ? SIZE_4KB : SIZE_2MB;
+        uint64_t granule { window.byPage ? SIZE_4KB : SIZE_2MB };
         for (uint64_t off {}; off < window.size; off += granule) {
             if (window.byPage) {
                 MapPage(window.base + off, window.pa + off, true);
@@ -108,7 +108,7 @@ void GuestMmu::Init(
 }
 
 void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte = PageTable::Walk(m_rootTableOwner.get(), ipa, kStage2Walk);
+    uint64_t* pte { PageTable::Walk(m_rootTableOwner.get(), ipa, kStage2Walk) };
     if (!pte) {
         Log::Println("[ERROR] GuestMmu::mapBlock walk failed");
         return;
@@ -118,7 +118,7 @@ void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
 }
 
 void GuestMmu::MapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte = walkL3(m_rootTableOwner.get(), ipa);
+    uint64_t* pte { walkL3(m_rootTableOwner.get(), ipa) };
     if (!pte) {
         Log::Println("[ERROR] GuestMmu::mapPage walk failed");
         return;
@@ -130,8 +130,8 @@ void GuestMmu::MapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
 void GuestMmu::Enable(uint8_t vmid) {
     m_vmid = vmid;
 
-    uint64_t rootPa = (uint64_t)(uintptr_t)m_rootTableOwner.get();
-    uint64_t vttbr = ((uint64_t)vmid << 48) | (rootPa & PTE_ADDR_MASK);
+    uint64_t rootPa { (uint64_t)(uintptr_t)m_rootTableOwner.get() };
+    uint64_t vttbr { ((uint64_t)vmid << 48) | (rootPa & PTE_ADDR_MASK) };
 
     // Drain page-table stores to PoC before the PTW can ever read VTTBR.
     asm volatile("dsb ish" ::: "memory");

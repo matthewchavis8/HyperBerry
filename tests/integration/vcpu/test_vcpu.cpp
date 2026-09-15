@@ -12,8 +12,8 @@ struct GuestExitCapture {
     uint64_t esr;
 };
 
-constexpr uint64_t kGuestCallId = 0x1234ULL;
-constexpr uint64_t kGuestScratch = 0xBEEFULL;
+constexpr uint64_t kGuestCallId { 0x1234ULL };
+constexpr uint64_t kGuestScratch { 0xBEEFULL };
 
 alignas(16) uint8_t gGuestStack[256];
 GuestExitCapture gGuestExit;
@@ -29,9 +29,9 @@ extern "C" void handle_test_vcpu_guest_exit(Vcpu* vcpu, uint64_t esr) {
 }
 
 uint64_t installTestVbar() {
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, vbar_el2" : "=r"(saved));
-    uint64_t testVbar = reinterpret_cast<uint64_t>(test_vcpu_vectors);
+    uint64_t testVbar { reinterpret_cast<uint64_t>(test_vcpu_vectors) };
     asm volatile("msr vbar_el2, %0\n"
                  "isb" ::"r"(testVbar)
             : "memory");
@@ -50,7 +50,7 @@ bool enterGuestAndCapture(Vcpu& vcpu) {
     vcpu.Init(reinterpret_cast<uint64_t>(test_vcpu_guest_entry));
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
-    uint64_t savedVbar = installTestVbar();
+    uint64_t savedVbar { installTestVbar() };
     vcpu_enter(&vcpu);
     restoreVbar(savedVbar);
     return gGuestExit.isCalled;
@@ -77,8 +77,8 @@ static bool test_vcpu_gpr_round_trip() {
 }
 
 static bool test_vcpu_tpidr_el2_is_accessible() {
-    constexpr uint64_t kSentinel = 0xDEADBEEFCAFEULL;
-    uint64_t readBack = 0;
+    constexpr uint64_t kSentinel { 0xDEADBEEFCAFEULL };
+    uint64_t readBack { 0 };
 
     asm volatile("msr tpidr_el2, %1\n"
                  "mrs %0, tpidr_el2\n"
@@ -123,7 +123,7 @@ static bool test_vcpu_guest_exit_saves_guest_gprs() {
             vcpu.GetGpReg(VCPU_GPREG_X5) == kGuestScratch;
 }
 
-static const TestCase kVcpuCases[] = {
+static const TestCase kVcpuCases[] {
     { "vcpu_is_standard_layout", test_vcpu_is_standard_layout },
     { "vcpu_hvctx_size_matches_asm", test_vcpu_hvctx_size_matches_asm },
     { "vcpu_hvctx_offset_matches_asm", test_vcpu_hvctx_offset_matches_asm },
@@ -135,7 +135,7 @@ static const TestCase kVcpuCases[] = {
     { "vcpu_guest_exit_saves_guest_gprs", test_vcpu_guest_exit_saves_guest_gprs },
 };
 
-static const TestSuite kVcpuSuite = {
+static const TestSuite kVcpuSuite {
     "VcpuHarness",
     kVcpuCases,
     9,

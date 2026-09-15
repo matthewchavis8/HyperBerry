@@ -41,12 +41,12 @@ void Timer::Init() noexcept {
 void Timer::Start() noexcept {
     m_lastArmTicks = readCntVctEl0();
     writeCnthpTvalEl2(m_intervalTicks);
-    constexpr uint64_t CNTHP_CTL_ENABLE = 0b01; // ENABLE=1, IMASK=0
+    constexpr uint64_t CNTHP_CTL_ENABLE { 0b01 }; // ENABLE=1, IMASK=0
     writeCnthpCtlEl2(CNTHP_CTL_ENABLE);
 }
 
 void Timer::Stop() const noexcept {
-    constexpr uint64_t CNTHP_CTL_DISABLE = 0b00;
+    constexpr uint64_t CNTHP_CTL_DISABLE { 0b00 };
     writeCnthpCtlEl2(CNTHP_CTL_DISABLE);
 }
 

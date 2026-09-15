@@ -99,7 +99,7 @@ public:
     //
     // The deleter is *not* invoked; the caller assumes responsibility.
     pointer release() noexcept {
-        pointer p = m_ptr;
+        pointer p { m_ptr };
         m_ptr = nullptr;
         return p;
     }
@@ -107,7 +107,7 @@ public:
     // @brief Replace the owned pointer, deleting any previous object.
     // @param p New raw pointer to own (defaults to @c nullptr).
     void reset(pointer p = nullptr) noexcept {
-        pointer old = m_ptr;
+        pointer old { m_ptr };
         m_ptr = p;
         if (old) m_deleter(old);
     }

@@ -29,14 +29,14 @@ void Init(const MmioMap& devices) {
     Log::Println("[HostMmu] L0 table={}", l0_table);
 
     Log::Println("[HostMmu] Programming MAIR");
-    uint64_t mair = (0xFFULL << (MAIR_IDX_NORMAL * 8)) // Normal memory
-            | (0x00ULL << (MAIR_IDX_DEVICE * 8))       // Device memory
-            | (0x44ULL << (MAIR_IDX_NORMAL_NC * 8));   // Normal but non cacheable memory
+    uint64_t mair { (0xFFULL << (MAIR_IDX_NORMAL * 8)) // Normal memory
+        | (0x00ULL << (MAIR_IDX_DEVICE * 8))           // Device memory
+        | (0x44ULL << (MAIR_IDX_NORMAL_NC * 8)) };     // Normal but non cacheable memory
     asm volatile("msr mair_el2, %0" ::"r"(mair) : "memory");
 
     Log::Println("[HostMmu] Programming TCR");
-    uint64_t tcr =
-            (16ULL << 0) | (0ULL << 14) | (1ULL << 8) | (1ULL << 10) | (3ULL << 12) | (2ULL << 16);
+    uint64_t tcr { (16ULL << 0) | (0ULL << 14) | (1ULL << 8) | (1ULL << 10) | (3ULL << 12) |
+        (2ULL << 16) };
     asm volatile("msr tcr_el2, %0" ::"r"(tcr) : "memory");
     asm volatile("isb");
 
@@ -45,7 +45,7 @@ void Init(const MmioMap& devices) {
 
     Log::Println("[HostMmu] Mapping {} HV MMIO window(s)", devices.count);
     for (uint32_t i {}; i < devices.count; ++i) {
-        const MmioWindow& window = devices.windows[i];
+        const MmioWindow& window { devices.windows[i] };
         Log::Println("[HostMmu]   {:x}..{:x}", window.base, window.base + window.size);
         MapRange(window.base, window.pa, window.size, PTE_DEVICE);
     }
@@ -69,7 +69,7 @@ void Init(const MmioMap& devices) {
 
 void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte = PageTable::Walk(l0_table, va + off, kStage1Walk);
+        uint64_t* pte { PageTable::Walk(l0_table, va + off, kStage1Walk) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::mapRange walk failed");
             break;
@@ -80,7 +80,7 @@ void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
 
 void UnmapRange(uint64_t va, uint64_t size) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte = PageTable::Walk(l0_table, va + off, kStage1Lookup);
+        uint64_t* pte { PageTable::Walk(l0_table, va + off, kStage1Lookup) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::unmapRange walk failed");
             break;

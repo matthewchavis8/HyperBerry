@@ -15,7 +15,7 @@ extern "C" const TestSuite* __test_suites_end[];
 namespace TestRunner {
 
 namespace {
-    MemoryMap g_bootMemoryMap = {};
+    MemoryMap g_bootMemoryMap {};
 }
 
 void SetBootContext(const MemoryMap& map) {
@@ -33,21 +33,21 @@ const MemoryMap& BootMemoryMap() {
 void RunAll() {
     // Get the starting/ending address of the test_suite where the linker script laid it out in
     // memory
-    const TestSuite* const* begin = __test_suites_start;
-    const TestSuite* const* end = __test_suites_end;
+    const TestSuite* const* begin { __test_suites_start };
+    const TestSuite* const* end { __test_suites_end };
 
     int total_passed {};
     int total_failed {};
 
     // Here we walk each individual test suite until we hit the end of the test address
     for (const TestSuite* const* it = begin; it != end; ++it) {
-        const TestSuite* suite = *it;
+        const TestSuite* suite { *it };
 
         Tap::SuiteHeader(suite->name, suite->count);
 
-        for (int i = 0; i < suite->count; i++) {
-            const TestCase& tc = suite->cases[i];
-            int num = i + 1;
+        for (int i { 0 }; i < suite->count; i++) {
+            const TestCase& tc { suite->cases[i] };
+            int num { i + 1 };
 
             if (tc.fn()) {
                 Tap::Ok(num, suite->count, suite->name, tc.name);

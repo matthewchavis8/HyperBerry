@@ -59,7 +59,7 @@ TEST(Log, PrintlnPrintsPlainStringAsIs) {
 TEST(Log, PrintsNullCString) {
     uart_test_support::Reset();
 
-    const char* value = nullptr;
+    const char* value { nullptr };
     Log::Print("{}", value);
 
     EXPECT_STREQ(uart_test_support::Buffer(), "(null)");

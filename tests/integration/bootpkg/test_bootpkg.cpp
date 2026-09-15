@@ -54,31 +54,31 @@ bool strStartsWith(const char* str, const char* prefix) {
 }
 
 uint32_t* alignStruct(uint8_t* ptr, uint32_t bytes) {
-    uintptr_t addr = reinterpret_cast<uintptr_t>(ptr + bytes);
+    uintptr_t addr { reinterpret_cast<uintptr_t>(ptr + bytes) };
     addr = (addr + 3) & ~(uintptr_t)3;
     return reinterpret_cast<uint32_t*>(addr);
 }
 
 uint64_t readBe64Cells(const uint8_t* data) {
-    const auto* cells = reinterpret_cast<const uint32_t*>(data);
+    const auto* cells { reinterpret_cast<const uint32_t*>(data) };
     return (static_cast<uint64_t>(be32(cells[0])) << 32) | static_cast<uint64_t>(be32(cells[1]));
 }
 
 uint8_t* findPropData(void* dtb, const char* wanted) {
-    auto* hdr = static_cast<FdtHeader*>(dtb);
+    auto* hdr { static_cast<FdtHeader*>(dtb) };
     if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return nullptr;
 
-    auto* base = static_cast<uint8_t*>(dtb);
-    auto* tok = reinterpret_cast<uint32_t*>(base + be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(base + be32(hdr->stringsOff));
+    auto* base { static_cast<uint8_t*>(dtb) };
+    auto* tok { reinterpret_cast<uint32_t*>(base + be32(hdr->structOff)) };
+    const char* strings { reinterpret_cast<const char*>(base + be32(hdr->stringsOff)) };
 
     while (true) {
-        uint32_t token = be32(*tok);
+        uint32_t token { be32(*tok) };
         tok++;
 
         switch (static_cast<FDT>(token)) {
             case FDT::BEGIN_NODE: {
-                auto* name = reinterpret_cast<uint8_t*>(tok);
+                auto* name { reinterpret_cast<uint8_t*>(tok) };
                 uint32_t nameLen {};
                 while (name[nameLen] != 0)
                     nameLen++;
@@ -91,9 +91,9 @@ uint8_t* findPropData(void* dtb, const char* wanted) {
                 break;
 
             case FDT::PROP: {
-                uint32_t dataLen = be32(tok[0]);
-                uint32_t nameOff = be32(tok[1]);
-                auto* propData = reinterpret_cast<uint8_t*>(tok + 2);
+                uint32_t dataLen { be32(tok[0]) };
+                uint32_t nameOff { be32(tok[1]) };
+                auto* propData { reinterpret_cast<uint8_t*>(tok + 2) };
                 if (strEq(strings + nameOff, wanted)) return propData;
                 tok = alignStruct(propData, dataLen);
                 break;
@@ -107,23 +107,23 @@ uint8_t* findPropData(void* dtb, const char* wanted) {
 }
 
 uint8_t* findMemoryRegData(void* dtb) {
-    auto* hdr = static_cast<FdtHeader*>(dtb);
+    auto* hdr { static_cast<FdtHeader*>(dtb) };
     if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return nullptr;
 
-    auto* base = static_cast<uint8_t*>(dtb);
-    auto* tok = reinterpret_cast<uint32_t*>(base + be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(base + be32(hdr->stringsOff));
-    bool inMemory = false;
+    auto* base { static_cast<uint8_t*>(dtb) };
+    auto* tok { reinterpret_cast<uint32_t*>(base + be32(hdr->structOff)) };
+    const char* strings { reinterpret_cast<const char*>(base + be32(hdr->stringsOff)) };
+    bool inMemory { false };
     int depth {};
 
     while (true) {
-        uint32_t token = be32(*tok);
+        uint32_t token { be32(*tok) };
         tok++;
 
         switch (static_cast<FDT>(token)) {
             case FDT::BEGIN_NODE: {
-                const char* name = reinterpret_cast<const char*>(tok);
-                auto* nameBytes = reinterpret_cast<uint8_t*>(tok);
+                const char* name { reinterpret_cast<const char*>(tok) };
+                auto* nameBytes { reinterpret_cast<uint8_t*>(tok) };
                 if (depth == 1) inMemory = strStartsWith(name, "memory");
 
                 uint32_t nameLen {};
@@ -143,9 +143,9 @@ uint8_t* findMemoryRegData(void* dtb) {
                 break;
 
             case FDT::PROP: {
-                uint32_t dataLen = be32(tok[0]);
-                uint32_t nameOff = be32(tok[1]);
-                auto* propData = reinterpret_cast<uint8_t*>(tok + 2);
+                uint32_t dataLen { be32(tok[0]) };
+                uint32_t nameOff { be32(tok[1]) };
+                auto* propData { reinterpret_cast<uint8_t*>(tok + 2) };
                 if (inMemory && strEq(strings + nameOff, "reg")) return propData;
                 tok = alignStruct(propData, dataLen);
                 break;
@@ -164,82 +164,82 @@ const uint8_t* packageBytes(const MemoryMap& map) {
 } // namespace
 
 static bool test_firmware_package_region_present() {
-    const MemoryMap& map = TestRunner::BootMemoryMap();
+    const MemoryMap& map { TestRunner::BootMemoryMap() };
     return map.bootPackageBase != 0 && map.bootPackageSize != 0;
 }
 
 static bool test_firmware_package_validates() {
-    const MemoryMap& map = TestRunner::BootMemoryMap();
+    const MemoryMap& map { TestRunner::BootMemoryMap() };
     if (map.bootPackageBase == 0 || map.bootPackageSize == 0) return false;
 
-    bootpkg::ValidateResult result = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
+    bootpkg::ValidateResult result { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
 
     return result.isValid && result.error == bootpkg::ValidateError::NONE &&
             result.package.bootProtocol == bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_LINUX_ARM64;
 }
 
 static bool test_load_linux_guest_from_firmware_package() {
-    const MemoryMap& map = TestRunner::BootMemoryMap();
-    bootpkg::ValidateResult validated = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
+    const MemoryMap& map { TestRunner::BootMemoryMap() };
+    bootpkg::ValidateResult validated { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
     if (!validated.isValid) return false;
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
 
-    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(map);
+    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(map) };
     if (!loaded.isLoaded) return false;
 
-    const uint8_t* kernel = static_cast<const uint8_t*>(HostMmu::PaToVa(
-            loaded.guest.guestRamHostPa + (layout.kernelIpa - layout.guestIpaBase)));
-    const uint8_t* packageKernel = packageBytes(map) + validated.package.kernelOffset;
+    const uint8_t* kernel { static_cast<const uint8_t*>(HostMmu::PaToVa(
+            loaded.guest.guestRamHostPa + (layout.kernelIpa - layout.guestIpaBase))) };
+    const uint8_t* packageKernel { packageBytes(map) + validated.package.kernelOffset };
 
-    bool copied = kernel[0] == packageKernel[0] &&
-            kernel[validated.package.kernelSize - 1] ==
-                    packageKernel[validated.package.kernelSize - 1];
-    bool metadata = loaded.error == bootpkg::LoadError::NONE &&
-            loaded.guest.guestIpaBase == layout.guestIpaBase &&
-            loaded.guest.guestRamSize == layout.guestRamSize &&
-            loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa;
+    bool copied { kernel[0] == packageKernel[0] &&
+        kernel[validated.package.kernelSize - 1] ==
+                packageKernel[validated.package.kernelSize - 1] };
+    bool metadata { loaded.error == bootpkg::LoadError::NONE &&
+        loaded.guest.guestIpaBase == layout.guestIpaBase &&
+        loaded.guest.guestRamSize == layout.guestRamSize &&
+        loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa };
 
     pmm::FreePages(loaded.guest.guestRamHostPa, 16);
     return copied && metadata;
 }
 
 static bool test_load_patches_guest_dtb() {
-    const MemoryMap& map = TestRunner::BootMemoryMap();
-    bootpkg::ValidateResult validated = bootpkg::Validate(packageBytes(map), map.bootPackageSize);
+    const MemoryMap& map { TestRunner::BootMemoryMap() };
+    bootpkg::ValidateResult validated { bootpkg::Validate(packageBytes(map), map.bootPackageSize) };
     if (!validated.isValid) return false;
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     if (!bootpkg::CalculateGuestLayout(validated.package, layout)) return false;
 
-    bootpkg::LoadResult loaded = bootpkg::LoadLinuxGuest(map);
+    bootpkg::LoadResult loaded { bootpkg::LoadLinuxGuest(map) };
     if (!loaded.isLoaded) return false;
 
-    void* dtb =
-            HostMmu::PaToVa(loaded.guest.guestRamHostPa + (layout.dtbIpa - layout.guestIpaBase));
-    uint8_t* memoryReg = findMemoryRegData(dtb);
-    uint8_t* initrdStart = findPropData(dtb, "linux,initrd-start");
-    uint8_t* initrdEnd = findPropData(dtb, "linux,initrd-end");
+    void* dtb { HostMmu::PaToVa(
+            loaded.guest.guestRamHostPa + (layout.dtbIpa - layout.guestIpaBase)) };
+    uint8_t* memoryReg { findMemoryRegData(dtb) };
+    uint8_t* initrdStart { findPropData(dtb, "linux,initrd-start") };
+    uint8_t* initrdEnd { findPropData(dtb, "linux,initrd-end") };
 
-    bool patched = memoryReg != nullptr && initrdStart != nullptr && initrdEnd != nullptr &&
-            readBe64Cells(memoryReg) == layout.guestIpaBase &&
-            readBe64Cells(memoryReg + 8) == layout.guestRamSize &&
-            readBe64Cells(initrdStart) == layout.initrdIpa &&
-            readBe64Cells(initrdEnd) == layout.initrdIpa + layout.initrdSize;
+    bool patched { memoryReg != nullptr && initrdStart != nullptr && initrdEnd != nullptr &&
+        readBe64Cells(memoryReg) == layout.guestIpaBase &&
+        readBe64Cells(memoryReg + 8) == layout.guestRamSize &&
+        readBe64Cells(initrdStart) == layout.initrdIpa &&
+        readBe64Cells(initrdEnd) == layout.initrdIpa + layout.initrdSize };
 
     pmm::FreePages(loaded.guest.guestRamHostPa, 16);
     return patched;
 }
 
-static const TestCase kBootPkgCases[] = {
+static const TestCase kBootPkgCases[] {
     { "firmware_package_region_present", test_firmware_package_region_present },
     { "firmware_package_validates", test_firmware_package_validates },
     { "load_linux_guest_from_firmware_package", test_load_linux_guest_from_firmware_package },
     { "load_patches_guest_dtb", test_load_patches_guest_dtb },
 };
 
-static const TestSuite kBootPkgSuite = {
+static const TestSuite kBootPkgSuite {
     "BootPkgHarness",
     kBootPkgCases,
     4,

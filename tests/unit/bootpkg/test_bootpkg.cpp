@@ -12,13 +12,13 @@
 
 namespace {
 
-static uint64_t gAllocPagesReturn = 0x10000000ULL;
-static uint32_t gAllocPagesOrder = UINT32_MAX;
+static uint64_t gAllocPagesReturn { 0x10000000ULL };
+static uint32_t gAllocPagesOrder { UINT32_MAX };
 
-static constexpr uint64_t kHeaderSize = bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE;
-static constexpr uint64_t kKernelSize = 0x1800;
-static constexpr uint64_t kDtbSize = 0x800;
-static constexpr uint64_t kInitrdSize = 0x2800;
+static constexpr uint64_t kHeaderSize { bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE };
+static constexpr uint64_t kKernelSize { 0x1800 };
+static constexpr uint64_t kDtbSize { 0x800 };
+static constexpr uint64_t kInitrdSize { 0x2800 };
 
 uint64_t align4k(uint64_t value) {
     return (value + 4095ULL) & ~4095ULL;
@@ -70,7 +70,7 @@ class DtbBuilder {
 
 public:
     uint32_t AddString(const char* str) {
-        uint32_t off = static_cast<uint32_t>(m_strings.size());
+        uint32_t off { static_cast<uint32_t>(m_strings.size()) };
         while (*str) {
             m_strings.push_back(*str);
             str++;
@@ -113,14 +113,14 @@ public:
     void end() { pushBE32(m_structs, 9); }
 
     std::vector<uint8_t> Build() {
-        constexpr uint32_t headerSize = 40;
-        constexpr uint32_t reserveSize = 16;
+        constexpr uint32_t headerSize { 40 };
+        constexpr uint32_t reserveSize { 16 };
 
-        uint32_t structOff = headerSize + reserveSize;
-        uint32_t structSize = static_cast<uint32_t>(m_structs.size());
-        uint32_t stringsOff = structOff + structSize;
-        uint32_t stringsSize = static_cast<uint32_t>(m_strings.size());
-        uint32_t totalSize = stringsOff + stringsSize;
+        uint32_t structOff { headerSize + reserveSize };
+        uint32_t structSize { static_cast<uint32_t>(m_structs.size()) };
+        uint32_t stringsOff { structOff + structSize };
+        uint32_t stringsSize { static_cast<uint32_t>(m_strings.size()) };
+        uint32_t totalSize { stringsOff + stringsSize };
 
         std::vector<uint8_t> blob(totalSize, 0);
         auto writeHeader = [&](uint32_t off, uint32_t value) {
@@ -149,9 +149,9 @@ public:
 
 std::vector<uint8_t> buildGuestDtb(bool includeInitrdPlaceholders = true) {
     DtbBuilder b;
-    uint32_t reg = b.AddString("reg");
-    uint32_t initrdStart = b.AddString("linux,initrd-start");
-    uint32_t initrdEnd = b.AddString("linux,initrd-end");
+    uint32_t reg { b.AddString("reg") };
+    uint32_t initrdStart { b.AddString("linux,initrd-start") };
+    uint32_t initrdEnd { b.AddString("linux,initrd-end") };
 
     b.BeginNode("");
     b.BeginNode("memory@0");
@@ -166,7 +166,7 @@ std::vector<uint8_t> buildGuestDtb(bool includeInitrdPlaceholders = true) {
     b.EndNode();
     b.end();
 
-    auto dtb = b.Build();
+    auto dtb { b.Build() };
     dtb.resize(kDtbSize, 0);
     return dtb;
 }
@@ -186,24 +186,24 @@ uint64_t alignStruct(uint64_t off, uint32_t bytes) {
 }
 
 uint64_t findPropData(std::vector<uint8_t>& dtb, const char* wanted) {
-    uint64_t tok = readBe32(dtb, 8);
-    const char* strings = reinterpret_cast<const char*>(dtb.data() + readBe32(dtb, 12));
+    uint64_t tok { readBe32(dtb, 8) };
+    const char* strings { reinterpret_cast<const char*>(dtb.data() + readBe32(dtb, 12)) };
 
     while (true) {
-        uint32_t token = readBe32(dtb, tok);
+        uint32_t token { readBe32(dtb, tok) };
         tok += 4;
 
         if (token == 1) {
-            uint64_t name = tok;
+            uint64_t name { tok };
             while (dtb[tok] != 0)
                 tok++;
             tok = alignStruct(name, static_cast<uint32_t>(tok - name + 1));
         } else if (token == 2 || token == 4) {
             continue;
         } else if (token == 3) {
-            uint32_t dataLen = readBe32(dtb, tok);
-            uint32_t nameOff = readBe32(dtb, tok + 4);
-            uint64_t dataOff = tok + 8;
+            uint32_t dataLen { readBe32(dtb, tok) };
+            uint32_t nameOff { readBe32(dtb, tok + 4) };
+            uint64_t dataOff { tok + 8 };
             if (strEq(strings + nameOff, wanted)) return dataOff;
             tok = alignStruct(dataOff, dataLen);
         } else if (token == 9) {
@@ -217,19 +217,19 @@ uint64_t findPropData(std::vector<uint8_t>& dtb, const char* wanted) {
 void writeChecksums(std::vector<uint8_t>& data) {
     writeLe32(data, 16, 0);
     writeLe32(data, 20, 0);
-    uint32_t headerCrc = bootpkg::Crc32(data.data(), kHeaderSize);
-    uint32_t payloadCrc = bootpkg::Crc32(data.data() + kHeaderSize, data.size() - kHeaderSize);
+    uint32_t headerCrc { bootpkg::Crc32(data.data(), kHeaderSize) };
+    uint32_t payloadCrc { bootpkg::Crc32(data.data() + kHeaderSize, data.size() - kHeaderSize) };
     writeLe32(data, 16, headerCrc);
     writeLe32(data, 20, payloadCrc);
 }
 
 std::vector<uint8_t> buildPackage(bool withInitrd = true) {
-    auto guestDtb = buildGuestDtb();
-    uint64_t kernelOffset = kHeaderSize;
-    uint64_t dtbOffset = align4k(kernelOffset + kKernelSize);
-    uint64_t initrdOffset = withInitrd ? align4k(dtbOffset + kDtbSize) : 0;
-    uint64_t totalSize =
-            withInitrd ? align4k(initrdOffset + kInitrdSize) : align4k(dtbOffset + kDtbSize);
+    auto guestDtb { buildGuestDtb() };
+    uint64_t kernelOffset { kHeaderSize };
+    uint64_t dtbOffset { align4k(kernelOffset + kKernelSize) };
+    uint64_t initrdOffset { withInitrd ? align4k(dtbOffset + kDtbSize) : 0 };
+    uint64_t totalSize { withInitrd ? align4k(initrdOffset + kInitrdSize)
+                                    : align4k(dtbOffset + kDtbSize) };
 
     std::vector<uint8_t> data(totalSize, 0);
 
@@ -274,9 +274,9 @@ void FreePages(uint64_t /*addr*/, uint32_t /*order*/) {}
 } // namespace pmm
 
 TEST(BootPkg, ValidPackageWithInitrdParsesMetadata) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
 
-    auto result = bootpkg::Validate(data.data(), data.size());
+    auto result { bootpkg::Validate(data.data(), data.size()) };
 
     ASSERT_TRUE(result.isValid);
     EXPECT_EQ(result.error, bootpkg::ValidateError::NONE);
@@ -288,9 +288,9 @@ TEST(BootPkg, ValidPackageWithInitrdParsesMetadata) {
 }
 
 TEST(BootPkg, ValidPackageWithoutInitrdParsesMetadata) {
-    auto data = buildPackage(false);
+    auto data { buildPackage(false) };
 
-    auto result = bootpkg::Validate(data.data(), data.size());
+    auto result { bootpkg::Validate(data.data(), data.size()) };
 
     ASSERT_TRUE(result.isValid);
     EXPECT_EQ(result.package.initrdOffset, 0ULL);
@@ -299,7 +299,7 @@ TEST(BootPkg, ValidPackageWithoutInitrdParsesMetadata) {
 }
 
 TEST(BootPkg, RejectsBadMagic) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe32(data, 0, 0xBAD00000U);
     writeChecksums(data);
 
@@ -307,7 +307,7 @@ TEST(BootPkg, RejectsBadMagic) {
 }
 
 TEST(BootPkg, RejectsBadVersion) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe16(data, 4, 2);
     writeChecksums(data);
 
@@ -316,7 +316,7 @@ TEST(BootPkg, RejectsBadVersion) {
 }
 
 TEST(BootPkg, RejectsBadHeaderSize) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe16(data, 6, 2048);
     writeChecksums(data);
 
@@ -325,25 +325,25 @@ TEST(BootPkg, RejectsBadHeaderSize) {
 }
 
 TEST(BootPkg, RejectsTruncatedFirmwareLoadedSize) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
 
     EXPECT_EQ(bootpkg::Validate(data.data(), data.size() - 1).error,
             bootpkg::ValidateError::BAD_TOTAL_SIZE);
 }
 
 TEST(BootPkg, AcceptsTrailingFirmwarePadding) {
-    auto data = buildPackage();
-    uint64_t packageSize = data.size();
+    auto data { buildPackage() };
+    uint64_t packageSize { data.size() };
     data.resize(data.size() + 4096, 0);
 
-    auto result = bootpkg::Validate(data.data(), data.size());
+    auto result { bootpkg::Validate(data.data(), data.size()) };
 
     ASSERT_TRUE(result.isValid);
     EXPECT_EQ(result.package.totalSize, packageSize);
 }
 
 TEST(BootPkg, RejectsHeaderCrcMismatch) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     data[100] ^= 0x1U;
 
     EXPECT_EQ(bootpkg::Validate(data.data(), data.size()).error,
@@ -351,7 +351,7 @@ TEST(BootPkg, RejectsHeaderCrcMismatch) {
 }
 
 TEST(BootPkg, RejectsPayloadCrcMismatch) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     data[kHeaderSize] ^= 0x1U;
 
     EXPECT_EQ(bootpkg::Validate(data.data(), data.size()).error,
@@ -359,63 +359,63 @@ TEST(BootPkg, RejectsPayloadCrcMismatch) {
 }
 
 TEST(BootPkg, RejectsUnsupportedBootProtocol) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe32(data, 24, bootpkg::HV_GUEST_BOOT_PKG_BOOT_PROTOCOL_BARE_METAL_AARCH64);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::UNSUPPORTED_BOOT_PROTOCOL);
 }
 
 TEST(BootPkg, RejectsUnknownFlags) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe32(data, 28, bootpkg::HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT | (1U << 8));
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::UNKNOWN_FLAGS);
 }
 
 TEST(BootPkg, RejectsMissingKernel) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe64(data, 40, 0);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::MISSING_KERNEL);
 }
 
 TEST(BootPkg, RejectsMissingDtb) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe64(data, 56, 0);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::MISSING_DTB);
 }
 
 TEST(BootPkg, RejectsInitrdFlagMismatch) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe32(data, 28, 0);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_INITRD_FLAG);
 }
 
 TEST(BootPkg, RejectsNonCanonicalKernelOffset) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe64(data, 32, kHeaderSize + 4096);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_KERNEL_OFFSET);
 }
 
 TEST(BootPkg, RejectsNonCanonicalDtbOffset) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe64(data, 48, kHeaderSize + kKernelSize);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_DTB_OFFSET);
 }
 
 TEST(BootPkg, RejectsNonCanonicalInitrdOffset) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe64(data, 64, align4k(kHeaderSize + kKernelSize) + kDtbSize);
 
     EXPECT_EQ(validateError(data), bootpkg::ValidateError::BAD_INITRD_OFFSET);
 }
 
 TEST(BootPkg, RejectsBadTotalLayout) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     data.resize(data.size() + 4096, 0);
     writeLe64(data, 8, data.size());
     writeChecksums(data);
@@ -425,11 +425,11 @@ TEST(BootPkg, RejectsBadTotalLayout) {
 }
 
 TEST(BootPkg, CalculatesGuestLayoutWithInitrd) {
-    auto data = buildPackage();
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage() };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     ASSERT_TRUE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 
     EXPECT_EQ(layout.guestIpaBase, bootpkg::GUEST_IPA_BASE);
@@ -445,11 +445,11 @@ TEST(BootPkg, CalculatesGuestLayoutWithInitrd) {
 }
 
 TEST(BootPkg, CalculatesGuestLayoutWithoutInitrd) {
-    auto data = buildPackage(false);
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage(false) };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     ASSERT_TRUE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 
     EXPECT_EQ(layout.initrdIpa, 0ULL);
@@ -459,41 +459,41 @@ TEST(BootPkg, CalculatesGuestLayoutWithoutInitrd) {
 }
 
 TEST(BootPkg, GuestEntryOffsetMustStayInsideKernel) {
-    auto data = buildPackage();
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage() };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
     parsed.package.entryOffset = parsed.package.kernelSize;
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     EXPECT_FALSE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 }
 
 TEST(BootPkg, GuestLayoutRejectsOversizedKernel) {
-    auto data = buildPackage();
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage() };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
     parsed.package.kernelSize = bootpkg::GUEST_RAM_SIZE;
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     EXPECT_FALSE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 }
 
 TEST(BootPkg, LoadLinuxGuestCopiesPackageComponents) {
     std::vector<uint8_t> guestRam(bootpkg::GUEST_RAM_SIZE);
-    auto data = buildPackage();
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage() };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     ASSERT_TRUE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 
     gAllocPagesReturn = reinterpret_cast<uint64_t>(guestRam.data());
     gAllocPagesOrder = UINT32_MAX;
 
-    MemoryMap map = {};
+    MemoryMap map {};
     map.bootPackageBase = reinterpret_cast<uint64_t>(data.data());
     map.bootPackageSize = data.size();
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     ASSERT_TRUE(result.isLoaded);
     EXPECT_EQ(result.error, bootpkg::LoadError::NONE);
@@ -504,9 +504,9 @@ TEST(BootPkg, LoadLinuxGuestCopiesPackageComponents) {
     EXPECT_EQ(result.guest.entryIpa, bootpkg::LINUX_KERNEL_LOAD_IPA);
     EXPECT_EQ(result.guest.dtbIpa, layout.dtbIpa);
 
-    uint64_t kernelOff = layout.kernelIpa - bootpkg::GUEST_IPA_BASE;
-    uint64_t dtbOff = layout.dtbIpa - bootpkg::GUEST_IPA_BASE;
-    uint64_t initrdOff = layout.initrdIpa - bootpkg::GUEST_IPA_BASE;
+    uint64_t kernelOff { layout.kernelIpa - bootpkg::GUEST_IPA_BASE };
+    uint64_t dtbOff { layout.dtbIpa - bootpkg::GUEST_IPA_BASE };
+    uint64_t initrdOff { layout.initrdIpa - bootpkg::GUEST_IPA_BASE };
 
     EXPECT_EQ(guestRam[kernelOff], data[parsed.package.kernelOffset]);
     EXPECT_EQ(guestRam[kernelOff + kKernelSize - 1],
@@ -520,34 +520,34 @@ TEST(BootPkg, LoadLinuxGuestCopiesPackageComponents) {
 
 TEST(BootPkg, LoadLinuxGuestPatchesGuestDtb) {
     std::vector<uint8_t> guestRam(bootpkg::GUEST_RAM_SIZE);
-    auto data = buildPackage();
-    auto parsed = bootpkg::Validate(data.data(), data.size());
+    auto data { buildPackage() };
+    auto parsed { bootpkg::Validate(data.data(), data.size()) };
     ASSERT_TRUE(parsed.isValid);
 
-    bootpkg::GuestLayout layout = {};
+    bootpkg::GuestLayout layout {};
     ASSERT_TRUE(bootpkg::CalculateGuestLayout(parsed.package, layout));
 
     gAllocPagesReturn = reinterpret_cast<uint64_t>(guestRam.data());
 
-    MemoryMap map = {};
+    MemoryMap map {};
     map.bootPackageBase = reinterpret_cast<uint64_t>(data.data());
     map.bootPackageSize = data.size();
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     ASSERT_TRUE(result.isLoaded);
 
-    uint64_t dtbOff = layout.dtbIpa - bootpkg::GUEST_IPA_BASE;
+    uint64_t dtbOff { layout.dtbIpa - bootpkg::GUEST_IPA_BASE };
     std::vector<uint8_t> patchedDtb(
             guestRam.begin() + dtbOff, guestRam.begin() + dtbOff + parsed.package.dtbSize);
 
-    uint64_t memoryReg = findPropData(patchedDtb, "reg");
+    uint64_t memoryReg { findPropData(patchedDtb, "reg") };
     ASSERT_NE(memoryReg, 0ULL);
     EXPECT_EQ(readBe64Cells(patchedDtb, memoryReg), bootpkg::GUEST_IPA_BASE);
     EXPECT_EQ(readBe64Cells(patchedDtb, memoryReg + 8), bootpkg::GUEST_RAM_SIZE);
 
-    uint64_t initrdStart = findPropData(patchedDtb, "linux,initrd-start");
-    uint64_t initrdEnd = findPropData(patchedDtb, "linux,initrd-end");
+    uint64_t initrdStart { findPropData(patchedDtb, "linux,initrd-start") };
+    uint64_t initrdEnd { findPropData(patchedDtb, "linux,initrd-end") };
     ASSERT_NE(initrdStart, 0ULL);
     ASSERT_NE(initrdEnd, 0ULL);
     EXPECT_EQ(readBe64Cells(patchedDtb, initrdStart), layout.initrdIpa);
@@ -555,9 +555,9 @@ TEST(BootPkg, LoadLinuxGuestPatchesGuestDtb) {
 }
 
 TEST(BootPkg, LoadLinuxGuestFailsWhenGuestDtbPlaceholdersAreMissing) {
-    auto data = buildPackage();
-    auto badDtb = buildGuestDtb(false);
-    uint64_t dtbOffset = 0x3000;
+    auto data { buildPackage() };
+    auto badDtb { buildGuestDtb(false) };
+    uint64_t dtbOffset { 0x3000 };
     std::fill(data.begin() + dtbOffset, data.begin() + dtbOffset + kDtbSize, 0);
     std::copy(badDtb.begin(), badDtb.end(), data.begin() + dtbOffset);
     writeChecksums(data);
@@ -565,35 +565,35 @@ TEST(BootPkg, LoadLinuxGuestFailsWhenGuestDtbPlaceholdersAreMissing) {
     std::vector<uint8_t> guestRam(bootpkg::GUEST_RAM_SIZE);
     gAllocPagesReturn = reinterpret_cast<uint64_t>(guestRam.data());
 
-    MemoryMap map = {};
+    MemoryMap map {};
     map.bootPackageBase = reinterpret_cast<uint64_t>(data.data());
     map.bootPackageSize = data.size();
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     EXPECT_FALSE(result.isLoaded);
     EXPECT_EQ(result.error, bootpkg::LoadError::GUEST_DTB_PATCH_FAILED);
 }
 
 TEST(BootPkg, LoadLinuxGuestRejectsMissingFirmwarePackage) {
-    MemoryMap map = {};
+    MemoryMap map {};
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     EXPECT_FALSE(result.isLoaded);
     EXPECT_EQ(result.error, bootpkg::LoadError::MISSING_FIRMWARE_PACKAGE);
 }
 
 TEST(BootPkg, LoadLinuxGuestPropagatesValidationError) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     writeLe32(data, 0, 0xBAD00000U);
     writeChecksums(data);
 
-    MemoryMap map = {};
+    MemoryMap map {};
     map.bootPackageBase = reinterpret_cast<uint64_t>(data.data());
     map.bootPackageSize = data.size();
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     EXPECT_FALSE(result.isLoaded);
     EXPECT_EQ(result.error, bootpkg::LoadError::INVALID_PACKAGE);
@@ -601,14 +601,14 @@ TEST(BootPkg, LoadLinuxGuestPropagatesValidationError) {
 }
 
 TEST(BootPkg, LoadLinuxGuestReportsAllocationFailure) {
-    auto data = buildPackage();
+    auto data { buildPackage() };
     gAllocPagesReturn = 0;
 
-    MemoryMap map = {};
+    MemoryMap map {};
     map.bootPackageBase = reinterpret_cast<uint64_t>(data.data());
     map.bootPackageSize = data.size();
 
-    auto result = bootpkg::LoadLinuxGuest(map);
+    auto result { bootpkg::LoadLinuxGuest(map) };
 
     EXPECT_FALSE(result.isLoaded);
     EXPECT_EQ(result.error, bootpkg::LoadError::GUEST_RAM_ALLOCATION_FAILED);

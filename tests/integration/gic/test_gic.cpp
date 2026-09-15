@@ -9,31 +9,31 @@
 #include <stdint.h>
 
 extern "C" {
-volatile uint64_t gTestGicVectorExitKind = 0;
+volatile uint64_t gTestGicVectorExitKind { 0 };
 extern volatile uint32_t test_gic_guest_progress;
 extern volatile uint32_t test_gic_guest_iar;
 }
 
 namespace {
-constexpr uint32_t kPhysIrq = 64;
-constexpr uint32_t kVirtIrq = 64;
-constexpr uint32_t kSpuriousIrq = 1023;
+constexpr uint32_t kPhysIrq { 64 };
+constexpr uint32_t kVirtIrq { 64 };
+constexpr uint32_t kSpuriousIrq { 1023 };
 
 namespace GicReg {
     namespace Dist {
-        constexpr uintptr_t ISPENDR = 0x200;
-        constexpr uintptr_t ICPENDR = 0x280;
-        constexpr uintptr_t ISACTIVER = 0x300;
-        constexpr uintptr_t ICACTIVER = 0x380;
-        constexpr uintptr_t ITARGETSR = 0x800;
-        constexpr uintptr_t IGROUPR = 0x080;
-        constexpr uintptr_t CTLR = 0x000;
+        constexpr uintptr_t ISPENDR { 0x200 };
+        constexpr uintptr_t ICPENDR { 0x280 };
+        constexpr uintptr_t ISACTIVER { 0x300 };
+        constexpr uintptr_t ICACTIVER { 0x380 };
+        constexpr uintptr_t ITARGETSR { 0x800 };
+        constexpr uintptr_t IGROUPR { 0x080 };
+        constexpr uintptr_t CTLR { 0x000 };
     } // namespace Dist
 
     namespace Hv {
-        constexpr uintptr_t VTR = 0x004;
-        constexpr uintptr_t ELSR0 = 0x030;
-        constexpr uintptr_t ELSR1 = 0x034;
+        constexpr uintptr_t VTR { 0x004 };
+        constexpr uintptr_t ELSR0 { 0x030 };
+        constexpr uintptr_t ELSR1 { 0x034 };
     } // namespace Hv
 } // namespace GicReg
 
@@ -83,7 +83,7 @@ uintptr_t irqReg(uintptr_t base, uint32_t id) {
 }
 
 uint32_t readElsrBit(uint32_t slot) {
-    uint32_t elsr = *hvReg(slot < 32 ? GicReg::Hv::ELSR0 : GicReg::Hv::ELSR1);
+    uint32_t elsr { *hvReg(slot < 32 ? GicReg::Hv::ELSR0 : GicReg::Hv::ELSR1) };
     return (elsr >> (slot % 32)) & 1U;
 }
 
@@ -101,8 +101,8 @@ void pendTestSpi() {
 }
 
 void routeTestSpiToCpu0() {
-    volatile uint8_t* target = reinterpret_cast<volatile uint8_t*>(
-            Gic::DistBase() + GicReg::Dist::ITARGETSR + kPhysIrq);
+    volatile uint8_t* target { reinterpret_cast<volatile uint8_t*>(
+            Gic::DistBase() + GicReg::Dist::ITARGETSR + kPhysIrq) };
     *target = 0x01;
 }
 
@@ -119,9 +119,9 @@ void configureTestSpiGroup0() {
 }
 
 uint64_t installTestVbar() {
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, vbar_el2" : "=r"(saved));
-    uint64_t testVbar = reinterpret_cast<uint64_t>(test_gic_vectors);
+    uint64_t testVbar { reinterpret_cast<uint64_t>(test_gic_vectors) };
     asm volatile("msr vbar_el2, %0\n"
                  "isb" ::"r"(testVbar)
             : "memory");
@@ -135,7 +135,7 @@ void restoreVbar(uint64_t saved) {
 }
 
 uint64_t saveDaif() {
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, daif" : "=r"(saved));
     return saved;
 }
@@ -153,13 +153,13 @@ void unmaskIrq() {
 }
 
 uint64_t enableVirtualIrqRouting() {
-    constexpr uint64_t HCR_RW = 1ULL << 31;
-    constexpr uint64_t HCR_IMO = 1ULL << 4;
+    constexpr uint64_t HCR_RW { 1ULL << 31 };
+    constexpr uint64_t HCR_IMO { 1ULL << 4 };
 
-    uint64_t saved = 0;
+    uint64_t saved { 0 };
     asm volatile("mrs %0, hcr_el2" : "=r"(saved));
 
-    uint64_t hcr = saved | HCR_RW | HCR_IMO;
+    uint64_t hcr { saved | HCR_RW | HCR_IMO };
     asm volatile("msr hcr_el2, %0\n"
                  "isb" ::"r"(hcr)
             : "memory");
@@ -175,7 +175,7 @@ void restoreHcr(uint64_t saved) {
 
 bool waitForEl2Irq() {
     trace("waitForEl2Irq: enter");
-    for (uint32_t i = 0; i < 1000000; ++i) {
+    for (uint32_t i { 0 }; i < 1000000; ++i) {
         if (gEl2Irq.called) {
             Log::Println("[GICDBG] waitForEl2Irq: seen ackId={} injectRc={}",
                     gEl2Irq.ackId,
@@ -193,15 +193,15 @@ bool injectFromPhysicalSpi() {
     gEl2Irq = {};
 
     trace("injectFromPhysicalSpi: installTestVbar");
-    uint64_t savedVbar = installTestVbar();
+    uint64_t savedVbar { installTestVbar() };
     trace("injectFromPhysicalSpi: saveDaif");
-    uint64_t savedDaif = saveDaif();
+    uint64_t savedDaif { saveDaif() };
 
     trace("injectFromPhysicalSpi: pendTestSpi");
     pendTestSpi();
     trace("injectFromPhysicalSpi: unmaskIrq");
     unmaskIrq();
-    bool seen = waitForEl2Irq();
+    bool seen { waitForEl2Irq() };
 
     trace("injectFromPhysicalSpi: restoreDaif");
     restoreDaif(savedDaif);
@@ -217,7 +217,7 @@ bool injectFromPhysicalSpi() {
 
 EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: enter");
-    EndToEndCapture capture = {};
+    EndToEndCapture capture {};
 
     trace("runEndToEnd: Gic::init");
     Gic::Init();
@@ -235,7 +235,7 @@ EndToEndCapture runEndToEnd() {
     Gic::EnableIrq(kPhysIrq);
 
     trace("runEndToEnd: enableVirtualIrqRouting");
-    uint64_t savedHcr = enableVirtualIrqRouting();
+    uint64_t savedHcr { enableVirtualIrqRouting() };
 
     trace("runEndToEnd: injectFromPhysicalSpi");
     capture.el2IrqSeen = injectFromPhysicalSpi();
@@ -270,7 +270,7 @@ EndToEndCapture runEndToEnd() {
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
     trace("runEndToEnd: installTestVbar for guest");
-    uint64_t savedVbar = installTestVbar();
+    uint64_t savedVbar { installTestVbar() };
     gTestGicVectorExitKind = 0;
     test_gic_guest_progress = 0;
     test_gic_guest_iar = 0;
@@ -317,7 +317,7 @@ extern "C" void handle_test_gic_el2_irq(ExceptionContext* ctx) {
     (void)ctx;
 
     trace("handle_test_gic_el2_irq: enter");
-    Gic::IrqAck ack = Gic::AckIrq();
+    Gic::IrqAck ack { Gic::AckIrq() };
     gEl2Irq.called = true;
     gEl2Irq.ackId = ack.id;
     Log::Println("[GICDBG] handle_test_gic_el2_irq: ack id={} iar={:x}", ack.id, ack.iar);
@@ -336,18 +336,18 @@ extern "C" void handle_test_gic_el2_irq(ExceptionContext* ctx) {
 
 static bool test_spi_to_virq_guest_eoi() {
     trace("test_spi_to_virq_guest_eoi: enter");
-    EndToEndCapture capture = runEndToEnd();
-    bool passed = capture.el2IrqSeen && capture.el2AckedSpi && capture.injected &&
-            capture.guestExited && capture.guestSawVirtIrq && capture.physicalInactiveAfterEoi;
+    EndToEndCapture capture { runEndToEnd() };
+    bool passed { capture.el2IrqSeen && capture.el2AckedSpi && capture.injected &&
+        capture.guestExited && capture.guestSawVirtIrq && capture.physicalInactiveAfterEoi };
     Log::Println("[GICDBG] test_spi_to_virq_guest_eoi: result={}", passed);
     return passed;
 }
 
 static bool test_lr_pending_state_tracks_guest_eoi() {
     trace("test_lr_pending_state_tracks_guest_eoi: enter");
-    EndToEndCapture capture = runEndToEnd();
-    bool passed = capture.pendingBeforeGuest && capture.lrBusyBeforeGuest &&
-            !capture.pendingAfterGuest && capture.lrFreeAfterGuest;
+    EndToEndCapture capture { runEndToEnd() };
+    bool passed { capture.pendingBeforeGuest && capture.lrBusyBeforeGuest &&
+        !capture.pendingAfterGuest && capture.lrFreeAfterGuest };
     Log::Println("[GICDBG] test_lr_pending_state_tracks_guest_eoi: result={}", passed);
     return passed;
 }
@@ -357,10 +357,10 @@ static bool test_lr_exhaustion_returns_error() {
     trace("test_lr_exhaustion_returns_error: Gic::init");
     Gic::Init();
     trace("test_lr_exhaustion_returns_error: numListRegisters");
-    uint32_t count = numListRegisters();
+    uint32_t count { numListRegisters() };
     Log::Println("[GICDBG] test_lr_exhaustion_returns_error: count={}", count);
 
-    for (uint32_t i = 0; i < count; ++i) {
+    for (uint32_t i { 0 }; i < count; ++i) {
         Log::Println("[GICDBG] test_lr_exhaustion_returns_error: inject slot {}", i);
         if (Gic::InjectIrq(100 + i, 100 + i) != 0) {
             trace("test_lr_exhaustion_returns_error: inject failed cleanup");
@@ -370,7 +370,7 @@ static bool test_lr_exhaustion_returns_error() {
     }
 
     trace("test_lr_exhaustion_returns_error: inject exhausted");
-    bool exhausted = Gic::InjectIrq(200, 200) == -1;
+    bool exhausted { Gic::InjectIrq(200, 200) == -1 };
     Log::Println("[GICDBG] test_lr_exhaustion_returns_error: exhausted={}", exhausted);
     trace("test_lr_exhaustion_returns_error: cpuReset");
     Gic::CpuReset();
@@ -383,9 +383,9 @@ static bool test_duplicate_virt_id_rejected() {
     Gic::Init();
 
     trace("test_duplicate_virt_id_rejected: first inject");
-    bool rejected = Gic::InjectIrq(kVirtIrq, kPhysIrq) == 0 &&
-            (trace("test_duplicate_virt_id_rejected: duplicate inject"), true) &&
-            Gic::InjectIrq(kVirtIrq, 99) == -1;
+    bool rejected { Gic::InjectIrq(kVirtIrq, kPhysIrq) == 0 &&
+        (trace("test_duplicate_virt_id_rejected: duplicate inject"), true) &&
+        Gic::InjectIrq(kVirtIrq, 99) == -1 };
     Log::Println("[GICDBG] test_duplicate_virt_id_rejected: rejected={}", rejected);
 
     trace("test_duplicate_virt_id_rejected: cpuReset");
@@ -393,14 +393,14 @@ static bool test_duplicate_virt_id_rejected() {
     return rejected;
 }
 
-static const TestCase kGicCases[] = {
+static const TestCase kGicCases[] {
     { "spi_to_virq_guest_eoi", test_spi_to_virq_guest_eoi },
     { "lr_pending_state_tracks_eoi", test_lr_pending_state_tracks_guest_eoi },
     { "lr_exhaustion_returns_error", test_lr_exhaustion_returns_error },
     { "duplicate_virt_id_rejected", test_duplicate_virt_id_rejected },
 };
 
-static const TestSuite kGicSuite = {
+static const TestSuite kGicSuite {
     "GicHarness",
     kGicCases,
     4,

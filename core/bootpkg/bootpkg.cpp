@@ -14,33 +14,33 @@
 
 namespace {
 
-static constexpr uint64_t ALIGN_4K = 4096;
-static constexpr uint64_t ALIGN_64K = 64 * 1024;
-static constexpr uint64_t ALIGN_2MB = 2 * 1024 * 1024;
-static constexpr uint32_t GUEST_RAM_ORDER = 16;
+static constexpr uint64_t ALIGN_4K { 4096 };
+static constexpr uint64_t ALIGN_64K { 64 * 1024 };
+static constexpr uint64_t ALIGN_2MB { 2 * 1024 * 1024 };
+static constexpr uint32_t GUEST_RAM_ORDER { 16 };
 
 static_assert(bootpkg::GUEST_RAM_SIZE == (PAGE_SIZE << GUEST_RAM_ORDER),
         "Guest RAM size must match the PMM allocation order");
 
-static constexpr uint64_t OFF_MAGIC = 0;
-static constexpr uint64_t OFF_VERSION = 4;
-static constexpr uint64_t OFF_HEADER_SIZE = 6;
-static constexpr uint64_t OFF_TOTAL_SIZE = 8;
-static constexpr uint64_t OFF_HEADER_CRC32 = 16;
-static constexpr uint64_t OFF_PAYLOAD_CRC32 = 20;
-static constexpr uint64_t OFF_BOOT_PROTOCOL = 24;
-static constexpr uint64_t OFF_FLAGS = 28;
-static constexpr uint64_t OFF_KERNEL_OFFSET = 32;
-static constexpr uint64_t OFF_KERNEL_SIZE = 40;
-static constexpr uint64_t OFF_DTB_OFFSET = 48;
-static constexpr uint64_t OFF_DTB_SIZE = 56;
-static constexpr uint64_t OFF_INITRD_OFFSET = 64;
-static constexpr uint64_t OFF_INITRD_SIZE = 72;
-static constexpr uint64_t OFF_ENTRY_OFFSET = 80;
-static constexpr uint64_t OFF_BUILD_ID = 88;
+static constexpr uint64_t OFF_MAGIC { 0 };
+static constexpr uint64_t OFF_VERSION { 4 };
+static constexpr uint64_t OFF_HEADER_SIZE { 6 };
+static constexpr uint64_t OFF_TOTAL_SIZE { 8 };
+static constexpr uint64_t OFF_HEADER_CRC32 { 16 };
+static constexpr uint64_t OFF_PAYLOAD_CRC32 { 20 };
+static constexpr uint64_t OFF_BOOT_PROTOCOL { 24 };
+static constexpr uint64_t OFF_FLAGS { 28 };
+static constexpr uint64_t OFF_KERNEL_OFFSET { 32 };
+static constexpr uint64_t OFF_KERNEL_SIZE { 40 };
+static constexpr uint64_t OFF_DTB_OFFSET { 48 };
+static constexpr uint64_t OFF_DTB_SIZE { 56 };
+static constexpr uint64_t OFF_INITRD_OFFSET { 64 };
+static constexpr uint64_t OFF_INITRD_SIZE { 72 };
+static constexpr uint64_t OFF_ENTRY_OFFSET { 80 };
+static constexpr uint64_t OFF_BUILD_ID { 88 };
 
-static constexpr uint64_t CHECKSUM_FIELDS_START = OFF_HEADER_CRC32;
-static constexpr uint64_t CHECKSUM_FIELDS_END = OFF_PAYLOAD_CRC32 + sizeof(uint32_t);
+static constexpr uint64_t CHECKSUM_FIELDS_START { OFF_HEADER_CRC32 };
+static constexpr uint64_t CHECKSUM_FIELDS_END { OFF_PAYLOAD_CRC32 + sizeof(uint32_t) };
 
 uint16_t readLe16(const uint8_t* data, uint64_t off) {
     return static_cast<uint16_t>(data[off]) | static_cast<uint16_t>(data[off + 1] << 8);
@@ -97,7 +97,7 @@ struct GuestRamDeleter {
 uint32_t crc32Update(uint32_t crc, uint8_t byte) {
     crc ^= byte;
     for (uint32_t bit {}; bit < 8; bit++) {
-        uint32_t mask = 0U - (crc & 1U);
+        uint32_t mask { 0U - (crc & 1U) };
         crc = (crc >> 1) ^ (0xEDB88320U & mask);
     }
 
@@ -105,10 +105,10 @@ uint32_t crc32Update(uint32_t crc, uint8_t byte) {
 }
 
 uint32_t headerCrc32(const uint8_t* data) {
-    uint32_t crc = 0xFFFFFFFFU;
+    uint32_t crc { 0xFFFFFFFFU };
 
     for (uint64_t i {}; i < bootpkg::HV_GUEST_BOOT_PKG_HEADER_SIZE; i++) {
-        uint8_t byte = data[i];
+        uint8_t byte { data[i] };
         if (i >= CHECKSUM_FIELDS_START && i < CHECKSUM_FIELDS_END) byte = 0;
         crc = crc32Update(crc, byte);
     }
@@ -117,50 +117,50 @@ uint32_t headerCrc32(const uint8_t* data) {
 }
 
 bootpkg::ValidateResult fail(bootpkg::ValidateError error) {
-    bootpkg::ValidateResult result = {};
+    bootpkg::ValidateResult result {};
     result.error = error;
     return result;
 }
 
 bootpkg::LoadResult loadFail(bootpkg::LoadError error,
         bootpkg::ValidateError validateError = bootpkg::ValidateError::NONE) {
-    bootpkg::LoadResult result = {};
+    bootpkg::LoadResult result {};
     result.error = error;
     result.validateError = validateError;
     return result;
 }
 
 void copyToGuest(uint64_t guestRamHostPa, uint64_t guestIpa, const uint8_t* source, uint64_t size) {
-    uint64_t guestOffset = guestIpa - bootpkg::GUEST_IPA_BASE;
-    void* dest = HostMmu::PaToVa(guestRamHostPa + guestOffset);
+    uint64_t guestOffset { guestIpa - bootpkg::GUEST_IPA_BASE };
+    void* dest { HostMmu::PaToVa(guestRamHostPa + guestOffset) };
     memcpy(dest, source, static_cast<size_t>(size));
 }
 
 bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
     if (dtb == nullptr) return false;
 
-    auto* hdr = static_cast<FdtHeader*>(dtb);
+    auto* hdr { static_cast<FdtHeader*>(dtb) };
     if (Be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return false;
 
-    auto* base = static_cast<uint8_t*>(dtb);
-    auto* tok = reinterpret_cast<uint32_t*>(base + Be32(hdr->structOff));
-    const char* strings = reinterpret_cast<const char*>(base + Be32(hdr->stringsOff));
+    auto* base { static_cast<uint8_t*>(dtb) };
+    auto* tok { reinterpret_cast<uint32_t*>(base + Be32(hdr->structOff)) };
+    const char* strings { reinterpret_cast<const char*>(base + Be32(hdr->stringsOff)) };
 
-    bool inMemory = false;
-    bool inChosen = false;
-    bool patchedMemory = false;
-    bool patchedInitrdStart = false;
-    bool patchedInitrdEnd = false;
+    bool inMemory { false };
+    bool inChosen { false };
+    bool patchedMemory { false };
+    bool patchedInitrdStart { false };
+    bool patchedInitrdEnd { false };
     int depth {};
 
     while (true) {
-        uint32_t token = Be32(*tok);
+        uint32_t token { Be32(*tok) };
         tok++;
 
         switch (static_cast<FDT>(token)) {
             case FDT::BEGIN_NODE: {
-                const char* name = reinterpret_cast<const char*>(tok);
-                auto* nameB = reinterpret_cast<uint8_t*>(tok);
+                const char* name { reinterpret_cast<const char*>(tok) };
+                auto* nameB { reinterpret_cast<uint8_t*>(tok) };
 
                 if (depth == 1) {
                     inMemory = StrStartsWith(name, "memory");
@@ -185,10 +185,10 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                 break;
 
             case FDT::PROP: {
-                uint32_t dataLen = Be32(tok[0]);
-                uint32_t nameOff = Be32(tok[1]);
-                const char* propName = strings + nameOff;
-                auto* propData = reinterpret_cast<uint8_t*>(tok + 2);
+                uint32_t dataLen { Be32(tok[0]) };
+                uint32_t nameOff { Be32(tok[1]) };
+                const char* propName { strings + nameOff };
+                auto* propData { reinterpret_cast<uint8_t*>(tok + 2) };
 
                 if (inMemory && StrEq(propName, "reg")) {
                     if (dataLen != 16) return false;
@@ -201,8 +201,9 @@ bool patchGuestDtb(void* dtb, const bootpkg::GuestLayout& layout) {
                     patchedInitrdStart = true;
                 } else if (inChosen && StrEq(propName, "linux,initrd-end")) {
                     if (dataLen != 8) return false;
-                    uint64_t initrdEnd =
-                            layout.initrdSize == 0 ? 0 : layout.initrdIpa + layout.initrdSize;
+                    uint64_t initrdEnd {
+                        layout.initrdSize == 0 ? 0 : layout.initrdIpa + layout.initrdSize
+                    };
                     writeBe64Cells(propData, initrdEnd);
                     patchedInitrdEnd = true;
                 }
@@ -230,8 +231,8 @@ namespace bootpkg {
 uint32_t Crc32(const void* data, uint64_t size) {
     if (data == nullptr && size != 0) return 0;
 
-    const auto* bytes = static_cast<const uint8_t*>(data);
-    uint32_t crc = 0xFFFFFFFFU;
+    const auto* bytes { static_cast<const uint8_t*>(data) };
+    uint32_t crc { 0xFFFFFFFFU };
 
     for (uint64_t i {}; i < size; i++) {
         crc = crc32Update(crc, bytes[i]);
@@ -244,7 +245,7 @@ ValidateResult Validate(const void* package, uint64_t size) {
     if (package == nullptr) return fail(ValidateError::NULL_PACKAGE);
     if (size < HV_GUEST_BOOT_PKG_HEADER_SIZE) return fail(ValidateError::TOO_SMALL);
 
-    const auto* bytes = static_cast<const uint8_t*>(package);
+    const auto* bytes { static_cast<const uint8_t*>(package) };
 
     if (readLe32(bytes, OFF_MAGIC) != HV_GUEST_BOOT_PKG_MAGIC)
         return fail(ValidateError::BAD_MAGIC);
@@ -253,7 +254,7 @@ ValidateResult Validate(const void* package, uint64_t size) {
     if (readLe16(bytes, OFF_HEADER_SIZE) != HV_GUEST_BOOT_PKG_HEADER_SIZE)
         return fail(ValidateError::BAD_HEADER_SIZE);
 
-    PackageView view = {};
+    PackageView view {};
     view.totalSize = readLe64(bytes, OFF_TOTAL_SIZE);
     view.bootProtocol = readLe32(bytes, OFF_BOOT_PROTOCOL);
     view.flags = readLe32(bytes, OFF_FLAGS);
@@ -269,10 +270,10 @@ ValidateResult Validate(const void* package, uint64_t size) {
     if (view.totalSize < HV_GUEST_BOOT_PKG_HEADER_SIZE || view.totalSize > size)
         return fail(ValidateError::BAD_TOTAL_SIZE);
 
-    uint32_t expectedHeaderCrc = readLe32(bytes, OFF_HEADER_CRC32);
+    uint32_t expectedHeaderCrc { readLe32(bytes, OFF_HEADER_CRC32) };
     if (headerCrc32(bytes) != expectedHeaderCrc) return fail(ValidateError::BAD_HEADER_CRC);
 
-    uint32_t expectedPayloadCrc = readLe32(bytes, OFF_PAYLOAD_CRC32);
+    uint32_t expectedPayloadCrc { readLe32(bytes, OFF_PAYLOAD_CRC32) };
     if (Crc32(bytes + HV_GUEST_BOOT_PKG_HEADER_SIZE,
                 view.totalSize - HV_GUEST_BOOT_PKG_HEADER_SIZE) != expectedPayloadCrc)
         return fail(ValidateError::BAD_PAYLOAD_CRC);
@@ -284,15 +285,15 @@ ValidateResult Validate(const void* package, uint64_t size) {
     if (view.kernelSize == 0) return fail(ValidateError::MISSING_KERNEL);
     if (view.dtbSize == 0) return fail(ValidateError::MISSING_DTB);
 
-    bool hasInitrdFlag = (view.flags & HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT) != 0;
-    bool hasInitrd = view.initrdSize != 0;
+    bool hasInitrdFlag { (view.flags & HV_GUEST_BOOT_PKG_FLAG_INITRD_PRESENT) != 0 };
+    bool hasInitrd { view.initrdSize != 0 };
     if (hasInitrdFlag != hasInitrd) return fail(ValidateError::BAD_INITRD_FLAG);
     if (!hasInitrd && view.initrdOffset != 0) return fail(ValidateError::BAD_INITRD_FLAG);
 
     if (view.kernelOffset != HV_GUEST_BOOT_PKG_HEADER_SIZE)
         return fail(ValidateError::BAD_KERNEL_OFFSET);
 
-    uint64_t expectedDtbOffset = align4k(view.kernelOffset + view.kernelSize);
+    uint64_t expectedDtbOffset { align4k(view.kernelOffset + view.kernelSize) };
     if (addOverflows(view.kernelOffset, view.kernelSize) || view.dtbOffset != expectedDtbOffset) {
         return fail(ValidateError::BAD_DTB_OFFSET);
     }
@@ -304,7 +305,7 @@ ValidateResult Validate(const void* package, uint64_t size) {
 
     uint64_t expectedTotalSize {};
     if (hasInitrd) {
-        uint64_t expectedInitrdOffset = align4k(view.dtbOffset + view.dtbSize);
+        uint64_t expectedInitrdOffset { align4k(view.dtbOffset + view.dtbSize) };
         if (addOverflows(view.dtbOffset, view.dtbSize) ||
                 view.initrdOffset != expectedInitrdOffset) {
             return fail(ValidateError::BAD_INITRD_OFFSET);
@@ -322,7 +323,7 @@ ValidateResult Validate(const void* package, uint64_t size) {
 
     if (expectedTotalSize != view.totalSize) return fail(ValidateError::BAD_TOTAL_LAYOUT);
 
-    ValidateResult result = {};
+    ValidateResult result {};
     result.isValid = true;
     result.error = ValidateError::NONE;
     result.package = view;
@@ -334,7 +335,7 @@ bool CalculateGuestLayout(const PackageView& package, GuestLayout& out) {
 
     if (package.kernelSize == 0 || package.dtbSize == 0) return false;
 
-    uint64_t guestEnd = GUEST_IPA_BASE + GUEST_RAM_SIZE;
+    uint64_t guestEnd { GUEST_IPA_BASE + GUEST_RAM_SIZE };
     if (addOverflows(GUEST_IPA_BASE, GUEST_RAM_SIZE)) return false;
 
     uint64_t kernelEnd {};
@@ -342,9 +343,9 @@ bool CalculateGuestLayout(const PackageView& package, GuestLayout& out) {
     kernelEnd = LINUX_KERNEL_LOAD_IPA + package.kernelSize;
 
     if (addOverflows(LINUX_KERNEL_LOAD_IPA, package.entryOffset)) return false;
-    uint64_t entryIpa = LINUX_KERNEL_LOAD_IPA + package.entryOffset;
+    uint64_t entryIpa { LINUX_KERNEL_LOAD_IPA + package.entryOffset };
 
-    uint64_t highCursor = guestEnd;
+    uint64_t highCursor { guestEnd };
     uint64_t initrdIpa {};
 
     if (package.initrdSize != 0) {
@@ -355,7 +356,7 @@ bool CalculateGuestLayout(const PackageView& package, GuestLayout& out) {
     }
 
     if (package.dtbSize > highCursor) return false;
-    uint64_t dtbIpa = alignDown(highCursor - package.dtbSize, ALIGN_64K);
+    uint64_t dtbIpa { alignDown(highCursor - package.dtbSize, ALIGN_64K) };
     if (dtbIpa < kernelEnd) return false;
 
     if (entryIpa < LINUX_KERNEL_LOAD_IPA || entryIpa >= kernelEnd) return false;
@@ -376,16 +377,16 @@ LoadResult LoadLinuxGuest(const MemoryMap& map) {
     if (map.bootPackageBase == 0 || map.bootPackageSize == 0)
         return loadFail(LoadError::MISSING_FIRMWARE_PACKAGE);
 
-    const auto* packageBytes = static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootPackageBase));
+    const auto* packageBytes { static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootPackageBase)) };
 
-    ValidateResult validated = Validate(packageBytes, map.bootPackageSize);
+    ValidateResult validated { Validate(packageBytes, map.bootPackageSize) };
     if (!validated.isValid) return loadFail(LoadError::INVALID_PACKAGE, validated.error);
 
-    GuestLayout layout = {};
+    GuestLayout layout {};
     if (!CalculateGuestLayout(validated.package, layout))
         return loadFail(LoadError::GUEST_LAYOUT_OVERFLOW);
 
-    uint64_t guestRamHostPa = pmm::AllocPages(GUEST_RAM_ORDER);
+    uint64_t guestRamHostPa { pmm::AllocPages(GUEST_RAM_ORDER) };
     if (guestRamHostPa == 0) return loadFail(LoadError::GUEST_RAM_ALLOCATION_FAILED);
 
     hv::unique_ptr<uint8_t, GuestRamDeleter> guestRam(reinterpret_cast<uint8_t*>(guestRamHostPa));
@@ -398,8 +399,8 @@ LoadResult LoadLinuxGuest(const MemoryMap& map) {
             layout.dtbIpa,
             packageBytes + validated.package.dtbOffset,
             validated.package.dtbSize);
-    uint64_t dtbHostPa = guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE);
-    void* guestDtb = HostMmu::PaToVa(dtbHostPa);
+    uint64_t dtbHostPa { guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE) };
+    void* guestDtb { HostMmu::PaToVa(dtbHostPa) };
     if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GUEST_DTB_PATCH_FAILED);
 
     if (validated.package.initrdSize != 0) {
@@ -409,7 +410,7 @@ LoadResult LoadLinuxGuest(const MemoryMap& map) {
                 validated.package.initrdSize);
     }
 
-    LoadResult result = {};
+    LoadResult result {};
     result.isLoaded = true;
     result.error = LoadError::NONE;
     result.validateError = ValidateError::NONE;

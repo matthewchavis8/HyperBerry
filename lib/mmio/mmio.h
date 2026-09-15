@@ -28,13 +28,13 @@ namespace detail {
     };
 
     template <typename T>
-    inline constexpr bool kIsAccessWidth = __is_integral(T) &&
-            (sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
+    inline constexpr bool kIsAccessWidth { __is_integral(T) &&
+        (sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8) };
 
     // A register offset is either a plain integer or an enum of one, which is
     // how every driver in the tree spells its register table.
     template <typename T>
-    inline constexpr bool kIsOffset = __is_enum(T) || __is_integral(T);
+    inline constexpr bool kIsOffset { __is_enum(T) || __is_integral(T) };
 
 } // namespace detail
 

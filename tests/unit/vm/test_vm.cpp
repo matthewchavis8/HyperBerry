@@ -29,11 +29,11 @@ extern uint64_t gVcpuSetX0Cap;
 // GuestMmu capture globals
 // ---------------------------------------------------------------------------
 
-static uint64_t gGuestMmuInitIpa = 0xDEADDEADDEADDEADULL;
-static uint64_t gGuestMmuInitHostPa = 0xDEADDEADDEADDEADULL;
-static uint64_t gGuestMmuInitSize = 0xDEADDEADDEADDEADULL;
-static uint8_t gGuestMmuEnableVmid = 0xFF;
-static uint32_t gGuestMmuInitWindows = 0xFFFFFFFFU;
+static uint64_t gGuestMmuInitIpa { 0xDEADDEADDEADDEADULL };
+static uint64_t gGuestMmuInitHostPa { 0xDEADDEADDEADDEADULL };
+static uint64_t gGuestMmuInitSize { 0xDEADDEADDEADDEADULL };
+static uint8_t gGuestMmuEnableVmid { 0xFF };
+static uint32_t gGuestMmuInitWindows { 0xFFFFFFFFU };
 
 // ---------------------------------------------------------------------------
 // GuestMmu stubs

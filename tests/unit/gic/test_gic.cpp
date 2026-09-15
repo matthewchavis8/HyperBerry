@@ -14,23 +14,23 @@
 
 namespace {
 
-constexpr uint32_t kMaxLrs = 64;
-constexpr uint32_t kLrPending = (1U << 28);
-constexpr uint32_t kLrHardware = (1U << 31);
-constexpr uint32_t kPhysIdShift = 10;
-constexpr uint32_t kHcrUie = (1U << 1);
-constexpr uint32_t kSpuriousBits = 0xA5A50000;
+constexpr uint32_t kMaxLrs { 64 };
+constexpr uint32_t kLrPending { (1U << 28) };
+constexpr uint32_t kLrHardware { (1U << 31) };
+constexpr uint32_t kPhysIdShift { 10 };
+constexpr uint32_t kHcrUie { (1U << 1) };
+constexpr uint32_t kSpuriousBits { 0xA5A50000 };
 
 struct GicStubState {
     std::array<uint32_t, 32> isenabler {};
     std::array<uint32_t, 32> icenabler {};
     std::array<uint32_t, kMaxLrs> lr {};
-    uint32_t iar = 0;
-    uint32_t eoir = 0;
-    uint32_t elsr0 = 0;
-    uint32_t elsr1 = 0;
-    uint32_t hcr = 0;
-    uint32_t configuredLrs = 0;
+    uint32_t iar { 0 };
+    uint32_t eoir { 0 };
+    uint32_t elsr0 { 0 };
+    uint32_t elsr1 { 0 };
+    uint32_t hcr { 0 };
+    uint32_t configuredLrs { 0 };
 };
 
 GicStubState gGic;
@@ -59,20 +59,20 @@ void Gic::Init() {
 }
 
 void Gic::CpuReset() {
-    for (uint32_t i = 0; i < m_numLr; ++i) {
+    for (uint32_t i { 0 }; i < m_numLr; ++i) {
         gGic.lr[i] = 0;
     }
 }
 
 void Gic::EnableIrq(uint32_t id) {
-    uint32_t regIdx = id / 32;
-    uint32_t bitMsk = (1U << (id % 32));
+    uint32_t regIdx { id / 32 };
+    uint32_t bitMsk { (1U << (id % 32)) };
     gGic.isenabler[regIdx] = bitMsk;
 }
 
 void Gic::DisableIrq(uint32_t id) {
-    uint32_t regIdx = id / 32;
-    uint32_t bitMsk = (1U << (id % 32));
+    uint32_t regIdx { id / 32 };
+    uint32_t bitMsk { (1U << (id % 32)) };
     gGic.icenabler[regIdx] = bitMsk;
 }
 
@@ -85,11 +85,11 @@ void Gic::EndIrq(IrqAck irq) {
 }
 
 int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
-    int freeLr = -1;
+    int freeLr { -1 };
 
-    for (uint32_t i = 0; i < m_numLr; ++i) {
-        uint32_t elsr = (i < 32) ? gGic.elsr0 : gGic.elsr1;
-        uint32_t bit = i % 32;
+    for (uint32_t i { 0 }; i < m_numLr; ++i) {
+        uint32_t elsr { (i < 32) ? gGic.elsr0 : gGic.elsr1 };
+        uint32_t bit { i % 32 };
 
         if ((gGic.lr[i] & 0x3FFU) == virtId) {
             return -1;
@@ -109,7 +109,7 @@ int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
 }
 
 bool Gic::HasPendingIrq() {
-    for (uint32_t i = 0; i < m_numLr; ++i) {
+    for (uint32_t i { 0 }; i < m_numLr; ++i) {
         if ((gGic.lr[i] & kLrPending) != 0U) {
             return true;
         }
@@ -149,7 +149,7 @@ TEST(Gic, AckIrqPreservesRawIarAndMasksInterruptId) {
     resetGic();
     gGic.iar = kSpuriousBits | 0x3ABU;
 
-    Gic::IrqAck ack = Gic::AckIrq();
+    Gic::IrqAck ack { Gic::AckIrq() };
 
     EXPECT_EQ(ack.iar, kSpuriousBits | 0x3ABU);
     EXPECT_EQ(ack.id, 0x3ABU);

@@ -23,7 +23,7 @@ private:
     static void cpuInit();
 
     // @brief Number of List Registers reported by GICH_VTR.
-    inline static uint32_t m_numLr = 0;
+    inline static uint32_t m_numLr { 0 };
 
 public:
     // @brief Point the driver at the register frames a device tree describes.

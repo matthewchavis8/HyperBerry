@@ -6,7 +6,7 @@
 #include "core/mm/pageTable/pageTable.h"
 
 TEST(PageTable, ComputesTableIndicesFromAddress) {
-    constexpr uint64_t kAddr = 0x0000123456789ABCULL;
+    constexpr uint64_t kAddr { 0x0000123456789ABCULL };
 
     EXPECT_EQ(L0_INDEX(kAddr), 0x24ULL);
     EXPECT_EQ(L1_INDEX(kAddr), 0xD1ULL);
@@ -15,15 +15,15 @@ TEST(PageTable, ComputesTableIndicesFromAddress) {
 }
 
 TEST(PageTable, ExtractsNextTableAddressFromDescriptor) {
-    constexpr uint64_t kTableAddr = 0x0000000012345000ULL;
-    uint64_t* next = pte_next_table(kTableAddr | PTE_VALID | PTE_TABLE);
+    constexpr uint64_t kTableAddr { 0x0000000012345000ULL };
+    uint64_t* next { pte_next_table(kTableAddr | PTE_VALID | PTE_TABLE) };
 
     EXPECT_EQ(reinterpret_cast<uintptr_t>(next), kTableAddr);
 }
 
 TEST(PageTable, DetectsValidTableAndBlockDescriptors) {
-    constexpr uint64_t kTableEntry = 0x0000000045678000ULL | PTE_VALID | PTE_TABLE;
-    constexpr uint64_t kBlockEntry = 0x0000000089ABC000ULL | PTE_VALID | PTE_AF;
+    constexpr uint64_t kTableEntry { 0x0000000045678000ULL | PTE_VALID | PTE_TABLE };
+    constexpr uint64_t kBlockEntry { 0x0000000089ABC000ULL | PTE_VALID | PTE_AF };
 
     EXPECT_TRUE(pte_is_valid(kTableEntry));
     EXPECT_TRUE(pte_is_table(kTableEntry));

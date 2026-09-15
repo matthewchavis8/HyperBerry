@@ -30,8 +30,8 @@ enum class align_val_t : size_t {};
 
 namespace {
 
-constexpr size_t SLAB_CLASS_COUNT = 7;
-constexpr size_t SLAB_CLASSES[SLAB_CLASS_COUNT] = {
+constexpr size_t SLAB_CLASS_COUNT { 7 };
+constexpr size_t SLAB_CLASSES[SLAB_CLASS_COUNT] {
     16,
     32,
     64,
@@ -40,10 +40,10 @@ constexpr size_t SLAB_CLASSES[SLAB_CLASS_COUNT] = {
     512,
     1024,
 };
-constexpr size_t MAX_SLAB_SIZE = 1024;
-constexpr size_t DEFAULT_NEW_ALIGN = 16;
-constexpr uint64_t SLAB_MAGIC = 0x534C41425F4D4147ULL;  // "SLAB_MAG"
-constexpr uint64_t LARGE_MAGIC = 0x4C415247455F4D47ULL; // "LARGE_MG"
+constexpr size_t MAX_SLAB_SIZE { 1024 };
+constexpr size_t DEFAULT_NEW_ALIGN { 16 };
+constexpr uint64_t SLAB_MAGIC { 0x534C41425F4D4147ULL };  // "SLAB_MAG"
+constexpr uint64_t LARGE_MAGIC { 0x4C415247455F4D47ULL }; // "LARGE_MG"
 
 struct FreeSlot {
     FreeSlot* m_next;
@@ -64,35 +64,35 @@ struct LargeHeader {
 };
 
 bool s_initialized { false };
-SlabHeader* s_classLists[SLAB_CLASS_COUNT] = {};
+SlabHeader* s_classLists[SLAB_CLASS_COUNT] {};
 
 size_t pickClass(size_t size, size_t align) {
-    size_t need = size > align ? size : align;
+    size_t need { size > align ? size : align };
     if (need > MAX_SLAB_SIZE) return SLAB_CLASS_COUNT;
-    for (size_t i = 0; i < SLAB_CLASS_COUNT; ++i) {
+    for (size_t i { 0 }; i < SLAB_CLASS_COUNT; ++i) {
         if (SLAB_CLASSES[i] >= need) return i;
     }
     return SLAB_CLASS_COUNT;
 }
 
 SlabHeader* newSlab(size_t classIdx) {
-    uint64_t pageAddr = pmm::AllocPages(0);
+    uint64_t pageAddr { pmm::AllocPages(0) };
     if (pageAddr == 0) return nullptr;
 
-    auto* hdr = reinterpret_cast<SlabHeader*>(pageAddr);
+    auto* hdr { reinterpret_cast<SlabHeader*>(pageAddr) };
     hdr->m_magic = SLAB_MAGIC;
     hdr->m_classIdx = static_cast<uint32_t>(classIdx);
     hdr->m_inUse = 0;
     hdr->m_next = nullptr;
 
-    size_t slotSize = SLAB_CLASSES[classIdx];
-    size_t firstSlotOffset = (sizeof(SlabHeader) + slotSize - 1) & ~(slotSize - 1);
-    size_t slotCount = (PAGE_SIZE - firstSlotOffset) / slotSize;
-    auto* base = reinterpret_cast<uint8_t*>(pageAddr) + firstSlotOffset;
+    size_t slotSize { SLAB_CLASSES[classIdx] };
+    size_t firstSlotOffset { (sizeof(SlabHeader) + slotSize - 1) & ~(slotSize - 1) };
+    size_t slotCount { (PAGE_SIZE - firstSlotOffset) / slotSize };
+    auto* base { reinterpret_cast<uint8_t*>(pageAddr) + firstSlotOffset };
 
-    FreeSlot* prev = nullptr;
-    for (size_t i = 0; i < slotCount; ++i) {
-        auto* slot = reinterpret_cast<FreeSlot*>(base + i * slotSize);
+    FreeSlot* prev { nullptr };
+    for (size_t i { 0 }; i < slotCount; ++i) {
+        auto* slot { reinterpret_cast<FreeSlot*>(base + i * slotSize) };
         slot->m_next = prev;
         prev = slot;
     }
@@ -101,7 +101,7 @@ SlabHeader* newSlab(size_t classIdx) {
 }
 
 void* allocFromSlab(size_t classIdx) {
-    SlabHeader* hdr = s_classLists[classIdx];
+    SlabHeader* hdr { s_classLists[classIdx] };
     while (hdr != nullptr && hdr->m_freeList == nullptr)
         hdr = hdr->m_next;
 
@@ -112,16 +112,16 @@ void* allocFromSlab(size_t classIdx) {
         s_classLists[classIdx] = hdr;
     }
 
-    FreeSlot* slot = hdr->m_freeList;
+    FreeSlot* slot { hdr->m_freeList };
     hdr->m_freeList = slot->m_next;
     ++hdr->m_inUse;
     return slot;
 }
 
 void freeToSlab(void* ptr) {
-    uint64_t pageAddr = reinterpret_cast<uint64_t>(ptr) & ~(PAGE_SIZE - 1);
-    auto* hdr = reinterpret_cast<SlabHeader*>(pageAddr);
-    auto* slot = reinterpret_cast<FreeSlot*>(ptr);
+    uint64_t pageAddr { reinterpret_cast<uint64_t>(ptr) & ~(PAGE_SIZE - 1) };
+    auto* hdr { reinterpret_cast<SlabHeader*>(pageAddr) };
+    auto* slot { reinterpret_cast<FreeSlot*>(ptr) };
 
     slot->m_next = hdr->m_freeList;
     hdr->m_freeList = slot;
@@ -129,8 +129,8 @@ void freeToSlab(void* ptr) {
 }
 
 uint32_t orderForBytes(size_t total) {
-    uint32_t order = 0;
-    uint64_t span = PAGE_SIZE;
+    uint32_t order { 0 };
+    uint64_t span { PAGE_SIZE };
     while (span < total) {
         if (order >= MAX_ORDER) return MAX_ORDER + 1;
         span <<= 1;
@@ -140,22 +140,22 @@ uint32_t orderForBytes(size_t total) {
 }
 
 void* allocLarge(size_t size, size_t align) {
-    constexpr size_t hdrSize = sizeof(LargeHeader);
+    constexpr size_t hdrSize { sizeof(LargeHeader) };
 
-    size_t userOffset = (hdrSize + align - 1) & ~(align - 1);
-    size_t total = userOffset + size;
-    uint32_t order = orderForBytes(total);
+    size_t userOffset { (hdrSize + align - 1) & ~(align - 1) };
+    size_t total { userOffset + size };
+    uint32_t order { orderForBytes(total) };
     if (order > MAX_ORDER) return nullptr;
 
-    uint64_t addr = pmm::AllocPages(order);
+    uint64_t addr { pmm::AllocPages(order) };
     if (addr == 0) return nullptr;
 
     // Wipe the first cache line at the allocation start so the slab-magic
     // probe in deallocate cannot accidentally match leftover PMM data.
     *reinterpret_cast<uint64_t*>(addr) = 0;
 
-    auto* userPtr = reinterpret_cast<uint8_t*>(addr) + userOffset;
-    auto* hdr = reinterpret_cast<LargeHeader*>(userPtr - hdrSize);
+    auto* userPtr { reinterpret_cast<uint8_t*>(addr) + userOffset };
+    auto* hdr { reinterpret_cast<LargeHeader*>(userPtr - hdrSize) };
     hdr->m_magic = LARGE_MAGIC;
     hdr->m_order = order;
     hdr->m_userOffset = static_cast<uint32_t>(userOffset);
@@ -163,15 +163,15 @@ void* allocLarge(size_t size, size_t align) {
 }
 
 void freeLarge(void* ptr) {
-    auto* hdr =
-            reinterpret_cast<LargeHeader*>(reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader));
+    auto* hdr { reinterpret_cast<LargeHeader*>(
+            reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader)) };
     if (hdr->m_magic != LARGE_MAGIC) HvPanic("[HEAP] large free: bad magic");
 
-    uint32_t order = hdr->m_order;
-    uint32_t userOffset = hdr->m_userOffset;
+    uint32_t order { hdr->m_order };
+    uint32_t userOffset { hdr->m_userOffset };
     hdr->m_magic = 0;
 
-    uint64_t allocStart = reinterpret_cast<uint64_t>(ptr) - userOffset;
+    uint64_t allocStart { reinterpret_cast<uint64_t>(ptr) - userOffset };
     pmm::FreePages(allocStart, order);
 }
 
@@ -181,7 +181,7 @@ void* internalAllocate(size_t size, size_t align) {
     if (size == 0) size = 1;
     if (align < DEFAULT_NEW_ALIGN) align = DEFAULT_NEW_ALIGN;
 
-    size_t classIdx = pickClass(size, align);
+    size_t classIdx { pickClass(size, align) };
     if (classIdx < SLAB_CLASS_COUNT) return allocFromSlab(classIdx);
 
     return allocLarge(size, align);
@@ -197,15 +197,15 @@ void internalDeallocate(void* ptr) {
         return;
     }
 
-    uint64_t pageAddr = reinterpret_cast<uint64_t>(ptr) & ~(PAGE_SIZE - 1);
-    auto* slabHdr = reinterpret_cast<SlabHeader*>(pageAddr);
+    uint64_t pageAddr { reinterpret_cast<uint64_t>(ptr) & ~(PAGE_SIZE - 1) };
+    auto* slabHdr { reinterpret_cast<SlabHeader*>(pageAddr) };
     if (slabHdr->m_magic == SLAB_MAGIC) {
         freeToSlab(ptr);
         return;
     }
 
-    auto* largeHdr =
-            reinterpret_cast<LargeHeader*>(reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader));
+    auto* largeHdr { reinterpret_cast<LargeHeader*>(
+            reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader)) };
     if (largeHdr->m_magic == LARGE_MAGIC) {
         freeLarge(ptr);
         return;
@@ -244,12 +244,12 @@ namespace heap {
 #else
 
 void* operator new(size_t size) {
-    void* p = internalAllocate(size, DEFAULT_NEW_ALIGN);
+    void* p { internalAllocate(size, DEFAULT_NEW_ALIGN) };
     if (p == nullptr) HvPanic("[HEAP] operator new failed");
     return p;
 }
 void* operator new[](size_t size) {
-    void* p = internalAllocate(size, DEFAULT_NEW_ALIGN);
+    void* p { internalAllocate(size, DEFAULT_NEW_ALIGN) };
     if (p == nullptr) HvPanic("[HEAP] operator new[] failed");
     return p;
 }
@@ -267,12 +267,12 @@ void operator delete[](void* p, size_t) noexcept {
 }
 
 void* operator new(size_t size, std::align_val_t a) {
-    void* p = internalAllocate(size, static_cast<size_t>(a));
+    void* p { internalAllocate(size, static_cast<size_t>(a)) };
     if (p == nullptr) HvPanic("[HEAP] aligned operator new failed");
     return p;
 }
 void* operator new[](size_t size, std::align_val_t a) {
-    void* p = internalAllocate(size, static_cast<size_t>(a));
+    void* p { internalAllocate(size, static_cast<size_t>(a)) };
     if (p == nullptr) HvPanic("[HEAP] aligned operator new[] failed");
     return p;
 }
