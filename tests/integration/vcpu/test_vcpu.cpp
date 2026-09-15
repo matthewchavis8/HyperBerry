@@ -4,7 +4,7 @@
  */
 
 #include "tests/integration/suite.h"
-#include "core/vmm/vmm.h"
+#include "core/vmm/esr.h"
 #include "core/vcpu/vcpu.h"
 
 namespace {

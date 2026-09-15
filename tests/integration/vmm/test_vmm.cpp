@@ -5,7 +5,6 @@
 
 #include "tests/integration/suite.h"
 #include "trapState.h"
-#include "core/vmm/vmm.h"
 
 // Holds the current state of EL2 vector table during testing
 static TestExceptionState vecBarState;

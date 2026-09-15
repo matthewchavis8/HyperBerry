@@ -18,26 +18,41 @@
 #include "lib/panic/panic.h"
 #include "lib/log/log.h"
 
+namespace {
+
+// @brief Print the saved general purpose registers, then panic.
+// @param msg Panic message.
+// @param ctx Frame saved by vmm.S.
+// @return Does not return.
+[[noreturn]] void panicWithFrame(const char* msg, ExceptionContext& ctx) {
+    for (size_t i {}; i < ctx.size(); i++) {
+        Log::writeLine("[x{}] {:x}", i, ctx[i]);
+    }
+    hv_panic(msg);
+}
+
+} // namespace
+
 // Hypervisor EL2 exception handlers
 
 extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-    hv_panic("[HV sync] was triggered", ctx);
+    panicWithFrame("[HV sync] was triggered", ctx);
 }
 
 extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-    hv_panic("[HV irq] was triggered", ctx);
+    panicWithFrame("[HV irq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-    hv_panic("[HV fiq] was triggered", ctx);
+    panicWithFrame("[HV fiq] was triggered", ctx);
 }
 
 extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-    hv_panic("[HV SError] was triggered", ctx);
+    panicWithFrame("[HV SError] was triggered", ctx);
 }
 
 extern "C" void handle_unhandled(ExceptionContext& ctx) {
-    hv_panic("[HV mysterious exception?] was triggered", ctx);
+    panicWithFrame("[HV mysterious exception?] was triggered", ctx);
 }
 
 // Guest Exception Handlers
@@ -77,7 +92,8 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
 
         default:
             Log::println(
-                    "[Guest][ERROR] Unhandled guest exit EC={:x} ESR={:x}", exceptionClass, esr);
+                    "[Guest][ERROR] Unhandled guest exit EC={:x} ISS={:x} ESR={:x}",
+                    exceptionClass, getEsrIss(esr), esr);
             hv_panic("[Guest] unhandled lower-EL sync exception");
     }
 }

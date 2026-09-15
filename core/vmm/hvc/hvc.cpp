@@ -5,7 +5,7 @@
  */
 
 #include "hvc.h"
-#include "core/vmm/vmm.h"
+#include "core/vmm/esr.h"
 #include "core/vmm/smccc/smccc.h"
 #include "lib/log/log.h"
 
