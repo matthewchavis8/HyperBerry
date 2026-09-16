@@ -199,11 +199,12 @@ the board's guest device tree. Integration archives live under
 `build/<mode>/<board>/integration/guest.cpio` and also contain the vCPU and GIC binaries.
 
 The host needs Python 3, `cpio`, and `dtc`. FVP also needs `fdtput`.
+QEMU defaults to a pinned Debian AArch64 Linux `Image` with initramfs support.
 Set `QEMU_GUEST_KERNEL`, `RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` to
-select a kernel. By default CMake downloads and verifies a static AArch64
-BusyBox binary, then places its initramfs in the guest archive. Set the corresponding
-`*_GUEST_INITRD` to replace that BusyBox initramfs.
-The guest kernel must enable `CONFIG_BLK_DEV_INITRD` to load it.
+select another kernel. CMake downloads and verifies a static AArch64 BusyBox
+binary, then places its initramfs in the guest archive. Set the corresponding
+`*_GUEST_INITRD` to replace that BusyBox initramfs. Kernels supplied for RPi5
+or FVP must enable `CONFIG_BLK_DEV_INITRD`.
 
 Package your own directory with:
 

@@ -2,6 +2,7 @@
 #include "core/dtb/fdt.h"
 
 #include "core/mm/mmu/hostMmu/hostMmu.h"
+#include "core/mm/pageTable/pageTable.h"
 #include "core/mm/pmm/pmm.h"
 #include "lib/memory/unique_ptr.h"
 #include "lib/strings/strings.h"
@@ -53,6 +54,7 @@ void copyToGuest(uint64_t guestRamHostPa, uint64_t guestIpa, const uint8_t* sour
     uint64_t guestOffset { guestIpa - guest::GUEST_IPA_BASE };
     void* dest { HostMmu::PaToVa(guestRamHostPa + guestOffset) };
     memcpy(dest, source, static_cast<size_t>(size));
+    PageTable::CleanDataCacheRange(dest, static_cast<size_t>(size));
 }
 
 uint32_t readBe32(const uint8_t* data) {
@@ -221,6 +223,7 @@ LoadResult LoadLinuxGuest(const cpio::Archive& archive) {
     uint64_t dtbHostPa { guestRamHostPa + (layout.dtbIpa - GUEST_IPA_BASE) };
     void* guestDtb { HostMmu::PaToVa(dtbHostPa) };
     if (!patchGuestDtb(guestDtb, layout)) return loadFail(LoadError::GUEST_DTB_PATCH_FAILED);
+    PageTable::CleanDataCacheRange(guestDtb, static_cast<size_t>(layout.dtbSize));
 
     if (files.initrd.size != 0) {
         copyToGuest(guestRamHostPa, layout.initrdIpa, files.initrd.data, files.initrd.size);

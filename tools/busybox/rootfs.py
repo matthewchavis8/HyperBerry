@@ -34,7 +34,10 @@ def build(binary, output):
         raise ValueError(f"BusyBox binary is not an AArch64 little endian ELF: {binary}")
     with tempfile.TemporaryDirectory(prefix="hyperberry-rootfs-") as temporary:
         root = Path(temporary)
-        for destination in (root / "bin/busybox", root / "bin/sh", root / "sbin/init"):
+        for directory in (root / "dev", root / "proc", root / "sys"):
+            directory.mkdir()
+        for destination in (root / "bin/busybox", root / "bin/mount", root / "bin/sh",
+                            root / "sbin/init", root / "sbin/reboot"):
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(binary, destination)
             destination.chmod(0o755)
