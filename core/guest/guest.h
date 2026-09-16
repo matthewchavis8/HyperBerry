@@ -3,9 +3,9 @@
 #include "lib/cpio/cpio.h"
 
 namespace guest {
-inline constexpr uint64_t GUEST_IPA_BASE { 0 };
+inline constexpr uint64_t GUEST_IPA_BASE { 0x40000000 };
 inline constexpr uint64_t GUEST_RAM_SIZE { 256ULL * 1024 * 1024 };
-inline constexpr uint64_t LINUX_KERNEL_LOAD_IPA { 0x200000 };
+inline constexpr uint64_t LINUX_KERNEL_LOAD_IPA { GUEST_IPA_BASE + 0x200000 };
 
 struct LinuxFiles {
     cpio::File kernel;

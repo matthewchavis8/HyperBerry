@@ -182,8 +182,18 @@ find_program(FDTPUT fdtput)
 set(ARCHIVE_TOOL ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py)
 set(BUSYBOX_FETCH_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/fetch.py)
 set(BUSYBOX_ROOTFS_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/rootfs.py)
+set(QEMU_KERNEL_FETCH_TOOL ${CMAKE_SOURCE_DIR}/tools/linux/fetch.py)
 set(BUSYBOX_BINARY ${CMAKE_BINARY_DIR}/busybox/busybox)
 set(BUSYBOX_ROOTFS ${CMAKE_BINARY_DIR}/busybox/rootfs.cpio)
+set(QEMU_DEFAULT_GUEST_KERNEL ${CMAKE_BINARY_DIR}/linux/qemu/Image)
+set(QEMU_GUEST_KERNEL ${QEMU_DEFAULT_GUEST_KERNEL} CACHE FILEPATH "Linux Image for qemu")
+
+add_custom_command(
+  OUTPUT ${QEMU_DEFAULT_GUEST_KERNEL}
+  COMMAND ${Python3_EXECUTABLE} ${QEMU_KERNEL_FETCH_TOOL} --out ${QEMU_DEFAULT_GUEST_KERNEL}
+  DEPENDS ${QEMU_KERNEL_FETCH_TOOL}
+  VERBATIM
+)
 
 add_custom_command(
   OUTPUT ${BUSYBOX_BINARY}
@@ -227,7 +237,12 @@ endif()
 
 foreach(board IN LISTS SUPPORTED_BOARDS)
   string(TOUPPER ${board} upper)
-  set(${upper}_GUEST_KERNEL "${CMAKE_SOURCE_DIR}/Image" CACHE FILEPATH "Linux Image for ${board}")
+  if(board STREQUAL qemu)
+    set(default_guest_kernel ${QEMU_DEFAULT_GUEST_KERNEL})
+  else()
+    set(default_guest_kernel ${CMAKE_SOURCE_DIR}/Image)
+  endif()
+  set(${upper}_GUEST_KERNEL "${default_guest_kernel}" CACHE FILEPATH "Linux Image for ${board}")
   set(${upper}_GUEST_INITRD "" CACHE FILEPATH "Linux initrd override for ${board}")
   set(guest_dts ${CMAKE_SOURCE_DIR}/bsp/${board}/dts/guest-${board}.dts)
   set(guest_dtb ${CMAKE_BINARY_DIR}/${board}/guest.dtb)

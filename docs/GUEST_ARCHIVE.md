@@ -45,14 +45,15 @@ just qemu
 just test-integration
 ```
 
-Kernel inputs default to the repository's `Image`. Override
-`QEMU_GUEST_KERNEL`, `RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` when
-configuring CMake. By default the production archive contains a BusyBox
+QEMU defaults to a pinned Debian AArch64 Linux `Image` with initramfs support.
+RPi5 and FVP default to the repository's `Image`. Override `QEMU_GUEST_KERNEL`,
+`RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` when configuring CMake. By default
+the production archive contains a BusyBox
 initramfs. CMake downloads Debian's static AArch64 BusyBox 1.38.0 package,
 verifies SHA256 `968d1aa8f579fa1ac59c26afa365454369e13cf29848e6400b50028fed0ffda0`,
 and extracts its `usr/bin/busybox` binary. The rootfs starts BusyBox `init`,
 mounts proc, sysfs, and devtmpfs, then opens a shell on `ttyAMA0`.
-The Linux `Image` must enable `CONFIG_BLK_DEV_INITRD`.
+An overridden Linux `Image` must enable `CONFIG_BLK_DEV_INITRD`.
 
 The integration archive does not include BusyBox because it does not boot the
 Linux guest.
