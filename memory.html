@@ -242,7 +242,7 @@ buddy allocation algorithm. It is responsible for turning the RAM range
 reported by the firmware DTB into a pool of physically contiguous blocks that
 later EL2 subsystems can allocate and free.</p>
 <p>The allocator lives in <code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code> and is exposed through the <code class="docutils literal notranslate"><span class="pre">pmm</span></code>
-namespace (<code class="docutils literal notranslate"><span class="pre">pmm::init</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::allocPages</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::freePages</span></code>). Boot code
+namespace (<code class="docutils literal notranslate"><span class="pre">pmm::Init</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::AllocPages</span></code>, <code class="docutils literal notranslate"><span class="pre">pmm::FreePages</span></code>). Boot code
 reaches it from <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> after the DTB has been parsed successfully.</p>
 </section>
 <section id="boot-flow">
@@ -250,10 +250,10 @@ reaches it from <code class="docutils literal notranslate"><span class="pre">hma
 <p>The allocator is brought up in this order:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">boot.S</span></code> transfers control to <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> at EL2.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">parseDtb()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
+<li><p><code class="docutils literal notranslate"><span class="pre">ParseDtb()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
 <code class="docutils literal notranslate"><span class="pre">memBase</span></code>, <code class="docutils literal notranslate"><span class="pre">memSize</span></code>, <code class="docutils literal notranslate"><span class="pre">atfBase</span></code>, <code class="docutils literal notranslate"><span class="pre">atfSize</span></code>, <code class="docutils literal notranslate"><span class="pre">dtbBase</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">dtbSize</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pmm::init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pmm::Init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
 <li><p>The allocator reserves memory already occupied by:</p>
 <ul class="simple">
 <li><p>the hypervisor image</p></li>
@@ -307,7 +307,7 @@ its buddy is also free:</p>
 </section>
 <section id="reservations">
 <h2>Reservations<a class="headerlink" href="#reservations" title="Link to this heading">¶</a></h2>
-<p>During <code class="docutils literal notranslate"><span class="pre">init()</span></code>, HyperBerry first seeds the allocator with the full RAM range
+<p>During <code class="docutils literal notranslate"><span class="pre">Init()</span></code>, HyperBerry first seeds the allocator with the full RAM range
 reported by the DTB, then removes regions that must never be handed out:</p>
 <ul class="simple">
 <li><p>the hypervisor image from <code class="docutils literal notranslate"><span class="pre">__text_start</span></code> through <code class="docutils literal notranslate"><span class="pre">__uncached_space_end</span></code></p></li>
