@@ -4,22 +4,31 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    clang-22 \
     cmake \
     cpio \
     curl \
     device-tree-compiler \
     git \
+    g++-aarch64-linux-gnu \
+    gnupg \
     ipxe-qemu \
     just \
-    lld-22 \
-    llvm-22 \
+    lsb-release \
     make \
     ninja-build \
     python3 \
     qemu-system-arm \
     qemu-user \
+    software-properties-common \
     xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -L --fail --retry 3 https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh \
+    && chmod +x /tmp/llvm.sh \
+    && /tmp/llvm.sh 22 all \
+    && rm /tmp/llvm.sh \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends clang-22 lld-22 llvm-22 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L --fail --retry 3 \
