@@ -2,7 +2,7 @@ name: Toolchain Image
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - toolchain/Dockerfile
       - .github/workflows/toolchain.yml
