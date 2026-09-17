@@ -188,9 +188,7 @@ function(hb_add_image name core outdir)
     -static
     -Wl,--gc-sections
   )
-  if(CMAKE_HOST_APPLE)
-    target_link_options(${name} PRIVATE -fuse-ld=lld)
-  endif()
+  target_link_options(${name} PRIVATE -fuse-ld=lld)
 
   set_target_properties(${name} PROPERTIES
     LINK_DEPENDS             ${BSP_DIR}/linker.ld
