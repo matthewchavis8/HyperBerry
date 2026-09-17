@@ -80,11 +80,14 @@ HyperBerry/
 - `doxygen` (for generating XML used by Sphinx)
 - `python3` / `pip` (install doc deps with `pip install -r docs/requirements.txt`)
 
-### Toolchain
+### C++26 Toolchain
 
-The cross compilation toolchain is defined in `cmake/aarch64-toolchain.cmake`
-and targets `aarch64-none-elf`. Fetch the pinned Arm newlib and libc++ sysroot,
-then configure normally:
+HyperBerry is built as C++26 with LLVM Clang 22.1 or newer. Hosted unit tests
+use the `aarch64-linux` toolchain. Bare metal builds use the
+`aarch64-none-elf` toolchain in `cmake/aarch64-toolchain.cmake`, Arm newlib,
+and libc++.
+
+Fetch the pinned bare metal sysroot, then configure normally:
 
 ```sh
 python3 tools/toolchain/fetch_sysroot.py
@@ -242,24 +245,6 @@ cmake --build --preset debug --target flash-rpi5-test
 ```
 
 The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
-
-## AI Use Declaration
-
-AI tools (claude code) are used heavily here now, for implementation as much as
-documentation: C++, assembly, CMake, host tooling, tests and docs. This section
-used to say AI was limited to documentation and that every line of hypervisor
-code was mine. That stopped being true, and a stale claim in a README is worse
-than an honest one.
-
-My view of the tradeoff has not changed. Leaning on AI trades knowledge depth for
-speed. In industry that makes sense, fast paced teams prioritise delivery and
-engineers juggle several things at once. The cost is less cognitive engagement
-when you offload too much, which I do not think is inherently bad, just a
-tradeoff like everything else in software. What changed is that I now want the
-speed, and I read and review what lands instead of pretending I typed it.
-
-You will probably still find messy code and choices that are not best practice,
-but hey, I am getting the job done and having fun.
 
 ## License
 
