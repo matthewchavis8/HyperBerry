@@ -3,7 +3,7 @@ description: Install the cross toolchain and utilities needed by HyperBerry CI j
 
 runs:
   using: composite
-steps:
+  steps:
     - name: Validate toolchain image
       shell: bash
       run: |
