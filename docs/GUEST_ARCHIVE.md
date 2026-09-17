@@ -46,8 +46,8 @@ just test-integration
 ```
 
 QEMU defaults to a pinned Debian AArch64 Linux `Image` with initramfs support.
-RPi5 and FVP default to the repository's `Image`. Override `QEMU_GUEST_KERNEL`,
-`RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` when configuring CMake. By default
+RPi5 defaults to the repository's `Image`. Override `QEMU_GUEST_KERNEL` or
+`RPI5_GUEST_KERNEL` when configuring CMake. By default
 the production archive contains a BusyBox
 initramfs. CMake downloads Debian's static AArch64 BusyBox 1.38.0 package,
 verifies SHA256 `968d1aa8f579fa1ac59c26afa365454369e13cf29848e6400b50028fed0ffda0`,
@@ -84,8 +84,6 @@ initramfs guest.cpio followkernel
 
 The Raspberry Pi flash targets build and copy the matching archive.
 `flash-rpi5-test` selects the integration image and archive.
-FVP loads the archive at the address in `bsp/fvp/platform.inc` and patches
-the host DTB endpoints from its actual byte size.
 
 ## Loading guests
 

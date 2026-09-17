@@ -13,10 +13,6 @@ qemu MODE="debug":
   scripts/container.sh --tty cmake --preset {{ MODE }}
   scripts/container.sh --tty cmake --build --preset {{ MODE }} --target run-qemu
 
-fvp MODE="debug":
-  cmake --preset {{ MODE }}
-  cmake --build --preset {{ MODE }} --target run-fvp
-
 rpi5 MODE="release" SD_DEV="/dev/sdd1":
   scripts/container.sh cmake --preset {{ MODE }}
   scripts/container.sh cmake --build --preset {{ MODE }} --target hyperberry-rpi5

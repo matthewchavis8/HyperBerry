@@ -30,7 +30,6 @@ The `unit-tests` preset uses:
 
 ```sh
 just test-integration qemu          # run in QEMU
-just test-integration fvp           # run on the FVP model
 cmake --build --preset debug --target flash-rpi5-test # card must already be mounted
 ```
 

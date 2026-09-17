@@ -1,7 +1,7 @@
 # Working on HyperBerry
 
 HyperBerry is a bare metal Armv8-A type 1 hypervisor running at EL2. Targets are
-Raspberry Pi 5 (BCM2712), QEMU virt, and the Arm FVP Base RevC model.
+Raspberry Pi 5 (BCM2712) and QEMU virt.
 
 ## Build and verify
 
@@ -9,7 +9,6 @@ Raspberry Pi 5 (BCM2712), QEMU virt, and the Arm FVP Base RevC model.
 just build            # every board, debug
 just qemu             # build and run in QEMU
 just rpi5             # build and flash an SD card
-just fvp              # build and run on the FVP model
 just test-unit        # host tests, 159 cases
 just test-integration # bare metal TAP suite, defaults to qemu
 ```
@@ -51,10 +50,9 @@ compile time constants: the early console, which has to work before the tree is
 parsed, and the GIC bases the register tables are built from. Boot checks those
 against the firmware tree and panics on a mismatch. Everything else is read
 from a tree at runtime through `core/dtb`, including the MMIO windows both MMU
-layers map. `bsp/fvp/platform.inc` holds the load addresses, which are the one
-thing a tree genuinely cannot state.
+layers map.
 
-**There is no board macro.** No `BSP_QEMU`, `BSP_RPI5` or `BSP_FVP`. The build
+**There is no board macro.** No `BSP_QEMU` or `BSP_RPI5`. The build
 puts `bsp/<board>` and that board's generated directory on the include path, so
 code includes `"regs.inc"` and the board selects itself. Never reintroduce an
 `#ifdef` on the board.
@@ -81,8 +79,8 @@ approaches that were tried and abandoned. If it does not describe the change or
 its reason, cut it.
 
 **No hyphens in prose.** Applies to commit messages, docs and comments. Keep them
-only inside literal identifiers such as `--gc-sections`, `host-fvp.dts` or
-`arm,gic-400`, where removing them would be wrong.
+only inside literal identifiers such as `--gc-sections` or `arm,gic-400`, where
+removing them would be wrong.
 
 **Say when you are deviating from the plan.** If the work drifts from what was
 agreed, flag it before continuing rather than letting it land quietly.

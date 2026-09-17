@@ -1,5 +1,5 @@
 /**
- * @file boot/dts/guest-base.dtsi
+ * @file boot/dts/guest-linux.dtsi
  * @brief Common guest device tree nodes shared across all boards.
  * @ingroup bsp
  *
