@@ -101,7 +101,7 @@
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
-#include "lib/array/array.h"
+#include <array>
 
 static constexpr size_t regIdx(size_t off) {
     return off / sizeof(uint64_t);
@@ -110,19 +110,19 @@ static constexpr size_t regIdx(size_t off) {
 // @brief EL2 exception-return state: elr_el2, spsr_el2.
 // @ingroup vcpu
 struct El2State {
-    hv::array<uint64_t, VCPU_EL2STATE_SIZE / sizeof(uint64_t)> regs;
+    std::array<uint64_t, VCPU_EL2STATE_SIZE / sizeof(uint64_t)> regs;
 } __attribute__((aligned(16)));
 
 // @brief EL1 system register context (SCTLR_EL1, TTBRn_EL1, etc).
 // @ingroup vcpu
 struct El1SysRegs {
-    hv::array<uint64_t, VCPU_EL1SYSREGS_SIZE / sizeof(uint64_t)> regs;
+    std::array<uint64_t, VCPU_EL1SYSREGS_SIZE / sizeof(uint64_t)> regs;
 } __attribute__((aligned(16)));
 
 struct HvContext {
     uint64_t sp;
     uint64_t lr;
-    hv::array<uint64_t, 11> callSavedReg;
+    std::array<uint64_t, 11> callSavedReg;
     uint64_t exitEsr; // stashed by vcpu_exit_sync/serror before guest state save
 } __attribute__((aligned(16)));
 
@@ -138,7 +138,7 @@ struct HvContext {
 // data members in this single access group to preserve standard-layout.
 class Vcpu {
 public:
-    hv::array<uint64_t, 31> m_gpr;
+    std::array<uint64_t, 31> m_gpr;
     uint64_t m_spEl0;
     El2State m_el2State;
     El1SysRegs m_el1SysRegs;

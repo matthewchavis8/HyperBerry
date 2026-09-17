@@ -4,9 +4,9 @@
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pageTable/pageTable.h"
 #include "core/mm/pmm/pmm.h"
-#include "lib/memory/unique_ptr.h"
 #include "lib/strings/strings.h"
 
+#include <memory>
 #include <stddef.h>
 
 namespace {
@@ -216,7 +216,7 @@ LoadResult LoadLinuxGuest(const cpio::Archive& archive) {
     uint64_t guestRamHostPa { pmm::AllocPages(GUEST_RAM_ORDER) };
     if (guestRamHostPa == 0) return loadFail(LoadError::GUEST_RAM_ALLOCATION_FAILED);
 
-    hv::unique_ptr<uint8_t, GuestRamDeleter> guestRam(reinterpret_cast<uint8_t*>(guestRamHostPa));
+    std::unique_ptr<uint8_t, GuestRamDeleter> guestRam(reinterpret_cast<uint8_t*>(guestRamHostPa));
 
     copyToGuest(guestRamHostPa, layout.kernelIpa, files.kernel.data, files.kernel.size);
     copyToGuest(guestRamHostPa, layout.dtbIpa, files.dtb.data, files.dtb.size);

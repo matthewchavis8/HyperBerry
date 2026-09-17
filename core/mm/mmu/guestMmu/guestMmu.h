@@ -9,9 +9,10 @@
 #define __GUEST_MMU_H__
 
 #include "core/mm/pmm/pmm.h"
-#include "lib/memory/unique_ptr.h"
 #include "core/mm/pageTable/pageTable.h"
 #include "core/mm/mmu/mmioMap.h"
+
+#include <memory>
 
 // Stage-2 access permissions [7:6] (flat RWX, no EL0/EL1 split).
 #define S2PTE_S2AP_NONE (0b00ULL << 6)
@@ -56,7 +57,7 @@ private:
 
     uint64_t m_rootTable {}; // Mirror of the owned root table for layout-sensitive tests.
     uint8_t m_vmid {};
-    hv::unique_ptr<uint64_t, Stage2RootDeleter> m_rootTableOwner;
+    std::unique_ptr<uint64_t, Stage2RootDeleter> m_rootTableOwner;
 
 public:
     // @brief Allocate the stage-2 root table, program VTCR_EL2, and

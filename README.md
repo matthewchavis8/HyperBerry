@@ -71,9 +71,9 @@ HyperBerry/
 
 ### Requirements
 
-- `clang` / `clang++` with `--target=aarch64-none-elf`
+- LLVM 22.1 or newer with `clang` and `clang++`
 - `llvm` (LLVM)
-- `cmake` (>= 3.16)
+- `cmake` (>= 3.25)
 - `just` command runner
 - `qemu-system-aarch64` for virtualized hardware
 - `minicom` for UART serial console
@@ -82,7 +82,19 @@ HyperBerry/
 
 ### Toolchain
 
-The cross-compilation toolchain is defined in `cmake/aarch64-toolchain.cmake` and targets `aarch64-none-elf` (bare-metal, no libc).
+The cross compilation toolchain is defined in `cmake/aarch64-toolchain.cmake`
+and targets `aarch64-none-elf`. Fetch the pinned Arm newlib and libc++ sysroot,
+then configure normally:
+
+```sh
+python3 tools/toolchain/fetch_sysroot.py
+export HB_LLVM_SYSROOT="$PWD/.toolchain/arm-newlib-19.1.5/lib/clang-runtimes/newlib/aarch64-none-elf/aarch64a"
+cmake --preset debug
+```
+
+The sysroot supplies libc++, libc++abi, libunwind, compiler rt, and newlib.
+Clang 22 provides the C++26 language mode. CI uses the pinned
+`ghcr.io/matthewchavis8/hyperberry-toolchain:llvm-22.1.2` image.
 
 ### Build Outputs
 

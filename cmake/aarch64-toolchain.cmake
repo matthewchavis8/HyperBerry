@@ -1,9 +1,12 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_ASM_COMPILER clang)
+find_program(HB_CLANG NAMES clang-22 clang REQUIRED)
+find_program(HB_CLANGXX NAMES clang++-22 clang++ REQUIRED)
+
+set(CMAKE_C_COMPILER ${HB_CLANG})
+set(CMAKE_CXX_COMPILER ${HB_CLANGXX})
+set(CMAKE_ASM_COMPILER ${HB_CLANG})
 
 set(CMAKE_C_COMPILER_TARGET aarch64-none-elf)
 set(CMAKE_CXX_COMPILER_TARGET aarch64-none-elf)

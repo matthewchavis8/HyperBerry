@@ -4,6 +4,7 @@
 //
 // Declares the minimal C memory primitives supplied by HyperBerry when no
 // hosted C runtime is available.
+// TODO: Replace these when the bare metal toolchain supplies a complete libc.
 
 #ifndef __STRINGS_H__
 #define __STRINGS_H__

@@ -8,9 +8,14 @@ concurrency:
   group: integration-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   integration-qemu:
     runs-on: ubuntu-latest
+    container: ghcr.io/matthewchavis8/hyperberry-toolchain:llvm-22.1.2
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

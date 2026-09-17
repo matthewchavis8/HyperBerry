@@ -1,13 +1,67 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.25)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
-set(CMAKE_OBJCOPY llvm-objcopy)
+find_program(HB_OBJCOPY NAMES llvm-objcopy-22 llvm-objcopy REQUIRED)
+set(CMAKE_OBJCOPY ${HB_OBJCOPY})
 set(ELF hyperberry.elf)
 
 project(HyperBerry VERSION 0.0.1 LANGUAGES CXX ASM C)
+
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 22.1)
+  message(FATAL_ERROR "HyperBerry requires LLVM Clang 22.1 or newer")
+endif()
+
+execute_process(
+  COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+  OUTPUT_VARIABLE HB_CLANG_RESOURCE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set(HB_DEFAULT_SYSROOT
+    ${CMAKE_SOURCE_DIR}/.toolchain/arm-newlib-19.1.5/lib/clang-runtimes/newlib/aarch64-none-elf/aarch64a)
+if(NOT EXISTS ${HB_DEFAULT_SYSROOT})
+  set(HB_DEFAULT_SYSROOT "")
+endif()
+
+set(HB_LLVM_SYSROOT "" CACHE PATH
+    "Arm newlib and libc++ sysroot for aarch64 none elf")
+if(NOT "$ENV{HB_LLVM_SYSROOT}" STREQUAL "")
+  set(HB_LLVM_SYSROOT "$ENV{HB_LLVM_SYSROOT}" CACHE PATH
+      "Arm newlib and libc++ sysroot for aarch64 none elf" FORCE)
+elseif(HB_LLVM_SYSROOT STREQUAL "" AND NOT HB_DEFAULT_SYSROOT STREQUAL "")
+  set(HB_LLVM_SYSROOT ${HB_DEFAULT_SYSROOT} CACHE PATH
+      "Arm newlib and libc++ sysroot for aarch64 none elf" FORCE)
+endif()
+
+if(NOT BUILD_TESTING)
+  if(HB_LLVM_SYSROOT STREQUAL "")
+    message(FATAL_ERROR
+      "HB_LLVM_SYSROOT must name the Arm newlib and libc++ sysroot. Run tools/toolchain/fetch_sysroot.py first.")
+  endif()
+
+  if(NOT CMAKE_CXX_COMPILER_TARGET STREQUAL "aarch64-none-elf")
+    message(FATAL_ERROR "The bare metal compiler target must be aarch64-none-elf")
+  endif()
+
+  set(HB_LIBCXX_INCLUDE ${HB_LLVM_SYSROOT}/include/c++/v1)
+  set(HB_LIBC_INCLUDE ${HB_LLVM_SYSROOT}/include)
+  set(HB_LIBC_LIBDIR ${HB_LLVM_SYSROOT}/lib)
+  set(HB_STDLIB_ARCHIVES
+    ${HB_LIBC_LIBDIR}/libc++.a
+    ${HB_LIBC_LIBDIR}/libc++abi.a
+    ${HB_LIBC_LIBDIR}/libunwind.a
+    ${HB_LIBC_LIBDIR}/libc.a
+    ${HB_LIBC_LIBDIR}/libclang_rt.builtins.a
+  )
+  foreach(path ${HB_LIBCXX_INCLUDE} ${HB_LIBC_INCLUDE} ${HB_STDLIB_ARCHIVES})
+    if(NOT EXISTS ${path})
+      message(FATAL_ERROR "HB_LLVM_SYSROOT is missing ${path}")
+    endif()
+  endforeach()
+endif()
 
 # Generate a board's assembler-safe address defines from its host device tree.
 function(hb_generate_regs board dtb outdir)
@@ -71,7 +125,9 @@ add_compile_options(
   -fno-threadsafe-statics
   -fno-asynchronous-unwind-tables
   -nostdinc++
-  -isystem ${CMAKE_CXX_COMPILER_RESOURCE_DIR}/include
+  -isystem${HB_LIBCXX_INCLUDE}
+  -isystem${HB_LIBC_INCLUDE}
+  -isystem${HB_CLANG_RESOURCE_DIR}/include
 )
 
 # Linked into the image rather than into Virt: the vector table is the only
@@ -106,7 +162,8 @@ function(hb_add_image name core outdir)
   foreach(m IN LISTS HB_SUBSYSTEMS)
     list(APPEND libs ${m}${BSP_SUFFIX})
   endforeach()
-  target_link_libraries(${name} PRIVATE ${libs})
+  target_link_libraries(${name} PRIVATE
+    -Wl,--start-group ${libs} ${HB_STDLIB_ARCHIVES} -Wl,--end-group)
 
   target_compile_options(${name} PRIVATE
     -fno-common
