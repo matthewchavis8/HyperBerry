@@ -155,12 +155,12 @@ one character. Everything about how a line is built lives in `Log`.
 
 ## Freestanding limits
 
-**There is no C++ standard library.** `-nostdinc++` at `CMakeLists.txt` removes
-it, and clang's resource directory ships only C headers. `<cstdint>`,
-`<type_traits>` and `<utility>` all fail to resolve; use `<stdint.h>` and the
-hand rolled subset in `lib/array`, `lib/memory` and `lib/utility`. For type
-queries use the compiler builtins the format engine already uses: `__is_same`,
-`__is_integral`, `__is_enum`.
+**The freestanding build uses Arm newlib and libc++.** Configure bare metal
+builds with `HB_LLVM_SYSROOT` pointing to the pinned `aarch64-none-elf` sysroot
+from `tools/toolchain/fetch_sysroot.py`. Clang 22 supplies C++26. The project
+keeps exceptions, RTTI, and thread APIs disabled. Use standard containers and
+utilities where they do not require an operating system service. HyperBerry
+still owns allocation, boot runtime, and hardware access.
 
 **Global constructors run, but only because we run them.** Each linker script
 bounds an `.init_array` block and `RunGlobalConstructors()` in `lib/cxxrt` walks

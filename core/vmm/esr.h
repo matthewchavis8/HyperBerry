@@ -6,7 +6,7 @@
 #define __ESR_H__
 
 #include <stdint.h>
-#include "lib/array/array.h"
+#include <array>
 
 // ESR_EL2.EC, the exception class in bits [31:26]
 enum class EsrEc : uint8_t {
@@ -51,7 +51,7 @@ enum class EsrEc : uint8_t {
 };
 
 // x0 to x30 as saved by the EL2 entry glue
-using ExceptionContext = hv::array<uint64_t, 31>;
+using ExceptionContext = std::array<uint64_t, 31>;
 
 // @brief Extract the exception class from a raw ESR_EL2 value.
 // @param esr Raw ESR_EL2.

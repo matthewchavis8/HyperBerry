@@ -10,9 +10,14 @@ concurrency:
   group: unit-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   unit:
     runs-on: ubuntu-latest
+    container: ghcr.io/matthewchavis8/hyperberry-toolchain:llvm-22.1.2
     steps:
       - uses: actions/checkout@v4
       - name: Set up CI toolchain

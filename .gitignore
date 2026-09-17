@@ -1,4 +1,5 @@
 build/
+.toolchain/
 docs/_doxygen/
 docs/_build/
 docs/.venv/

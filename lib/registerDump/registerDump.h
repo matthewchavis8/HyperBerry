@@ -6,7 +6,7 @@
 #define __REGISTERDUMP_H__
 
 #include <stdint.h>
-#include "lib/array/array.h"
+#include <array>
 #include "drivers/uart/uart.h"
 #include "lib/log/log.h"
 
@@ -27,7 +27,7 @@
 //
 // @note Writes straight to the UART rather than through Log, so the dump
 //       survives a release build. Only hv_panic calls this.
-inline void RegisterDump(const hv::array<uint64_t, 31>& ctx) {
+inline void RegisterDump(const std::array<uint64_t, 31>& ctx) {
     uint64_t esr {};
     uint64_t far {};
     uint64_t elr {};

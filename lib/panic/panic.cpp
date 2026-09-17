@@ -19,7 +19,7 @@ void uartSink(char ch) {
 // @ingroup lib
 // @param msg Optional panic message to print.
 // @param ctx Saved exception context for diagnostic output.
-[[noreturn]] void HvPanic(const char* msg, const hv::array<uint64_t, 31>& ctx) {
+[[noreturn]] void HvPanic(const char* msg, const std::array<uint64_t, 31>& ctx) {
     log::detail::FormatLineToSink(uartSink, "=======================================");
     log::detail::FormatLineToSink(uartSink, "=             HV PANIC                =");
     log::detail::FormatLineToSink(uartSink, "=======================================");

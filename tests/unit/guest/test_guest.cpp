@@ -219,6 +219,10 @@ void FreePages(uint64_t, uint32_t) {
 }
 } // namespace pmm
 
+namespace PageTable {
+void CleanDataCacheRange(const void*, size_t) {}
+} // namespace PageTable
+
 TEST(Guest, ResolvesFilesWithAndWithoutInitrd) {
     for (bool withInitrd : { false, true }) {
         auto bytes { buildArchive(withInitrd) };

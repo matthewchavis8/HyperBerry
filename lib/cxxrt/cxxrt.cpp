@@ -3,7 +3,6 @@
 // @ingroup lib
 
 #include "cxxrt.h"
-#include "lib/panic/panic.h"
 
 extern "C" {
 // Bounds emitted by the .init_array block in each board's linker script.
@@ -16,19 +15,3 @@ void RunGlobalConstructors() {
         (*ctor)();
     }
 }
-
-extern "C" {
-
-// Referenced by objects that register a destructor. The hypervisor never
-// exits, so nothing registered here is ever run.
-void* __dso_handle { nullptr };
-
-int __cxa_atexit(void (*)(void*), void*, void*) {
-    return 0;
-}
-
-void __cxa_pure_virtual() {
-    HvPanic("[cxxrt] pure virtual called");
-}
-
-} // extern "C"
