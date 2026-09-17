@@ -239,7 +239,7 @@ TEST(Guest, ResolvesFilesWithAndWithoutInitrd) {
         EXPECT_EQ(layout.initrdIpa % (2 * 1024 * 1024), 0);
         EXPECT_LE(layout.kernelIpa + layout.kernelSize, layout.dtbIpa);
         EXPECT_LE(layout.dtbIpa + layout.dtbSize,
-                withInitrd ? layout.initrdIpa : guest::GUEST_RAM_SIZE);
+                withInitrd ? layout.initrdIpa : guest::GUEST_IPA_BASE + guest::GUEST_RAM_SIZE);
     }
 }
 
@@ -304,13 +304,14 @@ TEST(Guest, CopiesFilesAndPatchesDtb) {
         EXPECT_EQ(loaded.guest.dtbIpa, layout.dtbIpa);
         EXPECT_TRUE(std::equal(files.kernel.data,
                 files.kernel.data + files.kernel.size,
-                ram.data() + layout.kernelIpa));
+                ram.data() + layout.kernelIpa - guest::GUEST_IPA_BASE));
         if (withInitrd)
             EXPECT_TRUE(std::equal(files.initrd.data,
                     files.initrd.data + files.initrd.size,
-                    ram.data() + layout.initrdIpa));
+                    ram.data() + layout.initrdIpa - guest::GUEST_IPA_BASE));
         std::vector<uint8_t> dtb(
-                ram.begin() + layout.dtbIpa, ram.begin() + layout.dtbIpa + layout.dtbSize);
+                ram.begin() + layout.dtbIpa - guest::GUEST_IPA_BASE,
+                ram.begin() + layout.dtbIpa - guest::GUEST_IPA_BASE + layout.dtbSize);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg")), guest::GUEST_IPA_BASE);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg") + 8), guest::GUEST_RAM_SIZE);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "linux,initrd-start")), layout.initrdIpa);
