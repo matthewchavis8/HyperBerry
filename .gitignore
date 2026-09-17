@@ -17,4 +17,3 @@ __pycache__/
 .agents
 skills-lock.json
 .worktrees/
-tools/FVP

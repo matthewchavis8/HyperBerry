@@ -82,7 +82,6 @@ endfunction()
 
 set(HOST_DTB_rpi5 ${CMAKE_SOURCE_DIR}/bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb)
 set(HOST_DTB_qemu ${CMAKE_SOURCE_DIR}/bsp/qemu/dts/host-qemu.dtb)
-set(HOST_DTB_fvp  ${CMAKE_SOURCE_DIR}/bsp/fvp/dts/host-fvp.dtb)
 
 # Google Test
 option(BUILD_TESTING "Build unit tests" OFF)
@@ -108,10 +107,9 @@ endif()
 
 # One configure builds every board. Each produces its own image under
 # ${CMAKE_BINARY_DIR}/<board>/; flashing picks the one it needs.
-set(SUPPORTED_BOARDS rpi5 qemu fvp)
+set(SUPPORTED_BOARDS rpi5 qemu)
 set(BOARD_DESC_rpi5 "Raspberry Pi 5")
 set(BOARD_DESC_qemu "Virtualized Raspberry Pi 5 in QEMU")
-set(BOARD_DESC_fvp  "Arm FVP Base RevC-2xAEMvA")
 
 option(BUILD_INTEGRATION "Also build the per-board integration images" ON)
 
@@ -306,7 +304,7 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/${board}
     COMMAND ${DTC} -I dts -O dtb -i ${CMAKE_SOURCE_DIR}/boot/dts
             -o ${guest_dtb} ${guest_dts}
-    DEPENDS ${guest_dts} ${CMAKE_SOURCE_DIR}/boot/dts/guest-base.dtsi
+    DEPENDS ${guest_dts} ${CMAKE_SOURCE_DIR}/boot/dts/guest-linux.dtsi
     VERBATIM
   )
   set(archive_base_args --file linux/Image ${${upper}_GUEST_KERNEL}
@@ -384,40 +382,4 @@ add_dependencies(flash-rpi5 hyperberry-rpi5 guest-archive-rpi5)
 if(BUILD_INTEGRATION)
   add_flash_target(flash-rpi5-test ${CMAKE_BINARY_DIR}/rpi5/integration/kernel8.img ${RPI5_TEST_ARCHIVE})
   add_dependencies(flash-rpi5-test hyperberry-rpi5-test)
-endif()
-
-set(FVP_BIN "${CMAKE_SOURCE_DIR}/tools/FVP/bin/FVP_Base_RevC-2xAEMvA"
-    CACHE FILEPATH "Path to the FVP Base RevC binary")
-if(FDTPUT)
-  set(FVP_DIR ${CMAKE_SOURCE_DIR}/bsp/fvp)
-  file(STRINGS ${FVP_DIR}/platform.inc FVP_HOST_DTB_ADDR REGEX "define BSP_HOST_DTB_BASE")
-  file(STRINGS ${FVP_DIR}/platform.inc FVP_ARCHIVE_ADDR REGEX "define BSP_GUEST_ARCHIVE_BASE")
-  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_HOST_DTB_ADDR "${FVP_HOST_DTB_ADDR}")
-  string(REGEX REPLACE ".*(0x[0-9a-fA-F]+).*" "\\1" FVP_ARCHIVE_ADDR "${FVP_ARCHIVE_ADDR}")
-  function(add_fvp_run target image archive host_dtb)
-    add_custom_command(
-      OUTPUT ${host_dtb}
-      COMMAND ${DTC} -I dts -O dtb -o ${host_dtb} ${FVP_DIR}/dts/host-fvp.dts
-      COMMAND ${Python3_EXECUTABLE} -c
-        "import os,sys,subprocess; base=int(sys.argv[4],16); size=os.path.getsize(sys.argv[1]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-start','0x0',hex(base)]); subprocess.check_call([sys.argv[2],'-tx',sys.argv[3],'/chosen','linux,initrd-end',hex((base+size)>>32),hex((base+size)&0xffffffff)])"
-        ${archive} ${FDTPUT} ${host_dtb} ${FVP_ARCHIVE_ADDR}
-      DEPENDS ${FVP_DIR}/dts/host-fvp.dts ${archive}
-      VERBATIM
-    )
-    add_custom_target(${target}
-      COMMAND ${FVP_BIN} -a $<TARGET_FILE:${image}>
-        --data ${host_dtb}@${FVP_HOST_DTB_ADDR} --data ${archive}@${FVP_ARCHIVE_ADDR}
-        -C bp.secure_memory=0 -C cluster0.NUM_CORES=1 -C cluster1.NUM_CORES=0
-        -C bp.vis.disable_visualisation=1 -C bp.terminal_0.start_telnet=0
-        -C bp.pl011_uart0.out_file=- -C bp.pl011_uart0.unbuffered_output=1
-        -C cache_state_modelled=0
-      DEPENDS ${image} ${host_dtb}
-      VERBATIM
-    )
-  endfunction()
-  add_fvp_run(run-fvp hyperberry-fvp ${FVP_GUEST_ARCHIVE} ${CMAKE_BINARY_DIR}/fvp/host-fvp.dtb)
-  if(BUILD_INTEGRATION)
-    add_fvp_run(run-fvp-test hyperberry-fvp-test ${FVP_TEST_ARCHIVE}
-                ${CMAKE_BINARY_DIR}/fvp/integration/host-fvp.dtb)
-  endif()
 endif()

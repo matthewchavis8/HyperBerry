@@ -5,7 +5,7 @@
  */
 
 /dts-v1/;
-/include/ "guest-base.dtsi"
+/include/ "guest-linux.dtsi"
 
 / {
 	interrupt-parent = <&gic>;

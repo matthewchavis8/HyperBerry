@@ -196,10 +196,6 @@ Everything else is read from a tree at runtime. ``DtbHostMmio`` and
 self map covers exactly the peripherals the host tree declares and a guest
 reaches exactly what its own tree declares.
 
-``bsp/fvp/platform.inc`` is the exception that proves the rule: the load
-addresses are where the model is *told* to place a blob, so no tree can state
-them and they are written by hand.
-
 There is no board macro. The build puts ``bsp/<board>`` and that board's
 generated directory on the include path, so code includes ``"regs.inc"`` and
 the board selects itself.
