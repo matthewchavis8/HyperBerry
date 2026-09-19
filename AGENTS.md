@@ -42,7 +42,7 @@ targets of the same name.
 ## Conventions
 
 Code shape -- class layout, MMIO access, logging tiers, comment style -- lives in
-[STYLES.md](STYLES.md). This section is about the project's rules.
+[docs/STYLES.md](docs/STYLES.md). This section is about the project's rules.
 
 **The device tree is the source of truth for addresses.** Do not hand write a
 value a tree already declares. Two paths exist. `tools/bspgen` reads a board's

@@ -5,30 +5,23 @@ default:
 
 # Build every board's image (one configure, one build).
 build MODE="debug":
-  cmake --preset {{ MODE }}
-  cmake --build --preset {{ MODE }}
+  scripts/container.sh cmake --preset {{ MODE }}
+  scripts/container.sh cmake --build --preset {{ MODE }}
   @echo "[LOG] images under build/{{ MODE }}/<board>/kernel8.img"
 
 qemu MODE="debug":
-  cmake --preset {{ MODE }}
-  cmake --build --preset {{ MODE }} --target run-qemu
+  scripts/container.sh --tty cmake --preset {{ MODE }}
+  scripts/container.sh --tty cmake --build --preset {{ MODE }} --target run-qemu
 
 fvp MODE="debug":
   cmake --preset {{ MODE }}
   cmake --build --preset {{ MODE }} --target run-fvp
 
 rpi5 MODE="release" SD_DEV="/dev/sdd1":
-  cmake --preset {{ MODE }}
-  cmake --build --preset {{ MODE }} --target hyperberry-rpi5
-
-  @echo "[LOG] Mounting SD Card for flashing"
-  sudo mkdir -p /mnt/sdcard
-  sudo mount -o uid=$(id -u),gid=$(id -g) {{ SD_DEV }} /mnt/sdcard
-
-  cmake --build --preset {{ MODE }} --target flash-rpi5
-  sync
-  sudo umount /mnt/sdcard
-  @echo "[LOG] Physical Raspberry PI5 has succesfully been built and flash"
+  scripts/container.sh cmake --preset {{ MODE }}
+  scripts/container.sh cmake --build --preset {{ MODE }} --target hyperberry-rpi5
+  scripts/flash-rpi5.sh build/{{ MODE }}/rpi5/kernel8.img build/{{ MODE }}/rpi5/guest.cpio {{ SD_DEV }}
+  @echo "[LOG] Physical Raspberry Pi 5 has been built and flashed"
 
 docs:
   doxygen docs/sphinx/Doxyfile
@@ -42,23 +35,23 @@ docs-clean:
   rm -rf docs/_build
 
 test-integration BOARD="qemu":
-  cmake --preset debug
-  cmake --build --preset debug --target hyperberry-{{ BOARD }}-test
-  cmake --build --preset debug --target run-{{ BOARD }}-test
+  scripts/container.sh cmake --preset debug
+  scripts/container.sh cmake --build --preset debug --target hyperberry-{{ BOARD }}-test
+  scripts/container.sh cmake --build --preset debug --target run-{{ BOARD }}-test
 
 # Point clangd at the build compile database.
 compile-db:
-  cmake --preset debug
-  ln -sf build/debug/compile_commands.json compile_commands.json
+  scripts/container.sh cmake --preset debug
+  scripts/container.sh ln -sf build/debug/compile_commands.json compile_commands.json
   @echo "[LOG] compile_commands.json linked"
 
 test-unit:
-  cmake --preset unit-tests
-  cmake --build --preset unit-tests
-  ctest --preset unit-tests
+  scripts/container.sh cmake --preset unit-tests
+  scripts/container.sh cmake --build --preset unit-tests
+  scripts/container.sh ctest --preset unit-tests
 
 cpio ROOT OUT:
-  python3 tools/cpio/archive.py --root "{{ ROOT }}" --out "{{ OUT }}"
+  scripts/container.sh python3 tools/cpio/archive.py --root "{{ ROOT }}" --out "{{ OUT }}"
 
 clean:
   rm -rf build/
