@@ -71,33 +71,24 @@ HyperBerry/
 
 ### Requirements
 
-- LLVM 22.1 or newer with `clang` and `clang++`
-- `llvm` (LLVM)
-- `cmake` (>= 3.25)
+- Docker with access to its daemon
 - `just` command runner
-- `qemu-system-aarch64` for virtualized hardware
 - `minicom` for UART serial console
 - `doxygen` (for generating XML used by Sphinx)
 - `python3` / `pip` (install doc deps with `pip install -r docs/requirements.txt`)
 
 ### C++26 Toolchain
 
-HyperBerry is built as C++26 with LLVM Clang 22.1 or newer. Hosted unit tests
-use the `aarch64-linux` toolchain. Bare metal builds use the
-`aarch64-none-elf` toolchain in `cmake/aarch64-toolchain.cmake`, Arm newlib,
-and libc++.
+HyperBerry builds locally in a Docker image defined by the root `Dockerfile`.
+Every container backed `just` recipe builds `hyperberry-toolchain:local` first.
+Docker reuses unchanged layers, so repeat invocations do not reinstall the
+toolchain. The image provides LLVM Clang 22, Arm newlib, libc++, QEMU, and the
+hosted AArch64 test toolchain.
 
-Fetch the pinned bare metal sysroot, then configure normally:
-
-```sh
-python3 tools/toolchain/fetch_sysroot.py
-export HB_LLVM_SYSROOT="$PWD/.toolchain/arm-newlib-19.1.5/lib/clang-runtimes/newlib/aarch64-none-elf/aarch64a"
-cmake --preset debug
-```
-
-The sysroot supplies libc++, libc++abi, libunwind, compiler rt, and newlib.
-Clang 22 provides the C++26 language mode. CI uses the pinned
-`ghcr.io/matthewchavis8/hyperberry-toolchain:llvm-22.1.2` image.
+The container mounts the checkout at `/workspace` and writes normal CMake
+artifacts under `build/`. On its first use, it removes only stale CMake cache
+metadata created by a host path, then configures the existing build directory
+from inside the container. CI continues to use its published toolchain image.
 
 ### Build Outputs
 
@@ -111,7 +102,7 @@ The build produces `hyperberry.elf`, which is then converted to `kernel8.img` (r
 | `just qemu (debug/release)`              | Build and run in QEMU                      |
 | `just rpi5 (debug/release) [/dev/sdX1]`  | Build and flash SD card for Pi 5           |
 | `just test-unit`                         | Build and run hosted GoogleTest unit tests |
-| `just test-integration (qemu/rpi5)`      | Build and run bare-metal integration tests |
+| `just test-integration [qemu]`           | Build and run QEMU integration tests       |
 | `just docs`                              | Generate and serve Sphinx + Breathe docs   |
 | `just clean`                             | Remove build artifacts                     |
 
@@ -124,25 +115,9 @@ just qemu          # debug build (default)
 just qemu release  # release build
 ```
 
-**Manual steps (without `just`):**
-
-```sh
-# 1. Configure
-cmake --preset debug
-
-# 2. Build all boards (image at build/debug/qemu/kernel8.img)
-cmake --build --preset debug
-
-# 3. Spin up virtual RPI5 with hyperBerry image
-qemu-system-aarch64 \
-  -machine virt,virtualization=on,gic-version=2 \
-  -cpu cortex-a76 \
-  -m 4G \
-  -nographic \
-  -kernel build/debug/qemu/kernel8.img
-```
-
-UART output prints directly to the terminal. Exit QEMU with `Ctrl-A X`.
+The container starts QEMU with its terminal attached. UART output prints
+directly to the terminal and BusyBox opens its shell on `ttyAMA0`. Exit QEMU
+with `Ctrl-A X`.
 
 ### Raspberry Pi 5
 
@@ -156,27 +131,10 @@ just rpi5                          # release build, default /dev/sda1
 just rpi5 release /dev/sdX1        # specify a different partition
 ```
 
-**Manual steps (without `just`):**
-
-```sh
-# 1. Configure
-cmake --preset release
-
-# 2. Build all boards (image at build/release/rpi5/kernel8.img)
-cmake --build --preset release
-
-# 3. Mount and flash
-sudo mkdir -p /mnt/sdcard
-sudo mount -o uid=$(id -u),gid=$(id -g) /dev/sda1 /mnt/sdcard
-
-cp build/release/rpi5/kernel8.img        /mnt/sdcard/
-cp bsp/rpi5/firmware/start4.elf          /mnt/sdcard/
-cp bsp/rpi5/firmware/bcm2712-rpi-5-b.dtb /mnt/sdcard/
-cp bsp/rpi5/firmware/config.txt          /mnt/sdcard/
-cp bsp/rpi5/firmware/fixup4.dat          /mnt/sdcard/
-
-sudo umount /mnt/sdcard
-```
+`just rpi5` compiles in Docker, then mounts `/mnt/sdcard` and copies the
+kernel, guest archive, and firmware from the host. It therefore requires
+`sudo` and an actual Pi boot partition, but does not require a local compiler
+or cross toolchain.
 
 3. Insert the SD card into the Pi 5 and power on.
 
@@ -213,7 +171,8 @@ CMake builds `build/<mode>/<board>/guest.cpio` from the Linux `Image` and
 the board's guest device tree. Integration archives live under
 `build/<mode>/<board>/integration/guest.cpio` and also contain the vCPU and GIC binaries.
 
-The host needs Python 3, `cpio`, and `dtc`. FVP also needs `fdtput`.
+The local build container provides Python 3, `cpio`, and `dtc`. FVP also needs
+`fdtput` on its host workflow.
 QEMU defaults to a pinned Debian AArch64 Linux `Image` with initramfs support.
 Set `QEMU_GUEST_KERNEL`, `RPI5_GUEST_KERNEL`, or `FVP_GUEST_KERNEL` to
 select another kernel. CMake downloads and verifies a static AArch64 BusyBox
@@ -241,7 +200,6 @@ Run them with:
 ```sh
 just test-unit
 just test-integration qemu
-cmake --build --preset debug --target flash-rpi5-test
 ```
 
 The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.

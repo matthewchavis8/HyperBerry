@@ -1,6 +1,6 @@
 # C++ style
 
-Companion to [AGENTS.md](AGENTS.md), which covers the build, the layout and how
+Companion to [AGENTS.md](../AGENTS.md), which covers the build, the layout and how
 to work here. This file is about the shape of the code itself. Everything below
 was settled by review rather than invented, so treat a conflict with existing
 code as the existing code being older, not as this file being wrong.
