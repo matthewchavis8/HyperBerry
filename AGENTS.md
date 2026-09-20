@@ -49,7 +49,7 @@ host device tree and emits `regs.inc` for the handful of addresses that must be
 compile time constants: the early console, which has to work before the tree is
 parsed, and the GIC bases the register tables are built from. Boot checks those
 against the firmware tree and panics on a mismatch. Everything else is read
-from a tree at runtime through `core/dtb`, including the MMIO windows both MMU
+from a tree at runtime through `core/deviceTree`, including the MMIO windows both MMU
 layers map.
 
 **There is no board macro.** No `BSP_QEMU` or `BSP_RPI5`. The build

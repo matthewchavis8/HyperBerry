@@ -19,7 +19,7 @@ Boot Flow
 The allocator is brought up in this order:
 
 1. ``boot.S`` transfers control to ``hmain()`` at EL2.
-2. ``ParseDtb()`` decodes the firmware DTB and returns a ``MemoryMap`` with:
+2. ``TreeParser::ParseMemoryMap()`` decodes the firmware DTB and returns a ``MemoryMap`` with:
    ``memBase``, ``memSize``, ``atfBase``, ``atfSize``, ``dtbBase``, and
    ``dtbSize``.
 3. ``pmm::Init(memoryMap)`` seeds the free lists from the RAM region.
@@ -113,7 +113,7 @@ What does not exist yet:
 Source Locations
 ----------------
 
-- ``core/dtb/``: boot-time DTB parsing and ``MemoryMap``
+- ``core/deviceTree/``: boot-time DTB parsing and ``MemoryMap``
 - ``core/mm/pmm/``: buddy allocator implementation
 - ``core/mm/pageTable/``: shared page-table walk/allocation helpers
 - ``core/mm/mmu/hostMmu/``: EL2 stage-1 MMU implementation
