@@ -16,6 +16,10 @@ if [[ $# -eq 0 ]]; then
   exit 2
 fi
 
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+  exec "$@"
+fi
+
 for preset in debug release unit-tests; do
   build="$root/build/$preset"
   if [[ -d "$build" ]] && find "$build" -type f -name CMakeCache.txt \
