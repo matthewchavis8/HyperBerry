@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "core/guest/guest.h"
-#include "core/dtb/dtb.h"
+#include "core/deviceTree/deviceTree.h"
 #include "tests/unit/cpio/fixture.h"
 #include "core/mm/pmm/pmm.h"
 

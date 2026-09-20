@@ -1,16 +1,19 @@
-// @file test_dtb.cpp
+// @file test_deviceTree.cpp
 // @brief Unit tests for DTB parsing and memory map extraction.
 
 #include <gtest/gtest.h>
 
 #include "drivers/uart/uart.h"
+#include "drivers/gic/gic.h"
+#include "lib/panic/panic.h"
 #include "regs.inc"
-#include "core/dtb/dtb.h"
+#include "core/deviceTree/deviceTree.h"
 
 #include <vector>
 #include <cstring>
 #include <cstdint>
 #include <algorithm>
+#include <cstdlib>
 
 namespace uart_test_support {
 
@@ -47,8 +50,17 @@ Uart& Uart::GetInstance() {
 }
 
 void Uart::configure() const {}
+void Uart::SetBase(uint64_t base) {
+    m_base = base;
+}
 void Uart::Putc(const char ch) const {
     uart_test_support::Append(ch);
+}
+
+void Gic::SetBases(uint64_t, uint64_t, uint64_t, uint64_t) {}
+
+[[noreturn]] void HvPanic(const char*) {
+    std::abort();
 }
 
 class DtbBuilder {
@@ -122,6 +134,22 @@ public:
         pushBE32(value);
     }
 
+    void PropString(uint32_t nameOff, const char* value) {
+        std::vector<uint8_t> data;
+        while (*value) data.push_back(static_cast<uint8_t>(*value++));
+        data.push_back(0);
+        Prop(nameOff, data);
+    }
+
+    void PropReg32(uint32_t nameOff, uint32_t base, uint32_t size) {
+        pushBE32(3);
+        pushBE32(12);
+        pushBE32(nameOff);
+        pushBE32(0);
+        pushBE32(base);
+        pushBE32(size);
+    }
+
     void Nop() { pushBE32(4); }
     void end() { pushBE32(9); }
 
@@ -187,28 +215,26 @@ static std::vector<uint8_t> buildStandardDtb(uint64_t memBase,
     return b.Build();
 }
 
-TEST(DtbParser, NullDtbReturnsInvalid) {
-    MemoryMap map { ParseDtb(0) };
-    EXPECT_FALSE(map.isValid);
+TEST(DeviceTreeParser, NullDtbPanics) {
+    EXPECT_DEATH(TreeParser { 0 }.ParseMemoryMap(), "");
 }
 
-TEST(DtbParser, BadMagicReturnsInvalid) {
+TEST(DeviceTreeParser, BadMagicPanics) {
     uint8_t junk[64] {};
     junk[0] = 0xDE;
     junk[1] = 0xAD;
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(junk)) };
-    EXPECT_FALSE(map.isValid);
+    EXPECT_DEATH(TreeParser { reinterpret_cast<uintptr_t>(junk) }.ParseMemoryMap(), "");
 }
 
-TEST(DtbParser, ValidMemoryAndAtf) {
+TEST(DeviceTreeParser, ValidMemoryAndAtf) {
     auto blob { buildStandardDtb(0x80000000ULL,
             0x40000000ULL, // 2GB RAM at 0x80000000
             0x80000000ULL,
             0x00080000ULL) }; // 512KB ATF
 
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.memBase, 0x80000000ULL);
     EXPECT_EQ(map.memSize, 0x40000000ULL);
     EXPECT_EQ(map.atfBase, 0x80000000ULL);
@@ -216,7 +242,7 @@ TEST(DtbParser, ValidMemoryAndAtf) {
     EXPECT_EQ(map.dtbBase, reinterpret_cast<uint64_t>(blob.data()));
 }
 
-TEST(DtbParser, ChosenInitrdBecomesBootArchiveRegion) {
+TEST(DeviceTreeParser, ChosenInitrdBecomesBootArchiveRegion) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
     uint32_t initrdStart { b.AddString("linux,initrd-start") };
@@ -234,14 +260,14 @@ TEST(DtbParser, ChosenInitrdBecomesBootArchiveRegion) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
     EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
 }
 
-TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
+TEST(DeviceTreeParser, ChosenInitrdSupports32BitAddressCells) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
     uint32_t initrdStart { b.AddString("linux,initrd-start") };
@@ -259,14 +285,14 @@ TEST(DtbParser, ChosenInitrdSupports32BitAddressCells) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
     EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
 }
 
-TEST(DtbParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
+TEST(DeviceTreeParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
     for (bool reversed : { false, true }) {
         DtbBuilder b;
         auto reg { b.AddString("reg") };
@@ -288,13 +314,13 @@ TEST(DtbParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
         b.EndNode();
         b.end();
         auto blob { b.Build() };
-        auto map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+        auto map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
         EXPECT_EQ(map.bootArchiveBase, 0x20000000);
         EXPECT_EQ(map.bootArchiveSize, 0x400000);
     }
 }
 
-TEST(DtbParser, InvalidArchiveEndpointsDoNotReserveMemory) {
+TEST(DeviceTreeParser, InvalidArchiveEndpointsDoNotReserveMemory) {
     for (uint64_t end : { 0ULL, 0x1fffffffULL, 0x20000000ULL }) {
         DtbBuilder b;
         auto reg { b.AddString("reg") };
@@ -311,13 +337,13 @@ TEST(DtbParser, InvalidArchiveEndpointsDoNotReserveMemory) {
         b.EndNode();
         b.end();
         auto blob { b.Build() };
-        auto map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+        auto map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
         EXPECT_EQ(map.bootArchiveBase, 0);
         EXPECT_EQ(map.bootArchiveSize, 0);
     }
 }
 
-TEST(DtbParser, MemoryOnlyNoAtf) {
+TEST(DeviceTreeParser, MemoryOnlyNoAtf) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
 
@@ -329,27 +355,27 @@ TEST(DtbParser, MemoryOnlyNoAtf) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.memBase, 0x40000000ULL);
     EXPECT_EQ(map.memSize, 0x20000000ULL);
     EXPECT_EQ(map.atfBase, 0ULL);
     EXPECT_EQ(map.atfSize, 0ULL);
 }
 
-TEST(DtbParser, Bl31NameMatchesAtf) {
+TEST(DeviceTreeParser, Bl31NameMatchesAtf) {
     auto blob { buildStandardDtb(
             0x80000000ULL, 0x40000000ULL, 0x80000000ULL, 0x00080000ULL, "bl31") };
 
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.atfBase, 0x80000000ULL);
     EXPECT_EQ(map.atfSize, 0x00080000ULL);
 }
 
-TEST(DtbParser, NoMemoryNodeInvalid) {
+TEST(DeviceTreeParser, NoMemoryNodePanics) {
     DtbBuilder b;
     b.AddString("reg");
 
@@ -360,11 +386,10 @@ TEST(DtbParser, NoMemoryNodeInvalid) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
-    EXPECT_FALSE(map.isValid);
+    EXPECT_DEATH(TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap(), "");
 }
 
-TEST(DtbParser, NopTokensSkipped) {
+TEST(DeviceTreeParser, NopTokensSkipped) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
 
@@ -380,14 +405,14 @@ TEST(DtbParser, NopTokensSkipped) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
+    MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
-    EXPECT_TRUE(map.isValid);
+    EXPECT_TRUE(map.memSize != 0);
     EXPECT_EQ(map.memBase, 0x80000000ULL);
     EXPECT_EQ(map.memSize, 0x10000000ULL);
 }
 
-TEST(DtbParser, ShortRegPropertySkipped) {
+TEST(DeviceTreeParser, ShortRegPropertyPanics) {
     DtbBuilder b;
     uint32_t reg { b.AddString("reg") };
 
@@ -399,6 +424,29 @@ TEST(DtbParser, ShortRegPropertySkipped) {
     b.end();
 
     auto blob { b.Build() };
-    MemoryMap map { ParseDtb(reinterpret_cast<uintptr_t>(blob.data())) };
-    EXPECT_FALSE(map.isValid);
+    EXPECT_DEATH(TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap(), "");
+}
+
+TEST(DeviceTreeParser, FindsCompatibleUsingSpan) {
+    DtbBuilder b;
+    uint32_t compatible { b.AddString("compatible") };
+    uint32_t reg { b.AddString("reg") };
+    b.BeginNode("");
+    b.BeginNode("device@1000");
+    b.PropString(compatible, "test,device");
+    b.PropReg32(reg, 0x1000, 0x100);
+    b.EndNode();
+    b.EndNode();
+    b.end();
+
+    auto blob { b.Build() };
+    constexpr std::string_view wanted[] { "test,device" };
+    DeviceNode node {
+        TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.FindCompatible(wanted)
+    };
+
+    ASSERT_TRUE(node.found);
+    ASSERT_EQ(node.regionCount, 1U);
+    EXPECT_EQ(node.regions[0].base, 0x1000U);
+    EXPECT_EQ(node.regions[0].size, 0x100U);
 }

@@ -8,7 +8,7 @@
 #ifndef __SUITE_H__
 #define __SUITE_H__
 
-#include "core/dtb/dtb.h"
+#include "core/deviceTree/deviceTree.h"
 
 // @brief A single test case: a name and a function that returns true on pass.
 struct TestCase {

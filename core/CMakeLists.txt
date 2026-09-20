@@ -26,9 +26,7 @@ target_link_libraries(Virt${BSP_SUFFIX}
 
 set(HB_CORE_SOURCES
   main.cpp
-  dtb/dtb.cpp
-  dtb/dtbVerify.cpp
-  dtb/dtbMmio.cpp
+  deviceTree/deviceTree.cpp
   guest/guest.cpp
 )
 
@@ -46,7 +44,7 @@ add_library(Core${BSP_SUFFIX}
 
 target_include_directories(Core${BSP_SUFFIX}
   PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/dtb
+  ${CMAKE_CURRENT_SOURCE_DIR}/deviceTree
   ${CMAKE_CURRENT_SOURCE_DIR}/guest
 )
 
@@ -70,7 +68,7 @@ if(BUILD_INTEGRATION)
 
   target_include_directories(CoreTest${BSP_SUFFIX}
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/dtb
+    ${CMAKE_CURRENT_SOURCE_DIR}/deviceTree
     ${CMAKE_CURRENT_SOURCE_DIR}/guest
   )
 

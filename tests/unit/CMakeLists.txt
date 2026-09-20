@@ -9,11 +9,11 @@ add_executable(hyperberry_unit_tests
   strings/test_strings.cpp
   ${CMAKE_SOURCE_DIR}/lib/strings/strings.cpp
 
-  dtb/test_dtb.cpp
+  deviceTree/test_deviceTree.cpp
   log/test_log_format.cpp
   ${CMAKE_SOURCE_DIR}/lib/log/log.cpp
   gic/test_gic.cpp
-  ${CMAKE_SOURCE_DIR}/core/dtb/dtb.cpp
+  ${CMAKE_SOURCE_DIR}/core/deviceTree/deviceTree.cpp
 
   cpio/test_cpio.cpp
   ${CMAKE_SOURCE_DIR}/lib/cpio/cpio.cpp

@@ -15,7 +15,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "core/dtb/dtb.h"
+#include "core/deviceTree/deviceTree.h"
 
 static constexpr uint64_t PAGE_SIZE { 0x1000 };
 static constexpr uint64_t PAGE_SHIFT { 12 };

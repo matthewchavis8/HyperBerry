@@ -1,4 +1,4 @@
-// @file core/dtb/fdt.h
+// @file core/deviceTree/fdt.h
 // @brief Flattened Device Tree on-wire format and shared decoding helpers.
 // @ingroup core
 //
@@ -10,7 +10,6 @@
 #define __FDT_H__
 
 #include <stdint.h>
-#include "lib/strings/strings.h"
 
 // @brief Flattened Device Tree token values used in the structure block.
 enum class FDT : uint32_t {
