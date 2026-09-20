@@ -15,9 +15,7 @@
 #include "lib/panic/panic.h"
 #include "drivers/gic/gic.h"
 #include "stddef.h"
-#include "dtb/dtb.h"
-#include "dtb/dtbVerify.h"
-#include "dtb/dtbMmio.h"
+#include "deviceTree/deviceTree.h"
 
 #ifdef INTEGRATION_TEST
 #include "tests/integration/suite.h"
@@ -35,13 +33,9 @@ extern "C" void hmain(uintptr_t dtb) {
     RunGlobalConstructors();
 
     Log::Println("[DTB] Attempting to parse device tree blob");
-    MemoryMap memoryMap { ParseDtb(dtb) };
+    TreeParser hostTree { dtb };
+    MemoryMap memoryMap { hostTree.ParseMemoryMap() };
     Log::Println("[DTB] Succesfully parsed device tree blob");
-    // TODO: future, but instead of isValid panicking here I think parseDtb or the
-    // memoryMap itself should fail hard, so this check can move inside somewhere.
-    if (!memoryMap.isValid) HvPanic("[ERROR][DTB] Failed to parse Tree Blob");
-
-    VerifyBspAgainstDtb(dtb);
 
     Log::Println("[PMM] Attempting to bring up PMM");
     pmm::Init(memoryMap);
@@ -54,7 +48,7 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[HEAP] Successfully brought up kernel heap");
 
     Log::Println("[HostMmu] Attempting to bring up host MMU");
-    HostMmu::Init(DtbHostMmio(dtb));
+    HostMmu::Init(hostTree.GetHostMmio());
     Log::Println("[HostMmu] Successfully host MMU is brought up");
 
     Log::Println("[GIC] Attempting to bring up GICv2");
@@ -78,6 +72,7 @@ extern "C" void hmain(uintptr_t dtb) {
 
     Vm guest;
     const char* guestName { "Linux VM" };
+    TreeParser guestTree { loaded.guest.dtbHostPa };
     guest.Init(guestName,
             loaded.guest.guestIpaBase,
             loaded.guest.guestRamHostPa,
@@ -85,7 +80,7 @@ extern "C" void hmain(uintptr_t dtb) {
             1,
             loaded.guest.entryIpa,
             loaded.guest.dtbIpa,
-            DtbGuestMmio(loaded.guest.dtbHostPa));
+            guestTree.GetGuestMmio());
 
     Log::Println("[VM] Bringing up guest:{}", guest.GetName());
     Log::Println("[VM] {} Intialized", guest.GetName());

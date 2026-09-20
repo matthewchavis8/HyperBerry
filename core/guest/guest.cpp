@@ -1,5 +1,5 @@
 #include "guest.h"
-#include "core/dtb/fdt.h"
+#include "core/deviceTree/fdt.h"
 
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pageTable/pageTable.h"
