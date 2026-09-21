@@ -29,7 +29,7 @@ drivers/             uart, gic, timer
 lib/                 panic, strings, and header only utilities
 tests/integration/   board neutral suites
 tests/bsp/<board>/   board specific test sources
-tools/bspgen/        generates regs.inc from a board's device tree
+scripts/bspgen/      generates regs.inc from a board's device tree
 ```
 
 Libraries are five subsystems, layered. Each may depend only on those below it:
@@ -44,7 +44,7 @@ Code shape -- class layout, MMIO access, logging tiers, comment style -- lives i
 [docs/STYLES.md](docs/STYLES.md). This section is about the project's rules.
 
 **The device tree is the source of truth for addresses.** Do not hand write a
-value a tree already declares. Two paths exist. `tools/bspgen` reads a board's
+value a tree already declares. Two paths exist. `scripts/bspgen` reads a board's
 host device tree and emits `regs.inc` for the handful of addresses that must be
 compile time constants: the early console, which has to work before the tree is
 parsed, and the GIC bases the register tables are built from. Boot checks those
@@ -76,7 +76,7 @@ not `HbMm`. A prefix has to earn its place, which for a target name it does not.
 verification narrative, no "verified on QEMU", no line counts, no hedges about
 what was not tested, no commentary about comments in the code, and no account of
 approaches that were tried and abandoned. If it does not describe the change or
-its reason, cut it.
+its reason, cut it. Make sure to create bullet points of what is being changed.
 
 **No hyphens in prose.** Applies to commit messages, docs and comments. Keep them
 only inside literal identifiers such as `--gc-sections` or `arm,gic-400`, where

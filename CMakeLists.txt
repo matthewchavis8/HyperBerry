@@ -39,7 +39,7 @@ endif()
 if(NOT BUILD_TESTING)
   if(HB_LLVM_SYSROOT STREQUAL "")
     message(FATAL_ERROR
-      "HB_LLVM_SYSROOT must name the Arm newlib and libc++ sysroot. Run tools/toolchain/fetch_sysroot.py first.")
+      "HB_LLVM_SYSROOT must name the Arm newlib and libc++ sysroot. Run scripts/toolchain/fetch_sysroot.py first.")
   endif()
 
   if(NOT CMAKE_CXX_COMPILER_TARGET STREQUAL "aarch64-none-elf")
@@ -67,7 +67,7 @@ endif()
 function(hb_generate_regs board dtb outdir)
   find_package(Python3 REQUIRED COMPONENTS Interpreter)
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/bspgen/bspgen.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/bspgen/bspgen.py
             --dtb ${dtb} --board ${board} --out ${outdir}/regs.inc
     RESULT_VARIABLE rc
     OUTPUT_VARIABLE out
@@ -232,10 +232,10 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_program(CPIO cpio REQUIRED)
 find_program(DTC dtc REQUIRED)
 find_program(FDTPUT fdtput)
-set(ARCHIVE_TOOL ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py)
-set(BUSYBOX_FETCH_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/fetch.py)
-set(BUSYBOX_ROOTFS_TOOL ${CMAKE_SOURCE_DIR}/tools/busybox/rootfs.py)
-set(QEMU_KERNEL_FETCH_TOOL ${CMAKE_SOURCE_DIR}/tools/linux/fetch.py)
+set(ARCHIVE_TOOL ${CMAKE_SOURCE_DIR}/scripts/cpio/archive.py)
+set(BUSYBOX_FETCH_TOOL ${CMAKE_SOURCE_DIR}/scripts/busybox/fetch.py)
+set(BUSYBOX_ROOTFS_TOOL ${CMAKE_SOURCE_DIR}/scripts/busybox/rootfs.py)
+set(QEMU_KERNEL_FETCH_TOOL ${CMAKE_SOURCE_DIR}/scripts/linux/fetch.py)
 set(BUSYBOX_BINARY ${CMAKE_BINARY_DIR}/busybox/busybox)
 set(BUSYBOX_ROOTFS ${CMAKE_BINARY_DIR}/busybox/rootfs.cpio)
 set(QEMU_DEFAULT_GUEST_KERNEL ${CMAKE_BINARY_DIR}/linux/qemu/Image)

@@ -10,7 +10,7 @@ fi
 image=$1
 archive=$2
 sd_dev=$3
-root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 mount=/mnt/sdcard
 
 if [[ ! -f "$image" ]]; then

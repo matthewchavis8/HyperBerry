@@ -183,7 +183,7 @@ the freestanding helper library.
 Addresses come from a board's device tree, never from a literal in a header.
 Two paths exist, and which one a value takes depends on when it is needed.
 
-``tools/bspgen`` reads a board's host device tree at configure time and emits
+``scripts/bspgen`` reads a board's host device tree at configure time and emits
 ``regs.inc``, a plain ``#define`` per address and size. It covers only what has
 to be a compile time constant: the PL011 base, because the early console must
 work before any tree has been parsed, and the four GIC bases the driver's
