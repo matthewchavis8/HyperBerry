@@ -10,7 +10,7 @@
 #
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 OUT="build/lint"
@@ -47,6 +47,6 @@ run-clang-tidy -p "$DB" -quiet "$(IFS='|'; echo "^$ROOT/(${SRC_DIRS[*]})/.*\.(cp
   > "$OUT/tidy.txt" 2>/dev/null
 
 echo "[LOG] building SUMMARY.md"
-python3 scripts/lint_summary.py "$OUT" "$ROOT"
+python3 scripts/lint/summary.py "$OUT" "$ROOT"
 
 echo "[LOG] report written to $OUT/SUMMARY.md"

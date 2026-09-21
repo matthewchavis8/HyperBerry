@@ -78,9 +78,9 @@ find_program(CPIO cpio REQUIRED)
 set(CPIO_FIXTURE ${CMAKE_CURRENT_BINARY_DIR}/fixture.cpio)
 add_custom_command(
   OUTPUT ${CPIO_FIXTURE}
-  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/cpio/archive.py
           --root ${CMAKE_CURRENT_SOURCE_DIR}/cpio/root --out ${CPIO_FIXTURE}
-  DEPENDS cpio/root/message.txt ${CMAKE_SOURCE_DIR}/tools/cpio/archive.py
+  DEPENDS cpio/root/message.txt ${CMAKE_SOURCE_DIR}/scripts/cpio/archive.py
   VERBATIM
 )
 add_custom_target(cpio_fixture DEPENDS ${CPIO_FIXTURE})

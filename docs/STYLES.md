@@ -157,7 +157,7 @@ one character. Everything about how a line is built lives in `Log`.
 
 **The freestanding build uses Arm newlib and libc++.** Configure bare metal
 builds with `HB_LLVM_SYSROOT` pointing to the pinned `aarch64-none-elf` sysroot
-from `tools/toolchain/fetch_sysroot.py`. Clang 22 supplies C++26. The project
+from `scripts/toolchain/fetch_sysroot.py`. Clang 22 supplies C++26. The project
 keeps exceptions, RTTI, and thread APIs disabled. Use standard containers and
 utilities where they do not require an operating system service. HyperBerry
 still owns allocation, boot runtime, and hardware access.
