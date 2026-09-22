@@ -72,11 +72,13 @@ removed, and do not restate an address or value that the code already declares.
 **Name things what they are.** No vanity prefixes. The memory subsystem is `Mm`,
 not `HbMm`. A prefix has to earn its place, which for a target name it does not.
 
-**Commit messages state what changed and why. Nothing else.** No test counts, no
-verification narrative, no "verified on QEMU", no line counts, no hedges about
-what was not tested, no commentary about comments in the code, and no account of
-approaches that were tried and abandoned. If it does not describe the change or
-its reason, cut it. Make sure to create bullet points of what is being changed.
+**Every commit message states what changed and why.** Use the subject to name the
+change, then add a body with one `-` bullet for each meaningful change or reason.
+This applies to every commit, including single change commits. Include nothing
+else. Do not include test counts, verification narrative, "verified on QEMU",
+line counts, hedges about what was not tested, commentary about comments in the
+code, or an account of approaches that were tried and abandoned. If it does not
+describe the change or its reason, cut it.
 
 **No hyphens in prose.** Applies to commit messages, docs and comments. Keep them
 only inside literal identifiers such as `--gc-sections` or `arm,gic-400`, where

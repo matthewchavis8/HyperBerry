@@ -236,8 +236,8 @@ void Init(const MemoryMap& map) {
     reserveRegion(map.dtbBase, map.dtbSize);
     Log::Println("[PMM] Reserved: DTB");
 
-    if (map.bootArchiveSize != 0) {
-        reserveRegion(map.bootArchiveBase, map.bootArchiveSize);
+    if (map.cpioArchiveSize != 0) {
+        reserveRegion(map.cpioArchiveBase, map.cpioArchiveSize);
         Log::Println("[PMM] Reserved: boot archive");
     }
 

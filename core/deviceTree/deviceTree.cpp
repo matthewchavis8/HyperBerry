@@ -11,6 +11,7 @@
 #include "lib/panic/panic.h"
 
 #include <array>
+#include <algorithm>
 #include <stdint.h>
 #include <span>
 
@@ -23,21 +24,27 @@ constexpr uint32_t DEFAULT_ADDRESS_CELLS { 2 };
 constexpr uint32_t DEFAULT_SIZE_CELLS { 1 };
 constexpr uint32_t CELL_SIZE_BYTES { 4 };
 
-alignas(16) constexpr std::string_view kMemory { "memory", 6 };
-alignas(16) constexpr std::string_view kReservedMemory { "reserved-memory", 15 };
-alignas(16) constexpr std::string_view kChosen { "chosen", 6 };
-alignas(16) constexpr std::string_view kAtf { "atf", 3 };
-alignas(16) constexpr std::string_view kBl31 { "bl31", 4 };
-alignas(16) constexpr std::string_view kSecmon { "secmon", 6 };
-alignas(16) constexpr std::string_view kOptee { "optee", 5 };
-alignas(16) constexpr std::string_view kTee { "tee", 3 };
-alignas(16) constexpr std::string_view kReg { "reg", 3 };
-alignas(16) constexpr std::string_view kInitrdStart { "linux,initrd-start", 18 };
-alignas(16) constexpr std::string_view kInitrdEnd { "linux,initrd-end", 16 };
-alignas(16) constexpr std::string_view kAddressCells { "#address-cells", 14 };
-alignas(16) constexpr std::string_view kSizeCells { "#size-cells", 11 };
-alignas(16) constexpr std::string_view kRanges { "ranges", 6 };
-alignas(16) constexpr std::string_view kCompatible { "compatible", 10 };
+FDT decodeToken(uint32_t token) {
+    return static_cast<FDT>(token);
+}
+
+alignas(16) constexpr std::string_view kMemory { "memory" };
+alignas(16) constexpr std::string_view kReservedMemory { "reserved-memory" };
+alignas(16) constexpr std::string_view kChosen { "chosen" };
+alignas(16) constexpr std::string_view kAtf { "atf" };
+alignas(16) constexpr std::string_view kBl31 { "bl31" };
+alignas(16) constexpr std::string_view kSecmon { "secmon" };
+alignas(16) constexpr std::string_view kOptee { "optee" };
+alignas(16) constexpr std::string_view kTee { "tee" };
+alignas(16) constexpr std::string_view kReg { "reg" };
+alignas(16) constexpr std::string_view kInitrdStart { "linux,initrd-start" };
+alignas(16) constexpr std::string_view kInitrdEnd { "linux,initrd-end" };
+alignas(16) constexpr std::string_view kAddressCells { "#address-cells" };
+alignas(16) constexpr std::string_view kSizeCells { "#size-cells" };
+alignas(16) constexpr std::string_view kRanges { "ranges" };
+alignas(16) constexpr std::string_view kCompatible { "compatible" };
+
+using ByteSpan = std::span<const volatile uint8_t>;
 
 // Combine big endian Device Tree cells into one host endian number.
 uint64_t getCombinedCell(std::span<Cell> cells) {
@@ -54,7 +61,10 @@ uint64_t getInitrdAddress(std::span<Cell> cells) {
     return cells.size() == 2 ? getCombinedCell(cells) : Be32(cells[0]);
 }
 
-bool stringEquals(const volatile uint8_t* actual, std::string_view expected) {
+bool stringEquals(ByteSpan actual, std::string_view expected) {
+    if (actual.size() < expected.size() + 1)
+        return false;
+
     for (size_t i {}; i < expected.size(); ++i) {
         if (actual[i] != static_cast<uint8_t>(expected[i]))
             return false;
@@ -63,7 +73,10 @@ bool stringEquals(const volatile uint8_t* actual, std::string_view expected) {
     return actual[expected.size()] == 0;
 }
 
-bool stringStartsWith(const volatile uint8_t* actual, std::string_view expected) {
+bool stringStartsWith(ByteSpan actual, std::string_view expected) {
+    if (actual.size() < expected.size())
+        return false;
+
     for (size_t i {}; i < expected.size(); ++i) {
         if (actual[i] != static_cast<uint8_t>(expected[i]))
             return false;
@@ -72,40 +85,40 @@ bool stringStartsWith(const volatile uint8_t* actual, std::string_view expected)
     return true;
 }
 
-bool compatibleMatches(
-        const volatile uint8_t* list,
-        uint32_t len,
+bool matchesCompatible(
+        ByteSpan list,
         std::span<const std::string_view> compatibleCandidates) {
-    uint32_t off {};
-    while (off < len) {
-        const volatile uint8_t* entry { list + off };
-        uint32_t entryLen {};
-        while (off + entryLen < len && entry[entryLen] != 0) {
+
+    size_t off {};
+
+    while (off < list.size()) {
+        ByteSpan remaining { list.subspan(off) };
+        size_t entryLen {};
+
+        while (entryLen < remaining.size() && remaining[entryLen] != 0) {
             ++entryLen;
         }
 
-        for (size_t candidateIndex {}; candidateIndex < compatibleCandidates.size();
-                ++candidateIndex) {
-            const std::string_view candidate { compatibleCandidates[candidateIndex] };
+        for (size_t i {}; i < compatibleCandidates.size(); ++i) {
+            const std::string_view candidate { compatibleCandidates[i] };
 
-            if (candidate.size() != entryLen) {
+            if (candidate.size() != entryLen)
                 continue;
-            }
 
-            bool matches { true };
+            bool isMatch { true };
 
             for (uint32_t i {}; i < entryLen; ++i) {
-                if (entry[i] != candidate[i]) {
-                    matches = false;
+                if (remaining[i] != candidate[i]) {
+                    isMatch = false;
                     break;
                 }
             }
 
-            if (matches)
+            if (isMatch)
                 return true;
         }
 
-        off += entryLen < len - off ? entryLen + 1 : entryLen;
+        off += entryLen < remaining.size() ? entryLen + 1 : entryLen;
     }
     return false;
 }
@@ -113,34 +126,46 @@ bool compatibleMatches(
 struct BusLevel {
     uint32_t addressCells;
     uint32_t sizeCells;
-    const volatile uint32_t* ranges;
-    uint32_t rangesLen;
+    std::span<Cell> ranges;
     bool matched;
-    const volatile uint32_t* reg;
-    uint32_t regLen;
+    std::span<Cell> reg;
+};
+
+struct MemoryParseState {
+    bool memory {};
+    bool reserved {};
+    bool atf {};
+    bool chosen {};
+    bool foundMemory {};
+    uint64_t initrdStart {};
+    uint64_t initrdEnd {};
+    bool hasInitrdStart {};
+    bool hasInitrdEnd {};
+    uint32_t depth {};
 };
 
 uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
     for (uint32_t level { depth }; level > 0; --level) {
         const BusLevel& bus { stack[level - 1] };
 
-        if (bus.ranges == nullptr || bus.rangesLen == 0 || level < 2)
+        if (bus.ranges.empty() || level < 2)
             continue;
 
         uint32_t childCells { bus.addressCells };
         uint32_t parentCells { stack[level - 2].addressCells };
         uint32_t stride { (childCells + parentCells + bus.sizeCells) * CELL_SIZE_BYTES };
 
-        if (stride == 0 || bus.rangesLen % stride != 0)
+        if (stride == 0 || bus.ranges.size_bytes() % stride != 0)
             continue;
 
-        for (uint32_t off {}; off + stride <= bus.rangesLen; off += stride) {
-            const volatile uint32_t* entry { bus.ranges + off / CELL_SIZE_BYTES };
-            uint64_t child { getCombinedCell({ entry, childCells }) };
-            uint64_t parent { getCombinedCell({ entry + childCells, parentCells }) };
+        for (uint32_t off {}; off + stride <= bus.ranges.size_bytes(); off += stride) {
+            std::span<Cell> entry { bus.ranges.subspan(off / CELL_SIZE_BYTES) };
+            uint64_t child { getCombinedCell(entry.subspan(0, childCells)) };
+            uint64_t parent { getCombinedCell(entry.subspan(childCells, parentCells)) };
             uint64_t length {
-                getCombinedCell({ entry + childCells + parentCells, bus.sizeCells })
+                getCombinedCell(entry.subspan(childCells + parentCells, bus.sizeCells))
             };
+
             if (addr >= child && addr - child < length) {
                 addr = addr - child + parent;
                 break;
@@ -149,10 +174,12 @@ uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
     }
     return addr;
 }
+
 alignas(16) constexpr std::array<std::string_view, 2> kUartCompatible {
     "arm,pl011",
     "brcm,bcm2835-aux-uart",
 };
+
 alignas(16) constexpr std::array<std::string_view, 5> kGicCompatible {
     "arm,gic-400",
     "arm,cortex-a15-gic",
@@ -190,14 +217,12 @@ void TreeParser::validateHeader() const {
     while (cursor < structEnd) {
         if (structEnd - cursor < 4)
             HvPanic("[ERROR][DTB] truncated structure block");
-
-        uint32_t token { Be32(*reinterpret_cast<const volatile uint32_t*>(cursor)) };
+        FDT token { decodeToken(Be32(*reinterpret_cast<const volatile uint32_t*>(cursor))) };
         cursor += 4;
 
         if (hasEnded)
             HvPanic("[ERROR][DTB] data follows structure end");
-
-        if (token == static_cast<uint32_t>(FDT::BEGIN_NODE)) {
+        if (token == FDT::BEGIN_NODE) {
             const volatile uint8_t* name { cursor };
 
             while (cursor < structEnd && *cursor != 0) {
@@ -208,23 +233,21 @@ void TreeParser::validateHeader() const {
                 HvPanic("[ERROR][DTB] unterminated node name");
 
             ++cursor;
-            cursor = reinterpret_cast<const volatile uint8_t*>(
-                    FdtAlign(const_cast<const uint8_t*>(cursor), 0));
+            cursor = reinterpret_cast<const volatile uint8_t*>(FdtAlign(cursor, 0));
             ++depth;
 
             if (depth > MAX_DEPTH)
                 HvPanic("[ERROR][DTB] device tree nesting is too deep");
 
             (void)name;
-        } else if (token == static_cast<uint32_t>(FDT::END_NODE)) {
+        } else if (token == FDT::END_NODE) {
             if (depth == 0)
                 HvPanic("[ERROR][DTB] unmatched end node");
 
             --depth;
-        } else if (token == static_cast<uint32_t>(FDT::PROP)) {
+        } else if (token == FDT::PROP) {
             if (structEnd - cursor < 8)
                 HvPanic("[ERROR][DTB] truncated property header");
-
             uint32_t len { Be32(*reinterpret_cast<const volatile uint32_t*>(cursor)) };
             uint32_t nameOff { Be32(*reinterpret_cast<const volatile uint32_t*>(cursor + 4)) };
 
@@ -247,8 +270,8 @@ void TreeParser::validateHeader() const {
 
             if (cursor > structEnd)
                 HvPanic("[ERROR][DTB] truncated property data");
-        } else if (token == static_cast<uint32_t>(FDT::NOP)) {
-        } else if (token == static_cast<uint32_t>(FDT::END)) {
+        } else if (token == FDT::NOP) {
+        } else if (token == FDT::END) {
             if (depth != 0)
                 HvPanic("[ERROR][DTB] unclosed node");
 
@@ -270,87 +293,84 @@ MemoryMap TreeParser::ParseMemoryMap() const {
             m_dtb + Be32(hdr->structOff)) };
     const volatile uint8_t* strings { reinterpret_cast<const volatile uint8_t*>(
             m_dtb + Be32(hdr->stringsOff)) };
-    bool memory {};
-    bool reserved {};
-    bool atf {};
-    bool chosen {};
-    bool foundMemory {};
-    uint64_t start {};
-    uint64_t end {};
-    bool hasStart {};
-    bool hasEnd {};
-    uint32_t depth {};
+    const volatile uint8_t* structEnd { reinterpret_cast<const volatile uint8_t*>(
+            m_dtb + Be32(hdr->structOff) + Be32(hdr->sizeStructs)) };
+    MemoryParseState state {};
 
     while (true) {
-        switch (static_cast<FDT>(Be32(*tok++))) {
+        switch (decodeToken(Be32(*tok++))) {
             case FDT::BEGIN_NODE: {
                 const volatile uint8_t* name { reinterpret_cast<const volatile uint8_t*>(tok) };
                 uint32_t len {};
 
-                while (name[len] != 0) {
+                while (name + len < structEnd && name[len] != 0) {
                     ++len;
                 }
 
-                if (depth == 1) {
-                    memory = stringStartsWith(name, kMemory);
-                    reserved = stringEquals(name, kReservedMemory);
-                    chosen = stringEquals(name, kChosen);
-                } else if (depth == 2 && reserved) {
-                    atf = stringEquals(name, kAtf) || stringEquals(name, kBl31) ||
-                            stringEquals(name, kSecmon) || stringEquals(name, kOptee) ||
-                            stringEquals(name, kTee);
+                if (name + len == structEnd)
+                    HvPanic("[ERROR][DTB] unterminated node name");
+
+                ByteSpan nodeName { name, static_cast<size_t>(structEnd - name) };
+
+                if (state.depth == 1) {
+                    state.memory = stringStartsWith(nodeName, kMemory);
+                    state.reserved = stringEquals(nodeName, kReservedMemory);
+                    state.chosen = stringEquals(nodeName, kChosen);
+                } else if (state.depth == 2 && state.reserved) {
+                    state.atf = stringEquals(nodeName, kAtf) || stringEquals(nodeName, kBl31) ||
+                            stringEquals(nodeName, kSecmon) || stringEquals(nodeName, kOptee) ||
+                            stringEquals(nodeName, kTee);
                 }
-                tok = reinterpret_cast<const volatile uint32_t*>(
-                        FdtAlign(const_cast<const uint8_t*>(name), len + 1));
-                ++depth;
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(name, len + 1));
+                ++state.depth;
                 break;
             }
             case FDT::END_NODE:
-                --depth;
-                if (depth == 1) {
-                    memory = reserved = chosen = false;
-                } else if (depth == 2) {
-                    atf = false;
+                --state.depth;
+                if (state.depth == 1) {
+                    state.memory = state.reserved = state.chosen = false;
+                } else if (state.depth == 2) {
+                    state.atf = false;
                 }
                 break;
             case FDT::PROP: {
                 uint32_t len { Be32(tok[0]) };
                 uint32_t off { Be32(tok[1]) };
                 const volatile uint32_t* data { tok + 2 };
-                const volatile uint8_t* name { strings + off };
+                ByteSpan name { strings + off, Be32(hdr->sizeStrings) - off };
 
                 if (stringEquals(name, kReg) && len >= 16) {
-                    if (memory && !foundMemory) {
+                    if (state.memory && !state.foundMemory) {
                         map.memBase = getCombinedCell({ data, 2 });
                         map.memSize = getCombinedCell({ data + 2, 2 });
-                        foundMemory = true;
-                    } else if (atf) {
+                        state.foundMemory = true;
+                    } else if (state.atf) {
                         map.atfBase = getCombinedCell({ data, 2 });
                         map.atfSize = getCombinedCell({ data + 2, 2 });
                     }
-                } else if (chosen && depth == 2 && (len == 4 || len == 8)) {
+                } else if (state.chosen && state.depth == 2 && (len == 4 || len == 8)) {
                     if (stringEquals(name, kInitrdStart)) {
-                        start = getInitrdAddress({ data, len / sizeof(*data) });
-                        hasStart = true;
+                        state.initrdStart = getInitrdAddress({ data, len / sizeof(*data) });
+                        state.hasInitrdStart = true;
                     } else if (stringEquals(name, kInitrdEnd)) {
-                        end = getInitrdAddress({ data, len / sizeof(*data) });
-                        hasEnd = true;
+                        state.initrdEnd = getInitrdAddress({ data, len / sizeof(*data) });
+                        state.hasInitrdEnd = true;
                     }
                 }
 
-                tok = reinterpret_cast<const volatile uint32_t*>(
-                        FdtAlign(const_cast<const uint32_t*>(data), len));
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(data, len));
                 break;
             }
             case FDT::NOP:
                 break;
             case FDT::END:
-                if (!foundMemory)
+                if (!state.foundMemory)
                     HvPanic("[ERROR][DTB] memory is missing");
 
-                if (hasStart && hasEnd && end > start) {
-                    map.bootArchiveBase = start;
-                    map.bootArchiveSize = end - start;
+                if (state.hasInitrdStart && state.hasInitrdEnd &&
+                        state.initrdEnd > state.initrdStart) {
+                    map.cpioArchiveBase = state.initrdStart;
+                    map.cpioArchiveSize = state.initrdEnd - state.initrdStart;
                 }
                 return map;
             default:
@@ -359,10 +379,10 @@ MemoryMap TreeParser::ParseMemoryMap() const {
     }
 }
 
-DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatibles) const {
+DeviceNode TreeParser::FindDevice(std::span<const std::string_view> devices) const {
     validateHeader();
 
-    if (compatibles.empty())
+    if (devices.empty())
         return {};
 
     const volatile FdtHeader* hdr { reinterpret_cast<const volatile FdtHeader*>(m_dtb) };
@@ -370,31 +390,33 @@ DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatib
             m_dtb + Be32(hdr->structOff)) };
     const volatile uint8_t* strings { reinterpret_cast<const volatile uint8_t*>(
             m_dtb + Be32(hdr->stringsOff)) };
+    const volatile uint8_t* structEnd { reinterpret_cast<const volatile uint8_t*>(
+            m_dtb + Be32(hdr->structOff) + Be32(hdr->sizeStructs)) };
     BusLevel stack[MAX_DEPTH] {};
     uint32_t depth {};
 
     while (true) {
-        switch (static_cast<FDT>(Be32(*tok++))) {
+        switch (decodeToken(Be32(*tok++))) {
             case FDT::BEGIN_NODE: {
                 const volatile uint8_t* name { reinterpret_cast<const volatile uint8_t*>(tok) };
                 uint32_t len {};
 
-                while (name[len] != 0) {
+                while (name + len < structEnd && name[len] != 0) {
                     ++len;
                 }
 
-                tok = reinterpret_cast<const volatile uint32_t*>(
-                        FdtAlign(const_cast<const uint8_t*>(name), len + 1));
+                if (name + len == structEnd)
+                    HvPanic("[ERROR][DTB] unterminated node name");
+
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(name, len + 1));
 
                 if (depth < MAX_DEPTH)
                     stack[depth] = {
                         DEFAULT_ADDRESS_CELLS,
                         DEFAULT_SIZE_CELLS,
-                        nullptr,
-                        0,
+                        {},
                         false,
-                        nullptr,
-                        0
+                        {}
                     };
 
                 ++depth;
@@ -413,21 +435,22 @@ DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatib
                         depth ? stack[depth - 1].sizeCells : DEFAULT_SIZE_CELLS
                     };
                     uint32_t stride { (addressCells + sizeCells) * CELL_SIZE_BYTES };
-                    if (node.reg && stride && node.regLen % stride == 0) {
+                    if (!node.reg.empty() && stride && node.reg.size_bytes() % stride == 0) {
                         DeviceNode out {};
 
                         for (uint32_t off {};
-                                off + stride <= node.regLen && out.regionCount < DT_MAX_REGIONS;
+                                off + stride <= node.reg.size_bytes() &&
+                                out.regionCount < DT_MAX_REGIONS;
                                 off += stride) {
-                            const volatile uint32_t* entry { node.reg + off / CELL_SIZE_BYTES };
+                            std::span<Cell> entry { node.reg.subspan(off / CELL_SIZE_BYTES) };
                             out.regions[out.regionCount] = {
-                                translate(stack, depth, getCombinedCell({ entry, addressCells })),
-                                getCombinedCell({ entry + addressCells, sizeCells })
+                                translate(stack, depth, getCombinedCell(entry.subspan(0, addressCells))),
+                                getCombinedCell(entry.subspan(addressCells, sizeCells))
                             };
                             ++out.regionCount;
                         }
 
-                        out.found = true;
+                        out.isFound = true;
                         return out;
                     }
                 }
@@ -435,12 +458,12 @@ DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatib
             case FDT::PROP: {
                 uint32_t len { Be32(tok[0]) };
                 uint32_t off { Be32(tok[1]) };
-                const volatile uint32_t* data { tok + 2 };
+                std::span<Cell> data { tok + 2, len / CELL_SIZE_BYTES };
                 uint32_t level { depth ? depth - 1 : 0 };
 
                 if (level < MAX_DEPTH) {
                     BusLevel& node { stack[level] };
-                    const volatile uint8_t* name { strings + off };
+                    ByteSpan name { strings + off, Be32(hdr->sizeStrings) - off };
 
                     if (stringEquals(name, kAddressCells) && len >= 4) {
                         node.addressCells = Be32(data[0]);
@@ -448,18 +471,16 @@ DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatib
                         node.sizeCells = Be32(data[0]);
                     } else if (stringEquals(name, kRanges)) {
                         node.ranges = data;
-                        node.rangesLen = len;
                     } else if (stringEquals(name, kReg)) {
                         node.reg = data;
-                        node.regLen = len;
                     } else if (stringEquals(name, kCompatible) && len) {
-                        node.matched = compatibleMatches(
-                                reinterpret_cast<const volatile uint8_t*>(data), len, compatibles);
+                        node.matched = matchesCompatible(
+                                ByteSpan { reinterpret_cast<const volatile uint8_t*>(data.data()), len },
+                                devices);
                     }
                 }
 
-                tok = reinterpret_cast<const volatile uint32_t*>(
-                        FdtAlign(const_cast<const uint32_t*>(data), len));
+                tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(data.data(), len));
                 break;
             }
             case FDT::NOP:
@@ -472,42 +493,32 @@ DeviceNode TreeParser::FindCompatible(std::span<const std::string_view> compatib
     }
 }
 
-DeviceNode TreeParser::FindUart() const {
-    return FindCompatible(kUartCompatible);
-}
-
-DeviceNode TreeParser::FindGic() const {
-    return FindCompatible(kGicCompatible);
-}
-
 MmioMap TreeParser::GetHostMmio() const {
-    DeviceNode uart { FindUart() };
-    DeviceNode gic { FindGic() };
+    DeviceNode uart { FindDevice(kUartCompatible) };
+    DeviceNode gic { FindDevice(kGicCompatible) };
 
-    if (!uart.found || uart.regionCount == 0)
+    if (!uart.isFound || uart.regionCount == 0)
         HvPanic("[ERROR][DTB] host UART is missing");
 
-    if (!gic.found || gic.regionCount < 4)
+    if (!gic.isFound || gic.regionCount < 4)
         HvPanic("[ERROR][DTB] host GIC is missing required regions");
 
-    auto bspValueMatchesDeviceTree = [](uint64_t expected, uint64_t actual) {
-        return expected == actual;
+    constexpr std::array<uint64_t, 10> expected {
+        BSP_UART_BASE, BSP_UART_SIZE,
+        BSP_GIC_DISTRIBUTOR_BASE, BSP_GIC_DISTRIBUTOR_SIZE,
+        BSP_GIC_CPU_BASE, BSP_GIC_CPU_SIZE,
+        BSP_GIC_HV_BASE, BSP_GIC_HV_SIZE,
+        BSP_GIC_VCPU_BASE, BSP_GIC_VCPU_SIZE,
     };
-    bool isMatch { true };
-
+    const std::array<uint64_t, 10> actual {
+        uart.regions[0].base, uart.regions[0].size,
+        gic.regions[0].base, gic.regions[0].size,
+        gic.regions[1].base, gic.regions[1].size,
+        gic.regions[2].base, gic.regions[2].size,
+        gic.regions[3].base, gic.regions[3].size,
+    };
+    const bool isMatch { std::equal(expected.begin(), expected.end(), actual.begin()) };
     Uart::GetInstance().SetBase(uart.regions[0].base);
-    isMatch &= bspValueMatchesDeviceTree(BSP_UART_BASE, uart.regions[0].base);
-    isMatch &= bspValueMatchesDeviceTree(BSP_UART_SIZE, uart.regions[0].size);
-    isMatch &= bspValueMatchesDeviceTree(
-            BSP_GIC_DISTRIBUTOR_BASE, gic.regions[0].base);
-    isMatch &= bspValueMatchesDeviceTree(
-            BSP_GIC_DISTRIBUTOR_SIZE, gic.regions[0].size);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_CPU_BASE, gic.regions[1].base);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_CPU_SIZE, gic.regions[1].size);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_HV_BASE, gic.regions[2].base);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_HV_SIZE, gic.regions[2].size);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_VCPU_BASE, gic.regions[3].base);
-    isMatch &= bspValueMatchesDeviceTree(BSP_GIC_VCPU_SIZE, gic.regions[3].size);
 
     if (!isMatch)
         HvPanic("[ERROR][DTB] BSP constants do not match the firmware device tree");
@@ -530,10 +541,10 @@ MmioMap TreeParser::GetHostMmio() const {
 
 MmioMap TreeParser::GetGuestMmio() const {
     MmioMap map {};
-    DeviceNode gic { FindGic() };
-    DeviceNode uart { FindUart() };
+    DeviceNode gic { FindDevice(kGicCompatible) };
+    DeviceNode uart { FindDevice(kUartCompatible) };
 
-    if (!gic.found || !gic.regionCount) {
+    if (!gic.isFound || !gic.regionCount) {
         Log::Println("[DTB][WARN] guest tree has no GIC; guest gets no interrupt controller");
     } else {
         for (uint32_t i {}; i < gic.regionCount && i < 2; ++i) {
@@ -542,7 +553,7 @@ MmioMap TreeParser::GetGuestMmio() const {
         }
     }
 
-    if (!uart.found || !uart.regionCount) {
+    if (!uart.isFound || !uart.regionCount) {
         Log::Println("[DTB][WARN] guest tree has no PL011; guest console not mapped");
     } else {
         if (!map.AddPages(uart.regions[0].base, uart.regions[0].base, uart.regions[0].size))

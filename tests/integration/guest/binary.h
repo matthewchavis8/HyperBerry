@@ -14,7 +14,7 @@ class Binary {
 public:
     explicit Binary(const char* path) {
         const auto& map { TestRunner::BootMemoryMap() };
-        cpio::Archive archive { HostMmu::PaToVa(map.bootArchiveBase), map.bootArchiveSize };
+        cpio::Archive archive { HostMmu::PaToVa(map.cpioArchiveBase), map.cpioArchiveSize };
         cpio::File file {};
         if (!archive.Find(path, file) || !file.size) return;
         while (m_order < MAX_ORDER && (PAGE_SIZE << m_order) < file.size)

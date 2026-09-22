@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <cstdlib>
+#include <initializer_list>
 
 namespace uart_test_support {
 
@@ -141,6 +142,15 @@ public:
         Prop(nameOff, data);
     }
 
+    void PropCompatible(uint32_t nameOff, std::initializer_list<const char*> values) {
+        std::vector<uint8_t> data;
+        for (const char* value : values) {
+            while (*value) data.push_back(static_cast<uint8_t>(*value++));
+            data.push_back(0);
+        }
+        Prop(nameOff, data);
+    }
+
     void PropReg32(uint32_t nameOff, uint32_t base, uint32_t size) {
         pushBE32(3);
         pushBE32(12);
@@ -263,8 +273,8 @@ TEST(DeviceTreeParser, ChosenInitrdBecomesBootArchiveRegion) {
     MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
     EXPECT_TRUE(map.memSize != 0);
-    EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
-    EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
+    EXPECT_EQ(map.cpioArchiveBase, 0x20000000ULL);
+    EXPECT_EQ(map.cpioArchiveSize, 0x400000ULL);
 }
 
 TEST(DeviceTreeParser, ChosenInitrdSupports32BitAddressCells) {
@@ -288,8 +298,8 @@ TEST(DeviceTreeParser, ChosenInitrdSupports32BitAddressCells) {
     MemoryMap map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
 
     EXPECT_TRUE(map.memSize != 0);
-    EXPECT_EQ(map.bootArchiveBase, 0x20000000ULL);
-    EXPECT_EQ(map.bootArchiveSize, 0x400000ULL);
+    EXPECT_EQ(map.cpioArchiveBase, 0x20000000ULL);
+    EXPECT_EQ(map.cpioArchiveSize, 0x400000ULL);
 }
 
 TEST(DeviceTreeParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
@@ -315,8 +325,8 @@ TEST(DeviceTreeParser, ArchivePropertiesCanFollowMemoryAndAtfInEitherOrder) {
         b.end();
         auto blob { b.Build() };
         auto map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
-        EXPECT_EQ(map.bootArchiveBase, 0x20000000);
-        EXPECT_EQ(map.bootArchiveSize, 0x400000);
+        EXPECT_EQ(map.cpioArchiveBase, 0x20000000);
+        EXPECT_EQ(map.cpioArchiveSize, 0x400000);
     }
 }
 
@@ -338,8 +348,8 @@ TEST(DeviceTreeParser, InvalidArchiveEndpointsDoNotReserveMemory) {
         b.end();
         auto blob { b.Build() };
         auto map { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.ParseMemoryMap() };
-        EXPECT_EQ(map.bootArchiveBase, 0);
-        EXPECT_EQ(map.bootArchiveSize, 0);
+        EXPECT_EQ(map.cpioArchiveBase, 0);
+        EXPECT_EQ(map.cpioArchiveSize, 0);
     }
 }
 
@@ -433,19 +443,19 @@ TEST(DeviceTreeParser, FindsCompatibleUsingSpan) {
     uint32_t reg { b.AddString("reg") };
     b.BeginNode("");
     b.BeginNode("device@1000");
-    b.PropString(compatible, "test,device");
+    b.PropCompatible(compatible, { "other,device", "test,device" });
     b.PropReg32(reg, 0x1000, 0x100);
     b.EndNode();
     b.EndNode();
     b.end();
 
     auto blob { b.Build() };
-    constexpr std::string_view wanted[] { "test,device" };
+    constexpr std::string_view wanted[] { "missing,device", "test,device" };
     DeviceNode node {
-        TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.FindCompatible(wanted)
+        TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.FindDevice(wanted)
     };
 
-    ASSERT_TRUE(node.found);
+    ASSERT_TRUE(node.isFound);
     ASSERT_EQ(node.regionCount, 1U);
     EXPECT_EQ(node.regions[0].base, 0x1000U);
     EXPECT_EQ(node.regions[0].size, 0x100U);

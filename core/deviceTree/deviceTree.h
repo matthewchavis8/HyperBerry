@@ -24,8 +24,8 @@ struct alignas(16) MemoryMap {
     uint64_t atfSize;         // Size in bytes of the TF-A reserved region.
     uint64_t dtbBase;         // Base physical address of the DTB blob.
     uint64_t dtbSize;         // Total size in bytes of the DTB blob.
-    uint64_t bootArchiveBase; // Base PA of the firmware-loaded guest archive; zero if absent.
-    uint64_t bootArchiveSize; // Size of the firmware-loaded guest archive; zero if absent.
+    uint64_t cpioArchiveBase; // Base PA of the firmware-loaded guest archive; zero if absent.
+    uint64_t cpioArchiveSize; // Size of the firmware-loaded guest archive; zero if absent.
 };
 
 // Maximum `reg` regions recorded per discovered device.
@@ -43,13 +43,17 @@ struct DeviceRegion {
 struct alignas(16) DeviceNode {
     DeviceRegion regions[DT_MAX_REGIONS];
     uint32_t regionCount; // Number of regions decoded, capped at DT_MAX_REGIONS.
-    bool found;           // True when a node matched one of the compatible strings.
+    bool isFound;         // True when a node matched one of the compatible strings.
 };
 
+/// @brief Parses a firmware provided Flattened Device Tree blob.
+/// @ingroup core
 class TreeParser {
 private:
-    uintptr_t m_dtb {};
+    uintptr_t m_dtb {}; // Physical address of the bound DTB.
 
+    /// @brief Validate the DTB header and structure block.
+    /// @return None. Panics when the DTB is invalid.
     void validateHeader() const;
 
 public:
@@ -59,28 +63,20 @@ public:
 
     /// @brief Parse the boot memory layout from the DTB.
     /// @return The parsed memory map. Panics when the DTB is invalid or lacks memory.
-    MemoryMap ParseMemoryMap() const;
+    [[nodiscard]] MemoryMap ParseMemoryMap() const;
 
     /// @brief Find the first device matching a compatible string.
-    /// @param compatibles Compatible strings to match.
-    /// @return The matched device, or a node with @c found clear when absent.
-    DeviceNode FindCompatible(std::span<const std::string_view> compatibles) const;
-
-    /// @brief Find the host console UART.
-    /// @return The UART device, or a node with @c found clear when absent.
-    DeviceNode FindUart() const;
-
-    /// @brief Find the host interrupt controller.
-    /// @return The GIC device, or a node with @c found clear when absent.
-    DeviceNode FindGic() const;
+    /// @param devices Compatible strings to match.
+    /// @return The matched device, or a node with @c isFound clear when absent.
+    [[nodiscard]] DeviceNode FindDevice(std::span<const std::string_view> devices) const;
 
     /// @brief Build and validate host MMIO mappings.
     /// @return The host MMIO map. Panics when required hardware is absent or unmappable.
-    MmioMap GetHostMmio() const;
+    [[nodiscard]] MmioMap GetHostMmio() const;
 
     /// @brief Build guest MMIO mappings.
     /// @return The guest MMIO map. Optional absent devices produce warnings.
-    MmioMap GetGuestMmio() const;
+    [[nodiscard]] MmioMap GetGuestMmio() const;
 };
 
 #endif // __DEVICE_TREE_H__

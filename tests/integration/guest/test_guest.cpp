@@ -160,31 +160,31 @@ uint8_t* findMemoryRegData(void* dtb) {
 }
 
 const uint8_t* archiveBytes(const MemoryMap& map) {
-    return static_cast<const uint8_t*>(HostMmu::PaToVa(map.bootArchiveBase));
+    return static_cast<const uint8_t*>(HostMmu::PaToVa(map.cpioArchiveBase));
 }
 } // namespace
 
 static bool test_firmware_archive_region_present() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    return map.bootArchiveBase != 0 && map.bootArchiveSize != 0;
+    return map.cpioArchiveBase != 0 && map.cpioArchiveSize != 0;
 }
 
 static bool test_firmware_archive_validates() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    if (map.bootArchiveBase == 0 || map.bootArchiveSize == 0) return false;
+    if (map.cpioArchiveBase == 0 || map.cpioArchiveSize == 0) return false;
 
-    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
+    cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
 
     Log::Println("[CPIO] base={:x} size={:x} error={}",
-            map.bootArchiveBase,
-            map.bootArchiveSize,
+            map.cpioArchiveBase,
+            map.cpioArchiveSize,
             static_cast<unsigned>(archive.GetError()));
     return archive.GetError() == cpio::Error::NONE;
 }
 
 static bool test_load_linux_guest_from_firmware_archive() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
+    cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
     guest::LinuxFiles files {};
     if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
 
@@ -211,7 +211,7 @@ static bool test_load_linux_guest_from_firmware_archive() {
 
 static bool test_load_patches_guest_dtb() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    cpio::Archive archive { archiveBytes(map), map.bootArchiveSize };
+    cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
     guest::LinuxFiles files {};
     if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
 
