@@ -56,7 +56,7 @@ inline uint64_t Be64(uint64_t byte) {
 //
 // The structure block only guarantees 4-byte alignment, so every token and
 // property payload has to be re-aligned before the next read.
-inline uintptr_t FdtAlign(const void* ptr, uint32_t bytes) {
+inline uintptr_t FdtAlign(const volatile void* ptr, uint32_t bytes) {
     uintptr_t addr { reinterpret_cast<uintptr_t>(ptr) + bytes };
 
     return (addr + 3) & ~static_cast<uintptr_t>(3);

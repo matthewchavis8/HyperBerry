@@ -61,7 +61,7 @@ extern "C" void hmain(uintptr_t dtb) {
 #else
 
     Log::Println("[Guest] Attempting to load Linux guest archive");
-    cpio::Archive archive { HostMmu::PaToVa(memoryMap.bootArchiveBase), memoryMap.bootArchiveSize };
+    cpio::Archive archive { HostMmu::PaToVa(memoryMap.cpioArchiveBase), memoryMap.cpioArchiveSize };
     guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
     if (!loaded.isLoaded) {
         Log::Println("[Guest] load error={} archive error={}",

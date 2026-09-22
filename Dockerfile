@@ -28,7 +28,7 @@ RUN curl -L --fail --retry 3 https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh \
     && /tmp/llvm.sh 22 all \
     && rm /tmp/llvm.sh \
     && apt-get update \
-    && apt-get install -y --no-install-recommends clang-22 lld-22 llvm-22 \
+    && apt-get install -y --no-install-recommends clang-22 clangd-22 lld-22 llvm-22 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L --fail --retry 3 \
