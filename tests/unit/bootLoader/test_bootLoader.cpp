@@ -1,13 +1,19 @@
 #include <gtest/gtest.h>
 
-#include "core/guest/guest.h"
+#include "core/bootLoader/bootLoader.h"
 #include "core/deviceTree/deviceTree.h"
 #include "tests/unit/cpio/fixture.h"
 #include "core/mm/pmm/pmm.h"
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <vector>
+
+namespace uart_test_support {
+void Reset();
+const char* Buffer();
+} // namespace uart_test_support
 
 namespace {
 
@@ -207,6 +213,11 @@ std::vector<uint8_t> buildArchive(bool withInitrd = true, bool placeholders = tr
 }
 
 unsigned freed {};
+
+// The reason a failed step logged, captured by the Uart stub in test_deviceTree.cpp.
+bool logged(const char* reason) {
+    return std::strstr(uart_test_support::Buffer(), reason) != nullptr;
+}
 } // namespace
 
 namespace pmm {
@@ -223,57 +234,62 @@ namespace PageTable {
 void CleanDataCacheRange(const void*, size_t) {}
 } // namespace PageTable
 
-TEST(Guest, ResolvesFilesWithAndWithoutInitrd) {
+TEST(BootLoader, ResolvesFilesWithAndWithoutInitrd) {
     for (bool withInitrd : { false, true }) {
         auto bytes { buildArchive(withInitrd) };
         cpio::Archive archive { bytes.data(), bytes.size() };
-        guest::LinuxFiles files {};
-        ASSERT_EQ(guest::ReadLinuxFiles(archive, files), guest::LoadError::NONE);
+        GuestFiles files {};
+        ASSERT_TRUE(BootLoader { archive }.ReadFiles(files));
         EXPECT_EQ(files.kernel.size, kKernelSize);
         EXPECT_EQ(files.dtb.size, kDtbSize);
         EXPECT_EQ(files.initrd.size, withInitrd ? kInitrdSize : 0);
-        guest::GuestLayout layout {};
-        ASSERT_TRUE(guest::CalculateGuestLayout(files, layout));
-        EXPECT_EQ(layout.entryIpa, guest::LINUX_KERNEL_LOAD_IPA);
+        GuestLayout layout {};
+        ASSERT_TRUE(BootLoader::CalculateLayout(files, layout));
+        EXPECT_EQ(layout.kernelIpa, KERNEL_LOAD_IPA);
+        EXPECT_EQ(layout.ramHostPa, 0);
         EXPECT_EQ(layout.dtbIpa % 65536, 0);
         EXPECT_EQ(layout.initrdIpa % (2 * 1024 * 1024), 0);
         EXPECT_LE(layout.kernelIpa + layout.kernelSize, layout.dtbIpa);
         EXPECT_LE(layout.dtbIpa + layout.dtbSize,
-                withInitrd ? layout.initrdIpa : guest::GUEST_IPA_BASE + guest::GUEST_RAM_SIZE);
+                withInitrd ? layout.initrdIpa : GUEST_IPA_BASE + GUEST_RAM_SIZE);
     }
 }
 
-TEST(Guest, RejectsMissingOrEmptyRequiredFiles) {
+TEST(BootLoader, RejectsMissingOrEmptyRequiredFiles) {
     for (bool kernel : { false, true }) {
         std::vector<uint8_t> bytes;
         fixture::Entry(bytes, kernel ? "linux/Image" : "linux/guest.dtb", { 1 });
         fixture::Finish(bytes);
         cpio::Archive archive { bytes.data(), bytes.size() };
-        EXPECT_EQ(guest::LoadLinuxGuest(archive).error,
-                kernel ? guest::LoadError::MISSING_DTB : guest::LoadError::MISSING_KERNEL);
+        GuestLayout layout {};
+        uart_test_support::Reset();
+        EXPECT_FALSE(BootLoader { archive }.Load(layout));
+        EXPECT_TRUE(logged(kernel ? "linux/guest.dtb is missing" : "linux/Image is missing"));
     }
     std::vector<uint8_t> bytes;
     fixture::Entry(bytes, "linux/Image");
     fixture::Finish(bytes);
-    EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(bytes.data(), bytes.size())).error,
-            guest::LoadError::MISSING_KERNEL);
+    GuestLayout layout {};
+    uart_test_support::Reset();
+    EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
+    EXPECT_TRUE(logged("linux/Image is missing or empty"));
 }
 
-TEST(Guest, RejectsOverflowingLayouts) {
-    guest::LinuxFiles files { { nullptr, UINT64_MAX }, { nullptr, 64 }, {} };
-    guest::GuestLayout layout {};
-    EXPECT_FALSE(guest::CalculateGuestLayout(files, layout));
-    files.kernel.size = guest::GUEST_RAM_SIZE;
-    EXPECT_FALSE(guest::CalculateGuestLayout(files, layout));
+TEST(BootLoader, RejectsOverflowingLayouts) {
+    GuestFiles files { { nullptr, UINT64_MAX }, { nullptr, 64 }, {} };
+    GuestLayout layout {};
+    EXPECT_FALSE(BootLoader::CalculateLayout(files, layout));
+    files.kernel.size = GUEST_RAM_SIZE;
+    EXPECT_FALSE(BootLoader::CalculateLayout(files, layout));
     files.kernel.size = 64;
     files.dtb.size = UINT64_MAX;
-    EXPECT_FALSE(guest::CalculateGuestLayout(files, layout));
+    EXPECT_FALSE(BootLoader::CalculateLayout(files, layout));
     files.dtb.size = 64;
     files.initrd.size = UINT64_MAX;
-    EXPECT_FALSE(guest::CalculateGuestLayout(files, layout));
+    EXPECT_FALSE(BootLoader::CalculateLayout(files, layout));
 }
 
-TEST(Guest, RejectsEmptyDtbAndEmptyPresentInitrd) {
+TEST(BootLoader, RejectsEmptyDtbAndEmptyPresentInitrd) {
     for (bool emptyDtb : { false, true }) {
         std::vector<uint8_t> bytes;
         fixture::Entry(bytes, "linux/Image", { 1 });
@@ -281,39 +297,42 @@ TEST(Guest, RejectsEmptyDtbAndEmptyPresentInitrd) {
                 bytes, "linux/guest.dtb", emptyDtb ? std::vector<uint8_t> {} : buildGuestDtb());
         fixture::Entry(bytes, "linux/initrd");
         fixture::Finish(bytes);
-        EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(bytes.data(), bytes.size())).error,
-                emptyDtb ? guest::LoadError::MISSING_DTB : guest::LoadError::EMPTY_INITRD);
+        GuestLayout layout {};
+        uart_test_support::Reset();
+        EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
+        EXPECT_TRUE(logged(emptyDtb ? "linux/guest.dtb is missing" : "linux/initrd is empty"));
     }
 }
 
-TEST(Guest, CopiesFilesAndPatchesDtb) {
+TEST(BootLoader, CopiesFilesAndPatchesDtb) {
     for (bool withInitrd : { false, true }) {
-        std::vector<uint8_t> ram(guest::GUEST_RAM_SIZE);
+        std::vector<uint8_t> ram(GUEST_RAM_SIZE);
         gAllocPagesReturn = reinterpret_cast<uint64_t>(ram.data());
         auto bytes { buildArchive(withInitrd) };
         auto original { bytes };
         cpio::Archive archive { bytes.data(), bytes.size() };
-        guest::LinuxFiles files {};
-        ASSERT_EQ(guest::ReadLinuxFiles(archive, files), guest::LoadError::NONE);
-        guest::GuestLayout layout {};
-        ASSERT_TRUE(guest::CalculateGuestLayout(files, layout));
-        auto loaded { guest::LoadLinuxGuest(archive) };
-        ASSERT_TRUE(loaded.isLoaded);
+        BootLoader loader { archive };
+        GuestFiles files {};
+        ASSERT_TRUE(loader.ReadFiles(files));
+        GuestLayout expected {};
+        ASSERT_TRUE(BootLoader::CalculateLayout(files, expected));
+        GuestLayout layout {};
+        ASSERT_TRUE(loader.Load(layout));
         EXPECT_EQ(gAllocPagesOrder, 16);
-        EXPECT_EQ(loaded.guest.entryIpa, layout.entryIpa);
-        EXPECT_EQ(loaded.guest.dtbIpa, layout.dtbIpa);
+        EXPECT_EQ(layout.ramHostPa, gAllocPagesReturn);
+        EXPECT_EQ(layout.kernelIpa, expected.kernelIpa);
+        EXPECT_EQ(layout.dtbIpa, expected.dtbIpa);
         EXPECT_TRUE(std::equal(files.kernel.data,
                 files.kernel.data + files.kernel.size,
-                ram.data() + layout.kernelIpa - guest::GUEST_IPA_BASE));
+                ram.data() + layout.kernelIpa - GUEST_IPA_BASE));
         if (withInitrd)
             EXPECT_TRUE(std::equal(files.initrd.data,
                     files.initrd.data + files.initrd.size,
-                    ram.data() + layout.initrdIpa - guest::GUEST_IPA_BASE));
-        std::vector<uint8_t> dtb(
-                ram.begin() + layout.dtbIpa - guest::GUEST_IPA_BASE,
-                ram.begin() + layout.dtbIpa - guest::GUEST_IPA_BASE + layout.dtbSize);
-        EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg")), guest::GUEST_IPA_BASE);
-        EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg") + 8), guest::GUEST_RAM_SIZE);
+                    ram.data() + layout.initrdIpa - GUEST_IPA_BASE));
+        std::vector<uint8_t> dtb(ram.begin() + layout.dtbIpa - GUEST_IPA_BASE,
+                ram.begin() + layout.dtbIpa - GUEST_IPA_BASE + layout.dtbSize);
+        EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg")), GUEST_IPA_BASE);
+        EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg") + 8), GUEST_RAM_SIZE);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "linux,initrd-start")), layout.initrdIpa);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "linux,initrd-end")),
                 layout.initrdIpa + layout.initrdSize);
@@ -321,18 +340,21 @@ TEST(Guest, CopiesFilesAndPatchesDtb) {
     }
 }
 
-TEST(Guest, ReleasesRamOnInvalidDtb) {
-    std::vector<uint8_t> ram(guest::GUEST_RAM_SIZE);
+TEST(BootLoader, ReleasesRamOnInvalidDtb) {
+    std::vector<uint8_t> ram(GUEST_RAM_SIZE);
     gAllocPagesReturn = reinterpret_cast<uint64_t>(ram.data());
     auto bytes { buildArchive(true, false) };
     freed = 0;
-    EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(bytes.data(), bytes.size())).error,
-            guest::LoadError::GUEST_DTB_PATCH_FAILED);
+    GuestLayout layout {};
+    uart_test_support::Reset();
+    EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
+    EXPECT_TRUE(logged("guest DTB"));
     EXPECT_EQ(freed, 1);
+    EXPECT_EQ(layout.ramHostPa, 0);
 }
 
-TEST(Guest, RejectsMalformedDtbBoundsAndTokens) {
-    std::vector<uint8_t> ram(guest::GUEST_RAM_SIZE);
+TEST(BootLoader, RejectsMalformedDtbBoundsAndTokens) {
+    std::vector<uint8_t> ram(GUEST_RAM_SIZE);
     gAllocPagesReturn = reinterpret_cast<uint64_t>(ram.data());
     for (unsigned offset : { 4U, 8U, 12U, 32U, 36U, 56U }) {
         auto bytes { buildArchive() };
@@ -342,17 +364,22 @@ TEST(Guest, RejectsMalformedDtbBoundsAndTokens) {
         for (unsigned i {}; i < 4; ++i)
             bytes[start + offset + i] = 0xff;
         freed = 0;
-        EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(bytes.data(), bytes.size())).error,
-                guest::LoadError::GUEST_DTB_PATCH_FAILED);
+        GuestLayout layout {};
+        uart_test_support::Reset();
+        EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
+        EXPECT_TRUE(logged("guest DTB"));
         EXPECT_EQ(freed, 1);
     }
 }
 
-TEST(Guest, ReportsInvalidArchiveAndAllocationFailure) {
-    EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(nullptr, 0)).error,
-            guest::LoadError::INVALID_ARCHIVE);
+TEST(BootLoader, ReportsInvalidArchiveAndAllocationFailure) {
+    GuestLayout layout {};
+    uart_test_support::Reset();
+    EXPECT_FALSE(BootLoader { cpio::Archive(nullptr, 0) }.Load(layout));
+    EXPECT_TRUE(logged("archive is invalid"));
     auto bytes { buildArchive() };
     gAllocPagesReturn = 0;
-    EXPECT_EQ(guest::LoadLinuxGuest(cpio::Archive(bytes.data(), bytes.size())).error,
-            guest::LoadError::GUEST_RAM_ALLOCATION_FAILED);
+    uart_test_support::Reset();
+    EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
+    EXPECT_TRUE(logged("cannot allocate guest RAM"));
 }

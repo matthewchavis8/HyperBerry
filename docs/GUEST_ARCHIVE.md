@@ -87,10 +87,11 @@ The Raspberry Pi flash targets build and copy the matching archive.
 
 ## Loading guests
 
-The Linux loader allocates a contiguous 256 MiB guest RAM region at guest IPA
-zero. It copies the kernel to IPA `0x200000`, places the optional initrd below
-the top of RAM with 2 MiB alignment, and places the DTB below it with 64 KiB
-alignment. Overlapping or overflowing layouts fail.
+`BootLoader` in `core/bootLoader` allocates a contiguous 256 MiB guest RAM
+region at guest IPA `0x40000000`. It copies the kernel to IPA `0x40200000`,
+places the optional initrd below the top of RAM with 2 MiB alignment, and
+places the DTB below it with 64 KiB alignment. Overlapping or overflowing
+layouts fail.
 
 The DTB must provide a 16 byte `memory/reg` and 8 byte
 `/chosen/linux,initrd-start` and `linux,initrd-end` placeholders.

@@ -7,7 +7,7 @@ set(SHARED_TESTS
   pmm/test_pmm.cpp
   mmu/test_mmu.cpp
   guestMmu/test_guestMmu.cpp
-  guest/test_guest.cpp
+  bootLoader/test_bootLoader.cpp
   vcpu/test_vcpu.cpp
   vcpu/test_vectors.S
   gic/test_gic.cpp

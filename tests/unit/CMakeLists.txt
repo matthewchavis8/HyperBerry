@@ -17,8 +17,8 @@ add_executable(hyperberry_unit_tests
 
   cpio/test_cpio.cpp
   ${CMAKE_SOURCE_DIR}/lib/cpio/cpio.cpp
-  guest/test_guest.cpp
-  ${CMAKE_SOURCE_DIR}/core/guest/guest.cpp
+  bootLoader/test_bootLoader.cpp
+  ${CMAKE_SOURCE_DIR}/core/bootLoader/bootLoader.cpp
 
   vm/test_vm.cpp
   ${CMAKE_SOURCE_DIR}/core/vm/vm.cpp
