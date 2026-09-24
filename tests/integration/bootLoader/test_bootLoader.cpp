@@ -1,7 +1,7 @@
-// @file test_guest.cpp
-// @brief Integration tests for firmware-loaded guest boot archives.
+// @file test_bootLoader.cpp
+// @brief Integration tests for loading the Linux guest from the firmware archive.
 
-#include "core/guest/guest.h"
+#include "core/bootLoader/bootLoader.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/mm/pmm/pmm.h"
 #include "tests/integration/suite.h"
@@ -185,69 +185,61 @@ static bool test_firmware_archive_validates() {
 static bool test_load_linux_guest_from_firmware_archive() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
     cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
-    guest::LinuxFiles files {};
-    if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
+    BootLoader loader { archive };
+    GuestFiles files {};
+    if (!loader.ReadFiles(files)) return false;
 
-    guest::GuestLayout layout {};
-    if (!guest::CalculateGuestLayout(files, layout)) return false;
+    GuestLayout expected {};
+    if (!BootLoader::CalculateLayout(files, expected)) return false;
 
-    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
-    if (!loaded.isLoaded) return false;
+    GuestLayout layout {};
+    if (!loader.Load(layout)) return false;
 
-    const uint8_t* kernel { static_cast<const uint8_t*>(HostMmu::PaToVa(
-            loaded.guest.guestRamHostPa + (layout.kernelIpa - layout.guestIpaBase))) };
+    const uint8_t* kernel { static_cast<const uint8_t*>(
+            HostMmu::PaToVa(layout.IpaToHostPa(layout.kernelIpa))) };
     const uint8_t* archiveKernel { files.kernel.data };
 
     bool copied { kernel[0] == archiveKernel[0] &&
         kernel[files.kernel.size - 1] == archiveKernel[files.kernel.size - 1] };
-    bool metadata { loaded.error == guest::LoadError::NONE &&
-        loaded.guest.guestIpaBase == layout.guestIpaBase &&
-        loaded.guest.guestRamSize == layout.guestRamSize &&
-        loaded.guest.entryIpa == layout.entryIpa && loaded.guest.dtbIpa == layout.dtbIpa };
+    bool metadata { layout.ramHostPa != 0 && layout.kernelIpa == expected.kernelIpa &&
+        layout.dtbIpa == expected.dtbIpa && layout.initrdIpa == expected.initrdIpa };
 
-    pmm::FreePages(loaded.guest.guestRamHostPa, 16);
+    pmm::FreePages(layout.ramHostPa, 16);
     return copied && metadata;
 }
 
 static bool test_load_patches_guest_dtb() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
     cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
-    guest::LinuxFiles files {};
-    if (guest::ReadLinuxFiles(archive, files) != guest::LoadError::NONE) return false;
+    GuestLayout layout {};
+    if (!BootLoader { archive }.Load(layout)) return false;
 
-    guest::GuestLayout layout {};
-    if (!guest::CalculateGuestLayout(files, layout)) return false;
-
-    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
-    if (!loaded.isLoaded) return false;
-
-    void* dtb { HostMmu::PaToVa(
-            loaded.guest.guestRamHostPa + (layout.dtbIpa - layout.guestIpaBase)) };
+    void* dtb { HostMmu::PaToVa(layout.IpaToHostPa(layout.dtbIpa)) };
     uint8_t* memoryReg { findMemoryRegData(dtb) };
     uint8_t* initrdStart { findPropData(dtb, "linux,initrd-start") };
     uint8_t* initrdEnd { findPropData(dtb, "linux,initrd-end") };
 
     bool patched { memoryReg != nullptr && initrdStart != nullptr && initrdEnd != nullptr &&
-        readBe64Cells(memoryReg) == layout.guestIpaBase &&
-        readBe64Cells(memoryReg + 8) == layout.guestRamSize &&
+        readBe64Cells(memoryReg) == GUEST_IPA_BASE &&
+        readBe64Cells(memoryReg + 8) == GUEST_RAM_SIZE &&
         readBe64Cells(initrdStart) == layout.initrdIpa &&
         readBe64Cells(initrdEnd) == layout.initrdIpa + layout.initrdSize };
 
-    pmm::FreePages(loaded.guest.guestRamHostPa, 16);
+    pmm::FreePages(layout.ramHostPa, 16);
     return patched;
 }
 
-static const TestCase kGuestCases[] {
+static const TestCase kBootLoaderCases[] {
     { "firmware_archive_region_present", test_firmware_archive_region_present },
     { "firmware_archive_validates", test_firmware_archive_validates },
     { "load_linux_guest_from_firmware_archive", test_load_linux_guest_from_firmware_archive },
     { "load_patches_guest_dtb", test_load_patches_guest_dtb },
 };
 
-static const TestSuite kGuestSuite {
-    "GuestHarness",
-    kGuestCases,
+static const TestSuite kBootLoaderSuite {
+    "BootLoaderHarness",
+    kBootLoaderCases,
     4,
 };
 
-REGISTER_SUITE(kGuestSuite);
+REGISTER_SUITE(kBootLoaderSuite);

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BINARY_H__
+#define __BINARY_H__
 
 #include "lib/cpio/cpio.h"
 #include "lib/strings/strings.h"
@@ -49,3 +50,5 @@ public:
     }
 };
 } // namespace test
+
+#endif // !__BINARY_H__

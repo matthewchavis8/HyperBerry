@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CPIO_H__
+#define __CPIO_H__
 
 #include <stdint.h>
 
@@ -44,3 +45,5 @@ public:
     bool Find(const char* path, File& file) const;
 };
 } // namespace cpio
+
+#endif // !__CPIO_H__

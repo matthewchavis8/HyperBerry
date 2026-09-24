@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __FIXTURE_H__
+#define __FIXTURE_H__
 
 #include <cstdio>
 #include <string>
@@ -39,3 +40,5 @@ inline void Finish(std::vector<uint8_t>& bytes) {
     Entry(bytes, "TRAILER!!!", {}, 0);
 }
 } // namespace fixture
+
+#endif // !__FIXTURE_H__

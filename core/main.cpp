@@ -8,7 +8,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/heap/heap.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
-#include "core/guest/guest.h"
+#include "core/bootLoader/bootLoader.h"
 #include "core/vm/vm.h"
 #include "lib/cxxrt/cxxrt.h"
 #include "lib/log/log.h"
@@ -62,24 +62,24 @@ extern "C" void hmain(uintptr_t dtb) {
 
     Log::Println("[Guest] Attempting to load Linux guest archive");
     cpio::Archive archive { HostMmu::PaToVa(memoryMap.cpioArchiveBase), memoryMap.cpioArchiveSize };
-    guest::LoadResult loaded { guest::LoadLinuxGuest(archive) };
-    if (!loaded.isLoaded) {
-        Log::Println("[Guest] load error={} archive error={}",
-                static_cast<unsigned>(loaded.error), static_cast<unsigned>(archive.GetError()));
+    BootLoader loader { archive };
+    GuestLayout layout {};
+    if (!loader.Load(layout)) {
+        Log::Println("[Guest] archive error={}", static_cast<unsigned>(archive.GetError()));
         HvPanic("[ERROR][VM] Failed to spin up Linux VM");
     }
     Log::Println("[Guest] Linux guest archive loaded");
 
     Vm guest;
     const char* guestName { "Linux VM" };
-    TreeParser guestTree { loaded.guest.dtbHostPa };
+    TreeParser guestTree { layout.IpaToHostPa(layout.dtbIpa) };
     guest.Init(guestName,
-            loaded.guest.guestIpaBase,
-            loaded.guest.guestRamHostPa,
-            loaded.guest.guestRamSize,
+            GUEST_IPA_BASE,
+            layout.ramHostPa,
+            GUEST_RAM_SIZE,
             1,
-            loaded.guest.entryIpa,
-            loaded.guest.dtbIpa,
+            layout.kernelIpa,
+            layout.dtbIpa,
             guestTree.GetGuestMmio());
 
     Log::Println("[VM] Bringing up guest:{}", guest.GetName());
