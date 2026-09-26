@@ -20,4 +20,4 @@ exec docker run --rm -i \
   --env HOME=/tmp \
   --volume "$root:/workspace" \
   --workdir /workspace \
-  "$image" clangd-22 "$@"
+  "$image" clangd-22 --path-mappings="$root=/workspace" "$@"
