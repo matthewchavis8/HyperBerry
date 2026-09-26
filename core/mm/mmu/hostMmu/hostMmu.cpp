@@ -7,19 +7,14 @@
 #include "hostMmu.h"
 
 namespace {
+constexpr uint32_t STAGE1_START_LEVEL { 0 };
+constexpr uint64_t STAGE1_ROOT_INDEX_MASK { 0x1FFULL };
+
 uint64_t* l0_table;
 
-constexpr PageTable::WalkConfig kStage1Walk {
-    0,
-    0x1FFULL,
-    true,
-};
-
-constexpr PageTable::WalkConfig kStage1Lookup {
-    0,
-    0x1FFULL,
-    false,
-};
+PageTable stage1Table() {
+    return { l0_table, STAGE1_START_LEVEL, STAGE1_ROOT_INDEX_MASK };
+}
 } // namespace
 
 namespace HostMmu {
@@ -68,7 +63,7 @@ void Init(const MmioMap& devices) {
 
 void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte { PageTable::Walk(l0_table, va + off, kStage1Walk) };
+        uint64_t* pte { stage1Table().Walk(va + off, true) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::mapRange walk failed");
             break;
@@ -79,7 +74,7 @@ void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
 
 void UnmapRange(uint64_t va, uint64_t size) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte { PageTable::Walk(l0_table, va + off, kStage1Lookup) };
+        uint64_t* pte { stage1Table().Walk(va + off, false) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::unmapRange walk failed");
             break;
