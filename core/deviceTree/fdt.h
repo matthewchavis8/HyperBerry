@@ -9,6 +9,7 @@
 #ifndef __FDT_H__
 #define __FDT_H__
 
+#include <bit>
 #include <cstdint>
 
 // @brief Flattened Device Tree token values used in the structure block.
@@ -43,12 +44,12 @@ struct FdtProp {
 
 // @brief Convert a 32-bit big-endian DTB field to host endianness.
 inline uint32_t Be32(uint32_t byte) {
-    return __builtin_bswap32(byte);
+    return std::byteswap(byte);
 }
 
 // @brief Convert a 64-bit big-endian DTB field to host endianness.
 inline uint64_t Be64(uint64_t byte) {
-    return __builtin_bswap64(byte);
+    return std::byteswap(byte);
 }
 
 // @brief Advance past @p bytes and round up to the next 32-bit boundary.
