@@ -9,7 +9,7 @@
 
 #include <bit>
 #include <memory>
-#include <stddef.h>
+#include <cstddef>
 
 namespace {
 

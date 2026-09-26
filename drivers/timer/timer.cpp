@@ -3,7 +3,7 @@
 // @ingroup drivers
 
 #include "timer.h"
-#include <stdint.h>
+#include <cstdint>
 
 // Counter frequency register — Hz at which CNTVCT_EL0 increments.
 static inline uint64_t readCntFrqEl0() {

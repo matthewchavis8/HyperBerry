@@ -9,7 +9,7 @@
 #ifndef __BOOT_LOADER_H__
 #define __BOOT_LOADER_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "lib/cpio/cpio.h"
 

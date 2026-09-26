@@ -5,7 +5,7 @@
 #ifndef __SMCCC_H__
 #define __SMCCC_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace SMCCC {
 

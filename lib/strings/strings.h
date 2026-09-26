@@ -9,8 +9,8 @@
 #ifndef __STRINGS_H__
 #define __STRINGS_H__
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 extern "C" {
 // @brief Copy a byte range from one memory region to another.

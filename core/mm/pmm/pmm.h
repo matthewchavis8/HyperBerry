@@ -11,9 +11,8 @@
 #ifndef __PMM_H__
 #define __PMM_H__
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstddef>
 
 #include "core/deviceTree/deviceTree.h"
 

@@ -15,8 +15,8 @@
 
 #include "core/mm/pmm/pmm.h"
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 #if __has_include(<new>)
 #include <new>

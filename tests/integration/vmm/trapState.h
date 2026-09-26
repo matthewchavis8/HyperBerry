@@ -7,7 +7,7 @@
 #ifndef __TRAP_STATE_H__
 #define __TRAP_STATE_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 struct TestExceptionState {
     bool isCalled;  // Handler was entered

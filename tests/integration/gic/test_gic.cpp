@@ -7,7 +7,7 @@
 #include "lib/log/log.h"
 #include "tests/integration/suite.h"
 #include "tests/integration/guest/binary.h"
-#include <stdint.h>
+#include <cstdint>
 
 extern "C" {
 volatile uint64_t gTestGicVectorExitKind { 0 };

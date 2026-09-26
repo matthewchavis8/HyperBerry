@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace fixture {
 inline void Field(std::vector<uint8_t>& bytes, size_t offset, uint32_t value) {

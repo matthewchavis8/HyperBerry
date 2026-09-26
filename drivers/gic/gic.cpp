@@ -4,7 +4,7 @@
 #include "gic.h"
 #include "lib/mmio/mmio.h"
 #include "regs.inc"
-#include <stdint.h>
+#include <cstdint>
 
 namespace {
 // Seeded from the values generated out of the board's host device tree so the

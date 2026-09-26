@@ -14,7 +14,7 @@
 #include "lib/log/log.h"
 #include "lib/panic/panic.h"
 #include "drivers/gic/gic.h"
-#include "stddef.h"
+#include <cstddef>
 #include "deviceTree/deviceTree.h"
 
 #ifdef INTEGRATION_TEST

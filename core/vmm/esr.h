@@ -5,7 +5,7 @@
 #ifndef __ESR_H__
 #define __ESR_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include <array>
 
 // ESR_EL2.EC, the exception class in bits [31:26]

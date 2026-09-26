@@ -11,7 +11,7 @@
 #ifndef __UART_H__
 #define __UART_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 // @brief PL011 register offsets from the active base address.
 // @ingroup drivers_uart

@@ -9,7 +9,7 @@
 #ifndef __FDT_H__
 #define __FDT_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 // @brief Flattened Device Tree token values used in the structure block.
 enum class FDT : uint32_t {
