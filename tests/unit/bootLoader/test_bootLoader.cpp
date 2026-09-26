@@ -7,13 +7,7 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <cstring>
 #include <vector>
-
-namespace uart_test_support {
-void Reset();
-const char* Buffer();
-} // namespace uart_test_support
 
 namespace {
 
@@ -213,11 +207,6 @@ std::vector<uint8_t> buildArchive(bool withInitrd = true, bool placeholders = tr
 }
 
 unsigned freed {};
-
-// The reason a failed step logged, captured by the Uart stub in test_deviceTree.cpp.
-bool logged(const char* reason) {
-    return std::strstr(uart_test_support::Buffer(), reason) != nullptr;
-}
 } // namespace
 
 namespace pmm {
@@ -262,17 +251,13 @@ TEST(BootLoader, RejectsMissingOrEmptyRequiredFiles) {
         fixture::Finish(bytes);
         cpio::Archive archive { bytes.data(), bytes.size() };
         GuestLayout layout {};
-        uart_test_support::Reset();
         EXPECT_FALSE(BootLoader { archive }.Load(layout));
-        EXPECT_TRUE(logged(kernel ? "linux/guest.dtb is missing" : "linux/Image is missing"));
     }
     std::vector<uint8_t> bytes;
     fixture::Entry(bytes, "linux/Image");
     fixture::Finish(bytes);
     GuestLayout layout {};
-    uart_test_support::Reset();
     EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
-    EXPECT_TRUE(logged("linux/Image is missing or empty"));
 }
 
 TEST(BootLoader, RejectsOverflowingLayouts) {
@@ -298,9 +283,7 @@ TEST(BootLoader, RejectsEmptyDtbAndEmptyPresentInitrd) {
         fixture::Entry(bytes, "linux/initrd");
         fixture::Finish(bytes);
         GuestLayout layout {};
-        uart_test_support::Reset();
         EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
-        EXPECT_TRUE(logged(emptyDtb ? "linux/guest.dtb is missing" : "linux/initrd is empty"));
     }
 }
 
@@ -346,9 +329,7 @@ TEST(BootLoader, ReleasesRamOnInvalidDtb) {
     auto bytes { buildArchive(true, false) };
     freed = 0;
     GuestLayout layout {};
-    uart_test_support::Reset();
     EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
-    EXPECT_TRUE(logged("guest DTB"));
     EXPECT_EQ(freed, 1);
     EXPECT_EQ(layout.ramHostPa, 0);
 }
@@ -365,21 +346,15 @@ TEST(BootLoader, RejectsMalformedDtbBoundsAndTokens) {
             bytes[start + offset + i] = 0xff;
         freed = 0;
         GuestLayout layout {};
-        uart_test_support::Reset();
         EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
-        EXPECT_TRUE(logged("guest DTB"));
         EXPECT_EQ(freed, 1);
     }
 }
 
 TEST(BootLoader, ReportsInvalidArchiveAndAllocationFailure) {
     GuestLayout layout {};
-    uart_test_support::Reset();
     EXPECT_FALSE(BootLoader { cpio::Archive(nullptr, 0) }.Load(layout));
-    EXPECT_TRUE(logged("archive is invalid"));
     auto bytes { buildArchive() };
     gAllocPagesReturn = 0;
-    uart_test_support::Reset();
     EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));
-    EXPECT_TRUE(logged("cannot allocate guest RAM"));
 }

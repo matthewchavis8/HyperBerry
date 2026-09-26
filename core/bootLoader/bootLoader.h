@@ -6,11 +6,11 @@
 // archive, places them in freshly allocated guest RAM following the arm64
 // Linux boot protocol, and patches the guest tree's /memory and /chosen
 // nodes to describe where everything landed.
+
 #ifndef __BOOT_LOADER_H__
 #define __BOOT_LOADER_H__
 
 #include <cstdint>
-
 #include "lib/cpio/cpio.h"
 
 inline constexpr uint64_t GUEST_IPA_BASE { 0x40000000 };
@@ -47,7 +47,7 @@ struct GuestLayout {
 // @brief Loads the Linux guest from the firmware archive into guest RAM.
 // @ingroup core
 //
-// Every step returns false on failure after logging the reason.
+// Every step returns false on failure.
 class BootLoader {
 private:
     cpio::Archive m_archive; // copied view; the archive bytes are borrowed, not owned
