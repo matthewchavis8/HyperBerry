@@ -521,7 +521,7 @@ MmioMap TreeParser::GetHostMmio() const {
     if (!isMatch)
         HvPanic("[ERROR][DTB] BSP constants do not match the firmware device tree");
 
-    Gic::SetBases(
+    Gic::GetInstance().SetBases(
             gic.regions[0].base, gic.regions[1].base, gic.regions[2].base, gic.regions[3].base);
 
     MmioMap map {};

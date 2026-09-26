@@ -25,7 +25,7 @@ namespace GicReg {
 } // namespace GicReg
 
 volatile uint32_t* distReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::GetDistBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetInstance().GetDistBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -127,7 +127,7 @@ bool waitForTimerCallback() {
 extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
     (void)ctx;
 
-    Gic::IrqAck ack { Gic::AckIrq() };
+    Gic::IrqAck ack { Gic::GetInstance().AckIrq() };
     gLastIrqId = ack.id;
 
     if (ack.id == Timer::IRQ && gActiveTimer != nullptr) {
@@ -135,7 +135,7 @@ extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
         gActiveTimer->HandleIrq();
     }
 
-    Gic::EndIrq(ack);
+    Gic::GetInstance().EndIrq(ack);
 }
 
 static bool test_frequency_and_counter_progress() {
@@ -187,11 +187,11 @@ static bool test_physical_timer_irq_invokes_callback() {
     gLastIrqId = 0;
     gCallbackContextMatched = false;
 
-    Gic::Init();
+    Gic::GetInstance().Reset();
     configureTimerPpiGroup0();
     enableDistributorGroups();
-    Gic::SetPriorityLevel(Timer::IRQ, 0x80);
-    Gic::EnableIrq(Timer::IRQ);
+    Gic::GetInstance().SetPriorityLevel(Timer::IRQ, 0x80);
+    Gic::GetInstance().EnableIrq(Timer::IRQ);
 
     uint64_t savedVbar { installTestVbar() };
     uint64_t savedDaif { saveDaif() };
@@ -205,7 +205,7 @@ static bool test_physical_timer_irq_invokes_callback() {
     timer.Stop();
     restoreVbar(savedVbar);
 
-    Gic::DisableIrq(Timer::IRQ);
+    Gic::GetInstance().DisableIrq(Timer::IRQ);
     gActiveTimer = nullptr;
 
     bool passed { seen && gCallbackCount != 0 && gIrqCount != 0 && gLastIrqId == Timer::IRQ &&
