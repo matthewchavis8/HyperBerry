@@ -40,53 +40,73 @@
 // that firmware-loaded package while early boot still assumes PA == VA.
 #define HV_VA_SIZE SIZE_16GB
 
-namespace HostMmu {
-// @brief Build EL2 translation tables and enable stage-1 translation.
+// @brief The EL2 stage-1 translation regime: the hypervisor's own map.
 // @ingroup mmu
 //
-// @param devices Device windows to map as Device-nGnRnE, read out of the host
-//                device tree by the caller. These overwrite the normal memory
-//                blocks the hypervisor self-map lays down first, so a
-//                peripheral missing from @p devices stays mapped cacheable
-//                rather than faulting.
-void Init(const MmioMap& devices);
+// One per system. Construction allocates the L0 table from @ref Pmm, so the
+// first @ref GetInstance() call must come after the PMM has its memory map.
+class HostMmu {
+private:
+    PageTable m_table;
 
-// @brief Convert a host physical address to an EL2-accessible pointer.
-// @ingroup mmu
-//
-// HyperBerry currently uses an identity direct map for RAM. Keeping this
-// helper at the boundary avoids spreading that assumption through loaders.
-//
-// @param pa Host physical address.
-// @return EL2 virtual address for the same byte.
-inline void* PaToVa(uint64_t pa) {
-    // TODO: Replace this identity direct-map assumption if HyperBerry moves
-    // to a higher-half or otherwise non-identity host VA layout.
-    return reinterpret_cast<void*>(pa);
-}
+    HostMmu();
 
-// @brief Map a physical range into EL2 VA space using 2 MiB blocks.
-// @ingroup mmu
-// @param va    Virtual base address.
-// @param pa    Physical base address.
-// @param size  Mapping size in bytes (multiple of 2 MiB).
-// @param flags Descriptor flags excluding the output-address bits.
-void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags);
+public:
+    // @brief The system's one EL2 stage-1 MMU.
+    // @return Reference to the single instance.
+    static HostMmu& GetInstance();
 
-// @brief Remove mappings for a virtual range and flush affected TLBs.
-// @ingroup mmu
-// @param va   Virtual base address.
-// @param size Range size in bytes (multiple of 2 MiB).
-void UnmapRange(uint64_t va, uint64_t size);
+    // @brief Build the EL2 self-map and enable stage-1 translation.
+    //
+    // @param devices Device windows to map as Device-nGnRnE, read out of the
+    //                host device tree by the caller. These overwrite the
+    //                normal memory blocks the self-map lays down first, so a
+    //                peripheral missing from @p devices stays mapped
+    //                cacheable rather than faulting.
+    // @return Nothing.
+    void Enable(const MmioMap& devices);
 
-// @brief Invalidate all EL2 stage-1 TLB entries.
-// @ingroup mmu
-void TlbFlushAll();
+    // @brief Convert a host physical address to an EL2-accessible pointer.
+    //
+    // HyperBerry currently uses an identity direct map for RAM. Keeping this
+    // helper at the boundary avoids spreading that assumption through loaders.
+    //
+    // @param pa Host physical address.
+    // @return EL2 virtual address for the same byte.
+    static void* PaToVa(uint64_t pa) {
+        // TODO: Replace this identity direct-map assumption if HyperBerry moves
+        // to a higher-half or otherwise non-identity host VA layout.
+        return reinterpret_cast<void*>(pa);
+    }
 
-// @brief Invalidate a single EL2 VA translation from the TLB.
-// @ingroup mmu
-// @param va Virtual address within the page to flush.
-void TlbFlushVa(uint64_t va);
-} // namespace HostMmu
+    // @brief Map a physical range into EL2 VA space using 2 MiB blocks.
+    // @param va    Virtual base address.
+    // @param pa    Physical base address.
+    // @param size  Mapping size in bytes (multiple of 2 MiB).
+    // @param flags Descriptor flags excluding the output-address bits.
+    // @return Nothing.
+    void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags);
+
+    // @brief Remove mappings for a virtual range and flush affected TLBs.
+    // @param va   Virtual base address.
+    // @param size Range size in bytes (multiple of 2 MiB).
+    // @return Nothing.
+    void UnmapRange(uint64_t va, uint64_t size);
+
+    // @brief Invalidate all EL2 stage-1 TLB entries.
+    // @return Nothing.
+    static void TlbFlushAll();
+
+    // @brief Invalidate a single EL2 VA translation from the TLB.
+    // @param va Virtual address within the page to flush.
+    // @return Nothing.
+    static void TlbFlushVa(uint64_t va);
+
+    HostMmu(const HostMmu&) = delete;
+    HostMmu& operator=(const HostMmu&) = delete;
+    HostMmu(HostMmu&&) = delete;
+    HostMmu& operator=(HostMmu&&) = delete;
+    ~HostMmu() = default;
+};
 
 #endif // !__HOST_MMU_H__
