@@ -6,24 +6,20 @@
 #include "lib/log/log.h"
 #include "vm.h"
 
-void Vm::Init(const char* name,
+Vm::Vm(const char* name,
         uint64_t ipaBase,
         uint64_t guestRamHostPa,
         uint64_t sizeBytes,
         uint8_t vmid,
         uint64_t guestEntry,
         uint64_t guestDtb,
-        const MmioMap& devices) {
-    m_name = name;
-    m_vmid = vmid;
-
-    Log::Println("[VM] Bringing up Guest MMU");
-    m_guestMmu.Init(ipaBase, guestRamHostPa, sizeBytes, devices);
-    Log::Println("[VM] Bringing up Guest MMU");
-
-    Log::Println("[VM] Bringing up Vcpu");
-    m_vcpu.Init(guestEntry);
+        const MmioMap& devices) :
+            m_name { name },
+            m_guestMmu { ipaBase, guestRamHostPa, sizeBytes, devices },
+            m_vcpu { guestEntry },
+            m_vmid { vmid } {
     m_vcpu.SetGpReg(VCPU_GPREG_X0, guestDtb);
+    Log::Println("[VM] {} built", m_name);
 }
 
 void Vm::Run() {

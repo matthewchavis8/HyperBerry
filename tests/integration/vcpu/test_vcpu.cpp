@@ -46,9 +46,7 @@ void restoreVbar(uint64_t saved) {
 bool enterGuestAndCapture(Vcpu& vcpu) {
     gGuestExit = {};
 
-    test::Binary binary { "tests/vcpu.bin" };
-    if (!binary.GetEntry()) return false;
-    vcpu.Init(binary.GetEntry());
+    if (!vcpu.GetElr()) return false;
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
     uint64_t savedVbar { installTestVbar() };
@@ -71,8 +69,7 @@ static bool test_vcpu_hvctx_offset_matches_asm() {
 }
 
 static bool test_vcpu_gpr_round_trip() {
-    Vcpu vcpu;
-    vcpu.Init(0x40000000ULL);
+    Vcpu vcpu { 0x40000000ULL };
     vcpu.SetGpReg(VCPU_GPREG_X5, 0xCAFEBABEULL);
     return vcpu.GetGpReg(VCPU_GPREG_X5) == 0xCAFEBABEULL;
 }
@@ -91,13 +88,15 @@ static bool test_vcpu_tpidr_el2_is_accessible() {
 }
 
 static bool test_vcpu_guest_exit_returns_to_caller() {
-    Vcpu vcpu;
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
     return enterGuestAndCapture(vcpu) && gGuestExit.vcpu == &vcpu &&
             Vcpu::GetCurrentVcpu() == &vcpu;
 }
 
 static bool test_vcpu_guest_exit_captures_hvc_esr() {
-    Vcpu vcpu;
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
     if (!enterGuestAndCapture(vcpu)) {
         return false;
     }
@@ -106,7 +105,8 @@ static bool test_vcpu_guest_exit_captures_hvc_esr() {
 }
 
 static bool test_vcpu_guest_exit_saves_guest_pc() {
-    Vcpu vcpu;
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
     if (!enterGuestAndCapture(vcpu)) {
         return false;
     }
@@ -115,7 +115,8 @@ static bool test_vcpu_guest_exit_saves_guest_pc() {
 }
 
 static bool test_vcpu_guest_exit_saves_guest_gprs() {
-    Vcpu vcpu;
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
     if (!enterGuestAndCapture(vcpu)) {
         return false;
     }

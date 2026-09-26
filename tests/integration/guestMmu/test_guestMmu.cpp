@@ -65,11 +65,10 @@ void clearStage2Enable() {
 } // namespace
 
 static bool test_init_programs_vtcr_el2() {
-    GuestMmu mmu;
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
-    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
 
     uint64_t vtcr;
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
@@ -82,11 +81,10 @@ static bool test_init_programs_vtcr_el2() {
 }
 
 static bool test_init_maps_guest_ram_blocks() {
-    GuestMmu mmu;
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
-    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
     uint64_t* first { walkStage2L2(rootTable(mmu), kGuestIpaBase) };
     uint64_t* second { walkStage2L2(rootTable(mmu), kGuestIpaBase + SIZE_2MB) };
 
@@ -99,7 +97,6 @@ static bool test_init_maps_guest_ram_blocks() {
 }
 
 static bool test_init_maps_device_windows() {
-    GuestMmu mmu;
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
@@ -109,7 +106,7 @@ static bool test_init_maps_device_windows() {
     devices.AddBlocks(kDeviceBlockIpa, SIZE_2MB);
     devices.AddPages(kDevicePageIpa, BSP_UART_BASE, SIZE_4KB);
 
-    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, devices);
+    GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, devices };
 
     uint64_t* block { walkStage2L2(rootTable(mmu), kDeviceBlockIpa) };
     uint64_t* page { walkStage2L3(rootTable(mmu), kDevicePageIpa) };
@@ -122,11 +119,10 @@ static bool test_init_maps_device_windows() {
 }
 
 static bool test_enable_programs_vttbr_and_hcr_vm() {
-    GuestMmu mmu;
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
-    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
+    GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
     mmu.Enable(kTestVmid);
 
     uint64_t vttbr;
@@ -144,13 +140,12 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
 }
 
 static bool test_device_pages_replace_ram_without_losing_neighbors() {
-    GuestMmu mmu;
     uint64_t hostPa { Pmm::GetInstance().AllocPages(10) };
     if (!hostPa) return false;
     uint64_t deviceIpa { kGuestIpaBase + SIZE_4KB };
     MmioMap devices {};
     devices.AddPages(deviceIpa, BSP_UART_BASE, SIZE_4KB);
-    mmu.Init(kGuestIpaBase, hostPa, kGuestSize, devices);
+    GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, devices };
     uint64_t* first { walkStage2L3(rootTable(mmu), kGuestIpaBase) };
     uint64_t* device { walkStage2L3(rootTable(mmu), deviceIpa) };
     uint64_t* after { walkStage2L3(rootTable(mmu), deviceIpa + SIZE_4KB) };

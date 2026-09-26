@@ -9,14 +9,12 @@ static constexpr uint64_t SPSR_EL1H_ALL_MASKED { (0b00101ULL) | (0xFULL << 6) };
 
 // Capture globals — readable from other translation units (e.g. test_vm.cpp)
 // via extern declarations. Sentinel 0xDEADDEADDEADDEADULL means "not set".
-uint64_t gVcpuInitEntryCap { 0xDEADDEADDEADDEADULL };
+uint64_t gVcpuEntryCap { 0xDEADDEADDEADDEADULL };
 uint64_t gVcpuSetGuestSpCap { 0xDEADDEADDEADDEADULL };
 uint64_t gVcpuSetX0Cap { 0xDEADDEADDEADDEADULL };
 
-void Vcpu::Init(uint64_t entrypoint) {
-    gVcpuInitEntryCap = entrypoint;
-    memset(this, 0, sizeof(*this));
-
+Vcpu::Vcpu(uint64_t entrypoint) {
+    gVcpuEntryCap = entrypoint;
     m_el2State.regs[regIdx(VCPU_ELR_EL2)] = entrypoint;
     m_el2State.regs[regIdx(VCPU_SPSR_EL2)] = SPSR_EL1H_ALL_MASKED;
     m_el1SysRegs.regs[regIdx(VCPU_SCTLR_EL1)] = 0;
@@ -75,18 +73,14 @@ TEST(Vcpu, SubStructOffsetsMatchAsmContract) {
     EXPECT_GE(sizeof(Vcpu), VCPU_SIZEOF);
 }
 
-TEST(Vcpu, InitSeedsEntrypointInElr) {
-    Vcpu vcpu;
-    vcpu.Init(0x40000000ULL);
+TEST(Vcpu, ConstructorSeedsEntrypointInElr) {
+    Vcpu vcpu { 0x40000000ULL };
 
     EXPECT_EQ(vcpu.GetElr(), 0x40000000ULL);
 }
 
-TEST(Vcpu, InitZeroesGprs) {
-    Vcpu vcpu;
-    vcpu.SetGpReg(VCPU_GPREG_X5, 0xDEADBEEFULL);
-
-    vcpu.Init(0x40000000ULL);
+TEST(Vcpu, ConstructorZeroesGprs) {
+    Vcpu vcpu { 0x40000000ULL };
 
     EXPECT_EQ(vcpu.GetGpReg(VCPU_GPREG_X5), 0ULL);
 }
@@ -96,22 +90,19 @@ TEST(Vcpu, CurrentReturnsNullOnHostedBuilds) {
 }
 
 TEST(Vcpu, SkipInstructionAdvancesElrByFour) {
-    Vcpu vcpu;
-    vcpu.Init(0x40001000ULL);
+    Vcpu vcpu { 0x40001000ULL };
     vcpu.SkipInstruction();
     EXPECT_EQ(vcpu.GetElr(), 0x40001004ULL);
 }
 
 TEST(Vcpu, SetPcRoundTrips) {
-    Vcpu vcpu;
-    vcpu.Init(0x40000000ULL);
+    Vcpu vcpu { 0x40000000ULL };
     vcpu.SetPc(0xDEAD0000ULL);
     EXPECT_EQ(vcpu.GetElr(), 0xDEAD0000ULL);
 }
 
 TEST(Vcpu, SetGpRegRoundTripsAcrossMultipleOffsets) {
-    Vcpu vcpu;
-    vcpu.Init(0x40000000ULL);
+    Vcpu vcpu { 0x40000000ULL };
     vcpu.SetGpReg(VCPU_GPREG_X0, 0x1111111111111111ULL);
     vcpu.SetGpReg(VCPU_GPREG_X15, 0x2222222222222222ULL);
     vcpu.SetGpReg(VCPU_GPREG_X29, 0x3333333333333333ULL);
@@ -131,8 +122,7 @@ TEST(Vcpu, HvContextOffsetMatchesAsmConstant) {
 }
 
 TEST(Vcpu, SetIdGetIdRoundTrip) {
-    Vcpu vcpu;
-    vcpu.Init(0x40000000ULL);
+    Vcpu vcpu { 0x40000000ULL };
     vcpu.SetId(42);
     EXPECT_EQ(vcpu.GetId(), 42U);
 }
