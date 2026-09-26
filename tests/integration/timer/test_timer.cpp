@@ -140,7 +140,6 @@ extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
 
 static bool test_frequency_and_counter_progress() {
     Timer timer;
-    timer.Init();
 
     uint64_t frequency { timer.GetFrequency() };
     uint64_t first { timer.GetRawCount() };
@@ -152,7 +151,6 @@ static bool test_frequency_and_counter_progress() {
 
 static bool test_elapsed_ticks_reset_on_start() {
     Timer timer;
-    timer.Init();
     timer.SetIntervalTicks(oneMillisecondTicks(timer));
 
     timer.Start();
@@ -166,7 +164,6 @@ static bool test_elapsed_ticks_reset_on_start() {
 
 static bool test_handle_irq_reloads_and_invokes_callback() {
     Timer timer;
-    timer.Init();
     timer.SetIntervalTicks(oneMillisecondTicks(timer));
 
     gCallbackCount = 0;
@@ -181,7 +178,6 @@ static bool test_handle_irq_reloads_and_invokes_callback() {
 
 static bool test_physical_timer_irq_invokes_callback() {
     Timer timer;
-    timer.Init();
     timer.SetIntervalTicks(oneMillisecondTicks(timer));
     timer.SetCallback(timerCallback, reinterpret_cast<void*>(0x54494D45ULL));
 
