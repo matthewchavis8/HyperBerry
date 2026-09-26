@@ -46,7 +46,7 @@ void GuestMmu::Init(uint64_t ipaBase,
     gGuestMmuInitIpa = ipaBase;
     gGuestMmuInitHostPa = hostPaBase;
     gGuestMmuInitSize = sizeBytes;
-    gGuestMmuInitWindows = devices.count;
+    gGuestMmuInitWindows = devices.GetCount();
 }
 
 void GuestMmu::Enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
