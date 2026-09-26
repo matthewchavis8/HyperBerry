@@ -58,6 +58,7 @@ private:
     uint64_t m_rootTable {}; // Mirror of the owned root table for layout-sensitive tests.
     uint8_t m_vmid {};
     std::unique_ptr<uint64_t, Stage2RootDeleter> m_rootTableOwner;
+    PageTable m_table;
 
 public:
     // @brief Allocate the stage-2 root table, program VTCR_EL2, and
@@ -68,7 +69,7 @@ public:
     // @param devices    Device windows the guest may reach, read out of the
     //                   guest device tree by the caller. Anything absent here
     //                   is unreachable from the guest, which is the point.
-    void Init(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
+    GuestMmu(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices);
 
     // @brief Install one 2 MiB stage-2 block descriptor.
     // @param ipa      Intermediate physical address (2 MiB aligned).
@@ -91,6 +92,12 @@ public:
 
     // @brief Invalidate all stage-1 & stage-2 TLB entries for this VMID.
     void TlbFlushAllGuest();
+
+    GuestMmu(const GuestMmu&) = delete;
+    GuestMmu& operator=(const GuestMmu&) = delete;
+    GuestMmu(GuestMmu&&) = delete;
+    GuestMmu& operator=(GuestMmu&&) = delete;
+    ~GuestMmu() = default;
 };
 
 #endif // !__GUEST_MMU_H__

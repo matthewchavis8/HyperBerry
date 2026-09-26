@@ -138,22 +138,22 @@ struct HvContext {
 // data members in this single access group to preserve standard-layout.
 class Vcpu {
 public:
-    std::array<uint64_t, 31> m_gpr;
-    uint64_t m_spEl0;
-    El2State m_el2State;
-    El1SysRegs m_el1SysRegs;
-    HvContext m_hvCtx;
-    uint32_t m_vcpuId;
+    std::array<uint64_t, 31> m_gpr {};
+    uint64_t m_spEl0 {};
+    El2State m_el2State {};
+    El1SysRegs m_el1SysRegs {};
+    HvContext m_hvCtx {};
+    uint32_t m_vcpuId {};
 
-    // @brief Initialise this vCPU for first entry into EL1.
+    // @brief Build this vCPU for first entry into EL1.
     //
-    // Zeroes all state, then seeds:
+    // Starts from zeroed state, then seeds:
     //   - elr_el2   ← entrypoint
     //   - spsr_el2  ← EL1h with all DAIF bits masked
     //   - sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared
     //
     // @param entrypoint Guest physical address to resume at on first eret.
-    void Init(uint64_t entrypoint);
+    explicit Vcpu(uint64_t entrypoint);
 
     // @brief Save EL1 system registers from hardware into this context.
     // @note Call site must have DAIF masked. Meaningful only on AArch64.

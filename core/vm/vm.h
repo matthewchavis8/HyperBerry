@@ -15,7 +15,7 @@
 
 class Vm {
 private:
-    const char* m_name { "" };
+    const char* m_name;
     GuestMmu m_guestMmu;
     Vcpu m_vcpu;
     uint8_t m_vmid;
@@ -23,8 +23,8 @@ private:
 public:
     // @brief Build this VM's stage-2 mappings and seed its vCPU.
     //
-    // Order is significant: stage-2 tables are constructed first so they
-    // are in place before the vCPU's first entry. VTTBR_EL2 /
+    // Member order is significant: the stage-2 tables are constructed first
+    // so they are in place before the vCPU's first entry. VTTBR_EL2 /
     // HCR_EL2.VM are committed in @ref Run(), after vCPU state is seeded.
     //
     // @param name           Guest kernel or VM name retained for diagnostics.
@@ -35,7 +35,7 @@ public:
     // @param guestEntry     Guest IPA at which to resume on first @c eret.
     // @param guestDtb       Guest IPA of the Linux device tree blob.
     // @param devices        Device windows this guest may reach.
-    void Init(const char* name,
+    Vm(const char* name,
             uint64_t ipaBase,
             uint64_t guestRamHostPa,
             uint64_t sizeBytes,
@@ -49,10 +49,10 @@ public:
     //       the exception path, which is owned by vcpu.S / vmm.S.
     void Run();
 
-    // @brief Return the guest kernel name passed to @ref Init().
+    // @brief Return the guest kernel name passed to the constructor.
     [[nodiscard]] const char* GetName() const noexcept;
 
-    // @brief Return the guest vm ID passed to @ref Init().
+    // @brief Return the guest vm ID passed to the constructor.
     [[nodiscard]] uint8_t GetVmId() const noexcept;
 };
 

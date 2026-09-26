@@ -3,7 +3,6 @@
 // @ingroup vcpu
 
 #include "vcpu.h"
-#include "lib/strings/strings.h"
 #include "lib/panic/panic.h"
 
 // EL1h, DAIF all masked: guest wakes with interrupts disabled
@@ -28,9 +27,7 @@ extern "C" void vcpu_save_el1_sysregs(Vcpu* vcpu) {
     vcpu->SaveEl1SysRegs();
 }
 
-void Vcpu::Init(uint64_t entrypoint) {
-    memset(this, 0, sizeof(*this));
-
+Vcpu::Vcpu(uint64_t entrypoint) {
     m_el2State.regs[regIdx(VCPU_ELR_EL2)] = entrypoint;
     m_el2State.regs[regIdx(VCPU_SPSR_EL2)] = SPSR_EL1H_ALL_MASKED;
 

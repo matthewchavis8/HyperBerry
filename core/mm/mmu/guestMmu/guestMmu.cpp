@@ -18,10 +18,6 @@ constexpr uint64_t kStage2RootSize { PAGE_SIZE * 2ULL };
 
 constexpr uint64_t kStage2RootIndexMask { 0x3FFULL }; // 10-bit index across both L1 tables
 
-PageTable stage2Table(uint64_t* root) {
-    return { root, kStage2StartLevel, kStage2RootIndexMask };
-}
-
 uint64_t buildStage2BlockDescriptor(uint64_t pa, bool isDevice) {
     // Check if this is device memory or normal memory
     uint64_t memAttr { isDevice ? S2PTE_MEMATTR_DEVICE_nGnRnE : S2PTE_MEMATTR_NORMAL_WB };
@@ -49,8 +45,8 @@ uint64_t* allocStage2RootTable() {
     return table;
 }
 
-uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
-    uint64_t* l2 { stage2Table(root).Walk(ipa, true) };
+uint64_t* walkL3(const PageTable& table, uint64_t ipa) {
+    uint64_t* l2 { table.Walk(ipa, true) };
     if (l2 == nullptr) return nullptr;
 
     if (!pte_is_table(*l2)) {
@@ -82,10 +78,10 @@ uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
 }
 } // namespace
 
-void GuestMmu::Init(
-        uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) {
-    Log::Println("[GuestMmu] init called");
-    m_rootTableOwner.reset(allocStage2RootTable());
+GuestMmu::GuestMmu(
+        uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) :
+            m_rootTableOwner { allocStage2RootTable() },
+            m_table { m_rootTableOwner.get(), kStage2StartLevel, kStage2RootIndexMask } {
     m_rootTable = reinterpret_cast<uint64_t>(m_rootTableOwner.get());
     Log::Println("[GuestMmu] root table={}", m_rootTableOwner.get());
 
@@ -119,11 +115,11 @@ void GuestMmu::Init(
     }
 
     asm volatile("dsb ishst" ::: "memory");
-    Log::Println("[GuestMmu] init finished");
+    Log::Println("[GuestMmu] stage-2 tables built");
 }
 
 void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte { stage2Table(m_rootTableOwner.get()).Walk(ipa, true) };
+    uint64_t* pte { m_table.Walk(ipa, true) };
     if (!pte) {
         Log::Println("[ERROR] GuestMmu::mapBlock walk failed");
         return;
@@ -133,7 +129,7 @@ void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
 }
 
 void GuestMmu::MapPage(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte { walkL3(m_rootTableOwner.get(), ipa) };
+    uint64_t* pte { walkL3(m_table, ipa) };
     if (!pte) {
         Log::Println("[ERROR] GuestMmu::mapPage walk failed");
         return;

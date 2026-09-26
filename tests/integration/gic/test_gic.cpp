@@ -269,9 +269,8 @@ EndToEndCapture runEndToEnd() {
         return capture;
     }
 
-    trace("runEndToEnd: Vcpu::init");
-    Vcpu vcpu;
-    vcpu.Init(binary.GetEntry());
+    trace("runEndToEnd: Vcpu");
+    Vcpu vcpu { binary.GetEntry() };
     vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetVcpuBase());
     vcpu.SetGpReg(VCPU_GPREG_X1, reinterpret_cast<uint64_t>(&gGuestResult));
     trace("runEndToEnd: Vcpu::setGuestSp");

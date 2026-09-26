@@ -65,20 +65,16 @@ extern "C" void hmain(uintptr_t dtb) {
     }
     Log::Println("[Guest] Linux guest archive loaded");
 
-    Vm guest;
-    const char* guestName { "Linux VM" };
     TreeParser guestTree { layout.IpaToHostPa(layout.dtbIpa) };
-    guest.Init(guestName,
-            GUEST_IPA_BASE,
-            layout.ramHostPa,
-            GUEST_RAM_SIZE,
-            1,
-            layout.kernelIpa,
-            layout.dtbIpa,
-            guestTree.GetGuestMmio());
+    Vm guest { "Linux VM",
+        GUEST_IPA_BASE,
+        layout.ramHostPa,
+        GUEST_RAM_SIZE,
+        1,
+        layout.kernelIpa,
+        layout.dtbIpa,
+        guestTree.GetGuestMmio() };
 
-    Log::Println("[VM] Bringing up guest:{}", guest.GetName());
-    Log::Println("[VM] {} Intialized", guest.GetName());
     Log::Println("[VM] Guest Kernel running");
     guest.Run();
 #endif
