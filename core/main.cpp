@@ -12,7 +12,6 @@
 #include "lib/cxxrt/cxxrt.h"
 #include "lib/log/log.h"
 #include "lib/panic/panic.h"
-#include "drivers/gic/gic.h"
 #include <cstddef>
 #include "deviceTree/deviceTree.h"
 
@@ -45,10 +44,6 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[HostMmu] Attempting to bring up host MMU");
     HostMmu::GetInstance().Enable(hostTree.GetHostMmio());
     Log::Println("[HostMmu] Successfully host MMU is brought up");
-
-    Log::Println("[GIC] Attempting to bring up GICv2");
-    Gic::Init();
-    Log::Println("[GIC] Successfully brought up GICv2");
 
 #ifdef INTEGRATION_TEST
     TestRunner::SetBootContext(memoryMap);

@@ -7,14 +7,6 @@
 #include <cstdint>
 
 namespace {
-// Seeded from the values generated out of the board's host device tree so the
-// driver is usable before any tree has been parsed. verifyBspAgainstDtb
-// repoints them at what the firmware tree reports.
-uint64_t gDistBase { BSP_GIC_DISTRIBUTOR_BASE };
-uint64_t gCpuBase { BSP_GIC_CPU_BASE };
-uint64_t gHvBase { BSP_GIC_HV_BASE };
-uint64_t gVcpuBase { BSP_GIC_VCPU_BASE };
-
 namespace GicReg {
     // Distributor
     // Global interrupt distribution registers. These control interrupt
@@ -149,6 +141,19 @@ namespace GicReg {
 } // namespace GicReg
 } // namespace
 
+Gic::Gic() :
+            m_distBase { BSP_GIC_DISTRIBUTOR_BASE },
+            m_cpuBase { BSP_GIC_CPU_BASE },
+            m_hvBase { BSP_GIC_HV_BASE },
+            m_vcpuBase { BSP_GIC_VCPU_BASE } {
+    Reset();
+}
+
+Gic& Gic::GetInstance() {
+    static Gic gic;
+    return gic;
+}
+
 void Gic::cpuInit() {
     // Figure out how many List Registers are available for virtual interrupts.
     uint32_t vtr { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::VTR) };
@@ -261,10 +266,10 @@ void Gic::EnableMainIrq(bool isEnable) {
 }
 
 void Gic::SetPriorityLevel(uint32_t id, uint8_t priority) {
-    mmio::Write<uint8_t>(gDistBase, GicReg::Dist::IPRIORITYR + id, priority);
+    mmio::Write<uint8_t>(m_distBase, GicReg::Dist::IPRIORITYR + id, priority);
 }
 
-void Gic::Init() {
+void Gic::Reset() {
     // Disable Distributor
     mmio::Write<uint32_t>(getFrameBase(Frame::DIST), GicReg::Dist::CTLR, 0);
 
@@ -312,20 +317,20 @@ void Gic::Init() {
     cpuInit();
 }
 
-uintptr_t Gic::getFrameBase(Frame frame) {
+uintptr_t Gic::getFrameBase(Frame frame) const {
     uint64_t base { 0 };
     switch (frame) {
         case Frame::DIST:
-            base = gDistBase;
+            base = m_distBase;
             break;
         case Frame::CPU:
-            base = gCpuBase;
+            base = m_cpuBase;
             break;
         case Frame::HV:
-            base = gHvBase;
+            base = m_hvBase;
             break;
         case Frame::VCPU:
-            base = gVcpuBase;
+            base = m_vcpuBase;
             break;
     }
 
@@ -333,20 +338,23 @@ uintptr_t Gic::getFrameBase(Frame frame) {
 }
 
 void Gic::SetBases(uint64_t dist, uint64_t cpu, uint64_t hv, uint64_t vcpu) {
-    gDistBase = dist;
-    gCpuBase = cpu;
-    gHvBase = hv;
-    gVcpuBase = vcpu;
+    if (dist == m_distBase && cpu == m_cpuBase && hv == m_hvBase && vcpu == m_vcpuBase) return;
+
+    m_distBase = dist;
+    m_cpuBase = cpu;
+    m_hvBase = hv;
+    m_vcpuBase = vcpu;
+    Reset();
 }
 
-uint64_t Gic::GetDistBase() {
-    return gDistBase;
+uint64_t Gic::GetDistBase() const {
+    return m_distBase;
 }
 
-uint64_t Gic::GetHvBase() {
-    return gHvBase;
+uint64_t Gic::GetHvBase() const {
+    return m_hvBase;
 }
 
-uint64_t Gic::GetVcpuBase() {
-    return gVcpuBase;
+uint64_t Gic::GetVcpuBase() const {
+    return m_vcpuBase;
 }

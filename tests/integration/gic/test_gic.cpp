@@ -72,11 +72,11 @@ void trace(const char* msg) {
 }
 
 volatile uint32_t* distReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::GetDistBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetInstance().GetDistBase() + offset);
 }
 
 volatile uint32_t* hvReg(uintptr_t offset) {
-    return reinterpret_cast<volatile uint32_t*>(Gic::GetHvBase() + offset);
+    return reinterpret_cast<volatile uint32_t*>(Gic::GetInstance().GetHvBase() + offset);
 }
 
 uint32_t irqBit(uint32_t id) {
@@ -107,7 +107,7 @@ void pendTestSpi() {
 
 void routeTestSpiToCpu0() {
     volatile uint8_t* target { reinterpret_cast<volatile uint8_t*>(
-            Gic::GetDistBase() + GicReg::Dist::ITARGETSR + kPhysIrq) };
+            Gic::GetInstance().GetDistBase() + GicReg::Dist::ITARGETSR + kPhysIrq) };
     *target = 0x01;
 }
 
@@ -226,8 +226,8 @@ EndToEndCapture runEndToEnd() {
     test::Binary binary { "tests/gic.bin" };
     if (!binary.GetEntry()) return capture;
 
-    trace("runEndToEnd: Gic::init");
-    Gic::Init();
+    trace("runEndToEnd: Gic reset");
+    Gic::GetInstance().Reset();
     trace("runEndToEnd: clearTestSpi");
     clearTestSpi();
     trace("runEndToEnd: configureTestSpiGroup0");
@@ -237,9 +237,9 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: enableDistributorGroups");
     enableDistributorGroups();
     trace("runEndToEnd: setPriorityLevel");
-    Gic::SetPriorityLevel(kPhysIrq, 0x80);
+    Gic::GetInstance().SetPriorityLevel(kPhysIrq, 0x80);
     trace("runEndToEnd: enableIrq");
-    Gic::EnableIrq(kPhysIrq);
+    Gic::GetInstance().EnableIrq(kPhysIrq);
 
     trace("runEndToEnd: enableVirtualIrqRouting");
     uint64_t savedHcr { enableVirtualIrqRouting() };
@@ -249,7 +249,7 @@ EndToEndCapture runEndToEnd() {
     capture.el2AckedSpi = gEl2Irq.ackId == kPhysIrq;
     capture.injected = gEl2Irq.injectRc == 0;
     trace("runEndToEnd: hasPendingIrq before guest");
-    capture.pendingBeforeGuest = Gic::HasPendingIrq();
+    capture.pendingBeforeGuest = Gic::GetInstance().HasPendingIrq();
     trace("runEndToEnd: readElsrBit before guest");
     capture.lrBusyBeforeGuest = readElsrBit(0) == 0;
     Log::Println("[GICDBG] runEndToEnd: preguest seen={} acked={} injected={} pending={} lrBusy={}",
@@ -261,9 +261,9 @@ EndToEndCapture runEndToEnd() {
 
     if (!capture.el2IrqSeen || !capture.el2AckedSpi || !capture.injected) {
         trace("runEndToEnd: early cleanup");
-        Gic::DisableIrq(kPhysIrq);
+        Gic::GetInstance().DisableIrq(kPhysIrq);
         clearTestSpi();
-        Gic::CpuReset();
+        Gic::GetInstance().CpuReset();
         restoreHcr(savedHcr);
         trace("runEndToEnd: early exit");
         return capture;
@@ -271,7 +271,7 @@ EndToEndCapture runEndToEnd() {
 
     trace("runEndToEnd: Vcpu");
     Vcpu vcpu { binary.GetEntry() };
-    vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetVcpuBase());
+    vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetInstance().GetVcpuBase());
     vcpu.SetGpReg(VCPU_GPREG_X1, reinterpret_cast<uint64_t>(&gGuestResult));
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
@@ -300,7 +300,7 @@ EndToEndCapture runEndToEnd() {
     capture.physicalInactiveAfterEoi =
             (*distReg(irqReg(GicReg::Dist::ISACTIVER, kPhysIrq)) & irqBit(kPhysIrq)) == 0;
     trace("runEndToEnd: hasPendingIrq after guest");
-    capture.pendingAfterGuest = Gic::HasPendingIrq();
+    capture.pendingAfterGuest = Gic::GetInstance().HasPendingIrq();
     trace("runEndToEnd: readElsrBit after guest");
     capture.lrFreeAfterGuest = readElsrBit(0) == 1;
     Log::Println("[GICDBG] runEndToEnd: postguest guestSaw={} inactive={} pending={} lrFree={}",
@@ -310,9 +310,9 @@ EndToEndCapture runEndToEnd() {
             capture.lrFreeAfterGuest);
 
     trace("runEndToEnd: final cleanup");
-    Gic::DisableIrq(kPhysIrq);
+    Gic::GetInstance().DisableIrq(kPhysIrq);
     clearTestSpi();
-    Gic::CpuReset();
+    Gic::GetInstance().CpuReset();
     restoreHcr(savedHcr);
 
     trace("runEndToEnd: exit");
@@ -324,17 +324,17 @@ extern "C" void handle_test_gic_el2_irq(ExceptionContext* ctx) {
     (void)ctx;
 
     trace("handle_test_gic_el2_irq: enter");
-    Gic::IrqAck ack { Gic::AckIrq() };
+    Gic::IrqAck ack { Gic::GetInstance().AckIrq() };
     gEl2Irq.called = true;
     gEl2Irq.ackId = ack.id;
     Log::Println("[GICDBG] handle_test_gic_el2_irq: ack id={} iar={:x}", ack.id, ack.iar);
 
     if (ack.id != kSpuriousIrq) {
         trace("handle_test_gic_el2_irq: injectIrq");
-        gEl2Irq.injectRc = Gic::InjectIrq(kVirtIrq, kPhysIrq);
+        gEl2Irq.injectRc = Gic::GetInstance().InjectIrq(kVirtIrq, kPhysIrq);
         Log::Println("[GICDBG] handle_test_gic_el2_irq: injectRc={}", gEl2Irq.injectRc);
         trace("handle_test_gic_el2_irq: endIrq");
-        Gic::EndIrq(ack);
+        Gic::GetInstance().EndIrq(ack);
     } else {
         gEl2Irq.injectRc = -1;
     }
@@ -361,42 +361,42 @@ static bool test_lr_pending_state_tracks_guest_eoi() {
 
 static bool test_lr_exhaustion_returns_error() {
     trace("test_lr_exhaustion_returns_error: enter");
-    trace("test_lr_exhaustion_returns_error: Gic::init");
-    Gic::Init();
+    trace("test_lr_exhaustion_returns_error: Gic reset");
+    Gic::GetInstance().Reset();
     trace("test_lr_exhaustion_returns_error: numListRegisters");
     uint32_t count { numListRegisters() };
     Log::Println("[GICDBG] test_lr_exhaustion_returns_error: count={}", count);
 
     for (uint32_t i { 0 }; i < count; ++i) {
         Log::Println("[GICDBG] test_lr_exhaustion_returns_error: inject slot {}", i);
-        if (Gic::InjectIrq(100 + i, 100 + i) != 0) {
+        if (Gic::GetInstance().InjectIrq(100 + i, 100 + i) != 0) {
             trace("test_lr_exhaustion_returns_error: inject failed cleanup");
-            Gic::CpuReset();
+            Gic::GetInstance().CpuReset();
             return false;
         }
     }
 
     trace("test_lr_exhaustion_returns_error: inject exhausted");
-    bool exhausted { Gic::InjectIrq(200, 200) == -1 };
+    bool exhausted { Gic::GetInstance().InjectIrq(200, 200) == -1 };
     Log::Println("[GICDBG] test_lr_exhaustion_returns_error: exhausted={}", exhausted);
     trace("test_lr_exhaustion_returns_error: cpuReset");
-    Gic::CpuReset();
+    Gic::GetInstance().CpuReset();
     return exhausted;
 }
 
 static bool test_duplicate_virt_id_rejected() {
     trace("test_duplicate_virt_id_rejected: enter");
-    trace("test_duplicate_virt_id_rejected: Gic::init");
-    Gic::Init();
+    trace("test_duplicate_virt_id_rejected: Gic reset");
+    Gic::GetInstance().Reset();
 
     trace("test_duplicate_virt_id_rejected: first inject");
-    bool rejected { Gic::InjectIrq(kVirtIrq, kPhysIrq) == 0 &&
+    bool rejected { Gic::GetInstance().InjectIrq(kVirtIrq, kPhysIrq) == 0 &&
         (trace("test_duplicate_virt_id_rejected: duplicate inject"), true) &&
-        Gic::InjectIrq(kVirtIrq, 99) == -1 };
+        Gic::GetInstance().InjectIrq(kVirtIrq, 99) == -1 };
     Log::Println("[GICDBG] test_duplicate_virt_id_rejected: rejected={}", rejected);
 
     trace("test_duplicate_virt_id_rejected: cpuReset");
-    Gic::CpuReset();
+    Gic::GetInstance().CpuReset();
     return rejected;
 }
 

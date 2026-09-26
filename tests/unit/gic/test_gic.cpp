@@ -46,7 +46,14 @@ uint32_t encodedLr(uint32_t virtId, uint32_t physId) {
 
 } // namespace
 
-uintptr_t Gic::getFrameBase(Frame /*frame*/) {
+Gic::Gic() : m_distBase {}, m_cpuBase {}, m_hvBase {}, m_vcpuBase {} {}
+
+Gic& Gic::GetInstance() {
+    static Gic gic;
+    return gic;
+}
+
+uintptr_t Gic::getFrameBase(Frame /*frame*/) const {
     return 0;
 }
 
@@ -54,7 +61,7 @@ void Gic::cpuInit() {
     m_numLr = gGic.configuredLrs;
 }
 
-void Gic::Init() {
+void Gic::Reset() {
     cpuInit();
 }
 
@@ -130,7 +137,7 @@ void Gic::SetPriorityLevel(uint32_t /*id*/, uint8_t /*priority*/) {}
 TEST(Gic, EnableIrqSelectsExpectedRegisterAndBit) {
     resetGic();
 
-    Gic::EnableIrq(45);
+    Gic::GetInstance().EnableIrq(45);
 
     EXPECT_EQ(gGic.isenabler[1], 1U << 13);
     EXPECT_EQ(gGic.isenabler[0], 0U);
@@ -139,7 +146,7 @@ TEST(Gic, EnableIrqSelectsExpectedRegisterAndBit) {
 TEST(Gic, DisableIrqSelectsExpectedRegisterAndBit) {
     resetGic();
 
-    Gic::DisableIrq(64);
+    Gic::GetInstance().DisableIrq(64);
 
     EXPECT_EQ(gGic.icenabler[2], 1U);
     EXPECT_EQ(gGic.icenabler[0], 0U);
@@ -149,7 +156,7 @@ TEST(Gic, AckIrqPreservesRawIarAndMasksInterruptId) {
     resetGic();
     gGic.iar = kSpuriousBits | 0x3ABU;
 
-    Gic::IrqAck ack { Gic::AckIrq() };
+    Gic::IrqAck ack { Gic::GetInstance().AckIrq() };
 
     EXPECT_EQ(ack.iar, kSpuriousBits | 0x3ABU);
     EXPECT_EQ(ack.id, 0x3ABU);
@@ -158,17 +165,17 @@ TEST(Gic, AckIrqPreservesRawIarAndMasksInterruptId) {
 TEST(Gic, EndIrqWritesRawIarToken) {
     resetGic();
 
-    Gic::EndIrq(Gic::IrqAck { 0x12345678U, 0x278U });
+    Gic::GetInstance().EndIrq(Gic::IrqAck { 0x12345678U, 0x278U });
 
     EXPECT_EQ(gGic.eoir, 0x12345678U);
 }
 
 TEST(Gic, InjectIrqUsesFirstFreeListRegisterAndEncodesIds) {
     resetGic(4);
-    Gic::Init();
+    Gic::GetInstance().Reset();
     gGic.elsr0 = (1U << 1) | (1U << 3);
 
-    EXPECT_EQ(Gic::InjectIrq(0x45U, 0x88U), 0);
+    EXPECT_EQ(Gic::GetInstance().InjectIrq(0x45U, 0x88U), 0);
 
     EXPECT_EQ(gGic.lr[1], encodedLr(0x45U, 0x88U));
     EXPECT_EQ(gGic.lr[3], 0U);
@@ -176,61 +183,61 @@ TEST(Gic, InjectIrqUsesFirstFreeListRegisterAndEncodesIds) {
 
 TEST(Gic, InjectIrqRejectsDuplicateVirtualId) {
     resetGic(4);
-    Gic::Init();
+    Gic::GetInstance().Reset();
     gGic.elsr0 = 0xFU;
     gGic.lr[2] = encodedLr(0x52U, 0x99U);
 
-    EXPECT_EQ(Gic::InjectIrq(0x52U, 0x100U), -1);
+    EXPECT_EQ(Gic::GetInstance().InjectIrq(0x52U, 0x100U), -1);
 }
 
 TEST(Gic, InjectIrqFailsWhenNoListRegisterIsFree) {
     resetGic(4);
-    Gic::Init();
+    Gic::GetInstance().Reset();
     gGic.elsr0 = 0;
 
-    EXPECT_EQ(Gic::InjectIrq(0x21U, 0x31U), -1);
+    EXPECT_EQ(Gic::GetInstance().InjectIrq(0x21U, 0x31U), -1);
 }
 
 TEST(Gic, InjectIrqCanUseSecondElsrBank) {
     resetGic(34);
-    Gic::Init();
+    Gic::GetInstance().Reset();
     gGic.elsr1 = (1U << 1);
 
-    EXPECT_EQ(Gic::InjectIrq(0x12U, 0x34U), 0);
+    EXPECT_EQ(Gic::GetInstance().InjectIrq(0x12U, 0x34U), 0);
 
     EXPECT_EQ(gGic.lr[33], encodedLr(0x12U, 0x34U));
 }
 
 TEST(Gic, HasPendingIrqReportsAnyPendingListRegister) {
     resetGic(4);
-    Gic::Init();
-    EXPECT_FALSE(Gic::HasPendingIrq());
+    Gic::GetInstance().Reset();
+    EXPECT_FALSE(Gic::GetInstance().HasPendingIrq());
 
     gGic.lr[3] = kLrPending;
 
-    EXPECT_TRUE(Gic::HasPendingIrq());
+    EXPECT_TRUE(Gic::GetInstance().HasPendingIrq());
 }
 
 TEST(Gic, EnableMainIrqSetsAndClearsOnlyUieBit) {
     resetGic();
     gGic.hcr = kSpuriousBits;
 
-    Gic::EnableMainIrq(true);
+    Gic::GetInstance().EnableMainIrq(true);
     EXPECT_EQ(gGic.hcr, kSpuriousBits | kHcrUie);
 
-    Gic::EnableMainIrq(false);
+    Gic::GetInstance().EnableMainIrq(false);
     EXPECT_EQ(gGic.hcr, kSpuriousBits);
 }
 
 TEST(Gic, CpuResetClearsConfiguredListRegisters) {
     resetGic(3);
-    Gic::Init();
+    Gic::GetInstance().Reset();
     gGic.lr[0] = 1;
     gGic.lr[1] = 2;
     gGic.lr[2] = 3;
     gGic.lr[3] = 4;
 
-    Gic::CpuReset();
+    Gic::GetInstance().CpuReset();
 
     EXPECT_EQ(gGic.lr[0], 0U);
     EXPECT_EQ(gGic.lr[1], 0U);
