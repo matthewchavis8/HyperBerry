@@ -5,7 +5,7 @@
 #include "pmm.h"
 #include "lib/log/log.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 extern uint8_t __text_start[];
 extern uint8_t __uncached_space_end[];

@@ -5,7 +5,7 @@
 #ifndef __PANIC_H__
 #define __PANIC_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include <array>
 
 // @brief Print a fatal error banner, dump the saved registers, then halt.

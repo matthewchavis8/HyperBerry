@@ -7,7 +7,7 @@
 #ifndef __GIC_H__
 #define __GIC_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 // @brief GICv2 Distributor and CPU Interface access helpers.
 // @ingroup gic

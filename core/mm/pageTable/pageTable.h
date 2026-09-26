@@ -8,8 +8,8 @@
 #ifndef __PAGE_TABLE_H__
 #define __PAGE_TABLE_H__
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 // Descriptor bit positions identical in stage-1 and stage-2 VMSAv8-64.
 #define PTE_VALID (1ULL << 0)

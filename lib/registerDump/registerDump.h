@@ -5,12 +5,12 @@
 #ifndef __REGISTERDUMP_H__
 #define __REGISTERDUMP_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include <array>
 #include "drivers/uart/uart.h"
 #include "lib/log/log.h"
 
-#include "stddef.h"
+#include <cstddef>
 
 #ifdef __cplusplus
 

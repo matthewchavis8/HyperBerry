@@ -5,7 +5,7 @@
 #include "uart.h"
 #include "regs.inc"
 #include "lib/mmio/mmio.h"
-#include <stdint.h>
+#include <cstdint>
 
 // Starts at the compile-time BSP value so the early console works before the
 // device tree has been parsed; discovery may repoint it afterwards.

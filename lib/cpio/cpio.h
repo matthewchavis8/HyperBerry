@@ -1,7 +1,7 @@
 #ifndef __CPIO_H__
 #define __CPIO_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace cpio {
 enum class Error {

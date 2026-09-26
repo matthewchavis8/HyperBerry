@@ -9,8 +9,8 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace log::detail {
 

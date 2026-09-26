@@ -100,7 +100,7 @@
 #define VCPU_HVCTX_SIZE 0x070
 #ifndef __ASSEMBLER__
 
-#include <stdint.h>
+#include <cstdint>
 #include <array>
 
 static constexpr size_t regIdx(size_t off) {

@@ -5,7 +5,7 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 // @brief ARM generic timer driver using the EL2 physical timer (CNTHP).
 // @ingroup drivers

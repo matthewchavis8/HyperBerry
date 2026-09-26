@@ -12,7 +12,7 @@
 
 #include <array>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <span>
 
 namespace {

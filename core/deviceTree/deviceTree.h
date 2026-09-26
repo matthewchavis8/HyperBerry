@@ -7,7 +7,7 @@
 
 #ifndef __DEVICE_TREE_H__
 #define __DEVICE_TREE_H__
-#include <stdint.h>
+#include <cstdint>
 #include <span>
 #include <string_view>
 #include "core/mm/mmu/mmioMap.h"

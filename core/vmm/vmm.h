@@ -7,7 +7,7 @@
 #ifndef __VMM_H__
 #define __VMM_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "core/vmm/esr.h"
 
 class Vcpu;

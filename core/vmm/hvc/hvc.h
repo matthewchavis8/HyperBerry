@@ -5,7 +5,7 @@
 #ifndef __HVC_H__
 #define __HVC_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "core/vmm/esr.h"
 
 // @brief Outcome of dispatching a guest HVC.

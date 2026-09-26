@@ -8,7 +8,7 @@
 #ifndef __MMIO_MAP_H__
 #define __MMIO_MAP_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "core/mm/pageTable/pageTable.h"
 
 // Upper bound on the windows one map can carry.

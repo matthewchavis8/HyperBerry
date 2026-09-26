@@ -5,7 +5,7 @@
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "tests/integration/suite.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace {
 

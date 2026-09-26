@@ -8,7 +8,7 @@
 #ifndef __VM_H__
 #define __VM_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "core/mm/mmu/guestMmu/guestMmu.h"
 #include "core/vcpu/vcpu.h"
