@@ -16,11 +16,11 @@ constexpr uint32_t kStage2StartLevel { 1 };
 constexpr uint64_t kStage2T0sz { 24 };
 constexpr uint64_t kStage2RootSize { PAGE_SIZE * 2ULL };
 
-constexpr PageTable::WalkConfig kStage2Walk {
-    kStage2StartLevel,
-    0x3FFULL, // 10-bit root index across two concatenated L1 tables.
-    true,
-};
+constexpr uint64_t kStage2RootIndexMask { 0x3FFULL }; // 10-bit index across both L1 tables
+
+PageTable stage2Table(uint64_t* root) {
+    return { root, kStage2StartLevel, kStage2RootIndexMask };
+}
 
 uint64_t buildStage2BlockDescriptor(uint64_t pa, bool isDevice) {
     // Check if this is device memory or normal memory
@@ -50,7 +50,7 @@ uint64_t* allocStage2RootTable() {
 }
 
 uint64_t* walkL3(uint64_t* root, uint64_t ipa) {
-    uint64_t* l2 { PageTable::Walk(root, ipa, kStage2Walk) };
+    uint64_t* l2 { stage2Table(root).Walk(ipa, true) };
     if (l2 == nullptr) return nullptr;
 
     if (!pte_is_table(*l2)) {
@@ -123,7 +123,7 @@ void GuestMmu::Init(
 }
 
 void GuestMmu::MapBlock(uint64_t ipa, uint64_t pa, bool isDevice) {
-    uint64_t* pte { PageTable::Walk(m_rootTableOwner.get(), ipa, kStage2Walk) };
+    uint64_t* pte { stage2Table(m_rootTableOwner.get()).Walk(ipa, true) };
     if (!pte) {
         Log::Println("[ERROR] GuestMmu::mapBlock walk failed");
         return;
