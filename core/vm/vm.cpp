@@ -6,19 +6,12 @@
 #include "lib/log/log.h"
 #include "vm.h"
 
-Vm::Vm(const char* name,
-        uint64_t ipaBase,
-        uint64_t guestRamHostPa,
-        uint64_t sizeBytes,
-        uint8_t vmid,
-        uint64_t guestEntry,
-        uint64_t guestDtb,
-        const MmioMap& devices) :
-            m_name { name },
-            m_guestMmu { ipaBase, guestRamHostPa, sizeBytes, devices },
-            m_vcpu { guestEntry },
-            m_vmid { vmid } {
-    m_vcpu.SetGpReg(VCPU_GPREG_X0, guestDtb);
+Vm::Vm(const VmConfig& config, const MmioMap& devices) :
+            m_name { config.name },
+            m_guestMmu { config.ipaBase, config.ramHostPa, config.ramSize, devices },
+            m_vcpu { config.entry },
+            m_vmid { config.vmid } {
+    m_vcpu.SetGpReg(VCPU_GPREG_X0, config.dtb);
     Log::Println("[VM] {} built", m_name);
 }
 
@@ -31,7 +24,7 @@ void Vm::Run() {
     vcpu_enter(&m_vcpu);
 }
 
-[[nodiscard]] const char* Vm::GetName() const noexcept {
+[[nodiscard]] std::string_view Vm::GetName() const noexcept {
     return m_name;
 }
 

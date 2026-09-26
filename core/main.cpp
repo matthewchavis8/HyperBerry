@@ -61,14 +61,16 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[Guest] Linux guest archive loaded");
 
     TreeParser guestTree { layout.IpaToHostPa(layout.dtbIpa) };
-    Vm guest { "Linux VM",
-        GUEST_IPA_BASE,
-        layout.ramHostPa,
-        GUEST_RAM_SIZE,
-        1,
-        layout.kernelIpa,
-        layout.dtbIpa,
-        guestTree.GetGuestMmio() };
+    VmConfig config {
+        .name = "Linux VM",
+        .ipaBase = GUEST_IPA_BASE,
+        .ramHostPa = layout.ramHostPa,
+        .ramSize = GUEST_RAM_SIZE,
+        .vmid = 1,
+        .entry = layout.kernelIpa,
+        .dtb = layout.dtbIpa,
+    };
+    Vm guest { config, guestTree.GetGuestMmio() };
 
     Log::Println("[VM] Guest Kernel running");
     guest.Run();

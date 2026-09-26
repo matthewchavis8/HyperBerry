@@ -67,6 +67,10 @@ extern "C" void vcpu_enter(Vcpu* /*vcpu*/) {}
 // Helper — reset all captures to sentinel values before each test.
 // ---------------------------------------------------------------------------
 
+static VmConfig testConfig(uint8_t vmid) {
+    return VmConfig { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, vmid, 0x200000ULL, 0x1FF000ULL };
+}
+
 static void resetCaptures() {
     gGuestMmuIpa = 0xDEADDEADDEADDEADULL;
     gGuestMmuHostPa = 0xDEADDEADDEADDEADULL;
@@ -86,7 +90,7 @@ TEST(Vm, ConstructsGuestMmuWithCorrectArgs) {
     resetCaptures();
     MmioMap devices {};
     devices.AddPages(0x09000000ULL, 0x09000000ULL, 0x1000ULL);
-    Vm vm { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, devices };
+    Vm vm { testConfig(1), devices };
 
     EXPECT_EQ(gGuestMmuIpa, 0x0ULL);
     EXPECT_EQ(gGuestMmuHostPa, 0x40000000ULL);
@@ -96,14 +100,14 @@ TEST(Vm, ConstructsGuestMmuWithCorrectArgs) {
 
 TEST(Vm, ConstructsVcpuWithGuestEntry) {
     resetCaptures();
-    Vm vm { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {} };
+    Vm vm { testConfig(1), MmioMap {} };
 
     EXPECT_EQ(gVcpuEntryCap, 0x200000ULL);
 }
 
 TEST(Vm, SeedsLinuxDtbInX0) {
     resetCaptures();
-    Vm vm { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 1, 0x200000ULL, 0x1FF000ULL, MmioMap {} };
+    Vm vm { testConfig(1), MmioMap {} };
 
     EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
     EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
@@ -111,7 +115,7 @@ TEST(Vm, SeedsLinuxDtbInX0) {
 
 TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
     resetCaptures();
-    Vm vm { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, 2, 0x200000ULL, 0x1FF000ULL, MmioMap {} };
+    Vm vm { testConfig(2), MmioMap {} };
     vm.Run();
 
     EXPECT_EQ(gGuestMmuEnableVmid, 2);
