@@ -17,23 +17,21 @@
 #include "core/mm/pmm/pmm.h"
 
 // Stub PMM that satisfies page-aligned allocations from host memory.
-namespace pmm {
+Pmm& Pmm::GetInstance() {
+    static Pmm pmm;
+    return pmm;
+}
 
-uint64_t AllocPages(uint32_t order) {
+uint64_t Pmm::AllocPages(uint32_t order) {
     if (order > MAX_ORDER) return 0;
     size_t bytes { static_cast<size_t>(PAGE_SIZE) << order };
     void* p { std::aligned_alloc(PAGE_SIZE, bytes) };
     return reinterpret_cast<uint64_t>(p);
 }
 
-void FreePages(uint64_t addr, uint32_t /*order*/) {
+void Pmm::FreePages(uint64_t addr, uint32_t /*order*/) {
     std::free(reinterpret_cast<void*>(addr));
 }
-
-void Init(const MemoryMap& /*map*/) {}
-void DumpState() {}
-
-} // namespace pmm
 
 [[noreturn]] void HvPanic(const char* /*msg*/) {
     std::abort();

@@ -76,7 +76,7 @@ size_t pickClass(size_t size, size_t align) {
 }
 
 SlabHeader* newSlab(size_t classIdx) {
-    uint64_t pageAddr { pmm::AllocPages(0) };
+    uint64_t pageAddr { Pmm::GetInstance().AllocPages(0) };
     if (pageAddr == 0) return nullptr;
 
     auto* hdr { reinterpret_cast<SlabHeader*>(pageAddr) };
@@ -147,7 +147,7 @@ void* allocLarge(size_t size, size_t align) {
     uint32_t order { orderForBytes(total) };
     if (order > MAX_ORDER) return nullptr;
 
-    uint64_t addr { pmm::AllocPages(order) };
+    uint64_t addr { Pmm::GetInstance().AllocPages(order) };
     if (addr == 0) return nullptr;
 
     // Wipe the first cache line at the allocation start so the slab-magic
@@ -172,7 +172,7 @@ void freeLarge(void* ptr) {
     hdr->m_magic = 0;
 
     uint64_t allocStart { reinterpret_cast<uint64_t>(ptr) - userOffset };
-    pmm::FreePages(allocStart, order);
+    Pmm::GetInstance().FreePages(allocStart, order);
 }
 
 void* internalAllocate(size_t size, size_t align) {

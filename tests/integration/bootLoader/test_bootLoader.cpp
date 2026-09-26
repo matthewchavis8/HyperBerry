@@ -204,7 +204,7 @@ static bool test_load_linux_guest_from_firmware_archive() {
     bool metadata { layout.ramHostPa != 0 && layout.kernelIpa == expected.kernelIpa &&
         layout.dtbIpa == expected.dtbIpa && layout.initrdIpa == expected.initrdIpa };
 
-    pmm::FreePages(layout.ramHostPa, 16);
+    Pmm::GetInstance().FreePages(layout.ramHostPa, 16);
     return copied && metadata;
 }
 
@@ -225,7 +225,7 @@ static bool test_load_patches_guest_dtb() {
         readBe64Cells(initrdStart) == layout.initrdIpa &&
         readBe64Cells(initrdEnd) == layout.initrdIpa + layout.initrdSize };
 
-    pmm::FreePages(layout.ramHostPa, 16);
+    Pmm::GetInstance().FreePages(layout.ramHostPa, 16);
     return patched;
 }
 

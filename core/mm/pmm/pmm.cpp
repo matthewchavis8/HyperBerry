@@ -10,41 +10,12 @@
 extern uint8_t __text_start[];
 extern uint8_t __uncached_space_end[];
 
-namespace {
-
-constexpr uint64_t MAX_POOL_SIZE { 0x200000000ULL };
-
-constexpr size_t bitmapBytesForPool(uint64_t poolSizeBytes) {
-    const uint64_t totalPages { poolSizeBytes >> PAGE_SHIFT };
-
-    size_t bits {};
-    for (uint32_t off { 0 }; off <= MAX_ORDER; off++) {
-        bits += static_cast<size_t>(totalPages >> (off + 1));
-    }
-
-    return (bits + 7U) / 8U;
-}
-
-// Get the number of state bits available in the block splits
-constexpr size_t BITMAP_BYTES { bitmapBytesForPool(MAX_POOL_SIZE) };
-
-// Here we write into each page a pointer to the next page
-struct FreeNode {
-    FreeNode* m_next;
-};
-
-uint64_t s_base {};                   // Base address of RAM
-uint64_t s_size {};                   // Max size of the Pool
-FreeNode* s_freeLists[NUM_ORDERS] {}; // Array of order buckets representing every page in that
-                                      // order
-uint8_t s_bitmap[BITMAP_BYTES] {};    // Stores the state bits of every buddy pair
-
-size_t bitmapIndex(uint64_t addr, uint32_t order) {
-    uint64_t pageIndex { (addr - s_base) >> PAGE_SHIFT };
+size_t Pmm::bitmapIndex(uint64_t addr, uint32_t order) const {
+    uint64_t pageIndex { (addr - m_base) >> PAGE_SHIFT };
     uint64_t pairIndex { pageIndex >> (order + 1) };
 
     size_t bitOffset {};
-    uint64_t totalPages { s_size >> PAGE_SHIFT };
+    uint64_t totalPages { m_size >> PAGE_SHIFT };
 
     for (uint32_t off { 0 }; off < order; off++) {
         bitOffset += static_cast<size_t>((totalPages >> (off + 1)));
@@ -53,7 +24,7 @@ size_t bitmapIndex(uint64_t addr, uint32_t order) {
     return bitOffset + static_cast<size_t>(pairIndex);
 }
 
-uint8_t bitmapToggle(uint64_t addr, uint32_t order) {
+uint8_t Pmm::bitmapToggle(uint64_t addr, uint32_t order) {
     size_t bitIdx { bitmapIndex(addr, order) };
     size_t byteIdx { bitIdx >> 3 };
     if (byteIdx >= BITMAP_BYTES) {
@@ -63,42 +34,42 @@ uint8_t bitmapToggle(uint64_t addr, uint32_t order) {
     }
     uint8_t mask { (uint8_t)(1u << (bitIdx & 7u)) };
 
-    s_bitmap[byteIdx] ^= mask;
-    return (s_bitmap[byteIdx] & mask) ? 1u : 0u;
+    m_bitmap[byteIdx] ^= mask;
+    return (m_bitmap[byteIdx] & mask) ? 1u : 0u;
 }
 
-void listPush(uint64_t addr, uint32_t order) {
+void Pmm::listPush(uint64_t addr, uint32_t order) {
     FreeNode* node { reinterpret_cast<FreeNode*>(addr) };
-    node->m_next = s_freeLists[order];
-    s_freeLists[order] = node;
+    node->next = m_freeLists[order];
+    m_freeLists[order] = node;
 }
 
-uint64_t listPop(uint32_t order) {
-    FreeNode* node { s_freeLists[order] };
+uint64_t Pmm::listPop(uint32_t order) {
+    FreeNode* node { m_freeLists[order] };
     if (node == nullptr) return 0;
-    s_freeLists[order] = node->m_next;
+    m_freeLists[order] = node->next;
     return reinterpret_cast<uint64_t>(node);
 }
 
-bool listRemove(uint64_t addr, uint32_t order) {
-    FreeNode** curr { &s_freeLists[order] };
+bool Pmm::listRemove(uint64_t addr, uint32_t order) {
+    FreeNode** curr { &m_freeLists[order] };
     while (*curr != nullptr) {
         if (reinterpret_cast<uint64_t>(*curr) == addr) {
-            *curr = (*curr)->m_next;
+            *curr = (*curr)->next;
             return true;
         }
-        curr = &(*curr)->m_next;
+        curr = &(*curr)->next;
     }
     return false;
 }
 
-uint64_t buddyOf(uint64_t addr, uint32_t order) {
-    uint64_t offset { addr - s_base };
+uint64_t Pmm::buddyOf(uint64_t addr, uint32_t order) const {
+    uint64_t offset { addr - m_base };
     uint64_t size { (uint64_t)PAGE_SIZE << order };
-    return (offset ^ size) + s_base;
+    return (offset ^ size) + m_base;
 }
 
-void reserveRegion(uint64_t base, uint64_t size) {
+void Pmm::reserveRegion(uint64_t base, uint64_t size) {
     uint64_t start { base & ~(PAGE_SIZE - 1) };
     uint64_t end { (base + size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1) };
     uint64_t addr { start };
@@ -123,17 +94,19 @@ void reserveRegion(uint64_t base, uint64_t size) {
     }
 }
 
-} // namespace
+Pmm& Pmm::GetInstance() {
+    static Pmm pmm;
+    return pmm;
+}
 
-namespace pmm {
 
-uint64_t AllocPages(uint32_t order) {
+uint64_t Pmm::AllocPages(uint32_t order) {
     if (order > MAX_ORDER) return 0;
 
     // Find the order level
     uint32_t found { MAX_ORDER + 1 };
     for (uint32_t o { order }; o <= MAX_ORDER; o++) {
-        if (s_freeLists[o] != nullptr) {
+        if (m_freeLists[o] != nullptr) {
             found = o;
             break;
         }
@@ -155,7 +128,7 @@ uint64_t AllocPages(uint32_t order) {
     return addr;
 }
 
-void FreePages(uint64_t addr, uint32_t order) {
+void Pmm::FreePages(uint64_t addr, uint32_t order) {
     if (addr == 0 || order > MAX_ORDER) return;
 
     while (order < MAX_ORDER) {
@@ -182,19 +155,17 @@ void FreePages(uint64_t addr, uint32_t order) {
     listPush(addr, order);
 }
 
-void Init(const MemoryMap& map) {
-    s_base = 0;
-    s_size = 0;
+void Pmm::SetMemoryMap(const MemoryMap& map) {
+    m_base = 0;
+    m_size = 0;
 
-    for (auto& orderLevel : s_freeLists)
-        orderLevel = nullptr;
-    for (auto buddyBit : s_bitmap)
-        buddyBit = 0;
+    m_freeLists.fill(nullptr);
+    m_bitmap.fill(0);
 
-    s_base = map.memBase;
-    s_size = map.memSize;
+    m_base = map.memBase;
+    m_size = map.memSize;
 
-    if (s_size > MAX_POOL_SIZE) {
+    if (m_size > MAX_POOL_SIZE) {
         Log::Println("[PMM][ERROR] PMM pool larger than supported bitmap");
         for (;;)
             asm volatile("wfe");
@@ -250,17 +221,16 @@ void Init(const MemoryMap& map) {
     DumpState();
 }
 
-void DumpState() {
+void Pmm::DumpState() const {
     Log::Println("[PMM] Free blocks per order:");
     for (uint32_t o { 0 }; o <= MAX_ORDER; o++) {
         uint32_t count {};
-        FreeNode* node { s_freeLists[o] };
+        FreeNode* node { m_freeLists[o] };
         while (node != nullptr) {
             count++;
-            node = node->m_next;
+            node = node->next;
         }
         Log::Println("  [order] {} [size] {:x} [free] {}", o, (uint64_t)PAGE_SIZE << o, count);
     }
 }
 
-} // namespace pmm

@@ -29,7 +29,7 @@ void PageTable::CleanDataCacheRange(const void* addr, size_t size) {
 }
 
 uint64_t* PageTable::AllocTable() {
-    uint64_t pa { pmm::AllocPages(0) };
+    uint64_t pa { Pmm::GetInstance().AllocPages(0) };
     if (pa == 0) {
         Log::Println("[PageTable] Failed to allocate page table");
         for (;;)
