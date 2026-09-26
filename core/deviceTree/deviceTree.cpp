@@ -24,10 +24,6 @@ constexpr uint32_t DEFAULT_ADDRESS_CELLS { 2 };
 constexpr uint32_t DEFAULT_SIZE_CELLS { 1 };
 constexpr uint32_t CELL_SIZE_BYTES { 4 };
 
-FDT decodeToken(uint32_t token) {
-    return static_cast<FDT>(token);
-}
-
 alignas(16) constexpr std::string_view kMemory { "memory" };
 alignas(16) constexpr std::string_view kReservedMemory { "reserved-memory" };
 alignas(16) constexpr std::string_view kChosen { "chosen" };
@@ -49,28 +45,12 @@ using ByteSpan = std::span<const volatile uint8_t>;
 // Combine big endian Device Tree cells into one host endian number.
 uint64_t getCombinedCell(std::span<Cell> cells) {
     uint64_t combinedCell {};
+
     for (Cell cell : cells) {
         combinedCell = (combinedCell << 32) | Be32(cell);
     }
 
     return combinedCell;
-}
-
-// Decode a one or two cell initial RAM disk physical address.
-uint64_t getInitrdAddress(std::span<Cell> cells) {
-    return cells.size() == 2 ? getCombinedCell(cells) : Be32(cells[0]);
-}
-
-bool stringEquals(ByteSpan actual, std::string_view expected) {
-    if (actual.size() < expected.size() + 1)
-        return false;
-
-    for (size_t i {}; i < expected.size(); ++i) {
-        if (actual[i] != static_cast<uint8_t>(expected[i]))
-            return false;
-    }
-
-    return actual[expected.size()] == 0;
 }
 
 bool stringStartsWith(ByteSpan actual, std::string_view expected) {
@@ -85,10 +65,12 @@ bool stringStartsWith(ByteSpan actual, std::string_view expected) {
     return true;
 }
 
-bool matchesCompatible(
-        ByteSpan list,
-        std::span<const std::string_view> compatibleCandidates) {
+bool stringEquals(ByteSpan actual, std::string_view expected) {
+    return actual.size() > expected.size() && stringStartsWith(actual, expected) &&
+            actual[expected.size()] == 0;
+}
 
+bool matchesCompatible(ByteSpan list, std::span<const std::string_view> compatibleCandidates) {
     size_t off {};
 
     while (off < list.size()) {
@@ -120,6 +102,7 @@ bool matchesCompatible(
 
         off += entryLen < remaining.size() ? entryLen + 1 : entryLen;
     }
+
     return false;
 }
 
@@ -162,9 +145,8 @@ uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
             std::span<Cell> entry { bus.ranges.subspan(off / CELL_SIZE_BYTES) };
             uint64_t child { getCombinedCell(entry.subspan(0, childCells)) };
             uint64_t parent { getCombinedCell(entry.subspan(childCells, parentCells)) };
-            uint64_t length {
-                getCombinedCell(entry.subspan(childCells + parentCells, bus.sizeCells))
-            };
+            uint64_t length { getCombinedCell(
+                    entry.subspan(childCells + parentCells, bus.sizeCells)) };
 
             if (addr >= child && addr - child < length) {
                 addr = addr - child + parent;
@@ -172,6 +154,7 @@ uint64_t translate(const BusLevel* stack, uint32_t depth, uint64_t addr) {
             }
         }
     }
+
     return addr;
 }
 
@@ -187,6 +170,7 @@ alignas(16) constexpr std::array<std::string_view, 5> kGicCompatible {
     "arm,arm11mp-gic",
     "arm,gic-v3",
 };
+
 } // namespace
 
 void TreeParser::validateHeader() const {
@@ -217,11 +201,13 @@ void TreeParser::validateHeader() const {
     while (cursor < structEnd) {
         if (structEnd - cursor < 4)
             HvPanic("[ERROR][DTB] truncated structure block");
-        FDT token { decodeToken(Be32(*reinterpret_cast<const volatile uint32_t*>(cursor))) };
+
+        FDT token { static_cast<FDT>(Be32(*reinterpret_cast<const volatile uint32_t*>(cursor))) };
         cursor += 4;
 
         if (hasEnded)
             HvPanic("[ERROR][DTB] data follows structure end");
+
         if (token == FDT::BEGIN_NODE) {
             const volatile uint8_t* name { cursor };
 
@@ -248,6 +234,7 @@ void TreeParser::validateHeader() const {
         } else if (token == FDT::PROP) {
             if (structEnd - cursor < 8)
                 HvPanic("[ERROR][DTB] truncated property header");
+
             uint32_t len { Be32(*reinterpret_cast<const volatile uint32_t*>(cursor)) };
             uint32_t nameOff { Be32(*reinterpret_cast<const volatile uint32_t*>(cursor + 4)) };
 
@@ -280,12 +267,14 @@ void TreeParser::validateHeader() const {
             HvPanic("[ERROR][DTB] invalid structure token");
         }
     }
+
     if (!hasEnded || cursor != structEnd || end < m_dtb)
         HvPanic("[ERROR][DTB] malformed structure block");
 }
 
 MemoryMap TreeParser::ParseMemoryMap() const {
     validateHeader();
+
     MemoryMap map { .dtbBase = m_dtb };
     const volatile FdtHeader* hdr { reinterpret_cast<const volatile FdtHeader*>(m_dtb) };
     map.dtbSize = Be32(hdr->totalSize);
@@ -297,8 +286,13 @@ MemoryMap TreeParser::ParseMemoryMap() const {
             m_dtb + Be32(hdr->structOff) + Be32(hdr->sizeStructs)) };
     MemoryParseState state {};
 
+    // Decode a one or two cell initial RAM disk physical address.
+    auto getInitrdAddress = [](std::span<Cell> cells) {
+        return cells.size() == 2 ? getCombinedCell(cells) : Be32(cells[0]);
+    };
+
     while (true) {
-        switch (decodeToken(Be32(*tok++))) {
+        switch (static_cast<FDT>(Be32(*tok++))) {
             case FDT::BEGIN_NODE: {
                 const volatile uint8_t* name { reinterpret_cast<const volatile uint8_t*>(tok) };
                 uint32_t len {};
@@ -321,6 +315,7 @@ MemoryMap TreeParser::ParseMemoryMap() const {
                             stringEquals(nodeName, kSecmon) || stringEquals(nodeName, kOptee) ||
                             stringEquals(nodeName, kTee);
                 }
+
                 tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(name, len + 1));
                 ++state.depth;
                 break;
@@ -396,7 +391,7 @@ DeviceNode TreeParser::FindDevice(std::span<const std::string_view> devices) con
     uint32_t depth {};
 
     while (true) {
-        switch (decodeToken(Be32(*tok++))) {
+        switch (static_cast<FDT>(Be32(*tok++))) {
             case FDT::BEGIN_NODE: {
                 const volatile uint8_t* name { reinterpret_cast<const volatile uint8_t*>(tok) };
                 uint32_t len {};
@@ -411,13 +406,7 @@ DeviceNode TreeParser::FindDevice(std::span<const std::string_view> devices) con
                 tok = reinterpret_cast<const volatile uint32_t*>(FdtAlign(name, len + 1));
 
                 if (depth < MAX_DEPTH)
-                    stack[depth] = {
-                        DEFAULT_ADDRESS_CELLS,
-                        DEFAULT_SIZE_CELLS,
-                        {},
-                        false,
-                        {}
-                    };
+                    stack[depth] = { DEFAULT_ADDRESS_CELLS, DEFAULT_SIZE_CELLS, {}, false, {} };
 
                 ++depth;
                 break;
@@ -428,25 +417,23 @@ DeviceNode TreeParser::FindDevice(std::span<const std::string_view> devices) con
 
                 if (depth < MAX_DEPTH && stack[depth].matched) {
                     const BusLevel& node { stack[depth] };
-                    uint32_t addressCells {
-                        depth ? stack[depth - 1].addressCells : DEFAULT_ADDRESS_CELLS
-                    };
-                    uint32_t sizeCells {
-                        depth ? stack[depth - 1].sizeCells : DEFAULT_SIZE_CELLS
-                    };
+                    uint32_t addressCells { depth ? stack[depth - 1].addressCells
+                                                  : DEFAULT_ADDRESS_CELLS };
+                    uint32_t sizeCells { depth ? stack[depth - 1].sizeCells : DEFAULT_SIZE_CELLS };
                     uint32_t stride { (addressCells + sizeCells) * CELL_SIZE_BYTES };
+
                     if (!node.reg.empty() && stride && node.reg.size_bytes() % stride == 0) {
                         DeviceNode out {};
 
-                        for (uint32_t off {};
-                                off + stride <= node.reg.size_bytes() &&
+                        for (uint32_t off {}; off + stride <= node.reg.size_bytes() &&
                                 out.regionCount < DT_MAX_REGIONS;
                                 off += stride) {
                             std::span<Cell> entry { node.reg.subspan(off / CELL_SIZE_BYTES) };
-                            out.regions[out.regionCount] = {
-                                translate(stack, depth, getCombinedCell(entry.subspan(0, addressCells))),
-                                getCombinedCell(entry.subspan(addressCells, sizeCells))
-                            };
+                            uint64_t base { getCombinedCell(entry.subspan(0, addressCells)) };
+                            uint64_t size { getCombinedCell(
+                                    entry.subspan(addressCells, sizeCells)) };
+
+                            out.regions[out.regionCount] = { translate(stack, depth, base), size };
                             ++out.regionCount;
                         }
 
@@ -474,9 +461,9 @@ DeviceNode TreeParser::FindDevice(std::span<const std::string_view> devices) con
                     } else if (stringEquals(name, kReg)) {
                         node.reg = data;
                     } else if (stringEquals(name, kCompatible) && len) {
-                        node.matched = matchesCompatible(
-                                ByteSpan { reinterpret_cast<const volatile uint8_t*>(data.data()), len },
-                                devices);
+                        ByteSpan list { reinterpret_cast<const volatile uint8_t*>(data.data()),
+                            len };
+                        node.matched = matchesCompatible(list, devices);
                     }
                 }
 
@@ -504,20 +491,31 @@ MmioMap TreeParser::GetHostMmio() const {
         HvPanic("[ERROR][DTB] host GIC is missing required regions");
 
     constexpr std::array<uint64_t, 10> expected {
-        BSP_UART_BASE, BSP_UART_SIZE,
-        BSP_GIC_DISTRIBUTOR_BASE, BSP_GIC_DISTRIBUTOR_SIZE,
-        BSP_GIC_CPU_BASE, BSP_GIC_CPU_SIZE,
-        BSP_GIC_HV_BASE, BSP_GIC_HV_SIZE,
-        BSP_GIC_VCPU_BASE, BSP_GIC_VCPU_SIZE,
+        BSP_UART_BASE,
+        BSP_UART_SIZE,
+        BSP_GIC_DISTRIBUTOR_BASE,
+        BSP_GIC_DISTRIBUTOR_SIZE,
+        BSP_GIC_CPU_BASE,
+        BSP_GIC_CPU_SIZE,
+        BSP_GIC_HV_BASE,
+        BSP_GIC_HV_SIZE,
+        BSP_GIC_VCPU_BASE,
+        BSP_GIC_VCPU_SIZE,
     };
     const std::array<uint64_t, 10> actual {
-        uart.regions[0].base, uart.regions[0].size,
-        gic.regions[0].base, gic.regions[0].size,
-        gic.regions[1].base, gic.regions[1].size,
-        gic.regions[2].base, gic.regions[2].size,
-        gic.regions[3].base, gic.regions[3].size,
+        uart.regions[0].base,
+        uart.regions[0].size,
+        gic.regions[0].base,
+        gic.regions[0].size,
+        gic.regions[1].base,
+        gic.regions[1].size,
+        gic.regions[2].base,
+        gic.regions[2].size,
+        gic.regions[3].base,
+        gic.regions[3].size,
     };
     const bool isMatch { std::equal(expected.begin(), expected.end(), actual.begin()) };
+
     Uart::GetInstance().SetBase(uart.regions[0].base);
 
     if (!isMatch)
