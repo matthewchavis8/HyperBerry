@@ -9,19 +9,18 @@
 namespace {
 constexpr uint32_t STAGE1_START_LEVEL { 0 };
 constexpr uint64_t STAGE1_ROOT_INDEX_MASK { 0x1FFULL };
-
-uint64_t* l0_table;
-
-PageTable stage1Table() {
-    return { l0_table, STAGE1_START_LEVEL, STAGE1_ROOT_INDEX_MASK };
-}
 } // namespace
 
-namespace HostMmu {
-void Init(const MmioMap& devices) {
-    Log::Println("[HostMmu] init called");
-    l0_table = PageTable::AllocTable();
-    Log::Println("[HostMmu] L0 table={}", l0_table);
+HostMmu::HostMmu() :
+            m_table { PageTable::AllocTable(), STAGE1_START_LEVEL, STAGE1_ROOT_INDEX_MASK } {}
+
+HostMmu& HostMmu::GetInstance() {
+    static HostMmu hostMmu;
+    return hostMmu;
+}
+
+void HostMmu::Enable(const MmioMap& devices) {
+    Log::Println("[HostMmu] L0 table={}", m_table.GetRoot());
 
     Log::Println("[HostMmu] Programming MAIR");
     uint64_t mair { (0xFFULL << (MAIR_IDX_NORMAL * 8)) // Normal memory
@@ -45,7 +44,7 @@ void Init(const MmioMap& devices) {
     }
 
     Log::Println("[HostMmu] Programming TTBR0");
-    asm volatile("msr ttbr0_el2, %0" ::"r"((uint64_t)(uintptr_t)l0_table) : "memory");
+    asm volatile("msr ttbr0_el2, %0" ::"r"((uint64_t)(uintptr_t)m_table.GetRoot()) : "memory");
     asm volatile("dsb ishst" ::: "memory");
     asm volatile("isb");
 
@@ -58,12 +57,12 @@ void Init(const MmioMap& devices) {
     asm volatile("msr sctlr_el2, %0" ::"r"(sctlr) : "memory");
     asm volatile("isb");
 
-    Log::Println("[HostMmu] init finished");
+    Log::Println("[HostMmu] stage-1 enabled");
 }
 
-void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
+void HostMmu::MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte { stage1Table().Walk(va + off, true) };
+        uint64_t* pte { m_table.Walk(va + off, true) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::mapRange walk failed");
             break;
@@ -72,9 +71,9 @@ void MapRange(uint64_t va, uint64_t pa, uint64_t size, uint64_t flags) {
     }
 }
 
-void UnmapRange(uint64_t va, uint64_t size) {
+void HostMmu::UnmapRange(uint64_t va, uint64_t size) {
     for (uint64_t off {}; off < size; off += SIZE_2MB) {
-        uint64_t* pte { stage1Table().Walk(va + off, false) };
+        uint64_t* pte { m_table.Walk(va + off, false) };
         if (!pte) {
             Log::Println("[ERROR] HostMmu::unmapRange walk failed");
             break;
@@ -84,15 +83,14 @@ void UnmapRange(uint64_t va, uint64_t size) {
     }
 }
 
-void TlbFlushAll() {
+void HostMmu::TlbFlushAll() {
     asm volatile("tlbi alle2is" ::: "memory");
     asm volatile("dsb sy" ::: "memory");
     asm volatile("isb");
 }
 
-void TlbFlushVa(uint64_t va) {
+void HostMmu::TlbFlushVa(uint64_t va) {
     asm volatile("tlbi vae2is, %0" ::"r"(va >> 12) : "memory");
     asm volatile("dsb sy" ::: "memory");
     asm volatile("isb");
 }
-} // namespace HostMmu

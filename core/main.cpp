@@ -43,7 +43,7 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
 
     Log::Println("[HostMmu] Attempting to bring up host MMU");
-    HostMmu::Init(hostTree.GetHostMmio());
+    HostMmu::GetInstance().Enable(hostTree.GetHostMmio());
     Log::Println("[HostMmu] Successfully host MMU is brought up");
 
     Log::Println("[GIC] Attempting to bring up GICv2");
