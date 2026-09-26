@@ -6,7 +6,6 @@
 // EL2 initialization, BSS zeroing, and stack setup.
 
 #include "core/mm/pmm/pmm.h"
-#include "core/mm/heap/heap.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/bootLoader/bootLoader.h"
 #include "core/vm/vm.h"
@@ -42,10 +41,6 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[PMM] Successfully brought up PMM");
 
     Log::Println("[MM] Memory Pool Size={:x}", memoryMap.memSize);
-
-    Log::Println("[HEAP] Attempting to bring up kernel heap");
-    hv::heap::Init();
-    Log::Println("[HEAP] Successfully brought up kernel heap");
 
     Log::Println("[HostMmu] Attempting to bring up host MMU");
     HostMmu::Init(hostTree.GetHostMmio());
