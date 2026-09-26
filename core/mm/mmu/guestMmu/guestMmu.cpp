@@ -36,7 +36,7 @@ uint64_t buildStage2PageDescriptor(uint64_t pa, bool isDevice) {
 }
 
 uint64_t* allocStage2RootTable() {
-    uint64_t pa { pmm::AllocPages(1) };
+    uint64_t pa { Pmm::GetInstance().AllocPages(1) };
     if (pa == 0) {
         Log::Println("[GuestMmu][ERROR] failed to allocate stage-2 root");
         for (;;)

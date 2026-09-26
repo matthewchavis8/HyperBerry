@@ -209,15 +209,17 @@ std::vector<uint8_t> buildArchive(bool withInitrd = true, bool placeholders = tr
 unsigned freed {};
 } // namespace
 
-namespace pmm {
-uint64_t AllocPages(uint32_t order) {
+Pmm& Pmm::GetInstance() {
+    static Pmm pmm;
+    return pmm;
+}
+uint64_t Pmm::AllocPages(uint32_t order) {
     gAllocPagesOrder = order;
     return gAllocPagesReturn;
 }
-void FreePages(uint64_t, uint32_t) {
+void Pmm::FreePages(uint64_t, uint32_t) {
     ++freed;
 }
-} // namespace pmm
 
 void PageTable::CleanDataCacheRange(const void*, size_t) {}
 

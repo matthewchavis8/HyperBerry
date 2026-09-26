@@ -21,7 +21,7 @@ public:
         while (m_order < MAX_ORDER && (PAGE_SIZE << m_order) < file.size)
             ++m_order;
         if ((PAGE_SIZE << m_order) < file.size) return;
-        m_base = pmm::AllocPages(m_order);
+        m_base = Pmm::GetInstance().AllocPages(m_order);
         if (!m_base) return;
         auto* destination { static_cast<uint8_t*>(HostMmu::PaToVa(m_base)) };
         memcpy(destination, file.data, file.size);
@@ -46,7 +46,7 @@ public:
     Binary(Binary&&) = delete;
     Binary& operator=(Binary&&) = delete;
     ~Binary() {
-        if (m_base) pmm::FreePages(m_base, m_order);
+        if (m_base) Pmm::GetInstance().FreePages(m_base, m_order);
     }
 };
 } // namespace test

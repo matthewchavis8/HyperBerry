@@ -66,14 +66,14 @@ void clearStage2Enable() {
 
 static bool test_init_programs_vtcr_el2() {
     GuestMmu mmu;
-    uint64_t hostPa { pmm::AllocPages(9) };
+    uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
 
     uint64_t vtcr;
     asm volatile("mrs %0, vtcr_el2" : "=r"(vtcr));
-    pmm::FreePages(hostPa, 9);
+    Pmm::GetInstance().FreePages(hostPa, 9);
 
     uint64_t expected { VTCR_T0SZ(24) | VTCR_SL0_L1 | VTCR_TG0_4K | VTCR_SH0_IS | VTCR_ORGN0_WB |
         VTCR_IRGN0_WB | VTCR_PS_40BIT | VTCR_RES1 };
@@ -83,7 +83,7 @@ static bool test_init_programs_vtcr_el2() {
 
 static bool test_init_maps_guest_ram_blocks() {
     GuestMmu mmu;
-    uint64_t hostPa { pmm::AllocPages(9) };
+    uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
@@ -94,13 +94,13 @@ static bool test_init_maps_guest_ram_blocks() {
         *first == normalStage2Descriptor(hostPa) &&
         *second == normalStage2Descriptor(hostPa + SIZE_2MB) };
 
-    pmm::FreePages(hostPa, 9);
+    Pmm::GetInstance().FreePages(hostPa, 9);
     return mapped;
 }
 
 static bool test_init_maps_device_windows() {
     GuestMmu mmu;
-    uint64_t hostPa { pmm::AllocPages(9) };
+    uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
     // One window of each granule. The page path carried no coverage at all
@@ -117,13 +117,13 @@ static bool test_init_maps_device_windows() {
     bool mapped { block != nullptr && *block == deviceStage2Descriptor(kDeviceBlockIpa) &&
         page != nullptr && *page == devicePageStage2Descriptor(BSP_UART_BASE) };
 
-    pmm::FreePages(hostPa, 9);
+    Pmm::GetInstance().FreePages(hostPa, 9);
     return mapped;
 }
 
 static bool test_enable_programs_vttbr_and_hcr_vm() {
     GuestMmu mmu;
-    uint64_t hostPa { pmm::AllocPages(9) };
+    uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
     if (hostPa == 0) return false;
 
     mmu.Init(kGuestIpaBase, hostPa, kGuestSize, MmioMap {});
@@ -139,13 +139,13 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
     bool enabled { vttbr == expectedVttbr && (hcr & 1ULL) != 0 };
 
     clearStage2Enable();
-    pmm::FreePages(hostPa, 9);
+    Pmm::GetInstance().FreePages(hostPa, 9);
     return enabled;
 }
 
 static bool test_device_pages_replace_ram_without_losing_neighbors() {
     GuestMmu mmu;
-    uint64_t hostPa { pmm::AllocPages(10) };
+    uint64_t hostPa { Pmm::GetInstance().AllocPages(10) };
     if (!hostPa) return false;
     uint64_t deviceIpa { kGuestIpaBase + SIZE_4KB };
     MmioMap devices {};
@@ -162,7 +162,7 @@ static bool test_device_pages_replace_ram_without_losing_neighbors() {
         *after == (normalStage2Descriptor(hostPa + 2 * SIZE_4KB) | PTE_TABLE) &&
         *last == (normalStage2Descriptor(hostPa + SIZE_2MB - SIZE_4KB) | PTE_TABLE) &&
         *nextBlock == normalStage2Descriptor(hostPa + SIZE_2MB) };
-    pmm::FreePages(hostPa, 10);
+    Pmm::GetInstance().FreePages(hostPa, 10);
     return mapped;
 }
 

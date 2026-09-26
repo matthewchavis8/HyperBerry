@@ -51,7 +51,7 @@ class GuestMmu {
 private:
     struct Stage2RootDeleter {
         void operator()(uint64_t* table) const noexcept {
-            if (table) pmm::FreePages(reinterpret_cast<uint64_t>(table), 1);
+            if (table) Pmm::GetInstance().FreePages(reinterpret_cast<uint64_t>(table), 1);
         }
     };
 

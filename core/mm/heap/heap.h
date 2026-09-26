@@ -25,7 +25,7 @@ namespace heap {
     // @brief Initialise the kernel heap.
     // @ingroup mm
     //
-    // Must be called once during boot, after @c pmm::Init() and before any
+    // Must be called once during boot, after @c Pmm::GetInstance().SetMemoryMap() and before any
     // code path that allocates dynamic objects. Subsequent calls re-arm the
     // heap; the existing slab/large bookkeeping is reset.
     void Init();

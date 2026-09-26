@@ -38,7 +38,7 @@ extern "C" void hmain(uintptr_t dtb) {
     Log::Println("[DTB] Succesfully parsed device tree blob");
 
     Log::Println("[PMM] Attempting to bring up PMM");
-    pmm::Init(memoryMap);
+    Pmm::GetInstance().SetMemoryMap(memoryMap);
     Log::Println("[PMM] Successfully brought up PMM");
 
     Log::Println("[MM] Memory Pool Size={:x}", memoryMap.memSize);

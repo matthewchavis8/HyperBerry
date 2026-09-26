@@ -42,7 +42,7 @@ void storeBe64(uint8_t* dst, uint64_t value) {
 struct GuestRamDeleter {
     void operator()(uint8_t* guestRam) const noexcept {
         if (guestRam)
-            pmm::FreePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
+            Pmm::GetInstance().FreePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
     }
 };
 
@@ -327,7 +327,7 @@ bool BootLoader::Load(GuestLayout& out) const {
     if (!ReadFiles(files) || !CalculateLayout(files, layout))
         return false;
 
-    layout.ramHostPa = pmm::AllocPages(GUEST_RAM_ORDER);
+    layout.ramHostPa = Pmm::GetInstance().AllocPages(GUEST_RAM_ORDER);
 
     if (layout.ramHostPa == 0)
         return false;
