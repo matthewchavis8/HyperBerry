@@ -4,7 +4,7 @@
 // Current-EL IRQ catches the physical SPI, and lower-EL/AArch64 sync catches
 // the guest's HVC before unwinding to the test caller via Vcpu::HvContext.
 
-#include "core/vcpu/vcpu.h"
+#include "vcpuOffsets.h"
 
 .section .text.test_gic_vectors
 .balign 0x800

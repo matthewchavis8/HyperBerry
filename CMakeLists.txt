@@ -144,6 +144,7 @@ set(HB_SUBSYSTEMS Virt Mm Drivers Lib)
 # CoreTest); `outdir` receives kernel8.img.
 function(hb_add_image name core outdir)
   add_executable(${name} ${BSP_DIR}/boot.S ${HB_ENTRY_SOURCES})
+  add_dependencies(${name} VcpuOffsetsHeader${BSP_SUFFIX})
 
   target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${BSP_DIR} ${BSP_GEN})
 

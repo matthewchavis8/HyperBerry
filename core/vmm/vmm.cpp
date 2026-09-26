@@ -20,9 +20,9 @@ namespace {
 // @return Nothing.
 void handleHvcExit(Vcpu& vcpu) {
     Log::Println("[Guest][HVC] Handling HVC call from guest, call ID={:x}",
-            vcpu.GetGpReg(VCPU_GPREG_X0));
+            vcpu.GetGpReg(Gpr::X0));
 
-    switch (HandleHvcAarch64(vcpu.m_gpr)) {
+    switch (HandleHvcAarch64(vcpu.GetGprs())) {
         case HvcResult::HANDLED:
         case HvcResult::UNHANDLED:
             vcpu_enter(&vcpu);
@@ -68,8 +68,8 @@ extern "C" void handle_lower_el_sync(Vcpu* vcpu, uint64_t esr) {
 
         case EsrEc::SMC_AARCH64:
             Log::Println("[Guest][SMC] Handling SMC call from guest, call ID={:x}",
-                    vcpu->GetGpReg(VCPU_GPREG_X0));
-            vcpu->SetGpReg(VCPU_GPREG_X0, SMCCC::ToRegister(SMCCC::NOT_SUPPORTED));
+                    vcpu->GetGpReg(Gpr::X0));
+            vcpu->SetGpReg(Gpr::X0, SMCCC::ToRegister(SMCCC::NOT_SUPPORTED));
             vcpu->SkipInstruction();
             vcpu_enter(vcpu);
             break;

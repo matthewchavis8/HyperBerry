@@ -60,18 +60,10 @@ static bool test_vcpu_is_standard_layout() {
     return __is_standard_layout(Vcpu);
 }
 
-static bool test_vcpu_hvctx_size_matches_asm() {
-    return sizeof(HvContext) == VCPU_HVCTX_SIZE;
-}
-
-static bool test_vcpu_hvctx_offset_matches_asm() {
-    return VcpuLayoutAccess::GetHvCtxOffset() == VCPU_HVCTX_OFFSET;
-}
-
 static bool test_vcpu_gpr_round_trip() {
     Vcpu vcpu { 0x40000000ULL };
-    vcpu.SetGpReg(VCPU_GPREG_X5, 0xCAFEBABEULL);
-    return vcpu.GetGpReg(VCPU_GPREG_X5) == 0xCAFEBABEULL;
+    vcpu.SetGpReg(Gpr::X5, 0xCAFEBABEULL);
+    return vcpu.GetGpReg(Gpr::X5) == 0xCAFEBABEULL;
 }
 
 static bool test_vcpu_tpidr_el2_is_accessible() {
@@ -111,7 +103,7 @@ static bool test_vcpu_guest_exit_saves_guest_pc() {
         return false;
     }
 
-    return vcpu.GetElr() == vcpu.GetGpReg(VCPU_GPREG_X6);
+    return vcpu.GetElr() == vcpu.GetGpReg(Gpr::X6);
 }
 
 static bool test_vcpu_guest_exit_saves_guest_gprs() {
@@ -121,14 +113,12 @@ static bool test_vcpu_guest_exit_saves_guest_gprs() {
         return false;
     }
 
-    return vcpu.GetGpReg(VCPU_GPREG_X0) == kGuestCallId &&
-            vcpu.GetGpReg(VCPU_GPREG_X5) == kGuestScratch;
+    return vcpu.GetGpReg(Gpr::X0) == kGuestCallId &&
+            vcpu.GetGpReg(Gpr::X5) == kGuestScratch;
 }
 
 static const TestCase kVcpuCases[] {
     { "vcpu_is_standard_layout", test_vcpu_is_standard_layout },
-    { "vcpu_hvctx_size_matches_asm", test_vcpu_hvctx_size_matches_asm },
-    { "vcpu_hvctx_offset_matches_asm", test_vcpu_hvctx_offset_matches_asm },
     { "vcpu_gpr_round_trip", test_vcpu_gpr_round_trip },
     { "vcpu_tpidr_el2_is_accessible", test_vcpu_tpidr_el2_is_accessible },
     { "vcpu_guest_exit_returns_to_caller", test_vcpu_guest_exit_returns_to_caller },
@@ -140,7 +130,7 @@ static const TestCase kVcpuCases[] {
 static const TestSuite kVcpuSuite {
     "VcpuHarness",
     kVcpuCases,
-    9,
+    7,
 };
 
 REGISTER_SUITE(kVcpuSuite);
