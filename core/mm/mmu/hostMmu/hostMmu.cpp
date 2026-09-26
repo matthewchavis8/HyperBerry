@@ -43,9 +43,8 @@ void Init(const MmioMap& devices) {
     Log::Println("[HostMmu] Mapping HV DRAM");
     MapRange(HV_VA_BASE, HV_VA_BASE, HV_VA_SIZE, PTE_NORMAL | PTE_AP_RW);
 
-    Log::Println("[HostMmu] Mapping {} HV MMIO window(s)", devices.count);
-    for (uint32_t i {}; i < devices.count; ++i) {
-        const MmioWindow& window { devices.windows[i] };
+    Log::Println("[HostMmu] Mapping {} HV MMIO window(s)", devices.GetCount());
+    for (const MmioWindow& window : devices) {
         Log::Println("[HostMmu]   {:x}..{:x}", window.base, window.base + window.size);
         MapRange(window.base, window.pa, window.size, PTE_DEVICE);
     }

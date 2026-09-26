@@ -101,9 +101,8 @@ void GuestMmu::Init(
         MapBlock(ipaBase + off, hostPaBase + off, false);
     }
 
-    Log::Println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.count);
-    for (uint32_t i {}; i < devices.count; ++i) {
-        const MmioWindow& window { devices.windows[i] };
+    Log::Println("[GuestMmu] Mapping {} guest MMIO window(s)", devices.GetCount());
+    for (const MmioWindow& window : devices) {
         Log::Println("[GuestMmu]   ipa {:x}..{:x} -> pa {:x}",
                 window.base,
                 window.base + window.size,
