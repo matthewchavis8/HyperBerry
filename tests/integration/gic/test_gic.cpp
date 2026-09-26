@@ -271,8 +271,8 @@ EndToEndCapture runEndToEnd() {
 
     trace("runEndToEnd: Vcpu");
     Vcpu vcpu { binary.GetEntry() };
-    vcpu.SetGpReg(VCPU_GPREG_X0, Gic::GetInstance().GetVcpuBase());
-    vcpu.SetGpReg(VCPU_GPREG_X1, reinterpret_cast<uint64_t>(&gGuestResult));
+    vcpu.SetGpReg(Gpr::X0, Gic::GetInstance().GetVcpuBase());
+    vcpu.SetGpReg(Gpr::X1, reinterpret_cast<uint64_t>(&gGuestResult));
     trace("runEndToEnd: Vcpu::setGuestSp");
     vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
 
@@ -289,13 +289,13 @@ EndToEndCapture runEndToEnd() {
             gTestGicVectorExitKind,
             gGuestResult.progress,
             gGuestResult.iar,
-            vcpu.GetGpReg(VCPU_GPREG_X0),
+            vcpu.GetGpReg(Gpr::X0),
             vcpu.GetElr());
     restoreVbar(savedVbar);
 
     capture.guestExited = true;
     trace("runEndToEnd: read guest x0");
-    capture.guestSawVirtIrq = (vcpu.GetGpReg(VCPU_GPREG_X0) & 0x3FFU) == kVirtIrq;
+    capture.guestSawVirtIrq = (vcpu.GetGpReg(Gpr::X0) & 0x3FFU) == kVirtIrq;
     trace("runEndToEnd: read physical active");
     capture.physicalInactiveAfterEoi =
             (*distReg(irqReg(GicReg::Dist::ISACTIVER, kPhysIrq)) & irqBit(kPhysIrq)) == 0;

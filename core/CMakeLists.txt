@@ -24,6 +24,26 @@ target_link_libraries(Virt${BSP_SUFFIX}
   Lib${BSP_SUFFIX}
 )
 
+# vcpu.S indexes into Vcpu through offsets the compiler computes. The object
+# library is compiled to assembly text rather than to an object, and the
+# script lifts the offsets out of it into a header the .S files include.
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+add_library(VcpuOffsets${BSP_SUFFIX} OBJECT vcpu/vcpuOffsets.cpp)
+target_compile_options(VcpuOffsets${BSP_SUFFIX} PRIVATE -S -Wno-unused-command-line-argument)
+
+set(HB_VCPU_OFFSETS ${BSP_GEN}/vcpuOffsets.h)
+add_custom_command(
+  OUTPUT ${HB_VCPU_OFFSETS}
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/asmoffsets/asmoffsets.py
+          --in $<TARGET_OBJECTS:VcpuOffsets${BSP_SUFFIX}> --out ${HB_VCPU_OFFSETS}
+  DEPENDS VcpuOffsets${BSP_SUFFIX}
+          $<TARGET_OBJECTS:VcpuOffsets${BSP_SUFFIX}>
+          ${CMAKE_SOURCE_DIR}/scripts/asmoffsets/asmoffsets.py
+  VERBATIM
+)
+add_custom_target(VcpuOffsetsHeader${BSP_SUFFIX} DEPENDS ${HB_VCPU_OFFSETS})
+
 set(HB_CORE_SOURCES
   main.cpp
   deviceTree/deviceTree.cpp

@@ -52,8 +52,8 @@ Checks: >
 
 # Rationale for the bare-metal EL2 exclusions above, in the same order:
 #   hicpp-no-assembler .............. inline asm is the job at EL2
-#   cppcoreguidelines-macro-usage ... VCPU_GPREG_* offsets are #included by vcpu.S
-#   *-macro-to-enum ................. same; those offsets cannot become enums
+#   cppcoreguidelines-macro-usage ... the MMU descriptor bits are still macros
+#   *-macro-to-enum ................. same; convert those before enabling either
 #   avoid-do-while .................. do {} while (0) is the multi-statement macro idiom
 #   unchecked-container-access ...... fires on every operator[]; no bounds-checked
 #                                     alternative exists in a freestanding build

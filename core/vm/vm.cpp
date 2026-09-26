@@ -11,7 +11,7 @@ Vm::Vm(const VmConfig& config, const MmioMap& devices) :
             m_guestMmu { config.ipaBase, config.ramHostPa, config.ramSize, devices },
             m_vcpu { config.entry },
             m_vmid { config.vmid } {
-    m_vcpu.SetGpReg(VCPU_GPREG_X0, config.dtb);
+    m_vcpu.SetGpReg(Gpr::X0, config.dtb);
     Log::Println("[VM] {} built", m_name);
 }
 

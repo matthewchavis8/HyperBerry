@@ -2,241 +2,156 @@
 // @brief Per-guest virtual CPU context for EL2 hypervisor scheduling.
 // @ingroup vcpu
 //
-// Defines the Vcpu class, which carries all CPU state needed to
-// suspend a guest running at EL1 and resume it later. Layout matches
-// the offset constants below so that vcpu.S can index into Vcpu
-// instances without C++ knowledge.
+// Defines the Vcpu class, which carries all CPU state needed to suspend a
+// guest running at EL1 and resume it later. vcpu.S reaches into it through
+// offsets the compiler computes from this layout; see vcpuOffsets.cpp.
+
 #ifndef __VCPU_H__
 #define __VCPU_H__
 
-// General-purpose register offsets (from Vcpu::m_gpr base)
-#define VCPU_GPREG_X0 0x000
-#define VCPU_GPREG_X1 0x008
-#define VCPU_GPREG_X2 0x010
-#define VCPU_GPREG_X3 0x018
-#define VCPU_GPREG_X4 0x020
-#define VCPU_GPREG_X5 0x028
-#define VCPU_GPREG_X6 0x030
-#define VCPU_GPREG_X7 0x038
-#define VCPU_GPREG_X8 0x040
-#define VCPU_GPREG_X9 0x048
-#define VCPU_GPREG_X10 0x050
-#define VCPU_GPREG_X11 0x058
-#define VCPU_GPREG_X12 0x060
-#define VCPU_GPREG_X13 0x068
-#define VCPU_GPREG_X14 0x070
-#define VCPU_GPREG_X15 0x078
-#define VCPU_GPREG_X16 0x080
-#define VCPU_GPREG_X17 0x088
-#define VCPU_GPREG_X18 0x090
-#define VCPU_GPREG_X19 0x098
-#define VCPU_GPREG_X20 0x0A0
-#define VCPU_GPREG_X21 0x0A8
-#define VCPU_GPREG_X22 0x0B0
-#define VCPU_GPREG_X23 0x0B8
-#define VCPU_GPREG_X24 0x0C0
-#define VCPU_GPREG_X25 0x0C8
-#define VCPU_GPREG_X26 0x0D0
-#define VCPU_GPREG_X27 0x0D8
-#define VCPU_GPREG_X28 0x0E0
-#define VCPU_GPREG_X29 0x0E8
-#define VCPU_GPREG_LR 0x0F0
-#define VCPU_GPREG_SP_EL0 0x0F8
-#define VCPU_GPREGS_SIZE 0x100
-
-// EL2 exception-return state offsets
-#define VCPU_ELR_EL2 0x000
-#define VCPU_SPSR_EL2 0x008
-#define VCPU_EL2STATE_SIZE 0x010
-
-// EL1 system register offsets
-#define VCPU_SCTLR_EL1 0x000
-#define VCPU_TTBR0_EL1 0x008
-#define VCPU_TTBR1_EL1 0x010
-#define VCPU_TCR_EL1 0x018
-#define VCPU_MAIR_EL1 0x020
-#define VCPU_AMAIR_EL1 0x028
-#define VCPU_VBAR_EL1 0x030
-#define VCPU_ELR_EL1 0x038
-#define VCPU_SPSR_EL1 0x040
-#define VCPU_SP_EL1 0x048
-#define VCPU_ESR_EL1 0x050
-#define VCPU_FAR_EL1 0x058
-#define VCPU_AFSR0_EL1 0x060
-#define VCPU_AFSR1_EL1 0x068
-#define VCPU_CONTEXTIDR_EL1 0x070
-#define VCPU_TPIDR_EL1 0x078
-#define VCPU_TPIDR_EL0 0x080
-#define VCPU_TPIDRRO_EL0 0x088
-#define VCPU_CNTKCTL_EL1 0x090
-#define VCPU_CPACR_EL1 0x098
-#define VCPU_PAR_EL1 0x0A0
-#define VCPU_CSSELR_EL1 0x0A8
-#define VCPU_EL1SYSREGS_SIZE 0x0B0
-
-// Top-level Vcpu layout offsets
-#define VCPU_GPREGS_OFFSET 0x000
-#define VCPU_EL2STATE_OFFSET (VCPU_GPREGS_OFFSET + VCPU_GPREGS_SIZE)
-#define VCPU_EL1REGS_OFFSET (VCPU_EL2STATE_OFFSET + VCPU_EL2STATE_SIZE)
-#define VCPU_SIZEOF (VCPU_EL1REGS_OFFSET + VCPU_EL1SYSREGS_SIZE)
-
-// Hypervisor context offsets
-#define VCPU_HVCTX_OFFSET (VCPU_EL1REGS_OFFSET + VCPU_EL1SYSREGS_SIZE)
-#define VCPU_HVCTX_SP 0x000
-#define VCPU_HVCTX_LR 0x008
-#define VCPU_HVCTX_X19 0x010
-#define VCPU_HVCTX_X20 0x018
-#define VCPU_HVCTX_X21 0x020
-#define VCPU_HVCTX_X22 0x028
-#define VCPU_HVCTX_X23 0x030
-#define VCPU_HVCTX_X24 0x038
-#define VCPU_HVCTX_X25 0x040
-#define VCPU_HVCTX_X26 0x048
-#define VCPU_HVCTX_X27 0x050
-#define VCPU_HVCTX_X28 0x058
-#define VCPU_HVCTX_X29 0x060
-#define VCPU_HVCTX_EXIT_ESR 0x068
-
-#define VCPU_HVCTX_SIZE 0x070
-#ifndef __ASSEMBLER__
-
-#include <cstdint>
 #include <array>
+#include <cstddef>
+#include <cstdint>
 
-static constexpr size_t regIdx(size_t off) {
-    return off / sizeof(uint64_t);
-}
-
-// @brief EL2 exception-return state: elr_el2, spsr_el2.
+// @brief A saved guest general-purpose register.
 // @ingroup vcpu
-struct El2State {
-    std::array<uint64_t, VCPU_EL2STATE_SIZE / sizeof(uint64_t)> regs;
-} __attribute__((aligned(16)));
+enum class Gpr : uint8_t {
+    X0, X1, X2, X3, X4, X5, X6, X7, X8, X9,
+    X10, X11, X12, X13, X14, X15, X16, X17, X18, X19,
+    X20, X21, X22, X23, X24, X25, X26, X27, X28, X29,
+    LR,
+    SP_EL0,
+};
 
-// @brief EL1 system register context (SCTLR_EL1, TTBRn_EL1, etc).
+// @brief A saved EL2 exception return register.
 // @ingroup vcpu
-struct El1SysRegs {
-    std::array<uint64_t, VCPU_EL1SYSREGS_SIZE / sizeof(uint64_t)> regs;
-} __attribute__((aligned(16)));
+enum class El2Reg : uint8_t {
+    ELR_EL2,
+    SPSR_EL2,
+    COUNT,
+};
 
-struct HvContext {
-    uint64_t sp;
-    uint64_t lr;
-    std::array<uint64_t, 11> callSavedReg;
-    uint64_t exitEsr; // stashed by vcpu_exit_sync/serror before guest state save
-} __attribute__((aligned(16)));
+// @brief A saved EL1 system register.
+// @ingroup vcpu
+enum class El1Reg : uint8_t {
+    SCTLR_EL1,
+    TTBR0_EL1,
+    TTBR1_EL1,
+    TCR_EL1,
+    MAIR_EL1,
+    AMAIR_EL1,
+    VBAR_EL1,
+    ELR_EL1,
+    SPSR_EL1,
+    SP_EL1,
+    ESR_EL1,
+    FAR_EL1,
+    AFSR0_EL1,
+    AFSR1_EL1,
+    CONTEXTIDR_EL1,
+    TPIDR_EL1,
+    TPIDR_EL0,
+    TPIDRRO_EL0,
+    CNTKCTL_EL1,
+    CPACR_EL1,
+    PAR_EL1,
+    CSSELR_EL1,
+    COUNT,
+};
 
 // @brief Per-guest virtual CPU context.
 // @ingroup vcpu
 //
-// Layout-critical: the first three sub-structs are indexed from vcpu.S
-// via the VCPU_*_OFFSET constants above. Fields below the
-// "asm contract line" comment are free to reorder.
-//
-// Layout-critical data is public so low-level trap routing can pass
-// register state directly to dispatch modules without copying. Keep all
-// data members in this single access group to preserve standard-layout.
-class Vcpu {
-public:
-    std::array<uint64_t, 31> m_gpr {};
-    uint64_t m_spEl0 {};
-    El2State m_el2State {};
-    El1SysRegs m_el1SysRegs {};
-    HvContext m_hvCtx {};
-    uint32_t m_vcpuId {};
+// vcpu.S saves and restores the guest's registers straight into this object,
+// so the data must stay standard layout: every member private, none virtual.
+class alignas(128) Vcpu {
+private:
+    // Hypervisor state vcpu_enter parks here while the guest runs.
+    struct HvContext {
+        uint64_t sp;
+        uint64_t lr;
+        std::array<uint64_t, 11> calleeSaved; // x19..x29
+        uint64_t exitEsr;                     // stashed by the exit path before the guest save
+    };
 
+    alignas(16) std::array<uint64_t, 31> m_gpr {}; // x0..x30
+    uint64_t m_spEl0 {};
+    alignas(16) std::array<uint64_t, static_cast<size_t>(El2Reg::COUNT)> m_el2 {};
+    alignas(16) std::array<uint64_t, static_cast<size_t>(El1Reg::COUNT)> m_el1 {};
+    alignas(16) HvContext m_hvCtx {};
+    uint32_t m_id {};
+
+    [[nodiscard]] uint64_t& el1(El1Reg reg) { return m_el1[static_cast<size_t>(reg)]; }
+    [[nodiscard]] uint64_t& el2(El2Reg reg) { return m_el2[static_cast<size_t>(reg)]; }
+    [[nodiscard]] uint64_t el2(El2Reg reg) const { return m_el2[static_cast<size_t>(reg)]; }
+
+    // vcpuOffsets.cpp reads the private layout to generate vcpu.S's offsets.
+    friend struct VcpuLayout;
+
+public:
     // @brief Build this vCPU for first entry into EL1.
     //
     // Starts from zeroed state, then seeds:
-    //   - elr_el2   ← entrypoint
-    //   - spsr_el2  ← EL1h with all DAIF bits masked
-    //   - sctlr_el1 ← hardware reset value with M/C/I/A/SA cleared
+    //   - elr_el2   <- entrypoint
+    //   - spsr_el2  <- EL1h with all DAIF bits masked
+    //   - sctlr_el1 <- hardware reset value with M/C/I/A/SA cleared
     //
     // @param entrypoint Guest physical address to resume at on first eret.
     explicit Vcpu(uint64_t entrypoint);
 
     // @brief Save EL1 system registers from hardware into this context.
-    // @note Call site must have DAIF masked. Meaningful only on AArch64.
+    // @note Call site must have DAIF masked.
+    // @return Nothing.
     void SaveEl1SysRegs();
 
     // @brief Restore EL1 system registers from this context into hardware.
     // @note SCTLR_EL1 is restored last, after TTBR/TCR/MAIR, with an
     //       intervening isb. Call site must have DAIF masked.
+    // @return Nothing.
     void RestoreEl1SysRegs();
 
-    // @brief Return the saved guest PC (ELR_EL2).
+    // @return The saved guest PC (ELR_EL2).
     [[nodiscard]] uint64_t GetElr() const noexcept;
 
     // @brief Overwrite the saved guest PC (ELR_EL2).
+    // @return Nothing.
     void SetPc(uint64_t pc);
 
     // @brief Advance ELR_EL2 by 4 bytes (skip faulting instruction).
+    // @return Nothing.
     void SkipInstruction();
 
     // @brief Set the guest SP_EL1 (stack pointer seen by the guest at EL1).
+    // @return Nothing.
     void SetGuestSp(uint64_t sp);
 
-    // @brief Read a saved GPR by offset.
-    // @param off One of the VCPU_GPREG_* constants.
-    [[nodiscard]] uint64_t GetGpReg(uint64_t off) const noexcept;
+    // @return The saved value of @p reg.
+    [[nodiscard]] uint64_t GetGpReg(Gpr reg) const noexcept;
 
-    // @brief Write a saved GPR by offset.
-    // @param off One of the VCPU_GPREG_* constants.
-    // @param val Value to store.
-    void SetGpReg(uint64_t off, uint64_t val);
+    // @brief Overwrite the saved value of @p reg.
+    // @return Nothing.
+    void SetGpReg(Gpr reg, uint64_t val);
 
-    // @brief Opaque vCPU identifier assigned by the scheduler.
-    [[nodiscard]] uint32_t GetId() const noexcept { return m_vcpuId; }
+    // @brief The saved x0..x30, for trap handlers that work on the whole set.
+    // @return Reference to the saved registers.
+    [[nodiscard]] std::array<uint64_t, 31>& GetGprs() noexcept { return m_gpr; }
 
-    // @brief Set the vCPU identifier (scheduler-only).
-    void SetId(uint32_t vcpuId) { m_vcpuId = vcpuId; }
+    // @return Opaque vCPU identifier assigned by the scheduler.
+    [[nodiscard]] uint32_t GetId() const noexcept { return m_id; }
 
-    // @brief Return the Vcpu pointer parked in TPIDR_EL2 on this pCPU.
-    // @note Returns nullptr on hosted (non-AArch64) builds.
+    // @brief Set the vCPU identifier (scheduler only).
+    // @return Nothing.
+    void SetId(uint32_t id) { m_id = id; }
+
+    // @return The Vcpu pointer parked in TPIDR_EL2 on this pCPU.
     [[nodiscard]] static Vcpu* GetCurrentVcpu();
 
     // @brief Stub scheduler entry. Replaced by real scheduler later.
+    // @return Nothing.
     static void ScheduleNext();
-} __attribute__((aligned(128)));
-
-struct VcpuLayoutAccess {
-    static constexpr uint64_t GetGprOffset() { return __builtin_offsetof(Vcpu, m_gpr); }
-
-    static constexpr uint64_t GetSpEl0Offset() { return __builtin_offsetof(Vcpu, m_spEl0); }
-
-    static constexpr uint64_t GetHvCtxOffset() { return __builtin_offsetof(Vcpu, m_hvCtx); }
-
-    static constexpr uint64_t GetEl2StateOffset() { return __builtin_offsetof(Vcpu, m_el2State); }
-
-    static constexpr uint64_t GetEl1SysRegsOffset() {
-        return __builtin_offsetof(Vcpu, m_el1SysRegs);
-    }
 };
 
-// Fail Loudly
-static_assert(__is_standard_layout(Vcpu),
-        "Vcpu must be standard-layout so .S can rely on member offsets");
-static_assert(sizeof(El2State) == VCPU_EL2STATE_SIZE,
-        "El2State size drifted from the asm-visible EL2 layout");
-static_assert(sizeof(El1SysRegs) == VCPU_EL1SYSREGS_SIZE,
-        "El1SysRegs size drifted from the asm-visible EL1 sysreg layout");
-static_assert(VcpuLayoutAccess::GetGprOffset() == VCPU_GPREGS_OFFSET,
-        "m_gpr offset drifted from VCPU_GPREGS_OFFSET");
-static_assert(VcpuLayoutAccess::GetSpEl0Offset() == VCPU_GPREG_SP_EL0,
-        "m_spEl0 offset drifted from VCPU_GPREG_SP_EL0");
-static_assert(VcpuLayoutAccess::GetEl2StateOffset() == VCPU_EL2STATE_OFFSET,
-        "m_el2State offset drifted from VCPU_EL2STATE_OFFSET");
-static_assert(VcpuLayoutAccess::GetEl1SysRegsOffset() == VCPU_EL1REGS_OFFSET,
-        "m_el1SysRegs offset drifted from VCPU_EL1REGS_OFFSET");
-static_assert(sizeof(Vcpu) >= VCPU_SIZEOF, "Vcpu smaller than asm-expected context size");
-
-static_assert(
-        sizeof(HvContext) == VCPU_HVCTX_SIZE, "HvContext size drifted from asm-visible layout");
-static_assert(VcpuLayoutAccess::GetHvCtxOffset() == VCPU_HVCTX_OFFSET,
-        "m_hvCtx offset drifted from VCPU_HVCTX_OFFSET");
-
-// @brief fn used to resume guest state
+// @brief Resume the guest state held in @p ctx.
 extern "C" void vcpu_enter(Vcpu* ctx);
 
-#endif // __ASSEMBLER__
 #endif // !__VCPU_H__

@@ -1,7 +1,7 @@
 // @file test_vectors.S
 // @brief Test-only EL2 vector table for Vcpu integration tests.
 
-#include "core/vcpu/vcpu.h"
+#include "vcpuOffsets.h"
 
 .section .text.test_vcpu_vectors
 .balign 0x800

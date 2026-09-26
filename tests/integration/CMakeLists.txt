@@ -44,6 +44,8 @@ add_library(Tests${BSP_SUFFIX}
   ${BSP_TESTS}
 )
 
+add_dependencies(Tests${BSP_SUFFIX} VcpuOffsetsHeader${BSP_SUFFIX})
+
 target_include_directories(Tests${BSP_SUFFIX}
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}

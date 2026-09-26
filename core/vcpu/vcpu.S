@@ -2,7 +2,7 @@
 // @brief vCPU entry/exit trampoline (EL2).
 // @ingroup vcpu
 
-#include "core/vcpu/vcpu.h"
+#include "vcpuOffsets.h"
 
 .section .text
 
