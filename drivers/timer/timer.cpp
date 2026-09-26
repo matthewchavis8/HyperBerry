@@ -31,10 +31,10 @@ static inline void writeCnthpCtlEl2(uint64_t reg) {
             : "memory");
 }
 
-void Timer::Init() noexcept {
-    m_frequency = readCntFrqEl0();
-    m_intervalTicks = m_frequency;
-    m_lastArmTicks = readCntVctEl0();
+Timer::Timer() noexcept :
+            m_frequency { readCntFrqEl0() },
+            m_intervalTicks { m_frequency },
+            m_lastArmTicks { readCntVctEl0() } {
     Stop();
 }
 

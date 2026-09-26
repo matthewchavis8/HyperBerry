@@ -10,7 +10,7 @@
 // @brief ARM generic timer driver using the EL2 physical timer (CNTHP).
 // @ingroup drivers
 //
-// Call Init() once at boot, SetCallback() before Start(). The IRQ
+// Call SetCallback() before Start(). The IRQ
 // handler must forward IRQ (26) firings to HandleIrq().
 class Timer {
 private:
@@ -24,14 +24,14 @@ public:
     // GIC PPI line wired to the ARM generic hypervisor physical timer.
     static constexpr uint32_t IRQ { 26U };
 
-    Timer() = default;
+    // @brief Read CNTFRQ_EL0, establish the default one-second interval, and
+    //        leave the timer disarmed.
+    Timer() noexcept;
+
     Timer(const Timer&) = delete;
     Timer& operator=(const Timer&) = delete;
     Timer(Timer&&) = delete;
     Timer& operator=(Timer&&) = delete;
-
-    // @brief Read CNTFRQ_EL0 and establish the default one-second interval.
-    void Init() noexcept;
 
     // @brief Arm the physical timer with the configured interval.
     void Start() noexcept;
