@@ -3,6 +3,8 @@
 
 #include <gtest/gtest.h>
 
+#include <string_view>
+
 #include "lib/log/log.h"
 
 namespace uart_test_support {
@@ -63,6 +65,15 @@ TEST(Log, PrintsNullCString) {
     Log::Print("{}", value);
 
     EXPECT_STREQ(uart_test_support::Buffer(), "(null)");
+}
+
+TEST(Log, PrintsStringViewWithoutReadingPastItsEnd) {
+    uart_test_support::Reset();
+
+    std::string_view value { "guest-vm-extra", 8 };
+    Log::Print("{}", value);
+
+    EXPECT_STREQ(uart_test_support::Buffer(), "guest-vm");
 }
 
 TEST(Log, PrintsNullptrAsPointer) {
