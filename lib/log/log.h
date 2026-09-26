@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 
 namespace log::detail {
 
@@ -104,6 +105,10 @@ inline void WriteValue(Writer&& writer, T value) {
         WriteUnsignedHex(writer, 0U);
     else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
         WriteCString(writer, value);
+    else if constexpr (__is_same(T, std::string_view)) {
+        for (char ch : value)
+            writer(ch);
+    }
     else if constexpr (kIsPointer<T>)
         WriteUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
     else if constexpr (__is_same(T, bool))
@@ -187,6 +192,8 @@ inline void WriteHexValue(Writer&& writer, T value) {
         WriteUnsignedHex(writer, 0U);
     } else if constexpr (kIsPointer<T>) {
         WriteUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
+    } else if constexpr (__is_same(T, std::string_view)) {
+        WriteValue(writer, value);
     } else if constexpr (__is_same(T, bool)) {
         WriteUnsignedHex(writer, value ? 1U : 0U);
     } else if constexpr (__is_same(T, char)) {
