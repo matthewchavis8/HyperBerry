@@ -4,7 +4,7 @@ AlignAfterOpenBracket: DontAlign
 AlignEscapedNewlines: Left
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: Inline
-AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortIfStatementsOnASingleLine: Never
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
