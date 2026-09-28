@@ -1,122 +1,102 @@
 // @file test_vm.cpp
-// @brief Unit tests for Vm construction — verifies that it wires the
-//        GuestMmu and Vcpu constructors and Linux x0 DTB seeding without
-//        executing real hardware paths.
-//
-// Stubs for GuestMmu capture call arguments into file-scope globals. Vcpu
-// stubs live in test_vcpu.cpp (single-binary constraint); the capture globals
-// defined there are referenced here via extern declarations.
-//
-// Uart stubs (constructor, getInstance, putc) are provided by test_dtb.cpp, which
-// is compiled into the same binary. vcpu_enter is stubbed here.
+// @brief VM mappings, boot state, and exit handling with hardware entry replaced.
 
 #include <gtest/gtest.h>
-
-#include "core/mm/mmu/guestMmu/guestMmu.h"
-#include "core/mm/pmm/pmm.h"
-#include "core/vcpu/vcpu.h"
 #include "core/vm/vm.h"
+#include "core/vmm/esr.h"
+#include "tests/unit/vcpu/backend.h"
+#include <type_traits>
 
-// ---------------------------------------------------------------------------
-// Vcpu capture globals defined in test_vcpu.cpp — extern access only.
-// ---------------------------------------------------------------------------
+namespace {
+uint64_t guestIpa;
+uint64_t guestHostPa;
+uint64_t guestSize;
+uint8_t enabledVmid;
+uint32_t deviceCount;
 
-extern uint64_t gVcpuEntryCap;
-extern uint64_t gVcpuSetGuestSpCap;
-extern uint64_t gVcpuSetX0Cap;
+struct GuestStopped {};
 
-// ---------------------------------------------------------------------------
-// GuestMmu capture globals
-// ---------------------------------------------------------------------------
+class VmTest : public testing::Test {
+protected:
+    void SetUp() override {
+        guestIpa = 0;
+        guestHostPa = 0;
+        guestSize = 0;
+        enabledVmid = 0;
+        deviceCount = 0;
+    }
 
-static uint64_t gGuestMmuIpa { 0xDEADDEADDEADDEADULL };
-static uint64_t gGuestMmuHostPa { 0xDEADDEADDEADDEADULL };
-static uint64_t gGuestMmuSize { 0xDEADDEADDEADDEADULL };
-static uint8_t gGuestMmuEnableVmid { 0xFF };
-static uint32_t gGuestMmuWindows { 0xFFFFFFFFU };
+    void TearDown() override {
+        vcpuTest::run = {};
+    }
 
-// ---------------------------------------------------------------------------
-// GuestMmu stubs
-// ---------------------------------------------------------------------------
+    static VmConfig config() {
+        return { "test VM", 0, 0x40000000, 0x200000, 2, 0x200000, 0x1FF000 };
+    }
+};
+}
 
 GuestMmu::GuestMmu(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) :
             m_table { nullptr, 0, 0 } {
-    gGuestMmuIpa = ipaBase;
-    gGuestMmuHostPa = hostPaBase;
-    gGuestMmuSize = sizeBytes;
-    gGuestMmuWindows = devices.GetCount();
+    guestIpa = ipaBase;
+    guestHostPa = hostPaBase;
+    guestSize = sizeBytes;
+    deviceCount = devices.GetCount();
 }
 
-void GuestMmu::Enable(uint8_t vmid) { // NOLINT(readability-convert-member-functions-to-static)
-    gGuestMmuEnableVmid = vmid;
+void GuestMmu::Enable(uint8_t vmid) {
+    enabledVmid = vmid;
 }
 
-void GuestMmu::MapBlock(uint64_t /*ipa*/, uint64_t /*pa*/, bool /*isDevice*/) {}
-
+void GuestMmu::MapBlock(uint64_t, uint64_t, bool) {}
 void GuestMmu::TlbFlushAllGuest() {}
 
-// ---------------------------------------------------------------------------
-// pmm stub
-// ---------------------------------------------------------------------------
+static_assert(!std::is_copy_constructible_v<Vm>);
+static_assert(!std::is_move_constructible_v<Vm>);
 
-// vcpu_enter stub (extern "C", called by Vm::Run())
-
-extern "C" void vcpu_enter(Vcpu* /*vcpu*/) {}
-
-// ---------------------------------------------------------------------------
-// Helper — reset all captures to sentinel values before each test.
-// ---------------------------------------------------------------------------
-
-static VmConfig testConfig(uint8_t vmid) {
-    return VmConfig { "test-vm", 0x0ULL, 0x40000000ULL, 0x200000ULL, vmid, 0x200000ULL, 0x1FF000ULL };
-}
-
-static void resetCaptures() {
-    gGuestMmuIpa = 0xDEADDEADDEADDEADULL;
-    gGuestMmuHostPa = 0xDEADDEADDEADDEADULL;
-    gGuestMmuSize = 0xDEADDEADDEADDEADULL;
-    gGuestMmuEnableVmid = 0xFF;
-    gGuestMmuWindows = 0xFFFFFFFFU;
-    gVcpuEntryCap = 0xDEADDEADDEADDEADULL;
-    gVcpuSetGuestSpCap = 0xDEADDEADDEADDEADULL;
-    gVcpuSetX0Cap = 0xDEADDEADDEADDEADULL;
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
-TEST(Vm, ConstructsGuestMmuWithCorrectArgs) {
-    resetCaptures();
+TEST_F(VmTest, ConstructsGuestAddressSpace) {
     MmioMap devices {};
-    devices.AddPages(0x09000000ULL, 0x09000000ULL, 0x1000ULL);
-    Vm vm { testConfig(1), devices };
-
-    EXPECT_EQ(gGuestMmuIpa, 0x0ULL);
-    EXPECT_EQ(gGuestMmuHostPa, 0x40000000ULL);
-    EXPECT_EQ(gGuestMmuSize, 0x200000ULL);
-    EXPECT_EQ(gGuestMmuWindows, 1U);
+    devices.AddPages(0x09000000, 0x09000000, 0x1000);
+    Vm vm { config(), devices };
+    EXPECT_EQ(guestIpa, 0);
+    EXPECT_EQ(guestHostPa, 0x40000000);
+    EXPECT_EQ(guestSize, 0x200000);
+    EXPECT_EQ(deviceCount, 1);
+    EXPECT_EQ(enabledVmid, 0);
+    EXPECT_EQ(vm.GetName(), "test VM");
+    EXPECT_EQ(vm.GetVmId(), 2);
 }
 
-TEST(Vm, ConstructsVcpuWithGuestEntry) {
-    resetCaptures();
-    Vm vm { testConfig(1), MmioMap {} };
-
-    EXPECT_EQ(gVcpuEntryCap, 0x200000ULL);
+TEST_F(VmTest, ActivatesAddressSpaceBeforeEnteringLinux) {
+    Vm vm { config(), MmioMap {} };
+    vcpuTest::run = [](Vcpu& vcpu) -> VcpuExit {
+        EXPECT_EQ(enabledVmid, 2);
+        const auto& registers { vcpu.GetRegisters() };
+        EXPECT_EQ(registers.pc, 0x200000);
+        EXPECT_EQ(registers.x[0], 0x1FF000);
+        for (size_t i { 1 }; i < registers.x.size(); ++i) {
+            EXPECT_EQ(registers.x[i], 0);
+        }
+        EXPECT_EQ(registers.spEl1, 0);
+        throw GuestStopped {};
+    };
+    EXPECT_THROW(vm.Run(), GuestStopped);
 }
 
-TEST(Vm, SeedsLinuxDtbInX0) {
-    resetCaptures();
-    Vm vm { testConfig(1), MmioMap {} };
-
-    EXPECT_EQ(gVcpuSetX0Cap, 0x1FF000ULL);
-    EXPECT_EQ(gVcpuSetGuestSpCap, 0xDEADDEADDEADDEADULL);
-}
-
-TEST(Vm, RunEnablesGuestMmuWithCorrectVmid) {
-    resetCaptures();
-    Vm vm { testConfig(2), MmioMap {} };
-    vm.Run();
-
-    EXPECT_EQ(gGuestMmuEnableVmid, 2);
+TEST_F(VmTest, HandlesExitBeforeResumingGuest) {
+    Vm vm { config(), MmioMap {} };
+    size_t runs {};
+    vcpuTest::run = [&](Vcpu& vcpu) -> VcpuExit {
+        auto& registers { vcpu.GetRegisters() };
+        if (runs++ == 0) {
+            registers.x[0] = 0x84000000;
+            registers.pc = 0x200004;
+            return { ExitReason::SYNC, static_cast<uint64_t>(EsrEc::HVC_AARCH64) << 26 };
+        }
+        EXPECT_EQ(registers.x[0], 0x10000);
+        EXPECT_EQ(registers.pc, 0x200004);
+        throw GuestStopped {};
+    };
+    EXPECT_THROW(vm.Run(), GuestStopped);
+    EXPECT_EQ(runs, 2);
 }

@@ -1,8 +1,8 @@
 // @file vm.cpp
-// @brief Per-guest VM container implementation.
+// @brief Guest address space activation and execution loop.
 // @ingroup vm
 
-#include "core/mm/pmm/pmm.h"
+#include "core/vmm/vmm.h"
 #include "lib/log/log.h"
 #include "vm.h"
 
@@ -11,17 +11,20 @@ Vm::Vm(const VmConfig& config, const MmioMap& devices) :
             m_guestMmu { config.ipaBase, config.ramHostPa, config.ramSize, devices },
             m_vcpu { config.entry },
             m_vmid { config.vmid } {
-    m_vcpu.SetGpReg(Gpr::X0, config.dtb);
+    m_vcpu.GetRegisters().x[0] = config.dtb;
     Log::Println("[VM] {} built", m_name);
 }
 
-void Vm::Run() {
+[[noreturn]] void Vm::Run() {
     Log::Println("[VM] Enabling Guest MMU");
     m_guestMmu.Enable(m_vmid);
     Log::Println("[VM] Successfully enabled Guest MMU");
 
     Log::Println("[VM] Guest Kernel Running");
-    vcpu_enter(&m_vcpu);
+    for (;;) {
+        const VcpuExit exit { m_vcpu.Run() };
+        HandleGuestExit(m_vcpu.GetRegisters(), exit);
+    }
 }
 
 [[nodiscard]] std::string_view Vm::GetName() const noexcept {
