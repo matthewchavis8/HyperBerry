@@ -27,6 +27,7 @@ add_executable(hyperberry_unit_tests
   ${CMAKE_SOURCE_DIR}/core/vm/vm.cpp
 
   ${CMAKE_SOURCE_DIR}/core/vmm/hvc/hvc.cpp
+  ${CMAKE_SOURCE_DIR}/core/vmm/smc/smc.cpp
 )
 
 target_include_directories(hyperberry_unit_tests

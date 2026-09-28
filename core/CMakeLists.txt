@@ -7,6 +7,8 @@ add_library(Virt${BSP_SUFFIX}
   vm/vm.cpp
   vmm/vmm.cpp
   vmm/hvc/hvc.cpp
+  vmm/smc/smc.cpp
+  vmm/exceptions/exceptions.cpp
 )
 
 target_include_directories(Virt${BSP_SUFFIX}

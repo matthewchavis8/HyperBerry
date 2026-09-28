@@ -8,7 +8,7 @@
 #include "core/mm/pmm/pmm.h"
 #include "core/mm/mmu/hostMmu/hostMmu.h"
 #include "core/bootLoader/bootLoader.h"
-#include "core/vm/vm.h"
+#include "core/vmm/vmm.h"
 #include "lib/cxxrt/cxxrt.h"
 #include "lib/log/log.h"
 #include "lib/panic/panic.h"
@@ -70,9 +70,15 @@ extern "C" void hmain(uintptr_t dtb) {
         .entry = layout.kernelIpa,
         .dtb = layout.dtbIpa,
     };
-    Vm guest { config, guestTree.GetGuestMmio() };
+    Vmm vmm { config, guestTree.GetGuestMmio() };
 
     Log::Println("[VM] Guest Kernel running");
-    guest.Run();
+    const auto result { vmm.Run() };
+    if (result) {
+        Log::Println("[VM] Guest stopped state={}", static_cast<unsigned>(*result));
+    } else {
+        Log::Println("[VM] Run rejected error={}", static_cast<unsigned>(result.error()));
+    }
+    for (;;) asm volatile("wfe");
 #endif
 }

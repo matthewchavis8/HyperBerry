@@ -3,7 +3,8 @@
 
 #include <gtest/gtest.h>
 #include "core/vm/vm.h"
-#include "core/vmm/esr.h"
+#include "core/vmm/vmm.h"
+#include "core/vmm/esr/esr.h"
 #include "tests/unit/vcpu/backend.h"
 #include <type_traits>
 
@@ -68,7 +69,7 @@ TEST_F(VmTest, ConstructsGuestAddressSpace) {
 }
 
 TEST_F(VmTest, ActivatesAddressSpaceBeforeEnteringLinux) {
-    Vm vm { config(), MmioMap {} };
+    Vmm vmm { config(), MmioMap {} };
     vcpuTest::run = [](Vcpu& vcpu) -> VcpuExit {
         EXPECT_EQ(enabledVmid, 2);
         const auto& registers { vcpu.GetRegisters() };
@@ -80,11 +81,13 @@ TEST_F(VmTest, ActivatesAddressSpaceBeforeEnteringLinux) {
         EXPECT_EQ(registers.spEl1, 0);
         throw GuestStopped {};
     };
-    EXPECT_THROW(vm.Run(), GuestStopped);
+    EXPECT_EQ(vmm.GetState(), VmState::READY);
+    EXPECT_THROW(vmm.Run(), GuestStopped);
+    EXPECT_EQ(vmm.GetState(), VmState::RUNNING);
 }
 
 TEST_F(VmTest, HandlesExitBeforeResumingGuest) {
-    Vm vm { config(), MmioMap {} };
+    Vmm vmm { config(), MmioMap {} };
     size_t runs {};
     vcpuTest::run = [&](Vcpu& vcpu) -> VcpuExit {
         auto& registers { vcpu.GetRegisters() };
@@ -95,8 +98,9 @@ TEST_F(VmTest, HandlesExitBeforeResumingGuest) {
         }
         EXPECT_EQ(registers.x[0], 0x10000);
         EXPECT_EQ(registers.pc, 0x200004);
-        throw GuestStopped {};
+        registers.x[0] = 0x84000008;
+        return { ExitReason::SYNC, static_cast<uint64_t>(EsrEc::HVC_AARCH64) << 26 };
     };
-    EXPECT_THROW(vm.Run(), GuestStopped);
+    EXPECT_EQ(vmm.Run().value(), VmState::SHUTDOWN);
     EXPECT_EQ(runs, 2);
 }

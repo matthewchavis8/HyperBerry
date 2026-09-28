@@ -2,7 +2,6 @@
 // @brief Guest address space activation and execution loop.
 // @ingroup vm
 
-#include "core/vmm/vmm.h"
 #include "lib/log/log.h"
 #include "vm.h"
 
@@ -15,17 +14,26 @@ Vm::Vm(const VmConfig& config, const MmioMap& devices) :
     Log::Println("[VM] {} built", m_name);
 }
 
-[[noreturn]] void Vm::Run() {
+void Vm::Start() {
     Log::Println("[VM] Enabling Guest MMU");
     m_guestMmu.Enable(m_vmid);
     Log::Println("[VM] Successfully enabled Guest MMU");
 
-    Log::Println("[VM] Guest Kernel Running");
-    for (;;) {
-        const VcpuExit exit { m_vcpu.Run() };
-        HandleGuestExit(m_vcpu.GetRegisters(), exit);
-    }
+    m_state = VmState::RUNNING;
 }
+
+VcpuExit Vm::Enter() {
+    m_lastExit = m_vcpu.Run();
+    return m_lastExit;
+}
+
+void Vm::Stop(VmState state) { m_state = state; }
+
+GuestRegisters& Vm::GetRegisters() noexcept { return m_vcpu.GetRegisters(); }
+
+VmState Vm::GetState() const noexcept { return m_state; }
+
+const VcpuExit& Vm::GetLastExit() const noexcept { return m_lastExit; }
 
 [[nodiscard]] std::string_view Vm::GetName() const noexcept {
     return m_name;

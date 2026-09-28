@@ -10,6 +10,8 @@
 #include "core/mm/mmu/guestMmu/guestMmu.h"
 #include "core/vcpu/vcpu.h"
 
+enum class VmState : uint8_t { READY, RUNNING, SHUTDOWN, RESET_REQUESTED, FAULTED };
+
 // @brief Where a guest lives and how it starts.
 // @ingroup vm
 struct VmConfig {
@@ -24,19 +26,26 @@ struct VmConfig {
 
 class Vm {
 private:
+    friend class Vmm;
     std::string_view m_name;
     GuestMmu m_guestMmu;
     Vcpu m_vcpu;
     uint8_t m_vmid;
+    VmState m_state { VmState::READY };
+    VcpuExit m_lastExit {};
+
+    void Start();
+    [[nodiscard]] VcpuExit Enter();
+    void Stop(VmState state);
+    [[nodiscard]] GuestRegisters& GetRegisters() noexcept;
 
 public:
     // @brief Build the guest mappings and seed the Linux boot registers.
     // @return A guest ready to run.
     Vm(const VmConfig& config, const MmioMap& devices);
 
-    // @brief Activate the guest address space and handle exits as they occur.
-    // @return Does not return.
-    [[noreturn]] void Run();
+    [[nodiscard]] VmState GetState() const noexcept;
+    [[nodiscard]] const VcpuExit& GetLastExit() const noexcept;
 
     // @return The guest name passed in @ref VmConfig.
     [[nodiscard]] std::string_view GetName() const noexcept;

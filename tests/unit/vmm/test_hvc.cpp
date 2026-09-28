@@ -1,76 +1,35 @@
-// @file test_hvc.cpp
-// @brief Unit tests for AArch64 HVC dispatch.
-
 #include <gtest/gtest.h>
-
 #include "core/vmm/hvc/hvc.h"
 
-namespace {
-constexpr uint64_t PSCI_VERSION { 0x84000000ULL };
-constexpr uint64_t PSCI_CPU_SUSPEND { 0x84000001ULL };
-constexpr uint64_t PSCI_SYSTEM_OFF { 0x84000008ULL };
-constexpr uint64_t PSCI_SYSTEM_RESET { 0x84000009ULL };
-constexpr uint64_t PSCI_FEATURES { 0x8400000AULL };
-
-constexpr uint64_t PSCI_VERSION_1_0 { 0x00010000ULL };
-constexpr uint64_t PSCI_SUCCESS { 0ULL };
-constexpr uint64_t PSCI_NOT_SUPPORTED { static_cast<uint64_t>(-1) };
-} // namespace
-
-TEST(HvcAarch64, PsciVersionReturnsVersion) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_VERSION;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
-    EXPECT_EQ(regs[0], PSCI_VERSION_1_0);
+TEST(Hvc, VersionAndFeatures) {
+    GuestRegisters registers {};
+    registers.x[0] = 0x84000000;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::RESUME);
+    EXPECT_EQ(registers.x[0], 0x10000);
+    registers.x[0] = 0x8400000A;
+    registers.x[1] = 0x84000008;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::RESUME);
+    EXPECT_EQ(registers.x[0], 0);
+    registers.x[0] = 0x8400000A;
+    registers.x[1] = 0x84000001;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::RESUME);
+    EXPECT_EQ(registers.x[0], UINT64_MAX);
 }
 
-TEST(HvcAarch64, PsciFeaturesReturnsSuccessForSupportedCall) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_FEATURES;
-    regs[1] = PSCI_VERSION;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
-    EXPECT_EQ(regs[0], PSCI_SUCCESS);
+TEST(Hvc, PowerCallsReportAction) {
+    GuestRegisters registers {};
+    registers.x[0] = 0x84000008;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::SHUTDOWN);
+    registers.x[0] = 0x84000009;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::RESET);
 }
 
-TEST(HvcAarch64, PsciFeaturesReturnsNotSupportedForUnknownCall) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_FEATURES;
-    regs[1] = 0xDEADBEEFULL;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HANDLED);
-    EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
-}
-
-TEST(HvcAarch64, PsciSystemOffReturnsHalt) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_SYSTEM_OFF;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::HALT);
-}
-
-TEST(HvcAarch64, PsciSystemResetReturnsReset) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_SYSTEM_RESET;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::RESET);
-}
-
-TEST(HvcAarch64, UnknownCallReturnsUnhandledAndNotSupported) {
-    ExceptionContext regs {};
-    regs[0] = 0xC0FFEEULL;
-    regs[1] = 0x1234ULL;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::UNHANDLED);
-    EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
-    EXPECT_EQ(regs[1], 0x1234ULL);
-}
-
-TEST(HvcAarch64, UnimplementedPsciCallReturnsNotSupported) {
-    ExceptionContext regs {};
-    regs[0] = PSCI_CPU_SUSPEND;
-
-    EXPECT_EQ(HandleHvcAarch64(regs), HvcResult::UNHANDLED);
-    EXPECT_EQ(regs[0], PSCI_NOT_SUPPORTED);
+TEST(Hvc, UnsupportedOwnerCallAndImmediateReturnNotSupported) {
+    GuestRegisters registers {};
+    registers.x[0] = 0xDEADBEEF;
+    EXPECT_EQ(Hvc::Handle(registers, 0), Hvc::Action::RESUME);
+    EXPECT_EQ(registers.x[0], UINT64_MAX);
+    registers.x[0] = 0x84000000;
+    EXPECT_EQ(Hvc::Handle(registers, 1), Hvc::Action::RESUME);
+    EXPECT_EQ(registers.x[0], UINT64_MAX);
 }
