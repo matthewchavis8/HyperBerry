@@ -268,7 +268,7 @@ add_custom_command(
 add_custom_target(busybox-rootfs DEPENDS ${BUSYBOX_ROOTFS})
 
 if(BUILD_INTEGRATION)
-  foreach(payload vcpu gic)
+  foreach(payload vcpu gic abort)
     set(payload_dir ${CMAKE_BINARY_DIR}/payloads)
     add_custom_command(
       OUTPUT ${payload_dir}/${payload}.bin
@@ -286,7 +286,7 @@ if(BUILD_INTEGRATION)
       VERBATIM
     )
   endforeach()
-  add_custom_target(test-payloads DEPENDS ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin)
+  add_custom_target(test-payloads DEPENDS ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin ${payload_dir}/abort.bin)
 endif()
 
 foreach(board IN LISTS SUPPORTED_BOARDS)
@@ -337,8 +337,9 @@ foreach(board IN LISTS SUPPORTED_BOARDS)
       COMMAND ${Python3_EXECUTABLE} ${ARCHIVE_TOOL} ${archive_base_args}
               --file tests/vcpu.bin ${payload_dir}/vcpu.bin
               --file tests/gic.bin ${payload_dir}/gic.bin
+              --file tests/abort.bin ${payload_dir}/abort.bin
               --out ${${upper}_TEST_ARCHIVE}
-      DEPENDS ${archive_base_deps} ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin
+      DEPENDS ${archive_base_deps} ${payload_dir}/vcpu.bin ${payload_dir}/gic.bin ${payload_dir}/abort.bin
       VERBATIM
     )
     add_custom_target(test-archive-${board} DEPENDS ${${upper}_TEST_ARCHIVE})
