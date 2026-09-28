@@ -4,7 +4,7 @@
 #include "vcpu.h"
 
 extern "C" uint64_t vcpu_read_sctlr();
-extern "C" VcpuExit vcpu_run(Vcpu* vcpu);
+extern "C" void vcpu_run(Vcpu* vcpu, VcpuExit* exit);
 
 Vcpu::Vcpu(uint64_t entry) : m_registers { .pc = entry } {
     constexpr uint64_t DISABLED_CONTROLS { (1ULL << 0) | (1ULL << 1) |
@@ -13,7 +13,9 @@ Vcpu::Vcpu(uint64_t entry) : m_registers { .pc = entry } {
 }
 
 VcpuExit Vcpu::Run() {
-    return vcpu_run(this);
+    VcpuExit exit {};
+    vcpu_run(this, &exit);
+    return exit;
 }
 
 GuestRegisters& Vcpu::GetRegisters() noexcept {

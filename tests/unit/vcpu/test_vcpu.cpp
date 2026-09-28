@@ -13,8 +13,8 @@ extern "C" uint64_t vcpu_read_sctlr() {
     return 0x30D00800;
 }
 
-extern "C" VcpuExit vcpu_run(Vcpu* vcpu) {
-    return vcpuTest::run(*vcpu);
+extern "C" void vcpu_run(Vcpu* vcpu, VcpuExit* exit) {
+    *exit = vcpuTest::run(*vcpu);
 }
 
 static_assert(!std::is_copy_constructible_v<Vcpu>);

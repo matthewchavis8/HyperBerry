@@ -9,6 +9,7 @@
 .equ HOST_TPIDR_DAIF, 96
 .equ HOST_SP_ELR, 112
 .equ HOST_SPSR, 128
+.equ HOST_EXIT, 136
 
 .global vcpu_read_sctlr
 vcpu_read_sctlr:
@@ -26,6 +27,7 @@ vcpu_run:
     stp x25, x26, [sp, #48]
     stp x27, x28, [sp, #64]
     stp x29, x30, [sp, #80]
+    str x1, [sp, #HOST_EXIT]
     mrs x1, tpidr_el2
     stp x1, x2, [sp, #HOST_TPIDR_DAIF]
     mrs x1, sp_el0
@@ -172,7 +174,26 @@ vcpu_exit:
     mrs x1, spsr_el2
     str x1, [x0, #VCPU_PSTATE]
 
-    ldp x0, x1, [sp]
+    ldr x3, [sp, #(48 + HOST_EXIT)]
+    ldp x4, x5, [sp]
+    stp x4, x5, [x3, #0]
+    stp xzr, xzr, [x3, #16]
+    cmp x4, #VCPU_EXIT_SYNC
+    b.ne 1f
+    ubfx x4, x5, #26, #6
+    cmp x4, #0x20
+    b.eq 2f
+    cmp x4, #0x21
+    b.eq 2f
+    cmp x4, #0x24
+    b.eq 2f
+    cmp x4, #0x25
+    b.ne 1f
+2:
+    mrs x4, far_el2
+    mrs x5, hpfar_el2
+    stp x4, x5, [x3, #16]
+1:
     add sp, sp, #48
     ldp x2, x3, [sp, #HOST_SP_ELR]
     msr sp_el0, x2

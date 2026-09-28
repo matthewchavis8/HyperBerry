@@ -4,7 +4,7 @@
 .section .text
 .global test_vcpu_host_registers
 test_vcpu_host_registers:
-    sub sp, sp, #96
+    sub sp, sp, #128
     stp x19, x20, [sp, #0]
     stp x21, x22, [sp, #16]
     stp x23, x24, [sp, #32]
@@ -22,6 +22,7 @@ test_vcpu_host_registers:
     mov x27, #27
     mov x28, #28
     mov x29, #29
+    add x1, sp, #96
     bl vcpu_run
     mov x0, #0
     cmp x19, #19
@@ -54,5 +55,5 @@ test_vcpu_host_registers:
     ldp x25, x26, [sp, #48]
     ldp x27, x28, [sp, #64]
     ldp x29, x30, [sp, #80]
-    add sp, sp, #96
+    add sp, sp, #128
     ret
