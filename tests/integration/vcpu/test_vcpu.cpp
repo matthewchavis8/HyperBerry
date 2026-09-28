@@ -3,8 +3,9 @@
 
 #include "tests/integration/suite.h"
 #include "tests/integration/guest/binary.h"
-#include "core/vmm/esr.h"
+#include "core/vmm/esr/esr.h"
 #include "core/vcpu/vcpu.h"
+#include "core/mm/mmu/guestMmu/guestMmu.h"
 #include <iterator>
 
 namespace {
@@ -18,6 +19,32 @@ bool isHvc(VcpuExit exit, uint64_t immediate) {
     return exit.reason == ExitReason::SYNC &&
             GetEsrEc(exit.syndrome) == EsrEc::HVC_AARCH64 &&
             GetEsrIss(exit.syndrome) == immediate;
+}
+
+bool guestAbortCapturesAddresses() {
+    test::Binary binary { "tests/abort.bin" };
+    Vcpu vcpu { binary.GetEntry() };
+    setStack(vcpu);
+    uint64_t oldVttbr;
+    uint64_t oldVtcr;
+    uint64_t oldHcr;
+    asm volatile("mrs %0, vttbr_el2\n"
+                 "mrs %1, vtcr_el2\n"
+                 "mrs %2, hcr_el2" : "=r"(oldVttbr), "=r"(oldVtcr), "=r"(oldHcr));
+    const uint64_t block { binary.GetEntry() & ~(SIZE_2MB - 1) };
+    GuestMmu mmu { block, block, SIZE_2MB, MmioMap {} };
+    mmu.Enable(7);
+    const VcpuExit exit { vcpu.Run() };
+    asm volatile("msr vttbr_el2, %0\n"
+                 "msr vtcr_el2, %1\n"
+                 "msr hcr_el2, %2\n"
+                 "isb\n"
+                 "tlbi vmalls12e1is\n"
+                 "dsb ish\n"
+                 "isb" :: "r"(oldVttbr), "r"(oldVtcr), "r"(oldHcr) : "memory");
+    return exit.reason == ExitReason::SYNC &&
+            GetEsrEc(exit.syndrome) == EsrEc::DATA_ABORT_LOWER &&
+            exit.far == 0xDEAD0000 && exit.hpfar != 0;
 }
 
 bool guestReturnsToCaller() {
@@ -108,6 +135,7 @@ bool hostRegistersSurviveRun() {
 
 const TestCase cases[] {
     { "guest_returns_to_caller", guestReturnsToCaller },
+    { "guest_abort_captures_addresses", guestAbortCapturesAddresses },
     { "guest_registers_survive_exit", guestRegistersSurviveExit },
     { "guest_resumes_saved_state", guestResumesSavedState },
     { "repeated_exits_keep_host_stack", repeatedExitsKeepHostStack },
