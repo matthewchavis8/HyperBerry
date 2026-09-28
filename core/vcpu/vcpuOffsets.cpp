@@ -12,9 +12,11 @@ struct VcpuLayout {
         static_assert(std::is_standard_layout_v<Vcpu>);
         static_assert(std::is_standard_layout_v<GuestRegisters>);
         static_assert(std::is_standard_layout_v<VcpuExit>);
-        static_assert(sizeof(VcpuExit) == 16);
+        static_assert(sizeof(VcpuExit) == 32);
         static_assert(offsetof(VcpuExit, reason) == 0);
         static_assert(offsetof(VcpuExit, syndrome) == 8);
+        static_assert(offsetof(VcpuExit, far) == 16);
+        static_assert(offsetof(VcpuExit, hpfar) == 24);
 
         OFFSET(VCPU_X0, offsetof(Vcpu, m_registers) + offsetof(GuestRegisters, x) + 0 * sizeof(uint64_t));
         OFFSET(VCPU_X1, offsetof(Vcpu, m_registers) + offsetof(GuestRegisters, x) + 1 * sizeof(uint64_t));

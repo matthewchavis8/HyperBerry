@@ -23,8 +23,10 @@ enum class ExitReason : uint64_t {
 };
 
 struct VcpuExit {
-    ExitReason reason;
-    uint64_t syndrome;
+    ExitReason reason {};
+    uint64_t syndrome {};
+    uint64_t far {};
+    uint64_t hpfar {};
 };
 
 class Vcpu {
@@ -64,7 +66,7 @@ public:
     explicit Vcpu(uint64_t entry);
 
     // @brief Run until the next guest exception, then return with state saved.
-    // @return The exception kind and syndrome, zero for IRQ and FIQ.
+    // @return The exception kind, syndrome and abort addresses.
     [[nodiscard]] VcpuExit Run();
 
     // @return Saved guest registers, writable while the guest is stopped.
