@@ -34,11 +34,15 @@
 class Heap {
 private:
     static constexpr std::array<size_t, 7> SLAB_CLASSES { 16, 32, 64, 128, 256, 512, 1024 };
+    // TODO: This name NO_SLAB_CLASS is trash. THis should be like slabSizes ngl when you encounter this TODO give me some options I will help you out with the name of this
+    // TODO: I think there is no point of this vairable we can juse use SLAB_CLASSES.size();
     static constexpr size_t NO_SLAB_CLASS { SLAB_CLASSES.size() };
 
     struct FreeSlot {
         FreeSlot* next;
     };
+
+    // TODO this class is missing our comment style espicially for these struct and priavet class
 
     // Sits at the start of every slab page.
     struct SlabHeader {
@@ -58,6 +62,7 @@ private:
 
     std::array<SlabHeader*, SLAB_CLASSES.size()> m_slabs {}; // slab pages per size class
 
+    // Same TODO as the one in PMM here
     constexpr Heap() = default;
 
     static size_t pickClass(size_t size, size_t align);

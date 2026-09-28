@@ -32,6 +32,7 @@ static constexpr uint32_t NUM_ORDERS { MAX_ORDER + 1 };
 // console once the tree is read.
 class Pmm {
 private:
+    // TODO: maybe we can adda  comment here I am not sure what x200000000ULL translates to is this like 8GB?
     static constexpr uint64_t MAX_POOL_SIZE { 0x200000000ULL };
 
     // State bits available across every order's buddy pairs.
@@ -56,8 +57,12 @@ private:
     std::array<FreeNode*, NUM_ORDERS> m_freeLists {}; // free blocks per order
     std::array<uint8_t, BITMAP_BYTES> m_bitmap {};    // state bit of every buddy pair
 
+    // TODO: not a fan of this we can make it like constexpr explicit Pmm();
     constexpr Pmm() = default;
 
+    // TODO: 1. There needs to be a space between these function calls along with doxygen style comments please check out guidelines here
+    // Scan the repo make sure we fix this
+    // Unless if these below have only one consumer we can turn these into lambdas
     [[nodiscard]] size_t bitmapIndex(uint64_t addr, uint32_t order) const;
     uint8_t bitmapToggle(uint64_t addr, uint32_t order);
     void listPush(uint64_t addr, uint32_t order);
