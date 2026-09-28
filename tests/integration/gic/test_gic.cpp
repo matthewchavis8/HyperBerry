@@ -1,7 +1,8 @@
 // @file test_gic.cpp
 // @brief Hardware-backed integration tests for the GICv2 driver.
 
-#include "core/vmm/esr.h"
+#include "core/vmm/esr/esr.h"
+#include "core/vmm/exceptions/exceptions.h"
 #include "core/vcpu/vcpu.h"
 #include "drivers/gic/gic.h"
 #include "lib/log/log.h"
@@ -316,7 +317,7 @@ EndToEndCapture runEndToEnd() {
 }
 } // namespace
 
-extern "C" void handle_test_gic_el2_irq(ExceptionContext* ctx) {
+extern "C" void handle_test_gic_el2_irq(El2ExceptionFrame* ctx) {
     (void)ctx;
 
     trace("handle_test_gic_el2_irq: enter");

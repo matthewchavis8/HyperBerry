@@ -132,8 +132,8 @@ add_compile_options(
 # thing that references the entry points, so as archive members they would be
 # dropped before KEEP in the linker script ever applied.
 set(HB_ENTRY_SOURCES
-  ${CMAKE_SOURCE_DIR}/core/vmm/vectors.S
-  ${CMAKE_SOURCE_DIR}/core/vmm/vmm.S
+  ${CMAKE_SOURCE_DIR}/core/vmm/exceptions/vectors.S
+  ${CMAKE_SOURCE_DIR}/core/vmm/exceptions/entry.S
   ${CMAKE_SOURCE_DIR}/core/vcpu/vcpu.S
 )
 

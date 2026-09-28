@@ -1,70 +1,46 @@
-// @file vmm.cpp
-// @brief Hypervisor exception handlers and guest exit policy.
-
 #include "vmm.h"
+#include "core/vmm/esr/esr.h"
 #include "core/vmm/hvc/hvc.h"
-#include "core/vmm/smccc/smccc.h"
-#include "core/vcpu/vcpu.h"
-#include "lib/panic/panic.h"
+#include "core/vmm/smc/smc.h"
 #include "lib/log/log.h"
 
-extern "C" void handle_el2_sync(ExceptionContext& ctx) {
-    HvPanic("[HV sync] was triggered", ctx);
-}
+Vmm::Vmm(const VmConfig& config, const MmioMap& devices) : m_vm { config, devices } {}
 
-extern "C" void handle_el2_irq(ExceptionContext& ctx) {
-    HvPanic("[HV irq] was triggered", ctx);
-}
+std::expected<VmState, RunError> Vmm::Run() {
+    if (m_vm.GetState() != VmState::READY) return std::unexpected(RunError::INVALID_STATE);
+    m_vm.Start();
 
-extern "C" void handle_el2_fiq(ExceptionContext& ctx) {
-    HvPanic("[HV fiq] was triggered", ctx);
-}
+    for (;;) {
+        const VcpuExit exit { m_vm.Enter() };
+        auto& registers { m_vm.GetRegisters() };
 
-extern "C" void handle_el2_serror(ExceptionContext& ctx) {
-    HvPanic("[HV SError] was triggered", ctx);
-}
+        if (exit.reason == ExitReason::IRQ || exit.reason == ExitReason::FIQ) continue;
+        if (exit.reason == ExitReason::SERROR) {
+            m_vm.Stop(VmState::FAULTED);
+            return m_vm.GetState();
+        }
 
-extern "C" void handle_unhandled(ExceptionContext& ctx) {
-    HvPanic("[HV mysterious exception?] was triggered", ctx);
-}
-
-void HandleGuestExit(GuestRegisters& registers, VcpuExit exit) {
-    switch (exit.reason) {
-        case ExitReason::IRQ:
-        case ExitReason::FIQ:
-            return;
-
-        case ExitReason::SERROR:
-            HvPanic("[Guest] SError taken from the guest");
-
-        case ExitReason::SYNC:
-            break;
-    }
-
-    switch (GetEsrEc(exit.syndrome)) {
-        case EsrEc::HVC_AARCH64:
-            switch (HandleHvcAarch64(registers.x)) {
-                case HvcResult::HANDLED:
-                case HvcResult::UNHANDLED:
-                    return;
-                case HvcResult::HALT:
-                    HvPanic("[HVC] guest requested halt");
-                case HvcResult::RESET:
-                    HvPanic("[HVC] guest requested reset");
+        switch (GetEsrEc(exit.syndrome)) {
+            case EsrEc::HVC_AARCH64: {
+                const Hvc::Action action { Hvc::Handle(registers, GetEsrIss(exit.syndrome)) };
+                if (action == Hvc::Action::SHUTDOWN) m_vm.Stop(VmState::SHUTDOWN);
+                if (action == Hvc::Action::RESET) m_vm.Stop(VmState::RESET_REQUESTED);
+                break;
             }
-            break;
-
-        case EsrEc::SMC_AARCH64:
-            registers.x[0] = SMCCC::ToRegister(SMCCC::NOT_SUPPORTED);
-            registers.pc += 4;
-            return;
-
-        case EsrEc::DATA_ABORT_LOWER:
-            HvPanic("[DataAbortLower] unhandled");
-
-        default:
-            Log::Println("[Guest] Unhandled exception EC={:x} ISS={:x} ESR={:x}",
-                    GetEsrEc(exit.syndrome), GetEsrIss(exit.syndrome), exit.syndrome);
-            HvPanic("[Guest] unhandled synchronous exception");
+            case EsrEc::SMC_AARCH64:
+                Smc::Handle(registers);
+                break;
+            default:
+                Log::Println("[Guest] Unhandled exception EC={:x} ISS={:x} ESR={:x} FAR={:x} HPFAR={:x}",
+                        GetEsrEc(exit.syndrome), GetEsrIss(exit.syndrome), exit.syndrome,
+                        exit.far, exit.hpfar);
+                m_vm.Stop(VmState::FAULTED);
+                break;
+        }
+        if (m_vm.GetState() != VmState::RUNNING) return m_vm.GetState();
     }
 }
+
+VmState Vmm::GetState() const noexcept { return m_vm.GetState(); }
+
+const VcpuExit& Vmm::GetLastExit() const noexcept { return m_vm.GetLastExit(); }

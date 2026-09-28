@@ -1,18 +1,7 @@
-// @file vmm.S
-// @brief EL2 trap entry points and the frame save and restore macros.
+// @file entry.S
+// @brief EL2 host trap entry points and frame save and restore macros.
 // @ingroup vmm
-//
-// Glue between the EL2 vector table (vectors.S) and the C++ handlers
-// (vmm.cpp). Each entry saves the CPU state with save_context, passes the
-// frame in x0 as an ExceptionContext, and branches to its handler.
-//
-// Frame layout, 272 bytes:
-//   0 to 232   x0 to x29
-//   240        x30
-//   248        ELR_EL2
-//   256        SPSR_EL2
-//
-// restore_context ends in eret, back to ELR_EL2.
+// The frame layout is defined by El2ExceptionFrame in exceptions.h.
 
 .section .text
 
@@ -63,7 +52,7 @@
     eret
 .endm
 
-// EL2 (Hypervisor) handlers
+// EL2 host handlers
 .global el2_sync
 .global el2_irq
 .global el2_fiq
@@ -93,7 +82,7 @@ el2_serror:
     bl      handle_el2_serror
     restore_context
 
-// Catch-all for stubbed groups
+// Catch all for stubbed groups
 .global el2_unhandled
 
 el2_unhandled:

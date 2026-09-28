@@ -1,9 +1,10 @@
 // @file test_esr.cpp
-// @brief Unit tests for ESR_EL2 decode and the ExceptionContext layout.
+// @brief Unit tests for ESR_EL2 decode and the EL2 frame layout.
 
 #include <gtest/gtest.h>
 
-#include "core/vmm/esr.h"
+#include "core/vmm/esr/esr.h"
+#include "core/vmm/exceptions/exceptions.h"
 
 TEST(EsrEc, HvcAarch64) {
     EXPECT_EQ(GetEsrEc(0x16ULL << 26), EsrEc::HVC_AARCH64);
@@ -38,12 +39,13 @@ TEST(EsrIss, IgnoresEcAndIl) {
     EXPECT_EQ(GetEsrIss((0x24ULL << 26) | (1ULL << 25) | 0x93ULL), 0x93U);
 }
 
-TEST(ExceptionContext, Stores31GeneralPurposeRegisters) {
-    ExceptionContext ctx {};
+TEST(El2ExceptionFrame, Stores31GeneralPurposeRegisters) {
+    El2ExceptionFrame ctx {};
 
-    EXPECT_EQ(ctx.size(), 31ULL);
+    EXPECT_EQ(ctx.x.size(), 31ULL);
 }
 
-TEST(ExceptionContext, SizeIs31Times8) {
-    EXPECT_EQ(sizeof(ExceptionContext), 31 * 8ULL);
+TEST(El2ExceptionFrame, HasAlignedAssemblyLayout) {
+    EXPECT_EQ(sizeof(El2ExceptionFrame), 272ULL);
+    EXPECT_EQ(offsetof(El2ExceptionFrame, elr), 248ULL);
 }

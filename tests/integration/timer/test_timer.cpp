@@ -1,7 +1,8 @@
 // @file test_timer.cpp
 // @brief Hardware-backed integration tests for the ARM generic timer driver.
 
-#include "core/vmm/esr.h"
+#include "core/vmm/esr/esr.h"
+#include "core/vmm/exceptions/exceptions.h"
 #include "drivers/gic/gic.h"
 #include "drivers/timer/timer.h"
 #include "tests/integration/suite.h"
@@ -124,7 +125,7 @@ bool waitForTimerCallback() {
 
 } // namespace
 
-extern "C" void handle_test_timer_el2_irq(ExceptionContext* ctx) {
+extern "C" void handle_test_timer_el2_irq(El2ExceptionFrame* ctx) {
     (void)ctx;
 
     Gic::IrqAck ack { Gic::GetInstance().AckIrq() };

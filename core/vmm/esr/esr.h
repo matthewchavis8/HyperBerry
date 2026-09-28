@@ -1,12 +1,11 @@
 // @file esr.h
-// @brief Saved exception frame and ESR_EL2 field decode.
+// @brief ESR_EL2 field decode.
 // @ingroup vmm
 
 #ifndef __ESR_H__
 #define __ESR_H__
 
 #include <cstdint>
-#include <array>
 
 // ESR_EL2.EC, the exception class in bits [31:26]
 enum class EsrEc : uint8_t {
@@ -49,9 +48,6 @@ enum class EsrEc : uint8_t {
     VECTOR_CATCH = 0x3A,
     BRK_AARCH64 = 0x3C,
 };
-
-// x0 to x30 as saved by the EL2 entry glue
-using ExceptionContext = std::array<uint64_t, 31>;
 
 // @brief Extract the exception class from a raw ESR_EL2 value.
 // @param esr Raw ESR_EL2.
