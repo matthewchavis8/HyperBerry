@@ -1,136 +1,120 @@
 // @file test_vcpu.cpp
-// @brief Integration tests for the Vcpu subsystem on AArch64.
+// @brief Guest execution through the production vectors and context switch.
 
 #include "tests/integration/suite.h"
 #include "tests/integration/guest/binary.h"
 #include "core/vmm/esr.h"
 #include "core/vcpu/vcpu.h"
+#include <iterator>
 
 namespace {
-struct GuestExitCapture {
-    bool isCalled;
-    Vcpu* vcpu;
-    uint64_t esr;
-};
+alignas(16) uint8_t guestStack[256];
 
-constexpr uint64_t kGuestCallId { 0x1234ULL };
-constexpr uint64_t kGuestScratch { 0xBEEFULL };
-
-alignas(16) uint8_t gGuestStack[256];
-GuestExitCapture gGuestExit;
-
-extern "C" char test_vcpu_vectors[];
-
-extern "C" void handle_test_vcpu_guest_exit(Vcpu* vcpu, uint64_t esr) {
-    gGuestExit.isCalled = true;
-    gGuestExit.vcpu = vcpu;
-    gGuestExit.esr = esr;
+void setStack(Vcpu& vcpu) {
+    vcpu.GetRegisters().spEl1 = reinterpret_cast<uint64_t>(guestStack) + sizeof(guestStack);
 }
 
-uint64_t installTestVbar() {
-    uint64_t saved { 0 };
-    asm volatile("mrs %0, vbar_el2" : "=r"(saved));
-    uint64_t testVbar { reinterpret_cast<uint64_t>(test_vcpu_vectors) };
-    asm volatile("msr vbar_el2, %0\n"
-                 "isb" ::"r"(testVbar)
-            : "memory");
-    return saved;
+bool isHvc(VcpuExit exit, uint64_t immediate) {
+    return exit.reason == ExitReason::SYNC &&
+            GetEsrEc(exit.syndrome) == EsrEc::HVC_AARCH64 &&
+            GetEsrIss(exit.syndrome) == immediate;
 }
 
-void restoreVbar(uint64_t saved) {
-    asm volatile("msr vbar_el2, %0\n"
-                 "isb" ::"r"(saved)
-            : "memory");
-}
-
-bool enterGuestAndCapture(Vcpu& vcpu) {
-    gGuestExit = {};
-
-    if (!vcpu.GetElr()) return false;
-    vcpu.SetGuestSp(reinterpret_cast<uint64_t>(gGuestStack) + sizeof(gGuestStack));
-
-    uint64_t savedVbar { installTestVbar() };
-    vcpu_enter(&vcpu);
-    restoreVbar(savedVbar);
-    return gGuestExit.isCalled;
-}
-} // namespace
-
-static bool test_vcpu_is_standard_layout() {
-    return __is_standard_layout(Vcpu);
-}
-
-static bool test_vcpu_gpr_round_trip() {
-    Vcpu vcpu { 0x40000000ULL };
-    vcpu.SetGpReg(Gpr::X5, 0xCAFEBABEULL);
-    return vcpu.GetGpReg(Gpr::X5) == 0xCAFEBABEULL;
-}
-
-static bool test_vcpu_tpidr_el2_is_accessible() {
-    constexpr uint64_t kSentinel { 0xDEADBEEFCAFEULL };
-    uint64_t readBack { 0 };
-
-    asm volatile("msr tpidr_el2, %1\n"
-                 "mrs %0, tpidr_el2\n"
-            : "=r"(readBack)
-            : "r"(kSentinel)
-            : "memory");
-
-    return readBack == kSentinel;
-}
-
-static bool test_vcpu_guest_exit_returns_to_caller() {
+bool guestReturnsToCaller() {
     test::Binary binary { "tests/vcpu.bin" };
     Vcpu vcpu { binary.GetEntry() };
-    return enterGuestAndCapture(vcpu) && gGuestExit.vcpu == &vcpu &&
-            Vcpu::GetCurrentVcpu() == &vcpu;
+    setStack(vcpu);
+    return isHvc(vcpu.Run(), 0x42);
 }
 
-static bool test_vcpu_guest_exit_captures_hvc_esr() {
+bool guestRegistersSurviveExit() {
     test::Binary binary { "tests/vcpu.bin" };
     Vcpu vcpu { binary.GetEntry() };
-    if (!enterGuestAndCapture(vcpu)) {
-        return false;
+    setStack(vcpu);
+    auto& registers { vcpu.GetRegisters() };
+    for (size_t i {}; i < registers.x.size(); ++i) {
+        registers.x[i] = 0x1000 + i;
     }
-
-    return GetEsrEc(gGuestExit.esr) == EsrEc::HVC_AARCH64;
+    if (!isHvc(vcpu.Run(), 0x42)) return false;
+    if (registers.x[0] != 0x1234 || registers.x[5] != 0xBEEF) return false;
+    if (registers.pc != registers.x[6]) return false;
+    if (registers.spEl1 != registers.x[7] || registers.spEl0 != 0x1350) return false;
+    for (size_t i {}; i < registers.x.size(); ++i) {
+        if (i == 0 || (i >= 5 && i <= 9)) continue;
+        if (registers.x[i] != 0x1000 + i) return false;
+    }
+    return (registers.pstate & 0x3CF) == 0x3C5;
 }
 
-static bool test_vcpu_guest_exit_saves_guest_pc() {
+bool guestResumesSavedState() {
     test::Binary binary { "tests/vcpu.bin" };
     Vcpu vcpu { binary.GetEntry() };
-    if (!enterGuestAndCapture(vcpu)) {
-        return false;
-    }
-
-    return vcpu.GetElr() == vcpu.GetGpReg(Gpr::X6);
+    setStack(vcpu);
+    if (!isHvc(vcpu.Run(), 0x42)) return false;
+    asm volatile("msr tpidr_el1, xzr" ::: "memory");
+    vcpu.GetRegisters().x[12] = 41;
+    if (!isHvc(vcpu.Run(), 0x43)) return false;
+    const auto& registers { vcpu.GetRegisters() };
+    return registers.x[10] == 0x2468 && registers.x[11] == 0x1350 && registers.x[12] == 42;
 }
 
-static bool test_vcpu_guest_exit_saves_guest_gprs() {
+bool repeatedExitsKeepHostStack() {
     test::Binary binary { "tests/vcpu.bin" };
     Vcpu vcpu { binary.GetEntry() };
-    if (!enterGuestAndCapture(vcpu)) {
-        return false;
+    setStack(vcpu);
+    if (!isHvc(vcpu.Run(), 0x42)) return false;
+    uintptr_t before;
+    asm volatile("mov %0, sp" : "=r"(before));
+    for (size_t i {}; i < 1024; ++i) {
+        if (!isHvc(vcpu.Run(), 0x43)) return false;
     }
-
-    return vcpu.GetGpReg(Gpr::X0) == kGuestCallId &&
-            vcpu.GetGpReg(Gpr::X5) == kGuestScratch;
+    uintptr_t after;
+    asm volatile("mov %0, sp" : "=r"(after));
+    return before == after && vcpu.GetRegisters().x[12] == 1024;
 }
 
-static const TestCase kVcpuCases[] {
-    { "vcpu_is_standard_layout", test_vcpu_is_standard_layout },
-    { "vcpu_gpr_round_trip", test_vcpu_gpr_round_trip },
-    { "vcpu_tpidr_el2_is_accessible", test_vcpu_tpidr_el2_is_accessible },
-    { "vcpu_guest_exit_returns_to_caller", test_vcpu_guest_exit_returns_to_caller },
-    { "vcpu_guest_exit_captures_hvc_esr", test_vcpu_guest_exit_captures_hvc_esr },
-    { "vcpu_guest_exit_saves_guest_pc", test_vcpu_guest_exit_saves_guest_pc },
-    { "vcpu_guest_exit_saves_guest_gprs", test_vcpu_guest_exit_saves_guest_gprs },
-};
+bool hostControlStateSurvivesRun() {
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
+    setStack(vcpu);
+    uint64_t savedTpidr;
+    uint64_t savedSp;
+    uint64_t beforeDaif;
+    asm volatile("mrs %0, tpidr_el2\n"
+                 "mrs %1, sp_el0\n"
+                 "mrs %2, daif" : "=r"(savedTpidr), "=r"(savedSp), "=r"(beforeDaif));
+    constexpr uint64_t SENTINEL { 0xABCD };
+    asm volatile("msr tpidr_el2, %0" :: "r"(SENTINEL) : "memory");
+    const VcpuExit exit { vcpu.Run() };
+    uint64_t afterTpidr;
+    uint64_t afterSp;
+    uint64_t afterDaif;
+    asm volatile("mrs %0, tpidr_el2\n"
+                 "mrs %1, sp_el0\n"
+                 "mrs %2, daif" : "=r"(afterTpidr), "=r"(afterSp), "=r"(afterDaif));
+    asm volatile("msr tpidr_el2, %0" :: "r"(savedTpidr) : "memory");
+    return isHvc(exit, 0x42) && afterTpidr == SENTINEL &&
+            afterSp == savedSp && afterDaif == beforeDaif;
+}
 
-static const TestSuite kVcpuSuite {
-    "VcpuHarness",
-    kVcpuCases,
-    7,
-};
+extern "C" bool test_vcpu_host_registers(Vcpu* vcpu);
 
-REGISTER_SUITE(kVcpuSuite);
+bool hostRegistersSurviveRun() {
+    test::Binary binary { "tests/vcpu.bin" };
+    Vcpu vcpu { binary.GetEntry() };
+    setStack(vcpu);
+    return test_vcpu_host_registers(&vcpu);
+}
+
+const TestCase cases[] {
+    { "guest_returns_to_caller", guestReturnsToCaller },
+    { "guest_registers_survive_exit", guestRegistersSurviveExit },
+    { "guest_resumes_saved_state", guestResumesSavedState },
+    { "repeated_exits_keep_host_stack", repeatedExitsKeepHostStack },
+    { "host_control_state_survives_run", hostControlStateSurvivesRun },
+    { "host_registers_survive_run", hostRegistersSurviveRun },
+};
+const TestSuite suite { "VcpuHarness", cases, std::size(cases) };
+}
+
+REGISTER_SUITE(suite);

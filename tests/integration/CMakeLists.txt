@@ -8,8 +8,8 @@ set(SHARED_TESTS
   mmu/test_mmu.cpp
   guestMmu/test_guestMmu.cpp
   bootLoader/test_bootLoader.cpp
+  vcpu/test_context.S
   vcpu/test_vcpu.cpp
-  vcpu/test_vectors.S
   gic/test_gic.cpp
   gic/test_vectors.S
   timer/test_timer.cpp

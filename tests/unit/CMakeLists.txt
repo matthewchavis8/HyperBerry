@@ -3,6 +3,9 @@ add_executable(hyperberry_unit_tests
   hostMmu/test_hostMmu.cpp
   guestMmu/test_guestMmu.cpp
   vcpu/test_vcpu.cpp
+  ${CMAKE_SOURCE_DIR}/core/vcpu/vcpu.cpp
+  vmm/test_vmm.cpp
+  ${CMAKE_SOURCE_DIR}/core/vmm/vmm.cpp
   vmm/test_esr.cpp
   vmm/test_hvc.cpp
 
