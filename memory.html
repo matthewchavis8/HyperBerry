@@ -250,7 +250,7 @@ reaches it from <code class="docutils literal notranslate"><span class="pre">hma
 <p>The allocator is brought up in this order:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">boot.S</span></code> transfers control to <code class="docutils literal notranslate"><span class="pre">hmain()</span></code> at EL2.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ParseDtb()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
+<li><p><code class="docutils literal notranslate"><span class="pre">TreeParser::ParseMemoryMap()</span></code> decodes the firmware DTB and returns a <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code> with:
 <code class="docutils literal notranslate"><span class="pre">memBase</span></code>, <code class="docutils literal notranslate"><span class="pre">memSize</span></code>, <code class="docutils literal notranslate"><span class="pre">atfBase</span></code>, <code class="docutils literal notranslate"><span class="pre">atfSize</span></code>, <code class="docutils literal notranslate"><span class="pre">dtbBase</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">dtbSize</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pmm::Init(memoryMap)</span></code> seeds the free lists from the RAM region.</p></li>
@@ -341,7 +341,7 @@ virtual-memory subsystem exists.</p>
 <section id="source-locations">
 <h2>Source Locations<a class="headerlink" href="#source-locations" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">core/dtb/</span></code>: boot-time DTB parsing and <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core/deviceTree/</span></code>: boot-time DTB parsing and <code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/mm/pmm/</span></code>: buddy allocator implementation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/mm/pageTable/</span></code>: shared page-table walk/allocation helpers</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">core/mm/mmu/hostMmu/</span></code>: EL2 stage-1 MMU implementation</p></li>

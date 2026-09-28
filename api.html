@@ -242,6 +242,75 @@
 <dt class="sig sig-object cpp">
 <span class="target" id="group__core"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Core</span></span></dt>
 <dd><p>Hypervisor core — entry point, scheduler, and exception handling. </p>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv410TreeParser">
+<span id="_CPPv310TreeParser"></span><span id="_CPPv210TreeParser"></span><span id="TreeParser"></span><span class="target" id="classTreeParser"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TreeParser</span></span></span><a class="headerlink" href="#_CPPv410TreeParser" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;deviceTree.h&gt;</em></div>
+<p>Parses a firmware provided Flattened Device Tree blob. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="classTreeParser_1a8005d41651ebadd7044cdd1dd0cb3fc8"></span><span class="sig-name descname"><span class="pre">inline</span> <span class="pre">explicit</span> <span class="pre">constexpr</span> <span class="pre">constexpr</span> <span class="pre">TreeParser</span> <span class="pre">(uintptr_t</span> <span class="pre">dtb)</span></span></dt>
+<dd><p>Bind the parser to a readable Flattened Device Tree blob. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtb</strong> – Physical address of the DTB. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK10TreeParser14ParseMemoryMapEv">
+<span id="_CPPv3NK10TreeParser14ParseMemoryMapEv"></span><span id="_CPPv2NK10TreeParser14ParseMemoryMapEv"></span><span id="TreeParser::ParseMemoryMapC"></span><span class="target" id="classTreeParser_1a6a7671115712392f10cbc3d5bf83f1eb"></span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParseMemoryMap</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK10TreeParser14ParseMemoryMapEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Parse the boot memory layout from the DTB. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parsed memory map. Panics when the DTB is invalid or lacks memory. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK10TreeParser10FindDeviceENSt4spanIKNSt11string_viewEEE">
+<span id="_CPPv3NK10TreeParser10FindDeviceENSt4spanIKNSt11string_viewEEE"></span><span id="_CPPv2NK10TreeParser10FindDeviceENSt4spanIKNSt11string_viewEEE"></span><span id="TreeParser::FindDevice__std::span:std::string_viewC:C"></span><span class="target" id="classTreeParser_1a107caeae6238b302324c8ca1d8411838"></span><a class="reference internal" href="#_CPPv410DeviceNode" title="DeviceNode"><span class="n"><span class="pre">DeviceNode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FindDevice</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">devices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK10TreeParser10FindDeviceENSt4spanIKNSt11string_viewEEE" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Find the first device matching a compatible string. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>devices</strong> – Compatible strings to match. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The matched device, or a node with <code class="docutils literal notranslate"><span class="pre">isFound</span></code> clear when absent. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK10TreeParser11GetHostMmioEv">
+<span id="_CPPv3NK10TreeParser11GetHostMmioEv"></span><span id="_CPPv2NK10TreeParser11GetHostMmioEv"></span><span id="TreeParser::GetHostMmioC"></span><span class="target" id="classTreeParser_1aa4add454952437c8359317bd81a007df"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetHostMmio</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK10TreeParser11GetHostMmioEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Build and validate host MMIO mappings. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The host MMIO map. Panics when required hardware is absent or unmappable. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK10TreeParser12GetGuestMmioEv">
+<span id="_CPPv3NK10TreeParser12GetGuestMmioEv"></span><span id="_CPPv2NK10TreeParser12GetGuestMmioEv"></span><span id="TreeParser::GetGuestMmioC"></span><span class="target" id="classTreeParser_1adf7c652afe1445337378dd407573aa1f"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetGuestMmio</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK10TreeParser12GetGuestMmioEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Build guest MMIO mappings. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The guest MMIO map. Optional absent devices produce warnings. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -298,6 +367,13 @@
 <dd></dd></dl>
 
 </div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv49PageTable">
+<span id="_CPPv39PageTable"></span><span id="_CPPv29PageTable"></span><span id="PageTable"></span><span class="target" id="classPageTable"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PageTable</span></span></span><a class="headerlink" href="#_CPPv49PageTable" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;pageTable.h&gt;</em></div>
+</dd></dl>
+
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
 <dl class="cpp macro">
@@ -680,20 +756,17 @@ returns <code class="docutils literal notranslate"><span class="pre">dest</span>
 the freestanding helper library.</p>
 <p>Addresses come from a board’s device tree, never from a literal in a header.
 Two paths exist, and which one a value takes depends on when it is needed.</p>
-<p><code class="docutils literal notranslate"><span class="pre">tools/bspgen</span></code> reads a board’s host device tree at configure time and emits
+<p><code class="docutils literal notranslate"><span class="pre">scripts/bspgen</span></code> reads a board’s host device tree at configure time and emits
 <code class="docutils literal notranslate"><span class="pre">regs.inc</span></code>, a plain <code class="docutils literal notranslate"><span class="pre">#define</span></code> per address and size. It covers only what has
 to be a compile time constant: the PL011 base, because the early console must
 work before any tree has been parsed, and the four GIC bases the driver’s
-register tables are built from. <code class="docutils literal notranslate"><span class="pre">VerifyBspAgainstDtb</span></code> rechecks every one of
+register tables are built from. <code class="docutils literal notranslate"><span class="pre">TreeParser::GetHostMmio()</span></code> rechecks every one of
 them against the firmware tree at boot and panics on a mismatch, which is what
 guards against a board’s checked in blob drifting from its source.</p>
-<p>Everything else is read from a tree at runtime. <code class="docutils literal notranslate"><span class="pre">DtbHostMmio</span></code> and
-<code class="docutils literal notranslate"><span class="pre">DtbGuestMmio</span></code> derive the device windows the two MMU layers map, so the EL2
+<p>Everything else is read from a tree at runtime. <code class="docutils literal notranslate"><span class="pre">TreeParser::GetHostMmio()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">TreeParser::GetGuestMmio()</span></code> derive the device windows the two MMU layers map, so the EL2
 self map covers exactly the peripherals the host tree declares and a guest
 reaches exactly what its own tree declares.</p>
-<p><code class="docutils literal notranslate"><span class="pre">bsp/fvp/platform.inc</span></code> is the exception that proves the rule: the load
-addresses are where the model is <em>told</em> to place a blob, so no tree can state
-them and they are written by hand.</p>
 <p>There is no board macro. The build puts <code class="docutils literal notranslate"><span class="pre">bsp/&lt;board&gt;</span></code> and that board’s
 generated directory on the include path, so code includes <code class="docutils literal notranslate"><span class="pre">&quot;regs.inc&quot;</span></code> and
 the board selects itself.</p>
@@ -707,23 +780,204 @@ the board selects itself.</p>
 <section id="mmio-windows">
 <h3>MMIO Windows<a class="headerlink" href="#mmio-windows" title="Link to this heading">¶</a></h3>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv411DtbHostMmio9uintptr_t">
-<span id="_CPPv311DtbHostMmio9uintptr_t"></span><span id="_CPPv211DtbHostMmio9uintptr_t"></span><span id="DtbHostMmio__uintptr_t"></span><span class="target" id="dtbMmio_8h_1a9d089b16a460d209f2846987ebb7dd0f"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DtbHostMmio</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411DtbHostMmio9uintptr_t" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv412DtbGuestMmio9uintptr_t">
-<span id="_CPPv312DtbGuestMmio9uintptr_t"></span><span id="_CPPv212DtbGuestMmio9uintptr_t"></span><span id="DtbGuestMmio__uintptr_t"></span><span class="target" id="dtbMmio_8h_1acdc538a6fe58dfab528cca6e2bdd776c"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DtbGuestMmio</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">guestDtb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412DtbGuestMmio9uintptr_t" title="Link to this definition">¶</a><br /></dt>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv414DT_MAX_REGIONS">
+<span id="_CPPv314DT_MAX_REGIONS"></span><span id="_CPPv214DT_MAX_REGIONS"></span><span id="DT_MAX_REGIONS__uint32_t"></span><span class="target" id="deviceTree_8h_1a63e69679872243627be8caa9fae96c7b"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DT_MAX_REGIONS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv414DT_MAX_REGIONS" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv49MemoryMap">
+<span id="_CPPv39MemoryMap"></span><span id="_CPPv29MemoryMap"></span><span id="MemoryMap"></span><span class="target" id="structMemoryMap"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MemoryMap</span></span></span><a class="headerlink" href="#_CPPv49MemoryMap" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;deviceTree.h&gt;</em></div>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
-<dl class="cpp macro">
-<dt class="sig sig-object cpp" id="c.MMIO_MAX_WINDOWS">
-<span class="target" id="mmioMap_8h_1a579f4837130a0cbeda68d88eb55be391"></span><span class="sig-name descname"><span class="n"><span class="pre">MMIO_MAX_WINDOWS</span></span></span><a class="headerlink" href="#c.MMIO_MAX_WINDOWS" title="Link to this definition">¶</a><br /></dt>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7memBaseE">
+<span id="_CPPv3N9MemoryMap7memBaseE"></span><span id="_CPPv2N9MemoryMap7memBaseE"></span><span id="MemoryMap::memBase__uint64_t"></span><span class="target" id="structMemoryMap_1a085e59aca3714243c159a8fb353ad0eb"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7memBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7memSizeE">
+<span id="_CPPv3N9MemoryMap7memSizeE"></span><span id="_CPPv2N9MemoryMap7memSizeE"></span><span id="MemoryMap::memSize__uint64_t"></span><span class="target" id="structMemoryMap_1a7347cd1abfc793f8c1375fe11371714d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7memSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7atfBaseE">
+<span id="_CPPv3N9MemoryMap7atfBaseE"></span><span id="_CPPv2N9MemoryMap7atfBaseE"></span><span id="MemoryMap::atfBase__uint64_t"></span><span class="target" id="structMemoryMap_1a83d8683e842c0f09b5ac6ff46f140b2b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">atfBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7atfBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7atfSizeE">
+<span id="_CPPv3N9MemoryMap7atfSizeE"></span><span id="_CPPv2N9MemoryMap7atfSizeE"></span><span id="MemoryMap::atfSize__uint64_t"></span><span class="target" id="structMemoryMap_1a4b07a662f2020f6a9a7989831ace2bbf"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">atfSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7atfSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7dtbBaseE">
+<span id="_CPPv3N9MemoryMap7dtbBaseE"></span><span id="_CPPv2N9MemoryMap7dtbBaseE"></span><span id="MemoryMap::dtbBase__uint64_t"></span><span class="target" id="structMemoryMap_1aea7d1753e074510422aaccd076242368"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7dtbBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap7dtbSizeE">
+<span id="_CPPv3N9MemoryMap7dtbSizeE"></span><span id="_CPPv2N9MemoryMap7dtbSizeE"></span><span id="MemoryMap::dtbSize__uint64_t"></span><span class="target" id="structMemoryMap_1afc8fbf72f5f0b0bdf3116ee2d99640e6"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dtbSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap7dtbSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap15cpioArchiveBaseE">
+<span id="_CPPv3N9MemoryMap15cpioArchiveBaseE"></span><span id="_CPPv2N9MemoryMap15cpioArchiveBaseE"></span><span id="MemoryMap::cpioArchiveBase__uint64_t"></span><span class="target" id="structMemoryMap_1af15dd7d6e19f273cc8255ac048fad479"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cpioArchiveBase</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap15cpioArchiveBaseE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9MemoryMap15cpioArchiveSizeE">
+<span id="_CPPv3N9MemoryMap15cpioArchiveSizeE"></span><span id="_CPPv2N9MemoryMap15cpioArchiveSizeE"></span><span id="MemoryMap::cpioArchiveSize__uint64_t"></span><span class="target" id="structMemoryMap_1ae625ccfcaa74ce003c4c4c270fa20a63"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cpioArchiveSize</span></span></span><a class="headerlink" href="#_CPPv4N9MemoryMap15cpioArchiveSizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv412DeviceRegion">
+<span id="_CPPv312DeviceRegion"></span><span id="_CPPv212DeviceRegion"></span><span id="DeviceRegion"></span><span class="target" id="structDeviceRegion"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceRegion</span></span></span><a class="headerlink" href="#_CPPv412DeviceRegion" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;deviceTree.h&gt;</em></div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12DeviceRegion4baseE">
+<span id="_CPPv3N12DeviceRegion4baseE"></span><span id="_CPPv2N12DeviceRegion4baseE"></span><span id="DeviceRegion::base__uint64_t"></span><span class="target" id="structDeviceRegion_1a2c1dceba1df01ba695815b566c0fb120"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">base</span></span></span><a class="headerlink" href="#_CPPv4N12DeviceRegion4baseE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12DeviceRegion4sizeE">
+<span id="_CPPv3N12DeviceRegion4sizeE"></span><span id="_CPPv2N12DeviceRegion4sizeE"></span><span id="DeviceRegion::size__uint64_t"></span><span class="target" id="structDeviceRegion_1a049e8f70fa95858ea727ca873c87eba6"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N12DeviceRegion4sizeE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410DeviceNode">
+<span id="_CPPv310DeviceNode"></span><span id="_CPPv210DeviceNode"></span><span id="DeviceNode"></span><span class="target" id="structDeviceNode"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceNode</span></span></span><a class="headerlink" href="#_CPPv410DeviceNode" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;deviceTree.h&gt;</em></div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DeviceNode7regionsE">
+<span id="_CPPv3N10DeviceNode7regionsE"></span><span id="_CPPv2N10DeviceNode7regionsE"></span><span id="DeviceNode::regions__DeviceRegionA"></span><span class="target" id="structDeviceNode_1a9eb820ecfc08557118ec3f5d23878b40"></span><a class="reference internal" href="#_CPPv412DeviceRegion" title="DeviceRegion"><span class="n"><span class="pre">DeviceRegion</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">regions</span></span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#_CPPv414DT_MAX_REGIONS" title="DT_MAX_REGIONS"><span class="n"><span class="pre">DT_MAX_REGIONS</span></span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N10DeviceNode7regionsE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DeviceNode11regionCountE">
+<span id="_CPPv3N10DeviceNode11regionCountE"></span><span id="_CPPv2N10DeviceNode11regionCountE"></span><span id="DeviceNode::regionCount__uint32_t"></span><span class="target" id="structDeviceNode_1aace8bdff1fe9d09b8fa3403954f54125"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">regionCount</span></span></span><a class="headerlink" href="#_CPPv4N10DeviceNode11regionCountE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DeviceNode7isFoundE">
+<span id="_CPPv3N10DeviceNode7isFoundE"></span><span id="_CPPv2N10DeviceNode7isFoundE"></span><span id="DeviceNode::isFound__b"></span><span class="target" id="structDeviceNode_1a05d7bde57d19af0fa11c6a09c98b3ddf"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isFound</span></span></span><a class="headerlink" href="#_CPPv4N10DeviceNode7isFoundE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="id5"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TreeParser</span></span></span><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;deviceTree.h&gt;</em></div>
+<p>Parses a firmware provided Flattened Device Tree blob. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="id0"></span><span class="sig-name descname"><span class="pre">inline</span> <span class="pre">explicit</span> <span class="pre">constexpr</span> <span class="pre">constexpr</span> <span class="pre">TreeParser</span> <span class="pre">(uintptr_t</span> <span class="pre">dtb)</span></span></dt>
+<dd><p>Bind the parser to a readable Flattened Device Tree blob. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dtb</strong> – Physical address of the DTB. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="id1"></span><a class="reference internal" href="#_CPPv49MemoryMap" title="MemoryMap"><span class="n"><span class="pre">MemoryMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParseMemoryMap</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><br /></dt>
+<dd><p>Parse the boot memory layout from the DTB. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parsed memory map. Panics when the DTB is invalid or lacks memory. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="id2"></span><a class="reference internal" href="#_CPPv410DeviceNode" title="DeviceNode"><span class="n"><span class="pre">DeviceNode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FindDevice</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">devices</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><br /></dt>
+<dd><p>Find the first device matching a compatible string. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>devices</strong> – Compatible strings to match. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The matched device, or a node with <code class="docutils literal notranslate"><span class="pre">isFound</span></code> clear when absent. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="id3"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetHostMmio</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><br /></dt>
+<dd><p>Build and validate host MMIO mappings. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The host MMIO map. Panics when required hardware is absent or unmappable. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="id4"></span><a class="reference internal" href="#_CPPv47MmioMap" title="MmioMap"><span class="n"><span class="pre">MmioMap</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetGuestMmio</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><br /></dt>
+<dd><p>Build guest MMIO mappings. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The guest MMIO map. Optional absent devices produce warnings. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-functions">Private Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK10TreeParser14validateHeaderEv">
+<span id="_CPPv3NK10TreeParser14validateHeaderEv"></span><span id="_CPPv2NK10TreeParser14validateHeaderEv"></span><span id="TreeParser::validateHeaderC"></span><span class="target" id="classTreeParser_1ada70a16d549756a47890359a01f031b5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">validateHeader</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK10TreeParser14validateHeaderEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Validate the DTB header and structure block. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None. Panics when the DTB is invalid. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10TreeParser5m_dtbE">
+<span id="_CPPv3N10TreeParser5m_dtbE"></span><span id="_CPPv2N10TreeParser5m_dtbE"></span><span id="TreeParser::m_dtb__uintptr_t"></span><span class="target" id="classTreeParser_1aa9031150d1b14c1fec59038ef939d1ce"></span><span class="n"><span class="pre">uintptr_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_dtb</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N10TreeParser5m_dtbE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv416MMIO_MAX_WINDOWS">
+<span id="_CPPv316MMIO_MAX_WINDOWS"></span><span id="_CPPv216MMIO_MAX_WINDOWS"></span><span id="MMIO_MAX_WINDOWS__uint32_t"></span><span class="target" id="mmioMap_8h_1ad2b2d82f962e32a240a09b975d755e03"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MMIO_MAX_WINDOWS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv416MMIO_MAX_WINDOWS" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
@@ -757,44 +1011,59 @@ the board selects itself.</p>
 </div>
 </dd></dl>
 
-<dl class="cpp struct">
+<dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv47MmioMap">
-<span id="_CPPv37MmioMap"></span><span id="_CPPv27MmioMap"></span><span id="MmioMap"></span><span class="target" id="structMmioMap"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MmioMap</span></span></span><a class="headerlink" href="#_CPPv47MmioMap" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv37MmioMap"></span><span id="_CPPv27MmioMap"></span><span id="MmioMap"></span><span class="target" id="classMmioMap"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MmioMap</span></span></span><a class="headerlink" href="#_CPPv47MmioMap" title="Link to this definition">¶</a><br /></dt>
 <dd><div class="docutils container">
 <em>#include &lt;mmioMap.h&gt;</em></div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7MmioMap9AddBlocksE8uint64_t8uint64_t">
-<span id="_CPPv3N7MmioMap9AddBlocksE8uint64_t8uint64_t"></span><span id="_CPPv2N7MmioMap9AddBlocksE8uint64_t8uint64_t"></span><span id="MmioMap::AddBlocks__uint64_t.uint64_t"></span><span class="target" id="structMmioMap_1ae9068b3107b36d336259847710c986e9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddBlocks</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">base</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap9AddBlocksE8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv3N7MmioMap9AddBlocksE8uint64_t8uint64_t"></span><span id="_CPPv2N7MmioMap9AddBlocksE8uint64_t8uint64_t"></span><span id="MmioMap::AddBlocks__uint64_t.uint64_t"></span><span class="target" id="classMmioMap_1ae9068b3107b36d336259847710c986e9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddBlocks</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">base</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap9AddBlocksE8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t">
-<span id="_CPPv3N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv2N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t"></span><span id="MmioMap::AddPages__uint64_t.uint64_t.uint64_t"></span><span class="target" id="structMmioMap_1a491842a43f89ccb572e22a4c27347c04"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddPages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4NK7MmioMap6CoversE8uint64_t">
-<span id="_CPPv3NK7MmioMap6CoversE8uint64_t"></span><span id="_CPPv2NK7MmioMap6CoversE8uint64_t"></span><span id="MmioMap::Covers__uint64_tC"></span><span class="target" id="structMmioMap_1a1aba73b7e55087011a31222bd9f66e3a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Covers</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK7MmioMap6CoversE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv3N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t"></span><span id="_CPPv2N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t"></span><span id="MmioMap::AddPages__uint64_t.uint64_t.uint64_t"></span><span class="target" id="classMmioMap_1a491842a43f89ccb572e22a4c27347c04"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddPages</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ipa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pa</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N7MmioMap3AddERK10MmioWindow">
-<span id="_CPPv3N7MmioMap3AddERK10MmioWindow"></span><span id="_CPPv2N7MmioMap3AddERK10MmioWindow"></span><span id="MmioMap::Add__MmioWindowCR"></span><span class="target" id="structMmioMap_1a7b3613faf58e9c19986cc91e6182d6ba"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Add</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">want</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap3AddERK10MmioWindow" title="Link to this definition">¶</a><br /></dt>
+<span id="_CPPv3N7MmioMap3AddERK10MmioWindow"></span><span id="_CPPv2N7MmioMap3AddERK10MmioWindow"></span><span id="MmioMap::Add__MmioWindowCR"></span><span class="target" id="classMmioMap_1a7b3613faf58e9c19986cc91e6182d6ba"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Add</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">want</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N7MmioMap3AddERK10MmioWindow" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7MmioMap6CoversE8uint64_t">
+<span id="_CPPv3NK7MmioMap6CoversE8uint64_t"></span><span id="_CPPv2NK7MmioMap6CoversE8uint64_t"></span><span id="MmioMap::Covers__uint64_tC"></span><span class="target" id="classMmioMap_1a1aba73b7e55087011a31222bd9f66e3a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Covers</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">addr</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK7MmioMap6CoversE8uint64_t" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7MmioMap8GetCountEv">
+<span id="_CPPv3NK7MmioMap8GetCountEv"></span><span id="_CPPv2NK7MmioMap8GetCountEv"></span><span id="MmioMap::GetCountC"></span><span class="target" id="classMmioMap_1a66e82e73c0c92fab6a6e0bb76e2ee55d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetCount</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK7MmioMap8GetCountEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7MmioMap5beginEv">
+<span id="_CPPv3NK7MmioMap5beginEv"></span><span id="_CPPv2NK7MmioMap5beginEv"></span><span id="MmioMap::beginC"></span><span class="target" id="classMmioMap_1a309aeaf3426a22ccc48daf3fa5afe1a9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">begin</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK7MmioMap5beginEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK7MmioMap3endEv">
+<span id="_CPPv3NK7MmioMap3endEv"></span><span id="_CPPv2NK7MmioMap3endEv"></span><span id="MmioMap::endC"></span><span class="target" id="classMmioMap_1a2a3d396ddc027189790e1d06a6b158e0"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">end</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK7MmioMap3endEv" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
 <dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N7MmioMap7windowsE">
-<span id="_CPPv3N7MmioMap7windowsE"></span><span id="_CPPv2N7MmioMap7windowsE"></span><span id="MmioMap::windows__MmioWindowA"></span><span class="target" id="structMmioMap_1a4c9a64a230b4e715d9a1ed1bfc9dc801"></span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">windows</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N7MmioMap7windowsE" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N7MmioMap9m_windowsE">
+<span id="_CPPv3N7MmioMap9m_windowsE"></span><span id="_CPPv2N7MmioMap9m_windowsE"></span><span id="MmioMap::m_windows__std::array:MmioWindow.MMIO_MAX_WINDOWS:"></span><span class="target" id="classMmioMap_1ab7f575f1b5c412d2b77244e02c7c6ddf"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv410MmioWindow" title="MmioWindow"><span class="n"><span class="pre">MmioWindow</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv416MMIO_MAX_WINDOWS" title="MMIO_MAX_WINDOWS"><span class="n"><span class="pre">MMIO_MAX_WINDOWS</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_windows</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N7MmioMap9m_windowsE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N7MmioMap5countE">
-<span id="_CPPv3N7MmioMap5countE"></span><span id="_CPPv2N7MmioMap5countE"></span><span id="MmioMap::count__uint32_t"></span><span class="target" id="structMmioMap_1a03ac7e539de0026c4239269a69aa9a2d"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">count</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N7MmioMap5countE" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N7MmioMap7m_countE">
+<span id="_CPPv3N7MmioMap7m_countE"></span><span id="_CPPv2N7MmioMap7m_countE"></span><span id="MmioMap::m_count__uint32_t"></span><span class="target" id="classMmioMap_1a6c895a64144a172f35d7fa5c6eeb1951"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">m_count</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N7MmioMap7m_countE" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 </div>
@@ -852,7 +1121,16 @@ the board selects itself.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#core">Core</a></li>
+<li><a class="reference internal" href="#core">Core</a><ul>
+<li><a class="reference internal" href="#_CPPv410TreeParser"><code class="docutils literal notranslate"><span class="pre">TreeParser</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4NK10TreeParser14ParseMemoryMapEv"><code class="docutils literal notranslate"><span class="pre">ParseMemoryMap()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK10TreeParser10FindDeviceENSt4spanIKNSt11string_viewEEE"><code class="docutils literal notranslate"><span class="pre">FindDevice()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK10TreeParser11GetHostMmioEv"><code class="docutils literal notranslate"><span class="pre">GetHostMmio()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK10TreeParser12GetGuestMmioEv"><code class="docutils literal notranslate"><span class="pre">GetGuestMmio()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#memory-management">Memory Management</a><ul>
 <li><a class="reference internal" href="#pmm">PMM</a></li>
 <li><a class="reference internal" href="#mmu">MMU</a></li>
@@ -862,6 +1140,7 @@ the board selects itself.</p>
 <li><a class="reference internal" href="#_CPPv412pte_is_valid8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_valid()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv412pte_is_table8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_table()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv412pte_is_block8uint64_t"><code class="docutils literal notranslate"><span class="pre">pte_is_block()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49PageTable"><code class="docutils literal notranslate"><span class="pre">PageTable</span></code></a></li>
 <li><a class="reference internal" href="#c.PTE_VALID"><code class="docutils literal notranslate"><span class="pre">PTE_VALID</span></code></a></li>
 <li><a class="reference internal" href="#c.PTE_TABLE"><code class="docutils literal notranslate"><span class="pre">PTE_TABLE</span></code></a></li>
 <li><a class="reference internal" href="#c.PTE_BLOCK"><code class="docutils literal notranslate"><span class="pre">PTE_BLOCK</span></code></a></li>
@@ -956,9 +1235,32 @@ the board selects itself.</p>
 <li><a class="reference internal" href="#bsp">BSP</a><ul>
 <li><a class="reference internal" href="#generated-addresses">Generated Addresses</a></li>
 <li><a class="reference internal" href="#mmio-windows">MMIO Windows</a><ul>
-<li><a class="reference internal" href="#_CPPv411DtbHostMmio9uintptr_t"><code class="docutils literal notranslate"><span class="pre">DtbHostMmio()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv412DtbGuestMmio9uintptr_t"><code class="docutils literal notranslate"><span class="pre">DtbGuestMmio()</span></code></a></li>
-<li><a class="reference internal" href="#c.MMIO_MAX_WINDOWS"><code class="docutils literal notranslate"><span class="pre">MMIO_MAX_WINDOWS</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv414DT_MAX_REGIONS"><code class="docutils literal notranslate"><span class="pre">DT_MAX_REGIONS</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv49MemoryMap"><code class="docutils literal notranslate"><span class="pre">MemoryMap</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7memBaseE"><code class="docutils literal notranslate"><span class="pre">memBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7memSizeE"><code class="docutils literal notranslate"><span class="pre">memSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7atfBaseE"><code class="docutils literal notranslate"><span class="pre">atfBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7atfSizeE"><code class="docutils literal notranslate"><span class="pre">atfSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbBaseE"><code class="docutils literal notranslate"><span class="pre">dtbBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap7dtbSizeE"><code class="docutils literal notranslate"><span class="pre">dtbSize</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap15cpioArchiveBaseE"><code class="docutils literal notranslate"><span class="pre">cpioArchiveBase</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N9MemoryMap15cpioArchiveSizeE"><code class="docutils literal notranslate"><span class="pre">cpioArchiveSize</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv412DeviceRegion"><code class="docutils literal notranslate"><span class="pre">DeviceRegion</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N12DeviceRegion4baseE"><code class="docutils literal notranslate"><span class="pre">base</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N12DeviceRegion4sizeE"><code class="docutils literal notranslate"><span class="pre">size</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv410DeviceNode"><code class="docutils literal notranslate"><span class="pre">DeviceNode</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4N10DeviceNode7regionsE"><code class="docutils literal notranslate"><span class="pre">regions</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N10DeviceNode11regionCountE"><code class="docutils literal notranslate"><span class="pre">regionCount</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N10DeviceNode7isFoundE"><code class="docutils literal notranslate"><span class="pre">isFound</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#_CPPv4NK10TreeParser14validateHeaderEv"><code class="docutils literal notranslate"><span class="pre">validateHeader()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N10TreeParser5m_dtbE"><code class="docutils literal notranslate"><span class="pre">m_dtb</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv416MMIO_MAX_WINDOWS"><code class="docutils literal notranslate"><span class="pre">MMIO_MAX_WINDOWS</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv410MmioWindow"><code class="docutils literal notranslate"><span class="pre">MmioWindow</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N10MmioWindow4baseE"><code class="docutils literal notranslate"><span class="pre">base</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N10MmioWindow2paE"><code class="docutils literal notranslate"><span class="pre">pa</span></code></a></li>
@@ -969,10 +1271,13 @@ the board selects itself.</p>
 <li><a class="reference internal" href="#_CPPv47MmioMap"><code class="docutils literal notranslate"><span class="pre">MmioMap</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N7MmioMap9AddBlocksE8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">AddBlocks()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N7MmioMap8AddPagesE8uint64_t8uint64_t8uint64_t"><code class="docutils literal notranslate"><span class="pre">AddPages()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4NK7MmioMap6CoversE8uint64_t"><code class="docutils literal notranslate"><span class="pre">Covers()</span></code></a></li>
 <li><a class="reference internal" href="#_CPPv4N7MmioMap3AddERK10MmioWindow"><code class="docutils literal notranslate"><span class="pre">Add()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N7MmioMap7windowsE"><code class="docutils literal notranslate"><span class="pre">windows</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N7MmioMap5countE"><code class="docutils literal notranslate"><span class="pre">count</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK7MmioMap6CoversE8uint64_t"><code class="docutils literal notranslate"><span class="pre">Covers()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK7MmioMap8GetCountEv"><code class="docutils literal notranslate"><span class="pre">GetCount()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK7MmioMap5beginEv"><code class="docutils literal notranslate"><span class="pre">begin()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK7MmioMap3endEv"><code class="docutils literal notranslate"><span class="pre">end()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7MmioMap9m_windowsE"><code class="docutils literal notranslate"><span class="pre">m_windows</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N7MmioMap7m_countE"><code class="docutils literal notranslate"><span class="pre">m_count</span></code></a></li>
 </ul>
 </li>
 </ul>
