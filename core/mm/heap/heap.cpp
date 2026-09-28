@@ -2,16 +2,17 @@
 // @brief PMM-backed slab allocator with page-order fallback.
 // @ingroup mm
 //
+// TODO: This nedes to be updated we are C++ 26 in fact you can rewrite our heap for C++26
 // The allocator publishes itself only through the global C++17 freestanding
 // allocation/deallocation operators below. There is no malloc-style API.
 
+// TODO: I deleted the space between the include guards in teh REPO YOU NEVER HAVE SPACES scan through and fix these for includer guards
 #include "heap.h"
-
 #include "core/mm/pmm/pmm.h"
-
 #include <cstddef>
 #include <cstdint>
 
+// TODO: Why is this __has_include needed
 #if __has_include(<new>)
 #include <new>
 #else
@@ -50,6 +51,7 @@ Heap& Heap::GetInstance() {
 size_t Heap::pickClass(size_t size, size_t align) {
     size_t need { size > align ? size : align };
     if (need > MAX_SLAB_SIZE) return NO_SLAB_CLASS;
+    // TODO: We can use a for range loop here make sure throughout teh repo we use a for range when things are most suiitable
     for (size_t i { 0 }; i < SLAB_CLASSES.size(); ++i) {
         if (SLAB_CLASSES[i] >= need) return i;
     }
