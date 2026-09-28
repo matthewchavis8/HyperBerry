@@ -463,43 +463,6 @@
 <p>AArch64 HVC dispatch for lower-EL guest exits. The guest-provided SMCCC
 function ID is read from <code class="docutils literal notranslate"><span class="pre">x0</span></code>; supported standard-service calls are currently
 handled as PSCI requests.</p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
-<dl class="cpp enum-class">
-<dt class="sig sig-object cpp" id="_CPPv49HvcResult">
-<span id="_CPPv39HvcResult"></span><span id="_CPPv29HvcResult"></span><span class="target" id="hvc_8h_1a13dac2418ea5fdd14dc665e89d234ab7"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HvcResult</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">uint8_t</span></span><a class="headerlink" href="#_CPPv49HvcResult" title="Link to this definition">¶</a><br /></dt>
-<dd><p><em>Values:</em></p>
-<dl class="cpp enumerator">
-<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult7HANDLEDE">
-<span id="_CPPv3N9HvcResult7HANDLEDE"></span><span id="_CPPv2N9HvcResult7HANDLEDE"></span><span class="target" id="hvc_8h_1a13dac2418ea5fdd14dc665e89d234ab7a9a5c682455ce10cef6dfee3aef3730a5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HANDLED</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult7HANDLEDE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult9UNHANDLEDE">
-<span id="_CPPv3N9HvcResult9UNHANDLEDE"></span><span id="_CPPv2N9HvcResult9UNHANDLEDE"></span><span class="target" id="hvc_8h_1a13dac2418ea5fdd14dc665e89d234ab7a989efec050f7932e19fb7904de70b8bc"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UNHANDLED</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult9UNHANDLEDE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult4HALTE">
-<span id="_CPPv3N9HvcResult4HALTE"></span><span id="_CPPv2N9HvcResult4HALTE"></span><span class="target" id="hvc_8h_1a13dac2418ea5fdd14dc665e89d234ab7abf2d798abfe8267da4f101692b6cfecd"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HALT</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult4HALTE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt class="sig sig-object cpp" id="_CPPv4N9HvcResult5RESETE">
-<span id="_CPPv3N9HvcResult5RESETE"></span><span id="_CPPv2N9HvcResult5RESETE"></span><span class="target" id="hvc_8h_1a13dac2418ea5fdd14dc665e89d234ab7ab5859d8721cfdc0312b2838b9c985bc1"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RESET</span></span></span><a class="headerlink" href="#_CPPv4N9HvcResult5RESETE" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv416HandleHvcAarch64R16ExceptionContext">
-<span id="_CPPv316HandleHvcAarch64R16ExceptionContext"></span><span id="_CPPv216HandleHvcAarch64R16ExceptionContext"></span><span id="HandleHvcAarch64__ExceptionContextR"></span><span class="target" id="hvc_8h_1aa5401160b4254aa2c438a2977a041cd3"></span><a class="reference internal" href="#_CPPv49HvcResult" title="HvcResult"><span class="n"><span class="pre">HvcResult</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HandleHvcAarch64</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ExceptionContext</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">gpr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416HandleHvcAarch64R16ExceptionContext" title="Link to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-</div>
 </section>
 <section id="smccc">
 <h3>SMCCC<a class="headerlink" href="#smccc" title="Link to this heading">¶</a></h3>
@@ -1158,17 +1121,7 @@ the board selects itself.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#vmm">VMM</a></li>
-<li><a class="reference internal" href="#hypercalls">Hypercalls</a><ul>
-<li><a class="reference internal" href="#_CPPv49HvcResult"><code class="docutils literal notranslate"><span class="pre">HvcResult</span></code></a><ul>
-<li><a class="reference internal" href="#_CPPv4N9HvcResult7HANDLEDE"><code class="docutils literal notranslate"><span class="pre">HANDLED</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N9HvcResult9UNHANDLEDE"><code class="docutils literal notranslate"><span class="pre">UNHANDLED</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N9HvcResult4HALTE"><code class="docutils literal notranslate"><span class="pre">HALT</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N9HvcResult5RESETE"><code class="docutils literal notranslate"><span class="pre">RESET</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#_CPPv416HandleHvcAarch64R16ExceptionContext"><code class="docutils literal notranslate"><span class="pre">HandleHvcAarch64()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#hypercalls">Hypercalls</a></li>
 <li><a class="reference internal" href="#smccc">SMCCC</a><ul>
 <li><a class="reference internal" href="#_CPPv45SMCCC"><code class="docutils literal notranslate"><span class="pre">SMCCC</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4N5SMCCC10ToRegisterE7int32_t"><code class="docutils literal notranslate"><span class="pre">ToRegister()</span></code></a></li>
