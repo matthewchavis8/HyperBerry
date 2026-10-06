@@ -185,7 +185,7 @@ Package your own directory with:
 just cpio path/to/root path/to/guest.cpio
 ```
 
-See [Guest archives](docs/GUEST_ARCHIVE.md) for paths, format rules, and boot behavior.
+See [Guest archives](docs/guides/GUEST_ARCHIVE.md) for paths, format rules, and boot behavior.
 
 ## Testing
 
@@ -201,7 +201,7 @@ just test-unit
 just test-integration qemu
 ```
 
-The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/TESTING.md`.
+The integration build adds a `hyperberry-<board>-test` image alongside each normal one, enables `INTEGRATION_TEST=ON`, and swaps the normal EL2 entry path for `TestRunner::RunAll()`. Full testing notes, layout, and extension instructions live in `docs/guides/TESTING.md`.
 
 ## License
 

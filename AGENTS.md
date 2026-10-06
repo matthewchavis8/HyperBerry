@@ -30,6 +30,7 @@ lib/                 panic, strings, and header only utilities
 tests/integration/   board neutral suites
 tests/bsp/<board>/   board specific test sources
 scripts/bspgen/      generates regs.inc from a board's device tree
+docs/                knowledge bundle in Open Knowledge Format; start at docs/index.md
 ```
 
 Libraries are five subsystems, layered. Each may depend only on those below it:
@@ -41,7 +42,7 @@ targets of the same name.
 ## Conventions
 
 Code shape -- class layout, MMIO access, logging tiers, comment style -- lives in
-[docs/STYLES.md](docs/STYLES.md). This section is about the project's rules.
+[docs/guides/STYLES.md](docs/guides/STYLES.md). This section is about the project's rules.
 
 **The device tree is the source of truth for addresses.** Do not hand write a
 value a tree already declares. Two paths exist. `scripts/bspgen` reads a board's
