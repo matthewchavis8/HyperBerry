@@ -23,10 +23,14 @@ uint64_t* rootTable(GuestMmu& mmu) {
 }
 
 uint64_t* walkStage2L2(uint64_t* root, uint64_t ipa) {
-    if (!root) return nullptr;
+    if (!root) {
+        return nullptr;
+    }
 
     uint64_t l1Entry { root[(ipa >> 30) & 0x3FFULL] };
-    if (!pte_is_table(l1Entry)) return nullptr;
+    if (!pte_is_table(l1Entry)) {
+        return nullptr;
+    }
 
     uint64_t* l2 { pte_next_table(l1Entry) };
     return &l2[L2_INDEX(ipa)];
@@ -34,7 +38,9 @@ uint64_t* walkStage2L2(uint64_t* root, uint64_t ipa) {
 
 uint64_t* walkStage2L3(uint64_t* root, uint64_t ipa) {
     uint64_t* l2 { walkStage2L2(root, ipa) };
-    if (!l2 || !pte_is_table(*l2)) return nullptr;
+    if (!l2 || !pte_is_table(*l2)) {
+        return nullptr;
+    }
 
     uint64_t* l3 { pte_next_table(*l2) };
     return &l3[L3_INDEX(ipa)];
@@ -66,7 +72,9 @@ void clearStage2Enable() {
 
 static bool test_init_programs_vtcr_el2() {
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
-    if (hostPa == 0) return false;
+    if (hostPa == 0) {
+        return false;
+    }
 
     GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
 
@@ -82,7 +90,9 @@ static bool test_init_programs_vtcr_el2() {
 
 static bool test_init_maps_guest_ram_blocks() {
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
-    if (hostPa == 0) return false;
+    if (hostPa == 0) {
+        return false;
+    }
 
     GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
     uint64_t* first { walkStage2L2(rootTable(mmu), kGuestIpaBase) };
@@ -98,7 +108,9 @@ static bool test_init_maps_guest_ram_blocks() {
 
 static bool test_init_maps_device_windows() {
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
-    if (hostPa == 0) return false;
+    if (hostPa == 0) {
+        return false;
+    }
 
     // One window of each granule. The page path carried no coverage at all
     // while the windows were a fixed table in a board header.
@@ -120,7 +132,9 @@ static bool test_init_maps_device_windows() {
 
 static bool test_enable_programs_vttbr_and_hcr_vm() {
     uint64_t hostPa { Pmm::GetInstance().AllocPages(9) };
-    if (hostPa == 0) return false;
+    if (hostPa == 0) {
+        return false;
+    }
 
     GuestMmu mmu { kGuestIpaBase, hostPa, kGuestSize, MmioMap {} };
     mmu.Enable(kTestVmid);
@@ -141,7 +155,9 @@ static bool test_enable_programs_vttbr_and_hcr_vm() {
 
 static bool test_device_pages_replace_ram_without_losing_neighbors() {
     uint64_t hostPa { Pmm::GetInstance().AllocPages(10) };
-    if (!hostPa) return false;
+    if (!hostPa) {
+        return false;
+    }
     uint64_t deviceIpa { kGuestIpaBase + SIZE_4KB };
     MmioMap devices {};
     devices.AddPages(deviceIpa, BSP_UART_BASE, SIZE_4KB);

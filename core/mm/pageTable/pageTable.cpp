@@ -9,7 +9,9 @@
 
 void PageTable::CleanDataCacheRange(const void* addr, size_t size) {
 #if defined(__aarch64__)
-    if (size == 0) return;
+    if (size == 0) {
+        return;
+    }
 
     uint64_t ctr {};
     asm volatile("mrs %0, ctr_el0" : "=r"(ctr));
@@ -32,8 +34,9 @@ uint64_t* PageTable::AllocTable() {
     uint64_t pa { Pmm::GetInstance().AllocPages(0) };
     if (pa == 0) {
         Log::Println("[PageTable] Failed to allocate page table");
-        for (;;)
+        for (;;) {
             asm volatile("wfe");
+        }
     }
 
     uint64_t* table { reinterpret_cast<uint64_t*>(pa) };
@@ -52,7 +55,9 @@ uint64_t* PageTable::Walk(uint64_t addr, bool allocOnMiss) const {
         uint64_t idx { (addr >> levelShift[level]) & mask };
 
         if (!pte_is_valid(table[idx])) {
-            if (!allocOnMiss) return nullptr;
+            if (!allocOnMiss) {
+                return nullptr;
+            }
 
             uint64_t* next { AllocTable() };
             table[idx] = (uint64_t)(uintptr_t)next | PTE_VALID | PTE_TABLE;

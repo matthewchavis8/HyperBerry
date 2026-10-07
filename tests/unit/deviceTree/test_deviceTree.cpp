@@ -137,7 +137,9 @@ public:
 
     void PropString(uint32_t nameOff, const char* value) {
         std::vector<uint8_t> data;
-        while (*value) data.push_back(static_cast<uint8_t>(*value++));
+        while (*value) {
+            data.push_back(static_cast<uint8_t>(*value++));
+        }
         data.push_back(0);
         Prop(nameOff, data);
     }
@@ -145,7 +147,9 @@ public:
     void PropCompatible(uint32_t nameOff, std::initializer_list<const char*> values) {
         std::vector<uint8_t> data;
         for (const char* value : values) {
-            while (*value) data.push_back(static_cast<uint8_t>(*value++));
+            while (*value) {
+                data.push_back(static_cast<uint8_t>(*value++));
+            }
             data.push_back(0);
         }
         Prop(nameOff, data);
@@ -342,7 +346,9 @@ TEST(DeviceTreeParser, InvalidArchiveEndpointsDoNotReserveMemory) {
         b.EndNode();
         b.BeginNode("chosen");
         b.PropU64Cells(startName, 0x20000000);
-        if (end) b.PropU64Cells(endName, end);
+        if (end) {
+            b.PropU64Cells(endName, end);
+        }
         b.EndNode();
         b.EndNode();
         b.end();
@@ -451,9 +457,7 @@ TEST(DeviceTreeParser, FindsCompatibleUsingSpan) {
 
     auto blob { b.Build() };
     constexpr std::string_view wanted[] { "missing,device", "test,device" };
-    DeviceNode node {
-        TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.FindDevice(wanted)
-    };
+    DeviceNode node { TreeParser { reinterpret_cast<uintptr_t>(blob.data()) }.FindDevice(wanted) };
 
     ASSERT_TRUE(node.isFound);
     ASSERT_EQ(node.regionCount, 1U);

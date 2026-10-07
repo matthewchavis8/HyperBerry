@@ -17,12 +17,19 @@ public:
         const auto& map { TestRunner::BootMemoryMap() };
         cpio::Archive archive { HostMmu::PaToVa(map.cpioArchiveBase), map.cpioArchiveSize };
         cpio::File file {};
-        if (!archive.Find(path, file) || !file.size) return;
-        while (m_order < MAX_ORDER && (PAGE_SIZE << m_order) < file.size)
+        if (!archive.Find(path, file) || !file.size) {
+            return;
+        }
+        while (m_order < MAX_ORDER && (PAGE_SIZE << m_order) < file.size) {
             ++m_order;
-        if ((PAGE_SIZE << m_order) < file.size) return;
+        }
+        if ((PAGE_SIZE << m_order) < file.size) {
+            return;
+        }
         m_base = Pmm::GetInstance().AllocPages(m_order);
-        if (!m_base) return;
+        if (!m_base) {
+            return;
+        }
         auto* destination { static_cast<uint8_t*>(HostMmu::PaToVa(m_base)) };
         memcpy(destination, file.data, file.size);
         uint64_t ctr {};
@@ -30,12 +37,14 @@ public:
         uint64_t dataLine { 4ULL << ((ctr >> 16) & 15) };
         uint64_t instructionLine { 4ULL << (ctr & 15) };
         uintptr_t start { reinterpret_cast<uintptr_t>(destination) };
-        for (uintptr_t p { start & ~(dataLine - 1) }; p < start + file.size; p += dataLine)
+        for (uintptr_t p { start & ~(dataLine - 1) }; p < start + file.size; p += dataLine) {
             asm volatile("dc cvau, %0" ::"r"(p) : "memory");
+        }
         asm volatile("dsb ish" ::: "memory");
         for (uintptr_t p { start & ~(instructionLine - 1) }; p < start + file.size;
-                p += instructionLine)
+                p += instructionLine) {
             asm volatile("ic ivau, %0" ::"r"(p) : "memory");
+        }
         asm volatile("dsb ish\nisb" ::: "memory");
     }
 
@@ -46,7 +55,9 @@ public:
     Binary(Binary&&) = delete;
     Binary& operator=(Binary&&) = delete;
     ~Binary() {
-        if (m_base) Pmm::GetInstance().FreePages(m_base, m_order);
+        if (m_base) {
+            Pmm::GetInstance().FreePages(m_base, m_order);
+        }
     }
 };
 } // namespace test

@@ -41,8 +41,9 @@ void storeBe64(uint8_t* dst, uint64_t value) {
 
 struct GuestRamDeleter {
     void operator()(uint8_t* guestRam) const noexcept {
-        if (guestRam)
+        if (guestRam) {
             Pmm::GetInstance().FreePages(reinterpret_cast<uint64_t>(guestRam), GUEST_RAM_ORDER);
+        }
     }
 };
 
@@ -57,7 +58,7 @@ private:
     };
 
     struct Blocks {
-        uint64_t cursor;    // offset of the next structure block token
+        uint64_t cursor; // offset of the next structure block token
         uint64_t structEnd;
         uint64_t stringsOff;
         uint64_t stringsSize;
@@ -80,8 +81,9 @@ private:
     std::array<Placeholder, 3> m_placeholders;
 
     bool readHeader() {
-        if (m_dtbSize < sizeof(FdtHeader))
+        if (m_dtbSize < sizeof(FdtHeader)) {
             return false;
+        }
 
         FdtHeader header {};
         memcpy(&header, m_base, sizeof(header));
@@ -97,12 +99,14 @@ private:
         };
 
         if (Be32(header.magic) != static_cast<uint32_t>(FDT::MAGIC) || total < sizeof(FdtHeader) ||
-                total > m_dtbSize)
+                total > m_dtbSize) {
             return false;
+        }
 
         if (!inBounds(structOff, structSize) || (structOff & 3) != 0 ||
-                !inBounds(stringsOff, stringsSize))
+                !inBounds(stringsOff, stringsSize)) {
             return false;
+        }
 
         m_blocks = { structOff, structOff + structSize, stringsOff, stringsSize };
 
@@ -116,23 +120,26 @@ private:
             ++m_blocks.cursor;
         }
 
-        if (m_blocks.cursor == m_blocks.structEnd)
+        if (m_blocks.cursor == m_blocks.structEnd) {
             return false;
+        }
 
         const char* name { reinterpret_cast<const char*>(m_base + nameOff) };
 
         if (m_depth == 0) {
-            if (m_hasRoot || *name != 0)
+            if (m_hasRoot || *name != 0) {
                 return false;
+            }
 
             m_hasRoot = true;
         } else if (m_depth == 1) {
-            if (StrEq(name, "memory") || StrStartsWith(name, "memory@"))
+            if (StrEq(name, "memory") || StrStartsWith(name, "memory@")) {
                 m_node = Node::MEMORY;
-            else if (StrEq(name, "chosen"))
+            } else if (StrEq(name, "chosen")) {
                 m_node = Node::CHOSEN;
-            else
+            } else {
                 m_node = Node::OTHER;
+            }
         }
 
         m_blocks.cursor = align4(m_blocks.cursor + 1);
@@ -141,8 +148,9 @@ private:
     }
 
     bool property() {
-        if (m_depth == 0 || m_blocks.structEnd - m_blocks.cursor < sizeof(FdtProp))
+        if (m_depth == 0 || m_blocks.structEnd - m_blocks.cursor < sizeof(FdtProp)) {
             return false;
+        }
 
         FdtProp prop {};
         memcpy(&prop, m_base + m_blocks.cursor, sizeof(prop));
@@ -151,8 +159,9 @@ private:
         uint64_t length { Be32(prop.dataLen) };
         uint64_t nameOff { Be32(prop.nameOff) };
 
-        if (length > m_blocks.structEnd - m_blocks.cursor || nameOff >= m_blocks.stringsSize)
+        if (length > m_blocks.structEnd - m_blocks.cursor || nameOff >= m_blocks.stringsSize) {
             return false;
+        }
 
         uint64_t nameEnd { nameOff };
 
@@ -160,8 +169,9 @@ private:
             ++nameEnd;
         }
 
-        if (nameEnd == m_blocks.stringsSize)
+        if (nameEnd == m_blocks.stringsSize) {
             return false;
+        }
 
         const char* name { reinterpret_cast<const char*>(m_base + m_blocks.stringsOff + nameOff) };
         uint8_t* value { m_base + m_blocks.cursor };
@@ -172,11 +182,13 @@ private:
 
     bool patch(const char* name, uint8_t* value, uint64_t length) {
         for (Placeholder& placeholder : m_placeholders) {
-            if (placeholder.node != m_node || !StrEq(name, placeholder.name))
+            if (placeholder.node != m_node || !StrEq(name, placeholder.name)) {
                 continue;
+            }
 
-            if (placeholder.found || length != placeholder.length)
+            if (placeholder.found || length != placeholder.length) {
                 return false;
+            }
 
             for (uint64_t i {}; i < length / sizeof(uint64_t); ++i) {
                 storeBe64(value + i * sizeof(uint64_t), placeholder.values[i]);
@@ -190,12 +202,14 @@ private:
     }
 
     [[nodiscard]] bool finish() const {
-        if (!m_hasRoot || m_depth != 0)
+        if (!m_hasRoot || m_depth != 0) {
             return false;
+        }
 
         for (const Placeholder& placeholder : m_placeholders) {
-            if (!placeholder.found)
+            if (!placeholder.found) {
                 return false;
+            }
         }
 
         return true;
@@ -203,7 +217,8 @@ private:
 
 public:
     DtbPatcher(void* dtb, const GuestLayout& layout) :
-                m_base { static_cast<uint8_t*>(dtb) }, m_dtbSize { layout.dtbSize },
+                m_base { static_cast<uint8_t*>(dtb) },
+                m_dtbSize { layout.dtbSize },
                 m_placeholders { {
                         { Node::MEMORY, "reg", 16, { GUEST_IPA_BASE, GUEST_RAM_SIZE }, false },
                         { Node::CHOSEN, "linux,initrd-start", 8, { layout.initrdIpa }, false },
@@ -215,8 +230,9 @@ public:
                 } } {}
 
     bool Run() {
-        if (!readHeader())
+        if (!readHeader()) {
             return false;
+        }
 
         while (m_blocks.cursor <= m_blocks.structEnd && m_blocks.structEnd - m_blocks.cursor >= 4) {
             FDT token { static_cast<FDT>(loadBe32(m_base + m_blocks.cursor)) };
@@ -224,19 +240,23 @@ public:
 
             switch (token) {
                 case FDT::BEGIN_NODE:
-                    if (!beginNode())
+                    if (!beginNode()) {
                         return false;
+                    }
                     break;
                 case FDT::END_NODE:
-                    if (m_depth == 0)
+                    if (m_depth == 0) {
                         return false;
+                    }
 
-                    if (--m_depth == 1)
+                    if (--m_depth == 1) {
                         m_node = Node::OTHER;
+                    }
                     break;
                 case FDT::PROP:
-                    if (!property())
+                    if (!property()) {
                         return false;
+                    }
                     break;
                 case FDT::NOP:
                     break;
@@ -258,17 +278,21 @@ BootLoader::BootLoader(const cpio::Archive& archive) : m_archive { archive } {}
 bool BootLoader::ReadFiles(GuestFiles& files) const {
     files = {};
 
-    if (m_archive.GetError() != cpio::Error::NONE)
+    if (m_archive.GetError() != cpio::Error::NONE) {
         return false;
+    }
 
-    if (!m_archive.Find("linux/Image", files.kernel) || files.kernel.size == 0)
+    if (!m_archive.Find("linux/Image", files.kernel) || files.kernel.size == 0) {
         return false;
+    }
 
-    if (!m_archive.Find("linux/guest.dtb", files.dtb) || files.dtb.size == 0)
+    if (!m_archive.Find("linux/guest.dtb", files.dtb) || files.dtb.size == 0) {
         return false;
+    }
 
-    if (m_archive.Find("linux/initrd", files.initrd) && files.initrd.size == 0)
+    if (m_archive.Find("linux/initrd", files.initrd) && files.initrd.size == 0) {
         return false;
+    }
 
     return true;
 }
@@ -278,36 +302,42 @@ bool BootLoader::CalculateLayout(const GuestFiles& files, GuestLayout& out) {
 
     out = {};
 
-    if (files.kernel.size == 0 || files.dtb.size == 0)
+    if (files.kernel.size == 0 || files.dtb.size == 0) {
         return false;
+    }
 
     uint64_t kernelEnd {};
 
-    if (__builtin_add_overflow(KERNEL_LOAD_IPA, files.kernel.size, &kernelEnd))
+    if (__builtin_add_overflow(KERNEL_LOAD_IPA, files.kernel.size, &kernelEnd)) {
         return false;
+    }
 
     uint64_t top { GUEST_IPA_BASE + GUEST_RAM_SIZE };
     uint64_t initrdIpa {};
 
     if (files.initrd.size != 0) {
-        if (files.initrd.size > top)
+        if (files.initrd.size > top) {
             return false;
+        }
 
         initrdIpa = alignDown(top - files.initrd.size, ALIGN_2MB);
 
-        if (initrdIpa < kernelEnd)
+        if (initrdIpa < kernelEnd) {
             return false;
+        }
 
         top = initrdIpa;
     }
 
-    if (files.dtb.size > top)
+    if (files.dtb.size > top) {
         return false;
+    }
 
     uint64_t dtbIpa { alignDown(top - files.dtb.size, ALIGN_64K) };
 
-    if (dtbIpa < kernelEnd)
+    if (dtbIpa < kernelEnd) {
         return false;
+    }
 
     out.kernelIpa = KERNEL_LOAD_IPA;
     out.kernelSize = files.kernel.size;
@@ -324,13 +354,15 @@ bool BootLoader::Load(GuestLayout& out) const {
     GuestFiles files {};
     GuestLayout layout {};
 
-    if (!ReadFiles(files) || !CalculateLayout(files, layout))
+    if (!ReadFiles(files) || !CalculateLayout(files, layout)) {
         return false;
+    }
 
     layout.ramHostPa = Pmm::GetInstance().AllocPages(GUEST_RAM_ORDER);
 
-    if (layout.ramHostPa == 0)
+    if (layout.ramHostPa == 0) {
         return false;
+    }
 
     std::unique_ptr<uint8_t, GuestRamDeleter> guestRam { reinterpret_cast<uint8_t*>(
             layout.ramHostPa) };
@@ -346,13 +378,15 @@ bool BootLoader::Load(GuestLayout& out) const {
 
     void* guestDtb { HostMmu::PaToVa(layout.IpaToHostPa(layout.dtbIpa)) };
 
-    if (!DtbPatcher { guestDtb, layout }.Run())
+    if (!DtbPatcher { guestDtb, layout }.Run()) {
         return false;
+    }
 
     PageTable::CleanDataCacheRange(guestDtb, static_cast<size_t>(layout.dtbSize));
 
-    if (files.initrd.size != 0)
+    if (files.initrd.size != 0) {
         copyToGuest(layout.initrdIpa, files.initrd);
+    }
 
     (void)guestRam.release();
     out = layout;

@@ -63,8 +63,9 @@ public:
             name++;
         }
         m_structs.push_back(0);
-        while ((m_structs.size() & 3U) != 0)
+        while ((m_structs.size() & 3U) != 0) {
             m_structs.push_back(0);
+        }
     }
 
     void EndNode() { pushBE32(m_structs, 2); }
@@ -150,7 +151,9 @@ std::vector<uint8_t> buildGuestDtb(bool includeInitrdPlaceholders = true) {
 
 bool strEq(const char* str1, const char* str2) {
     while (*str1 && *str2) {
-        if (*str1 != *str2) return false;
+        if (*str1 != *str2) {
+            return false;
+        }
         str1++;
         str2++;
     }
@@ -172,8 +175,9 @@ uint64_t findPropData(std::vector<uint8_t>& dtb, const char* wanted) {
 
         if (token == 1) {
             uint64_t name { tok };
-            while (dtb[tok] != 0)
+            while (dtb[tok] != 0) {
                 tok++;
+            }
             tok = alignStruct(name, static_cast<uint32_t>(tok - name + 1));
         } else if (token == 2 || token == 4) {
             continue;
@@ -181,7 +185,9 @@ uint64_t findPropData(std::vector<uint8_t>& dtb, const char* wanted) {
             uint32_t dataLen { readBe32(dtb, tok) };
             uint32_t nameOff { readBe32(dtb, tok + 4) };
             uint64_t dataOff { tok + 8 };
-            if (strEq(strings + nameOff, wanted)) return dataOff;
+            if (strEq(strings + nameOff, wanted)) {
+                return dataOff;
+            }
             tok = alignStruct(dataOff, dataLen);
         } else if (token == 9) {
             return 0;
@@ -308,10 +314,11 @@ TEST(BootLoader, CopiesFilesAndPatchesDtb) {
         EXPECT_TRUE(std::equal(files.kernel.data,
                 files.kernel.data + files.kernel.size,
                 ram.data() + layout.kernelIpa - GUEST_IPA_BASE));
-        if (withInitrd)
+        if (withInitrd) {
             EXPECT_TRUE(std::equal(files.initrd.data,
                     files.initrd.data + files.initrd.size,
                     ram.data() + layout.initrdIpa - GUEST_IPA_BASE));
+        }
         std::vector<uint8_t> dtb(ram.begin() + layout.dtbIpa - GUEST_IPA_BASE,
                 ram.begin() + layout.dtbIpa - GUEST_IPA_BASE + layout.dtbSize);
         EXPECT_EQ(readBe64Cells(dtb, findPropData(dtb, "reg")), GUEST_IPA_BASE);
@@ -342,8 +349,9 @@ TEST(BootLoader, RejectsMalformedDtbBoundsAndTokens) {
         cpio::File dtb {};
         ASSERT_TRUE(cpio::Archive(bytes.data(), bytes.size()).Find("linux/guest.dtb", dtb));
         size_t start { static_cast<size_t>(dtb.data - bytes.data()) };
-        for (unsigned i {}; i < 4; ++i)
+        for (unsigned i {}; i < 4; ++i) {
             bytes[start + offset + i] = 0xff;
+        }
         freed = 0;
         GuestLayout layout {};
         EXPECT_FALSE(BootLoader { cpio::Archive(bytes.data(), bytes.size()) }.Load(layout));

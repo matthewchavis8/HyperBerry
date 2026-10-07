@@ -4,7 +4,9 @@
 #include "tests/unit/vcpu/backend.h"
 
 namespace {
-VmConfig config() { return { "test VM", 0, 0x40000000, 0x200000, 2, 0x200000, 0x1FF000 }; }
+VmConfig config() {
+    return { "test VM", 0, 0x40000000, 0x200000, 2, 0x200000, 0x1FF000 };
+}
 VcpuExit syncExit(EsrEc ec, uint64_t iss = 0) {
     return { ExitReason::SYNC, (static_cast<uint64_t>(ec) << 26) | iss };
 }
@@ -13,7 +15,7 @@ class VmmTest : public testing::Test {
 protected:
     void TearDown() override { vcpuTest::run = {}; }
 };
-}
+} // namespace
 
 TEST_F(VmmTest, PsciOffShutsDownAndCannotRunAgain) {
     Vmm vmm { config(), MmioMap {} };

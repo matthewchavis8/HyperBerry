@@ -36,7 +36,9 @@ uint32_t be32(uint32_t value) {
 
 bool strEq(const char* str1, const char* str2) {
     while (*str1 && *str2) {
-        if (*str1 != *str2) return false;
+        if (*str1 != *str2) {
+            return false;
+        }
         str1++;
         str2++;
     }
@@ -46,7 +48,9 @@ bool strEq(const char* str1, const char* str2) {
 
 bool strStartsWith(const char* str, const char* prefix) {
     while (*prefix) {
-        if (*str != *prefix) return false;
+        if (*str != *prefix) {
+            return false;
+        }
         str++;
         prefix++;
     }
@@ -67,7 +71,9 @@ uint64_t readBe64Cells(const uint8_t* data) {
 
 uint8_t* findPropData(void* dtb, const char* wanted) {
     auto* hdr { static_cast<FdtHeader*>(dtb) };
-    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return nullptr;
+    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) {
+        return nullptr;
+    }
 
     auto* base { static_cast<uint8_t*>(dtb) };
     auto* tok { reinterpret_cast<uint32_t*>(base + be32(hdr->structOff)) };
@@ -81,8 +87,9 @@ uint8_t* findPropData(void* dtb, const char* wanted) {
             case FDT::BEGIN_NODE: {
                 auto* name { reinterpret_cast<uint8_t*>(tok) };
                 uint32_t nameLen {};
-                while (name[nameLen] != 0)
+                while (name[nameLen] != 0) {
                     nameLen++;
+                }
                 tok = alignStruct(name, nameLen + 1);
                 break;
             }
@@ -95,7 +102,9 @@ uint8_t* findPropData(void* dtb, const char* wanted) {
                 uint32_t dataLen { be32(tok[0]) };
                 uint32_t nameOff { be32(tok[1]) };
                 auto* propData { reinterpret_cast<uint8_t*>(tok + 2) };
-                if (strEq(strings + nameOff, wanted)) return propData;
+                if (strEq(strings + nameOff, wanted)) {
+                    return propData;
+                }
                 tok = alignStruct(propData, dataLen);
                 break;
             }
@@ -109,7 +118,9 @@ uint8_t* findPropData(void* dtb, const char* wanted) {
 
 uint8_t* findMemoryRegData(void* dtb) {
     auto* hdr { static_cast<FdtHeader*>(dtb) };
-    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) return nullptr;
+    if (be32(hdr->magic) != static_cast<uint32_t>(FDT::MAGIC)) {
+        return nullptr;
+    }
 
     auto* base { static_cast<uint8_t*>(dtb) };
     auto* tok { reinterpret_cast<uint32_t*>(base + be32(hdr->structOff)) };
@@ -125,11 +136,14 @@ uint8_t* findMemoryRegData(void* dtb) {
             case FDT::BEGIN_NODE: {
                 const char* name { reinterpret_cast<const char*>(tok) };
                 auto* nameBytes { reinterpret_cast<uint8_t*>(tok) };
-                if (depth == 1) inMemory = strStartsWith(name, "memory");
+                if (depth == 1) {
+                    inMemory = strStartsWith(name, "memory");
+                }
 
                 uint32_t nameLen {};
-                while (nameBytes[nameLen] != 0)
+                while (nameBytes[nameLen] != 0) {
                     nameLen++;
+                }
                 tok = alignStruct(nameBytes, nameLen + 1);
                 depth++;
                 break;
@@ -137,7 +151,9 @@ uint8_t* findMemoryRegData(void* dtb) {
 
             case FDT::END_NODE:
                 depth--;
-                if (depth == 1) inMemory = false;
+                if (depth == 1) {
+                    inMemory = false;
+                }
                 break;
 
             case FDT::NOP:
@@ -147,7 +163,9 @@ uint8_t* findMemoryRegData(void* dtb) {
                 uint32_t dataLen { be32(tok[0]) };
                 uint32_t nameOff { be32(tok[1]) };
                 auto* propData { reinterpret_cast<uint8_t*>(tok + 2) };
-                if (inMemory && strEq(strings + nameOff, "reg")) return propData;
+                if (inMemory && strEq(strings + nameOff, "reg")) {
+                    return propData;
+                }
                 tok = alignStruct(propData, dataLen);
                 break;
             }
@@ -171,7 +189,9 @@ static bool test_firmware_archive_region_present() {
 
 static bool test_firmware_archive_validates() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
-    if (map.cpioArchiveBase == 0 || map.cpioArchiveSize == 0) return false;
+    if (map.cpioArchiveBase == 0 || map.cpioArchiveSize == 0) {
+        return false;
+    }
 
     cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
 
@@ -187,13 +207,19 @@ static bool test_load_linux_guest_from_firmware_archive() {
     cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
     BootLoader loader { archive };
     GuestFiles files {};
-    if (!loader.ReadFiles(files)) return false;
+    if (!loader.ReadFiles(files)) {
+        return false;
+    }
 
     GuestLayout expected {};
-    if (!BootLoader::CalculateLayout(files, expected)) return false;
+    if (!BootLoader::CalculateLayout(files, expected)) {
+        return false;
+    }
 
     GuestLayout layout {};
-    if (!loader.Load(layout)) return false;
+    if (!loader.Load(layout)) {
+        return false;
+    }
 
     const uint8_t* kernel { static_cast<const uint8_t*>(
             HostMmu::PaToVa(layout.IpaToHostPa(layout.kernelIpa))) };
@@ -212,7 +238,9 @@ static bool test_load_patches_guest_dtb() {
     const MemoryMap& map { TestRunner::BootMemoryMap() };
     cpio::Archive archive { archiveBytes(map), map.cpioArchiveSize };
     GuestLayout layout {};
-    if (!BootLoader { archive }.Load(layout)) return false;
+    if (!BootLoader { archive }.Load(layout)) {
+        return false;
+    }
 
     void* dtb { HostMmu::PaToVa(layout.IpaToHostPa(layout.dtbIpa)) };
     uint8_t* memoryReg { findMemoryRegData(dtb) };

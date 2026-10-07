@@ -24,7 +24,9 @@ void uartSink(char ch) {
     log::detail::FormatLineToSink(uartSink, "=             HV PANIC                =");
     log::detail::FormatLineToSink(uartSink, "=======================================");
 
-    if (msg) log::detail::FormatLineToSink(uartSink, "[ERROR] {}", msg);
+    if (msg) {
+        log::detail::FormatLineToSink(uartSink, "[ERROR] {}", msg);
+    }
 
     RegisterDump(ctx);
 
@@ -41,7 +43,9 @@ void uartSink(char ch) {
     log::detail::FormatLineToSink(uartSink, "=             HV PANIC                =");
     log::detail::FormatLineToSink(uartSink, "=======================================");
 
-    if (msg) log::detail::FormatLineToSink(uartSink, "[ERROR] {}", msg);
+    if (msg) {
+        log::detail::FormatLineToSink(uartSink, "[ERROR] {}", msg);
+    }
 
     // Dump System Register State
     uint64_t esr {};

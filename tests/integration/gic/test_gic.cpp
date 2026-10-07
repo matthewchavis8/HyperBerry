@@ -221,7 +221,9 @@ EndToEndCapture runEndToEnd() {
     trace("runEndToEnd: enter");
     EndToEndCapture capture {};
     test::Binary binary { "tests/gic.bin" };
-    if (!binary.GetEntry()) return capture;
+    if (!binary.GetEntry()) {
+        return capture;
+    }
 
     trace("runEndToEnd: Gic reset");
     Gic::GetInstance().Reset();
@@ -289,8 +291,8 @@ EndToEndCapture runEndToEnd() {
             vcpu.GetRegisters().pc);
     restoreVbar(savedVbar);
 
-    capture.guestExited = exit.reason == ExitReason::SYNC &&
-            GetEsrEc(exit.syndrome) == EsrEc::HVC_AARCH64;
+    capture.guestExited =
+            exit.reason == ExitReason::SYNC && GetEsrEc(exit.syndrome) == EsrEc::HVC_AARCH64;
     trace("runEndToEnd: read guest x0");
     capture.guestSawVirtIrq = (vcpu.GetRegisters().x[0] & 0x3FFU) == kVirtIrq;
     trace("runEndToEnd: read physical active");

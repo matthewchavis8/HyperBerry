@@ -30,15 +30,17 @@ TEST(Cpio, FindsFilesAndIteratesDirectories) {
     uint64_t cursor {};
     cpio::Entry entry {};
     unsigned count {};
-    while (archive.Next(cursor, entry))
+    while (archive.Next(cursor, entry)) {
         ++count;
+    }
     EXPECT_EQ(count, 3);
 }
 
 TEST(Cpio, RejectsEveryTruncationBeforeTrailerEnds) {
     auto bytes { archive() };
-    for (size_t size {}; size < bytes.size(); ++size)
+    for (size_t size {}; size < bytes.size(); ++size) {
         EXPECT_NE(cpio::Archive(bytes.data(), size).GetError(), cpio::Error::NONE) << size;
+    }
 }
 
 TEST(Cpio, RejectsInvalidRegions) {

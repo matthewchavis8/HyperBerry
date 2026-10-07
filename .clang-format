@@ -5,6 +5,7 @@ AlignEscapedNewlines: Left
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
+InsertBraces: true
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false

@@ -27,13 +27,21 @@ VcpuExit Vm::Enter() {
     return m_lastExit;
 }
 
-void Vm::Stop(VmState state) { m_state = state; }
+void Vm::Stop(VmState state) {
+    m_state = state;
+}
 
-GuestRegisters& Vm::GetRegisters() noexcept { return m_vcpu.GetRegisters(); }
+GuestRegisters& Vm::GetRegisters() noexcept {
+    return m_vcpu.GetRegisters();
+}
 
-VmState Vm::GetState() const noexcept { return m_state; }
+VmState Vm::GetState() const noexcept {
+    return m_state;
+}
 
-const VcpuExit& Vm::GetLastExit() const noexcept { return m_lastExit; }
+const VcpuExit& Vm::GetLastExit() const noexcept {
+    return m_lastExit;
+}
 
 [[nodiscard]] std::string_view Vm::GetName() const noexcept {
     return m_name;

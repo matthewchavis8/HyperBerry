@@ -29,8 +29,9 @@ uint8_t Pmm::bitmapToggle(uint64_t addr, uint32_t order) {
     size_t byteIdx { bitIdx >> 3 };
     if (byteIdx >= BITMAP_BYTES) {
         Log::Println("[ERROR] PMM bitmap overflow");
-        for (;;)
+        for (;;) {
             asm volatile("wfe");
+        }
     }
     uint8_t mask { (uint8_t)(1u << (bitIdx & 7u)) };
 
@@ -46,7 +47,9 @@ void Pmm::listPush(uint64_t addr, uint32_t order) {
 
 uint64_t Pmm::listPop(uint32_t order) {
     FreeNode* node { m_freeLists[order] };
-    if (node == nullptr) return 0;
+    if (node == nullptr) {
+        return 0;
+    }
     m_freeLists[order] = node->next;
     return reinterpret_cast<uint64_t>(node);
 }
@@ -79,8 +82,12 @@ void Pmm::reserveRegion(uint64_t base, uint64_t size) {
         for (int32_t o { (int32_t)MAX_ORDER }; o >= 0; o--) {
             uint64_t blockSize { (uint64_t)PAGE_SIZE << o };
 
-            if ((addr & (blockSize - 1)) != 0) continue;
-            if (addr + blockSize > end) continue;
+            if ((addr & (blockSize - 1)) != 0) {
+                continue;
+            }
+            if (addr + blockSize > end) {
+                continue;
+            }
 
             if (listRemove(addr, (uint32_t)o)) {
                 bitmapToggle(addr, (uint32_t)o);
@@ -90,7 +97,9 @@ void Pmm::reserveRegion(uint64_t base, uint64_t size) {
             }
         }
 
-        if (!removed) addr += PAGE_SIZE;
+        if (!removed) {
+            addr += PAGE_SIZE;
+        }
     }
 }
 
@@ -101,7 +110,9 @@ Pmm& Pmm::GetInstance() {
 
 
 uint64_t Pmm::AllocPages(uint32_t order) {
-    if (order > MAX_ORDER) return 0;
+    if (order > MAX_ORDER) {
+        return 0;
+    }
 
     // Find the order level
     uint32_t found { MAX_ORDER + 1 };
@@ -111,7 +122,9 @@ uint64_t Pmm::AllocPages(uint32_t order) {
             break;
         }
     }
-    if (found > MAX_ORDER) return 0;
+    if (found > MAX_ORDER) {
+        return 0;
+    }
 
     // We found a buddy block that fits the request so allocate it
     uint64_t addr { listPop(found) };
@@ -129,7 +142,9 @@ uint64_t Pmm::AllocPages(uint32_t order) {
 }
 
 void Pmm::FreePages(uint64_t addr, uint32_t order) {
-    if (addr == 0 || order > MAX_ORDER) return;
+    if (addr == 0 || order > MAX_ORDER) {
+        return;
+    }
 
     while (order < MAX_ORDER) {
         uint64_t buddy { buddyOf(addr, order) };
@@ -146,7 +161,9 @@ void Pmm::FreePages(uint64_t addr, uint32_t order) {
             return;
         }
 
-        if (buddy < addr) addr = buddy;
+        if (buddy < addr) {
+            addr = buddy;
+        }
 
         order++;
     }
@@ -167,8 +184,9 @@ void Pmm::SetMemoryMap(const MemoryMap& map) {
 
     if (m_size > MAX_POOL_SIZE) {
         Log::Println("[PMM][ERROR] PMM pool larger than supported bitmap");
-        for (;;)
+        for (;;) {
             asm volatile("wfe");
+        }
     }
 
     Log::Println("[PMM] Initialising buddy allocator");
@@ -233,4 +251,3 @@ void Pmm::DumpState() const {
         Log::Println("  [order] {} [size] {:x} [free] {}", o, (uint64_t)PAGE_SIZE << o, count);
     }
 }
-

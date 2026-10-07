@@ -10,6 +10,6 @@ enum class Action : uint8_t { RESUME, SHUTDOWN, RESET };
 
 [[nodiscard]] Action Handle(GuestRegisters& registers, uint32_t immediate);
 
-}
+} // namespace Hvc
 
 #endif

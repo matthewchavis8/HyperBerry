@@ -17,24 +17,34 @@ uint64_t* rootTable() {
 
 uint64_t* walkToL2Entry(uint64_t va) {
     uint64_t* l0 { rootTable() };
-    if (!l0) return nullptr;
+    if (!l0) {
+        return nullptr;
+    }
 
     uint64_t l0_entry { l0[L0_INDEX(va)] };
-    if (!pte_is_table(l0_entry)) return nullptr;
+    if (!pte_is_table(l0_entry)) {
+        return nullptr;
+    }
 
     uint64_t* l1 { pte_next_table(l0_entry) };
     uint64_t l1_entry { l1[L1_INDEX(va)] };
-    if (!pte_is_table(l1_entry)) return nullptr;
+    if (!pte_is_table(l1_entry)) {
+        return nullptr;
+    }
 
     uint64_t* l2 { pte_next_table(l1_entry) };
     return &l2[L2_INDEX(va)];
 }
 
 bool entryMatches(uint64_t* entry, uint64_t pa, uint64_t flags) {
-    if (!entry) return false;
+    if (!entry) {
+        return false;
+    }
 
     uint64_t value { *entry };
-    if (!pte_is_block(value)) return false;
+    if (!pte_is_block(value)) {
+        return false;
+    }
 
     return (value & PTE_ADDR_MASK) == (pa & PTE_ADDR_MASK) &&
             (value & ~PTE_ADDR_MASK) == (flags | PTE_BLOCK);

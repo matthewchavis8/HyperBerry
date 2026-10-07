@@ -6,7 +6,9 @@
 
 static bool test_alloc_order0_succeeds() {
     uint64_t addr { Pmm::GetInstance().AllocPages(0) };
-    if (addr == 0) return false;
+    if (addr == 0) {
+        return false;
+    }
 
     Pmm::GetInstance().FreePages(addr, 0);
     return true;
@@ -14,7 +16,9 @@ static bool test_alloc_order0_succeeds() {
 
 static bool test_alloc_page_aligned() {
     uint64_t addr { Pmm::GetInstance().AllocPages(0) };
-    if (addr == 0) return false;
+    if (addr == 0) {
+        return false;
+    }
 
     bool aligned { (addr & (PAGE_SIZE - 1)) == 0 };
     Pmm::GetInstance().FreePages(addr, 0);
@@ -23,11 +27,15 @@ static bool test_alloc_page_aligned() {
 
 static bool test_free_and_realloc() {
     uint64_t a { Pmm::GetInstance().AllocPages(0) };
-    if (a == 0) return false;
+    if (a == 0) {
+        return false;
+    }
 
     Pmm::GetInstance().FreePages(a, 0);
     uint64_t b { Pmm::GetInstance().AllocPages(0) };
-    if (b == 0) return false;
+    if (b == 0) {
+        return false;
+    }
 
     Pmm::GetInstance().FreePages(b, 0);
     return true;
@@ -41,7 +49,9 @@ static bool test_alloc_too_large_fails() {
 static bool test_alloc_two_different() {
     uint64_t a { Pmm::GetInstance().AllocPages(0) };
     uint64_t b { Pmm::GetInstance().AllocPages(0) };
-    if (a == 0 || b == 0) return false;
+    if (a == 0 || b == 0) {
+        return false;
+    }
 
     bool different { (a != b) };
     Pmm::GetInstance().FreePages(a, 0);

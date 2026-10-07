@@ -29,7 +29,9 @@ Uart& Uart::GetInstance() {
 }
 
 void Uart::SetBase(uint64_t base) {
-    if (base == m_base) return;
+    if (base == m_base) {
+        return;
+    }
 
     m_base = base;
     configure();

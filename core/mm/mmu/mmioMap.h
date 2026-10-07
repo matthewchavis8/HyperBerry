@@ -68,12 +68,14 @@ public:
     bool Add(const MmioWindow& want) {
         for (const MmioWindow& have : *this) {
             if (have.base == want.base && have.pa == want.pa && have.size == want.size &&
-                    have.byPage == want.byPage)
+                    have.byPage == want.byPage) {
                 return true;
+            }
         }
 
-        if (m_count == MMIO_MAX_WINDOWS)
+        if (m_count == MMIO_MAX_WINDOWS) {
             return false;
+        }
 
         m_windows[m_count++] = want;
         return true;
@@ -82,8 +84,9 @@ public:
     // @return true when some window already maps @p addr.
     [[nodiscard]] bool Covers(uint64_t addr) const {
         for (const MmioWindow& window : *this) {
-            if (addr >= window.base && addr < window.base + window.size)
+            if (addr >= window.base && addr < window.base + window.size) {
                 return true;
+            }
         }
 
         return false;

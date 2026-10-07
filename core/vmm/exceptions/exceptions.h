@@ -31,7 +31,6 @@ extern "C" {
 [[noreturn]] void handle_el2_fiq(El2ExceptionFrame& frame);
 [[noreturn]] void handle_el2_serror(El2ExceptionFrame& frame);
 [[noreturn]] void handle_unhandled(El2ExceptionFrame& frame);
-
 }
 
 #endif // __VMM_EXCEPTIONS_H__

@@ -101,27 +101,29 @@ inline void WriteUnsignedHex(Writer&& writer, uint64_t value) {
 
 template <typename Writer, typename T>
 inline void WriteValue(Writer&& writer, T value) {
-    if constexpr (__is_same(T, decltype(nullptr)))
+    if constexpr (__is_same(T, decltype(nullptr))) {
         WriteUnsignedHex(writer, 0U);
-    else if constexpr (__is_same(T, const char*) || __is_same(T, char*))
+    } else if constexpr (__is_same(T, const char*) || __is_same(T, char*)) {
         WriteCString(writer, value);
-    else if constexpr (__is_same(T, std::string_view)) {
-        for (char ch : value)
+    } else if constexpr (__is_same(T, std::string_view)) {
+        for (char ch : value) {
             writer(ch);
-    }
-    else if constexpr (kIsPointer<T>)
+        }
+    } else if constexpr (kIsPointer<T>) {
         WriteUnsignedHex(writer, reinterpret_cast<uint64_t>(value));
-    else if constexpr (__is_same(T, bool))
+    } else if constexpr (__is_same(T, bool)) {
         WriteCString(writer, value ? "true" : "false");
-    else if constexpr (__is_same(T, char))
+    } else if constexpr (__is_same(T, char)) {
         writer(value);
-    else if constexpr (__is_integral(T)) {
-        if constexpr (kIsSigned<T>)
+    } else if constexpr (__is_integral(T)) {
+        if constexpr (kIsSigned<T>) {
             WriteSignedDecimal(writer, static_cast<int64_t>(value));
-        else
+        } else {
             WriteUnsignedDecimal(writer, static_cast<uint64_t>(value));
-    } else
+        }
+    } else {
         static_assert(AlwaysFalse<T>::kValue, "Unsupported log format type");
+    }
 }
 
 enum class FormatStep : uint8_t {

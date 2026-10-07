@@ -228,10 +228,14 @@ int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
 
         // Virtual Id was already pending do not inject
         uint32_t lrVal { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
-        if ((lrVal & 0x3FF) == virtId) return -1;
+        if ((lrVal & 0x3FF) == virtId) {
+            return -1;
+        }
 
         if ((elsr >> bit) & 1U) {
-            if (freeLr == -1) freeLr = static_cast<int>(i);
+            if (freeLr == -1) {
+                freeLr = static_cast<int>(i);
+            }
         }
     }
 
@@ -253,7 +257,9 @@ int Gic::InjectIrq(uint32_t virtId, uint32_t id) {
 bool Gic::HasPendingIrq() {
     for (uint32_t i {}; i < m_numLr; i++) {
         uint32_t lrVal { mmio::Read<uint32_t>(getFrameBase(Frame::HV), GicReg::Hv::LR0 + i * 4) };
-        if (lrVal & GicReg::Hv::LR_PENDING) return true;
+        if (lrVal & GicReg::Hv::LR_PENDING) {
+            return true;
+        }
     }
     return false;
 }
@@ -338,7 +344,9 @@ uintptr_t Gic::getFrameBase(Frame frame) const {
 }
 
 void Gic::SetBases(uint64_t dist, uint64_t cpu, uint64_t hv, uint64_t vcpu) {
-    if (dist == m_distBase && cpu == m_cpuBase && hv == m_hvBase && vcpu == m_vcpuBase) return;
+    if (dist == m_distBase && cpu == m_cpuBase && hv == m_hvBase && vcpu == m_vcpuBase) {
+        return;
+    }
 
     m_distBase = dist;
     m_cpuBase = cpu;

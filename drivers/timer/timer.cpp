@@ -54,7 +54,9 @@ void Timer::HandleIrq() noexcept {
     m_lastArmTicks = readCntVctEl0();
     writeCnthpTvalEl2(m_intervalTicks);
 
-    if (m_callback != nullptr) m_callback(m_ctx);
+    if (m_callback != nullptr) {
+        m_callback(m_ctx);
+    }
 }
 
 void Timer::SetIntervalTicks(uint64_t ticks) noexcept {

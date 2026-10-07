@@ -7,8 +7,8 @@ extern "C" uint64_t vcpu_read_sctlr();
 extern "C" void vcpu_run(Vcpu* vcpu, VcpuExit* exit);
 
 Vcpu::Vcpu(uint64_t entry) : m_registers { .pc = entry } {
-    constexpr uint64_t DISABLED_CONTROLS { (1ULL << 0) | (1ULL << 1) |
-            (1ULL << 2) | (1ULL << 3) | (1ULL << 12) };
+    constexpr uint64_t DISABLED_CONTROLS { (1ULL << 0) | (1ULL << 1) | (1ULL << 2) | (1ULL << 3) |
+        (1ULL << 12) };
     m_system.sctlr = vcpu_read_sctlr() & ~DISABLED_CONTROLS;
 }
 

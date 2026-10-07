@@ -59,6 +59,12 @@ uint64_t callId { gpr[0] };
 
 Braces refuse a narrowing conversion that `=` accepts without a word.
 
+## Statements
+
+**Every `if`, `else`, `for` and `while` body has braces, even a single statement.**
+`.clang-format` inserts them with `InsertBraces`, and `.clang-tidy` flags a missing
+pair through `readability-braces-around-statements`.
+
 ## Singletons
 
 One instance of a device is a function local static, not a namespace scope

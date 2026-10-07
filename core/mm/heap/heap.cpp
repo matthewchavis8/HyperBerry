@@ -6,7 +6,8 @@
 // The allocator publishes itself only through the global C++17 freestanding
 // allocation/deallocation operators below. There is no malloc-style API.
 
-// TODO: I deleted the space between the include guards in teh REPO YOU NEVER HAVE SPACES scan through and fix these for includer guards
+// TODO: I deleted the space between the include guards in teh REPO YOU NEVER HAVE SPACES scan
+// through and fix these for includer guards
 #include "heap.h"
 #include "core/mm/pmm/pmm.h"
 #include <cstddef>
@@ -34,7 +35,9 @@ uint32_t orderForBytes(size_t total) {
     uint32_t order { 0 };
     uint64_t span { PAGE_SIZE };
     while (span < total) {
-        if (order >= MAX_ORDER) return MAX_ORDER + 1;
+        if (order >= MAX_ORDER) {
+            return MAX_ORDER + 1;
+        }
         span <<= 1;
         ++order;
     }
@@ -50,17 +53,24 @@ Heap& Heap::GetInstance() {
 
 size_t Heap::pickClass(size_t size, size_t align) {
     size_t need { size > align ? size : align };
-    if (need > MAX_SLAB_SIZE) return NO_SLAB_CLASS;
-    // TODO: We can use a for range loop here make sure throughout teh repo we use a for range when things are most suiitable
+    if (need > MAX_SLAB_SIZE) {
+        return NO_SLAB_CLASS;
+    }
+    // TODO: We can use a for range loop here make sure throughout teh repo we use a for range when
+    // things are most suiitable
     for (size_t i { 0 }; i < SLAB_CLASSES.size(); ++i) {
-        if (SLAB_CLASSES[i] >= need) return i;
+        if (SLAB_CLASSES[i] >= need) {
+            return i;
+        }
     }
     return NO_SLAB_CLASS;
 }
 
 Heap::SlabHeader* Heap::newSlab(size_t classIdx) {
     uint64_t pageAddr { Pmm::GetInstance().AllocPages(0) };
-    if (pageAddr == 0) return nullptr;
+    if (pageAddr == 0) {
+        return nullptr;
+    }
 
     auto* hdr { reinterpret_cast<SlabHeader*>(pageAddr) };
     hdr->magic = SLAB_MAGIC;
@@ -85,12 +95,15 @@ Heap::SlabHeader* Heap::newSlab(size_t classIdx) {
 
 void* Heap::allocFromSlab(size_t classIdx) {
     SlabHeader* hdr { m_slabs[classIdx] };
-    while (hdr != nullptr && hdr->freeList == nullptr)
+    while (hdr != nullptr && hdr->freeList == nullptr) {
         hdr = hdr->next;
+    }
 
     if (hdr == nullptr) {
         hdr = newSlab(classIdx);
-        if (hdr == nullptr) return nullptr;
+        if (hdr == nullptr) {
+            return nullptr;
+        }
         hdr->next = m_slabs[classIdx];
         m_slabs[classIdx] = hdr;
     }
@@ -117,10 +130,14 @@ void* Heap::allocLarge(size_t size, size_t align) {
     size_t userOffset { (hdrSize + align - 1) & ~(align - 1) };
     size_t total { userOffset + size };
     uint32_t order { orderForBytes(total) };
-    if (order > MAX_ORDER) return nullptr;
+    if (order > MAX_ORDER) {
+        return nullptr;
+    }
 
     uint64_t addr { Pmm::GetInstance().AllocPages(order) };
-    if (addr == 0) return nullptr;
+    if (addr == 0) {
+        return nullptr;
+    }
 
     // Wipe the first cache line at the allocation start so the slab-magic
     // probe in deallocate cannot accidentally match leftover PMM data.
@@ -137,7 +154,9 @@ void* Heap::allocLarge(size_t size, size_t align) {
 void Heap::freeLarge(void* ptr) {
     auto* hdr { reinterpret_cast<LargeHeader*>(
             reinterpret_cast<uint8_t*>(ptr) - sizeof(LargeHeader)) };
-    if (hdr->magic != LARGE_MAGIC) HvPanic("[HEAP] large free: bad magic");
+    if (hdr->magic != LARGE_MAGIC) {
+        HvPanic("[HEAP] large free: bad magic");
+    }
 
     uint32_t order { hdr->order };
     uint32_t userOffset { hdr->userOffset };
@@ -148,17 +167,25 @@ void Heap::freeLarge(void* ptr) {
 }
 
 void* Heap::Allocate(size_t size, size_t align) {
-    if (size == 0) size = 1;
-    if (align < DEFAULT_NEW_ALIGN) align = DEFAULT_NEW_ALIGN;
+    if (size == 0) {
+        size = 1;
+    }
+    if (align < DEFAULT_NEW_ALIGN) {
+        align = DEFAULT_NEW_ALIGN;
+    }
 
     size_t classIdx { pickClass(size, align) };
-    if (classIdx < NO_SLAB_CLASS) return allocFromSlab(classIdx);
+    if (classIdx < NO_SLAB_CLASS) {
+        return allocFromSlab(classIdx);
+    }
 
     return allocLarge(size, align);
 }
 
 void Heap::Deallocate(void* ptr) {
-    if (ptr == nullptr) return;
+    if (ptr == nullptr) {
+        return;
+    }
 
     // Slab slots are never page-aligned (firstSlotOffset > 0 for every class),
     // so a page-aligned pointer can only have come from a large allocation.
@@ -188,12 +215,16 @@ void Heap::Deallocate(void* ptr) {
 
 void* operator new(size_t size) {
     void* p { Heap::GetInstance().Allocate(size, DEFAULT_NEW_ALIGN) };
-    if (p == nullptr) HvPanic("[HEAP] operator new failed");
+    if (p == nullptr) {
+        HvPanic("[HEAP] operator new failed");
+    }
     return p;
 }
 void* operator new[](size_t size) {
     void* p { Heap::GetInstance().Allocate(size, DEFAULT_NEW_ALIGN) };
-    if (p == nullptr) HvPanic("[HEAP] operator new[] failed");
+    if (p == nullptr) {
+        HvPanic("[HEAP] operator new[] failed");
+    }
     return p;
 }
 void operator delete(void* p) noexcept {
@@ -211,12 +242,16 @@ void operator delete[](void* p, size_t) noexcept {
 
 void* operator new(size_t size, std::align_val_t a) {
     void* p { Heap::GetInstance().Allocate(size, static_cast<size_t>(a)) };
-    if (p == nullptr) HvPanic("[HEAP] aligned operator new failed");
+    if (p == nullptr) {
+        HvPanic("[HEAP] aligned operator new failed");
+    }
     return p;
 }
 void* operator new[](size_t size, std::align_val_t a) {
     void* p { Heap::GetInstance().Allocate(size, static_cast<size_t>(a)) };
-    if (p == nullptr) HvPanic("[HEAP] aligned operator new[] failed");
+    if (p == nullptr) {
+        HvPanic("[HEAP] aligned operator new[] failed");
+    }
     return p;
 }
 void operator delete(void* p, std::align_val_t) noexcept {

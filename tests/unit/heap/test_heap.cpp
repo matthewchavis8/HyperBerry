@@ -22,7 +22,9 @@ Pmm& Pmm::GetInstance() {
 }
 
 uint64_t Pmm::AllocPages(uint32_t order) {
-    if (order > MAX_ORDER) return 0;
+    if (order > MAX_ORDER) {
+        return 0;
+    }
     size_t bytes { static_cast<size_t>(PAGE_SIZE) << order };
     void* p { std::aligned_alloc(PAGE_SIZE, bytes) };
     return reinterpret_cast<uint64_t>(p);
@@ -90,8 +92,9 @@ TEST_F(HeapTest, ManySmallAllocationsAreDistinct) {
     }
     std::set<void*> uniq(ptrs.begin(), ptrs.end());
     EXPECT_EQ(uniq.size(), ptrs.size());
-    for (void* p : ptrs)
+    for (void* p : ptrs) {
         Heap::GetInstance().Deallocate(p);
+    }
 }
 
 TEST_F(HeapTest, LargeAllocationFallsBackToPages) {

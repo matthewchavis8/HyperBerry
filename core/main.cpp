@@ -79,6 +79,8 @@ extern "C" void hmain(uintptr_t dtb) {
     } else {
         Log::Println("[VM] Run rejected error={}", static_cast<unsigned>(result.error()));
     }
-    for (;;) asm volatile("wfe");
+    for (;;) {
+        asm volatile("wfe");
+    }
 #endif
 }

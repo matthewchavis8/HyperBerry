@@ -4,17 +4,17 @@
 
 namespace {
 namespace Psci {
-constexpr uint64_t VERSION { 0x84000000ULL };
-constexpr uint64_t SYSTEM_OFF { 0x84000008ULL };
-constexpr uint64_t SYSTEM_RESET { 0x84000009ULL };
-constexpr uint64_t FEATURES { 0x8400000AULL };
-constexpr uint64_t VERSION_1_0 { 0x00010000ULL };
+    constexpr uint64_t VERSION { 0x84000000ULL };
+    constexpr uint64_t SYSTEM_OFF { 0x84000008ULL };
+    constexpr uint64_t SYSTEM_RESET { 0x84000009ULL };
+    constexpr uint64_t FEATURES { 0x8400000AULL };
+    constexpr uint64_t VERSION_1_0 { 0x00010000ULL };
 
-bool Supports(uint64_t call) {
-    return call == VERSION || call == SYSTEM_OFF || call == SYSTEM_RESET || call == FEATURES;
-}
-}
-}
+    bool Supports(uint64_t call) {
+        return call == VERSION || call == SYSTEM_OFF || call == SYSTEM_RESET || call == FEATURES;
+    }
+} // namespace Psci
+} // namespace
 
 Hvc::Action Hvc::Handle(GuestRegisters& registers, uint32_t immediate) {
     auto& x { registers.x };

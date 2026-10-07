@@ -27,17 +27,16 @@ protected:
         deviceCount = 0;
     }
 
-    void TearDown() override {
-        vcpuTest::run = {};
-    }
+    void TearDown() override { vcpuTest::run = {}; }
 
     static VmConfig config() {
         return { "test VM", 0, 0x40000000, 0x200000, 2, 0x200000, 0x1FF000 };
     }
 };
-}
+} // namespace
 
-GuestMmu::GuestMmu(uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) :
+GuestMmu::GuestMmu(
+        uint64_t ipaBase, uint64_t hostPaBase, uint64_t sizeBytes, const MmioMap& devices) :
             m_table { nullptr, 0, 0 } {
     guestIpa = ipaBase;
     guestHostPa = hostPaBase;
